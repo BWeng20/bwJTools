@@ -103,6 +103,8 @@ public class PropertyGroup extends DefaultMutableTreeNode
     /**
      * Convenience getter.<br>
      * Same as (PropertyValue)getChildAt(index).
+     * @param index Index of the child-property.
+     * @return The property value.
      */
     public PropertyValue getPropertyAt(int index)
     {

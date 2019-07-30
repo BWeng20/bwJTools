@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui;
 
-import com.bw.jtools.persistence.Store;
+import com.bw.jtools.Application;
 import java.awt.Dimension;
 
 /**
@@ -58,7 +58,7 @@ public class HtmlViewer extends javax.swing.JFrame {
         close_ = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle(Store.AppName);
+        setTitle(Application.AppName);
         setResizable(true);
         if ( width > 0 && height > 0 )
             setPreferredSize(new Dimension(width,height));

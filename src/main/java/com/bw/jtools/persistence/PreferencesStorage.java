@@ -23,13 +23,14 @@ package com.bw.jtools.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
- * A IStorage implementation that stores all values in as Java Preferences.
+ * A StorageBase implementation that stores all values in as Java Preferences.
  */
-class PreferencesStorage implements IStorage
+class PreferencesStorage extends StorageBase
 {
     /**
      * The root key.<br>
@@ -37,6 +38,15 @@ class PreferencesStorage implements IStorage
      * "defaultsettings.properties".
      */
     public static String PREF_ROOT_KEY = "bweng";
+
+    /**
+     * Creates a new PrewfewrenceStorage.
+     * @param defaults Default settings or null.
+     */
+    public PreferencesStorage( Properties defaults )
+    {
+        super( defaults );
+    }
 
     /**
      * Get all keys.
@@ -54,7 +64,7 @@ class PreferencesStorage implements IStorage
     }
 
     @Override
-    public String getString(String key)
+    protected String getString_impl(String key)
     {
         return Preferences.userRoot().node(PREF_ROOT_KEY).get(key, null);
     }

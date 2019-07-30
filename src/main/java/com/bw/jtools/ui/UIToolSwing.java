@@ -34,18 +34,26 @@ import com.bw.jtools.Log;
 
 
 /**
- *
- *
+ * Collections of tools for using swing.
  */
 public final class UIToolSwing
 {
-    // Execute code inside the UI Thread (enables us to switch to other UI system, e.g. JavFX / Swing /AWT)
+    /**
+     * Execute code inside the UI Thread
+     * @param r The runnable to execute.
+     */
     public static void executeInUIThread( Runnable r )
     {
        SwingUtilities.invokeLater(r);
     }
 
 
+    /**
+     * Switch the double-buffered-attribute for
+     * a component and all sub-components.
+     * @param w The container to modify.
+     * @param enable The new "double buffered" state.
+     */
     public static void setDoubledBuffered( Container w, boolean enable)
     {
         for ( Component c : w.getComponents() )
@@ -58,12 +66,23 @@ public final class UIToolSwing
 
     private static final Icon dummyIcon = new DummyIcon();
 
-
+    /**
+     * Creates a swing icon from an image.
+     * @see #createButtonIcon(java.awt.image.BufferedImage, int)
+     * @param img The image to use.
+     * @return The created icon.
+     */
     public static Icon createButtonIcon( BufferedImage img )
     {
         return  createButtonIcon( img, 20 );
     }
 
+    /**
+     * Creates a swing icon from an image.
+     * @param img The image to use.
+     * @param targetHeight Height of the icon in pixel.
+     * @return The created icon.
+     */
     public static Icon createButtonIcon( BufferedImage img, int targetHeight )
     {
         Icon ic;
@@ -86,6 +105,12 @@ public final class UIToolSwing
     }
 
 
+    /**
+     * Creates an icon-button.
+     * @see IconCache#getIcon(java.lang.String)
+     * @param icon The name of the icon to use.
+     * @return The created button.
+     */
     public static JButton createIconButton( String icon )
     {
         JButton b = new JButton(IconCache.getIcon(icon));
@@ -97,6 +122,14 @@ public final class UIToolSwing
         return b;
     }
 
+    /**
+     * Creates an icon-button.<br>
+     * The application has to provide icons "icons/&lt;prefix&gt;.png" and
+     * "icons/&lt;prefix&gt;_ro.png".
+     * @see IconCache#getIcon(java.lang.String)
+     * @param iconPrefix The name-prefix for the icons to use.
+     * @return The created button.
+     */
     public static JButton createIconRolloverButton( String iconPrefix )
     {
         JButton b = createIconButton( iconPrefix+".png" );

@@ -21,8 +21,7 @@
 package com.bw.jtools.log;
 
 import com.bw.jtools.Log;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
 * Logger back-end that collects messages in memory.<br>
@@ -35,7 +34,7 @@ public class CollectorLogger extends Log.LoggerFacade
 {
     Log.LoggerFacade logger;
 
-    public List<String> messages = new ArrayList<>(1000);
+    public HashMap<Long,CollectorThreadLogger > threadLogger = new HashMap<>(10);
 
     /**
      * Creates a new CollectorLogger.
@@ -46,14 +45,42 @@ public class CollectorLogger extends Log.LoggerFacade
         this.logger = logger;
     }
 
-    protected void addMessage(int level, CharSequence msg)
+    protected synchronized void addMessage(int level, CharSequence msg)
     {
-        if ( this.level >= level )
+        CollectorThreadLogger tLogger = threadLogger.get( Thread.currentThread().getId() );
+        if ( tLogger != null )
         {
-            messages.add( getLevelPrefix(level)+" "+msg );
+            tLogger.addMessage( level, msg );
         }
     }
 
+    public synchronized CollectorThreadLogger getThreadLog( )
+    {
+        return threadLogger.get( Thread.currentThread().getId() );
+    }
+
+    public synchronized boolean hasThreadLog( )
+    {
+        return !threadLogger.isEmpty();
+    }
+
+
+    public synchronized void setThreadLog( CollectorThreadLogger tlog )
+    {
+        final long tid = Thread.currentThread().getId();
+        if ( tlog == null )
+            threadLogger.remove( tid );
+        else
+            threadLogger.put( tid, tlog );
+
+        int maxLevel = Log.NONE;
+        for ( CollectorThreadLogger tLogger : threadLogger.values() )
+        {
+            if (maxLevel < tLogger.level )
+                maxLevel = tLogger.level;
+        }
+        setLevel(maxLevel);
+    }
 
     @Override
     public void error(CharSequence msg)

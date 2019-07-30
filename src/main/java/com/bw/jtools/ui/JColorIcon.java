@@ -51,6 +51,11 @@ public final class JColorIcon implements Icon
      */
     protected Color borderColor_;
 
+    /**
+     * Border is drawn if true.
+     */
+    protected boolean borderPainted_ = true;
+
     protected final BasicStroke stroke_ = new BasicStroke(1f);
 
     /**
@@ -64,6 +69,16 @@ public final class JColorIcon implements Icon
         this.width_  = width;
         this.height_ = height;
         setColor(color);
+    }
+
+    /**
+     * Enabled or disables the border around the icon.
+     * @param border True to enable the border, false to disable it.
+     */
+    public void setBorderPainted( boolean border )
+    {
+        if ( borderPainted_ != border )
+            borderPainted_ = border;
     }
 
     /**
@@ -111,11 +126,13 @@ public final class JColorIcon implements Icon
         g2D.setColor(color_);
         g2D.fillRect(x ,y,width_ ,height_);
 
-        g2D.setRenderingHint( RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON );
-        g2D.setColor(borderColor_);
-        g2D.setStroke(stroke_);
-        g2D.drawRect(x, y, width_, height_);
-
+        if ( borderPainted_ )
+        {
+            g2D.setRenderingHint( RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON );
+            g2D.setColor(borderColor_);
+            g2D.setStroke(stroke_);
+            g2D.drawRect(x, y, width_, height_);
+        }
         g2D.dispose();
     }
 

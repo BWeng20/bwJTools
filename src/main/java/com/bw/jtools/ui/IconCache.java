@@ -5,8 +5,7 @@
  */
 package com.bw.jtools.ui;
 
-import static com.bw.jtools.io.IOTool.main_class_;
-import com.bw.jtools.persistence.Store;
+import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -34,9 +33,15 @@ public class IconCache
     private static HashMap<String, Icon> icons_ = new HashMap<>();
 
     /**
-     * Load an image from resources of the class {@link com.bw.jtools.io.IOTool#main_class_ IOTool.main_class_}.<br>
+     * Load an image from resources of the class
+     * {@link com.bw.jtools.Application#initialize(java.lang.Class) Application.initialize()}.<br>
      * The image is not cached. This method simply loads the image from
-     * the class-resources.
+     * the class-resources.<br>
+     * <u>Example</u>:
+     * <pre>
+     *   // Will load from resources: "/org/myorg/app/icons/MyIcon.png"
+     *   IconCache.getImage( org.myorg.app.icons.MyClass.class, "icons/MyIcon.png");
+     * </pre>
      *
      * @param name File name of the icon to load.
      * @return The image or null.
@@ -44,7 +49,7 @@ public class IconCache
      */
     public static BufferedImage getImage(String name) throws IOException
     {
-        return getImage(main_class_, name);
+        return getImage(Application.AppClass, name);
     }
 
     /**
@@ -64,7 +69,7 @@ public class IconCache
 
     /**
      * Gets a icon by name.<br>
-     * If the icon is not in cache (key is name) the icon is loaded
+     * If the icon is not in cache (key is the name) the icon is loaded
      * from the sub-package "icons" of the specified class.<br>
      *
      * @param clazz The class to use as resource-base.
@@ -97,19 +102,30 @@ public class IconCache
     }
 
     /**
-     * Gets a icon by name. The name has to be the file name of an image inside
-     * the sub-package "icons"of the application-class set via
-     * {@link com.bw.jtools.io.IOTool#main_class_ IOTool.main_class_}.
+     * Gets a icon by name.<br>
+     * The name has to be a file name of an image inside
+     * the sub-package "icons" of the application-class set via
+     * {@link com.bw.jtools.Application#initialize(java.lang.Class) Application.initialize()}.<br>
+     * <u>Example</u>:
+     * <pre>
+     *   // Somewhere earlier...
+     *   Store.initialize( org.myorg.app.MyClass.class );
+     *
+     *   ...
+     *   // Somewhere else...
+     *   // Will load from resources "/org/myorg/app/icons/MyIcon.png"
+     *   IconCache.getIcon("MyIcon.png");
+     * </pre>
      * @param name File name of the icon to load.
      * @return The icon or null.
      */
     public static Icon getIcon(String name)
     {
-        return getIcon(main_class_, name);
+        return getIcon(Application.AppClass, name);
     }
 
     /**
-     * Tries to find a application images that fits the preferred size.
+     * Tries to find a application images that fits the preferred size.<br>
      *
      * @param preferredSize The preferred size.
      * @return The image or null if no application image exists.
@@ -170,7 +186,29 @@ public class IconCache
     /**
      * Gets all icons from icons folder with name pattern "[AppName]_[size]x[size].png",
      * where "size" is from  16,20,26,28,32,40,64,128.<br>
-     * Missing icons are skipped silently.
+     * <br>
+     * <u>A full example:</u>
+     * <br>
+     * <pre>
+     *   // Somewhere at start-up...
+     *   Application.initialize( org.myorg.app.MyClass.class );
+     * </pre>
+     *   The Store will load defaults and application-name from the file
+     *   "org/myorg/app/defaultsettings.properties", e.g.:<br>
+     *   <pre>
+     *
+     *    application.name=My App
+     *    application.company=My Corp
+     *    application.version=1.0
+     *    ...
+     * </pre>
+     * Then the icon images are e.g.:<br>
+     * <ul>
+     * <li>org/myorg/app/icons/My App_16x16.png
+     * <li>org/myorg/app/icons/My App_32x32.png
+     * <li>org/myorg/app/icons/My App_64x64.png
+     * <li>...
+     * </ul>
      * @return The list of found images.
      */
     public static List<BufferedImage> getAppIconImages()
@@ -185,7 +223,7 @@ public class IconCache
                         BufferedImage bi;
                         try
                         {
-                            bi = getImage("icons/" + Store.AppName + "_" + s + "x" + s + ".png");
+                            bi = getImage("icons/" + Application.AppIconPrefix + "_" + s + "x" + s + ".png");
                         }
                         catch (Exception ex)
                         {

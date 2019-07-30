@@ -19,50 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.persistence;
-
-import java.util.List;
 
 /**
- * Interface for persistence back-ends.
+ * Tools to handle UI-stuff like icons and some (hopefully) use-full swing widgets.
  */
-public interface IStorage
-{
-    /**
-     * Get a string-value from storage.
-     * @param key The preference-key.
-     * @return The stored value or null.
-     */
-    public String getString(String key);
+package com.bw.jtools.ui;
 
-    /**
-     * Set a string-value in storage.
-     * @param key The preference-key.
-     * @param value The value.
-     */
-    public void setString(String key, String value);
-
-    /**
-     * Deleted a value from storage.
-     * @param key The preference-key.
-     */
-    public void deleteKey(String key);
-
-    /**
-     * Makes all changes persistent.
-     */
-    public void flush();
-
-    /**
-     * Removed all keys and values.
-     */
-    public void clear();
-
-    /**
-     * Gets a list with all keys that share some prefix.
-     * @param prefix The common prefix.
-     * @return The list of matching preferences.
-     */
-    public List<String> getKeysWithPrefix(String prefix);
-
-}

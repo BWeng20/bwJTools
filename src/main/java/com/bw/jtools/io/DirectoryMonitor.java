@@ -37,6 +37,14 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Light weight file monitoring.<br>
+ * Supports java.nio.file.WatchService or Poll-mode.<br>
+ *
+ * WatchService works well for local storage on e.g. windows and possibly for linux (watch-out for bugs!).<br>
+ * Watching a network-device may work under some conditions under windows, but is impossible for linux, as the
+ * inotify-API used for that supports only local storage.
+ */
 public class DirectoryMonitor
 {
     protected FileSystem fileSystem;
@@ -56,6 +64,9 @@ public class DirectoryMonitor
         }
     };
 
+    /**
+     * Enum to indicate the type of a file-system change.
+     */
     public static enum ChangeMode
     {
         CREATED,
@@ -196,7 +207,14 @@ public class DirectoryMonitor
     }
 
 
+    /**
+     * Property-key for poll time.
+     */
     public static final String KEY_POLL_TIME_MS = "filemonitor.pollTimeMS";
+
+    /**
+     * Property-key-prefix for path that needs polling.
+     */
     public static final String KEY_POLL_PATH_PREFIX = "filemonitor.pathToPoll.";
 
     private static final ArrayList<String> pathsToPoll = new ArrayList<>();
@@ -261,23 +279,36 @@ public class DirectoryMonitor
         return false;
     }
 
-
+    /**
+     * Creates a new Monitor.
+     */
     public DirectoryMonitor( )
     {
 
     }
 
+    /**
+     * Stops the monitor.
+     * Not yet implemented
+     */
     public void stop()
     {
-
+        //@TODO finally implement this!
     }
 
+    /**
+     * Get PathData instance for this path.<br>
+     * The canonical version of the path is used
+     * as key to retrieve the stored PathData.
+     * @param path The path.
+     * @return PathData for the path.
+     */
     public PathData getPathData( Path path )
     {
         try
         {
             File file = path.toFile();
-            // Try to canonicallize.
+            // Try to canonicalize.
             synchronized ( this.paths )
             {
                 return paths.get(file.getCanonicalFile().getPath());
@@ -394,12 +425,19 @@ public class DirectoryMonitor
 
     }
 
-    public synchronized void removePath( Path path, DirectoryMonitorListener l )
+    /**
+     * Remove the path from monitor.<br>
+     * A path is finally removed only if all on this path registered listeners
+     * are removed.
+     * @param path The path to remove.
+     * @param listener The listener that registered the path.
+     */
+    public synchronized void removePath( Path path, DirectoryMonitorListener listener )
     {
         PathData pd = getPathData( path );
         if ( pd != null )
         {
-            pd.listener.remove(l);
+            pd.listener.remove(listener);
             if (pd.listener.isEmpty())
             {
                 synchronized ( this.paths )

@@ -60,7 +60,9 @@ public class JExceptionDialog extends javax.swing.JDialog
 
       try
       {
-         mail_link_.setUri("mailto:Bernd.Wengenroth@gmx.de?subject="+Store.AppName+"%20Exception&body="+URLEncoder.encode(shortST, "UTF-8"));
+         mail_link_.setUri(
+                 Store.getString( Store.PREF_ERROR_REPORT_URL,
+                                  "mailto:info@company.com?subject=Exception&body=" )+URLEncoder.encode(shortST, "UTF-8") );
       }
       catch (UnsupportedEncodingException ex)
       {
@@ -92,7 +94,7 @@ public class JExceptionDialog extends javax.swing.JDialog
 
         mail_link_.setToolTipText("mailto:Bernd.Wengenroth@gmx.de");
         mail_link_.setAlias("Report Error");
-        mail_link_.setUri("mailto:Bernd.Wengenroth@gmx.de");
+        mail_link_.setUri("");
 
         button_close_.setText(UITool.getI18NText("button.close") );
         button_close_.setToolTipText("");

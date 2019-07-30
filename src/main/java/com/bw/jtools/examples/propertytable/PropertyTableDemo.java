@@ -21,11 +21,10 @@
  */
 package com.bw.jtools.examples.propertytable;
 
-import com.bw.jtools.io.IOTool;
-import com.bw.jtools.persistence.Store;
+import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.IconCache;
-import com.bw.jtools.ui.SettingsSwing;
+import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.properties.PropertyBooleanValue;
 import com.bw.jtools.ui.properties.PropertyColorValue;
 import com.bw.jtools.ui.properties.PropertyEnumValue;
@@ -39,8 +38,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.text.NumberFormat;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -75,11 +72,11 @@ public class PropertyTableDemo
 
     static public void main( String args[] )
     {
-        // Set "Main" class to tell the framework which base package shall
-        // be used for resources like icons.
-        IOTool.main_class_ = PropertyTableDemo.class;
-        // Framework initialize itself from the defaultsettings.properties.
+        // Initialize library.
+        Application.initialize( PropertyTableDemo.class );
 
+        // The librarie has now initialized itself from the defaultsettings.properties.
+        // parallel to the main-class.
 
         try
         {
@@ -109,9 +106,15 @@ public class PropertyTableDemo
         p.add( nb2 );
 
         PropertyValue nb3 = new PropertyValue("PropertyNode(Double.class) with default fraction", Double.class );
+
+        // Because the values has more fraction-digits than the default decimal format,
+        // the table will change the value to "123.456" if leaving the edit-mode, even if use has changed nothing!
+        // You will see an update of the "tableChanged"-counter in status-line if this happens.
         nb3.setUserObject( 123.4567 );
         p.add( nb3 );
 
+        // Normally you will not simply add properties. You will store a reference to the "ProperyValue" instance
+        // (or of the used derived class) and use this instance to sync the data with your own data-modell.
         p.add(new PropertyEnumValue("PropertyEnumNode<MyEnum>(MyEnum.FOUR)", MyEnum.FOUR ) );
         p.add(new PropertyEnumValue("PropertyEnumNode<MyEnum>(MyEnum.class )", MyEnum.class ) );
         p.add(new PropertyBooleanValue("PropertyBooleanNode(null)", null ) );
@@ -137,6 +140,9 @@ public class PropertyTableDemo
 
         final JLabel updateCounter = new JLabel("#tableChanged 0    ");
 
+        table.expandAll();
+        // table.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
+
         table.getModel().addTableModelListener(new TableModelListener()
         {
             long counter = 0;
@@ -148,9 +154,6 @@ public class PropertyTableDemo
                 updateCounter.setText("#tableChanged "+nf.format(++counter) );
             }
         });
-
-        table.expandAll();
-        // table.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
 
 
         frame = new JFrame("Property Table Demo");
@@ -211,21 +214,9 @@ public class PropertyTableDemo
         frame.setContentPane(panel);
         frame.pack();
 
-        // Restore window-positon and size.
-        SettingsSwing.loadWindowPosition(frame, "TableWindow");
-
-        frame.addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent e)
-            {
-                // Store window-positon and size.
-                SettingsSwing.storeWindowPosition(frame, "TableWindow");
-                // Most important: Make any change persistent:
-                Store.flushStorage();
-            }
-
-        });
+        // Restore window-position and dimension from prefences.
+        SettingsUI.loadWindowPosition(frame);
+        SettingsUI.storePositionAndFlushOnClose( frame );
 
         frame.setVisible(true);
 

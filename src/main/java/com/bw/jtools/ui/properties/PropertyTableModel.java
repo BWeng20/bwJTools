@@ -123,6 +123,8 @@ public class PropertyTableModel implements TableModel
 
     /**
      * Used by CellEditor.
+     * @param rowIndex The index of the row.
+     * @param columnIndex The index of the column.
      */
     public void fireTableChanged( int rowIndex, int columnIndex )
     {

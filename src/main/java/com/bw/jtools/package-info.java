@@ -19,52 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.ui;
-
-import java.awt.FlowLayout;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 
 /**
- * Panel to work as Tab-Component in a JTabbedPane.
- *
+ * A library to speed-up application development by providing re-usable tools.<br>
  */
-public class TabComponent extends JPanel
-{
-    public TabComponent(String name, Runnable closeAction )
-    {
-      super( new FlowLayout(FlowLayout.LEFT, 5, 0) );
-      if ( tab_icon_ == null )
-      {
-         tab_icon_    = IconCache.getIcon( "remove.png" );
-         tab_icon_ro_ = IconCache.getIcon( "remove_ro.png" );
-      }
+package com.bw.jtools;
 
-      setOpaque(false);
-
-      add( new JLabel(name));
-
-      if ( closeAction != null )
-      {
-        JButton close = new JButton(tab_icon_);
-        close.setContentAreaFilled (false);
-        close.setRolloverIcon(tab_icon_ro_);
-
-        close.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));
-        close.addActionListener( (actionEvent) ->
-        {
-            closeAction.run();
-        });
-        add( close );
-      }
-
-   }
-
-    static Icon tab_icon_;
-    static Icon tab_icon_ro_;
-
-}

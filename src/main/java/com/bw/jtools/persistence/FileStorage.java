@@ -21,6 +21,7 @@
  */
 package com.bw.jtools.persistence;
 
+import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,11 +32,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
- * A IStorage implementation that stores all values in one property-file.
+ * A StorageBase implementation that stores all values in a property-file.
  */
-class FileStorage implements IStorage
+class FileStorage extends StorageBase
 {
     private final Path path_;
     private final HashMap<String,String> values_ = new HashMap<>();
@@ -45,9 +47,11 @@ class FileStorage implements IStorage
     /**
      * Creates a storage with file to use.
      * @param storageFile The file to use.
+     * @param defaults Default settings or null.
      */
-    FileStorage( Path storageFile )
+    public FileStorage( Path storageFile, Properties defaults )
     {
+        super( defaults );
         path_ = storageFile;
     }
 
@@ -87,7 +91,7 @@ class FileStorage implements IStorage
 
 
     @Override
-    public synchronized String getString(String key)
+    protected synchronized String getString_impl(String key)
     {
         loadIfNeeded();
         return values_.get(key);
@@ -161,7 +165,7 @@ class FileStorage implements IStorage
 
                 try (BufferedWriter writer = Files.newBufferedWriter(path_,StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE ))
                 {
-                    writer.write("# "+Store.AppName+" Settings\n");
+                    writer.write("# "+Application.AppName+" Settings\n");
                     for ( String k : keys )
                     {
                         final String value = values_.get(k);

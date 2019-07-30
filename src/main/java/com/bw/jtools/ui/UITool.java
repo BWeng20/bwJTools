@@ -27,30 +27,48 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Facade to Swing / FX from UI independent source.
- * Currently it make no sense to introduce some interface-pattern for this stuff.
+ * Facade for creating Swing independent source-code and other
+ * UI related stuff.<br>
  */
 public final class UITool
 {
-    static public boolean javaFX = false;
-
-    // Execute code inside the FX Thread
+    /**
+     * Execute code inside the UI Thread.<br>
+     * Enables us to switch to other UI system, e.g.JavFX / Swing /AWT. Currently only Swing.<br>
+     * FX code was removed because FX is not really good for writing complex interactive widgets...
+     * @param r The runnable to execute.
+     */
     public static void executeInUIThread( Runnable r )
     {
-       UIToolSwing.executeInUIThread(r);
+        UIToolSwing.executeInUIThread(r);
     }
 
+    /**
+     * Shows "please wait".
+     * @param enable If true the wait-screen is shown, if false it is hidden.
+     * @see WaitSplash#showWait(boolean)
+     */
     public static void showWait( boolean enable )
     {
         WaitSplash.showWait(enable);
     }
 
+    /**
+     * Shows "please wait".
+     * @param enable If true the wait-screen is shown, if false it is hidden.
+     * @param message The message to show.
+     * @see WaitSplash#showWait(boolean, java.lang.String)
+     */
     public static void showWait( boolean enable, String message )
     {
         WaitSplash.showWait(enable, message);
     }
 
-
+    /**
+     * Escapes special characters to use in html-code.
+     * @param s The test to escape.
+     * @return The escaped html code.
+     */
     public static String escapeHTML(String s)
     {
        final int n = s.length();
@@ -69,18 +87,23 @@ public final class UITool
       return sb.toString();
     }
 
-    public static Color calculateContrastColor( Color background )
+    /**
+     * Calculates a color with hight contrast.<br>
+     * Should be used to caluclate e.g. a front-color based on a dynamic background-color.
+     *
+     * @param col Color to use as reference.
+     * @return Block or White, depending on input.
+     */
+    public static Color calculateContrastColor( Color col )
     {
        // Calculate lumiance. See https://en.wikipedia.org/wiki/Relative_luminance
-       final float luminance = 0.2126f*background.getRed()+ 0.7152f*background.getGreen() + 0.0722f*background.getBlue();
+       final float luminance = 0.2126f*col.getRed()+ 0.7152f*col.getGreen() + 0.0722f*col.getBlue();
        return (luminance < 130) ? Color.WHITE : Color.BLACK;
     }
-
 
     private static Locale currentLocale_;
     private static ResourceBundle resourceBundle_;
 
-   // Send all output to the Appendable object sb
     private final static String empty_string = "";
 
 
@@ -101,7 +124,7 @@ public final class UITool
     }
 
     /**
-     * Gets a static text.
+     * Gets a static text from library resource bundle.
      * @param key Text-Id that is used to get the text from the resource-bundle.
      * @return The language dependent text.
      */
@@ -117,8 +140,10 @@ public final class UITool
     }
 
     /**
-     * Applies a format-string.
-     * @param key Text-Id that is used to get the text from the resource-bundle.
+     * Applies a i18n text format-string.
+     * @see #getI18NText(java.lang.String)
+     *
+     * @param key Text-Id that is used to get the text from the library-resource-bundle.
      * @param arguments Argument list used in the format-pattern.
      * @return The formatted language dependent text.
      */

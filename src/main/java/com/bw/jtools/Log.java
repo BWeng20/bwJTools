@@ -22,6 +22,7 @@
 package com.bw.jtools;
 
 import com.bw.jtools.log.CollectorLogger;
+import com.bw.jtools.log.CollectorThreadLogger;
 import com.bw.jtools.log.ConsoleLogger;
 import com.bw.jtools.log.Log4JLogger;
 import java.io.PrintWriter;
@@ -106,7 +107,7 @@ public final class Log
         protected final static String ERROR_PREFIX = "[ERR]";
         protected final static String UNKNW_PREFIX = "";
 
-        protected static String getLevelPrefix( int level )
+        public static String getLevelPrefix( int level )
         {
             switch ( level )
             {
@@ -263,22 +264,17 @@ public final class Log
     }
 
     /**
-     * Starts collecting messages.<br>
+     * Starts collecting messages for the current thread.<br>
      * From this point until {@link #stopCollectMessages(java.util.List) stopCollectMessages}
-     * is called, all output that match the log.level is collected.<br>
+     * is called, all output in this thread that match the log.level is collected.<br>
      * This function was designed to provide "internal detail" data for some short-term
      * operation.<br>
-     * <b>TODO</b>: For multi-threaded applications it would make sense to restrict the collection
-     * to the current (calling) thread.
      * @param level The level to collect for.
      * @param includeStackTraces If Stack-Traces should be included.
      */
     static public void startCollectMessages(int level, boolean includeStackTraces)
     {
-        log = systemLogger;
-        collectorLog.setLevel(level);
-        collectorLog.maxStackTraceLines = includeStackTraces?10:0;
-        collectorLog.messages.clear();
+        collectorLog.setThreadLog( new CollectorThreadLogger(level, includeStackTraces?10:0 ) );
         log= collectorLog;
     }
 
@@ -290,13 +286,18 @@ public final class Log
      */
     static public void stopCollectMessages(List<String> messages)
     {
-        log = systemLogger;
-        if (messages != null)
+        CollectorThreadLogger tlog = collectorLog.getThreadLog();
+        collectorLog.setThreadLog( null );
+        if (!collectorLog.hasThreadLog())
         {
-            messages.addAll(collectorLog.messages);
+            log = systemLogger;
         }
-        collectorLog.messages.clear();
 
+        if (messages != null && tlog != null)
+        {
+            messages.addAll(tlog.messages);
+            tlog.messages.clear();
+        }
     }
 
     /**

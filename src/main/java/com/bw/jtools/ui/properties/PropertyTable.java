@@ -33,36 +33,36 @@ import org.netbeans.swing.outline.Outline;
  * There is no "introspector" that builds a table from some object via reflection.
  * A lot more effort needed to be done to support all kinds of data (e.g. lists).<br>
  * For all wise guys that now say: "Hey... That's easy, use java.beans.PropertyEditor!!!!".<br>
- * No!!! The PropertyEditor-Framework is not really good for inplace-editing inside a swing-based table.<br>
+ * No!!! I tried. The PropertyEditor-Framework is not really good for inplace-editing inside a swing-based table.<br>
  * <br>
  * A future version of this class may support some API to easily extent it for new data-types.
  * But not now.<br>
  * If needed, do it, the editor can easily be extended.<br>
  * <b>Check the Renderer and Editor-Classes!</b><br>
  * <br>
- * This class is based on an Netbeans widget - which can be used without any other Netbeans stuff around.<br>
+ * This class is based on a Netbeans widget - which can be used without any other Netbeans stuff around.<br>
  * The project contains a gradle reference to get this lib.<br>
  * Outline use a "JTree" column to show a collapsible tree structure. As
  * this table used only two levels (groups and properties), the layout of the first column is changed back to look like a table.<br>
  * <br>
  * <b>Edit-support is build-in for these data-types:</b>
  * <table style="vertical-align:top">
- * <caption>Editor support</caption>
+ * <caption></caption>
  * <tr><td><b>Type        </b></td><td><b>Used Editor</b></td></tr>
- * <tr><td><i>String      </i></td><td>Using a simple text field.</td></tr>
- * <tr><td><i>Number      </i></td><td>Using a text field and the default number-format to render and parse the numbers.<br>
+ * <tr><td><i>String      </i></td><td>A text field.</td></tr>
+ * <tr><td><i>Number      </i></td><td>A text field and the default number-format to render and parse the numbers.<br>
  *                                     Can be used with Float, Double, Integer, Long e.t.c. </td></tr>
- * <tr><td><i>Boolean     </i></td><td>Using a combo-box with an empty entry, "True" and "False".</td></tr>
- * <tr><td><i>Enumerations</i></td><td>Using a combo-box with an empty entry and all declared values.</td></tr>
- * <tr><td><i>Color       </i></td><td>Shows a small icon to indicate the current color and
- *                                     some text to show the RGB values.<br>
+ * <tr><td><i>Boolean     </i></td><td>Combo-box with an empty entry, "True" and "False" for data that can be null.<br>
+ *                                     A check-box for data that doesn't allow nulls.</td></tr>
+ * <tr><td><i>Enumerations</i></td><td>A combo-box with an empty entry (if null-capable) and all declared values.</td></tr>
+ * <tr><td><i>Color       </i></td><td>A small icon to indicate the current color and some text to show the RGB values.<br>
  *                                     If clicked, the Swing Color-Chooser is shown.
  *                                     </td></tr>
  * </table>
- *
- * Currently there is no concept to detect "nullable" values.<br>
- * So all properties are assumed to have null values.
- * This is also the reason "Boolean" is shown as combo-box and <i>not</i> as check-box.
+ * <br>
+ * All properties are marked as "nullable" per default. This can be changed by setting a member of PropertyValue<br>
+ * <br>
+ * Check out the example for this class: {@link com.bw.jtools.examples.propertytable.PropertyTableDemo PropertyTableDemo}.
  */
 public final class PropertyTable extends Outline
 {

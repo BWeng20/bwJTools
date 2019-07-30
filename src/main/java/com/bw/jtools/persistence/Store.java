@@ -21,6 +21,7 @@
  */
 package com.bw.jtools.persistence;
 
+import com.bw.jtools.Application;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,55 +32,133 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
-import com.bw.jtools.io.IOTool;
 import com.bw.jtools.Log;
 
 
 /**
- * Collection of methods to get and set Persistence Settings.
+ * Collection of methods to get and set Persistence Settings.<br>
+ * Some functionality relies on settings retrieved on static-initialization.<br>
+ * The application has to initialize the Store by calling {@link Application#initialize(java.lang.Class) } before
+ * accessing any methods from this library.
  */
 public class Store
 {
-    public static final String PREF_ERROR_REPORT_URL = "error.reportToUrl";
+    /**
+     * The name of the property file used to initialize this library and
+     * to provide defaults for properties.<br>
+     * Needs to be added to class-path, parallel to the application-class.<br>
+     * The value can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
+     * is called.
+     * @see #initialize(boolean)
+     * @see Application#initialize(java.lang.Class)
+     */
+    public static String DEFAULT_INI = "defaultsettings.properties";
 
-    private static IStorage storage_;
-    private static Path baseAppDir_;
+    /**
+     * The key of the property used as application name.<br>
+     * This key can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
+     * is called.
+     * @see #initialize(boolean)
+     */
+    public static String KEY_APPLICATION_NAME    = "application.name";
 
-    private static Properties defaults_;
+    /**
+     * The key of the property used as application name.<br>
+     * This key can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
+     * is called.
+     * @see #initialize(boolean)
+     */
+    public static String KEY_APPLICATION_COMPANY = "application.company";
 
-    public final static String  AppName;
-    public final static String  AppVersion;
-    public final static String  AppPropertyFile ;
+    /**
+     * The key of the property used as application icon prefix.<br>
+     * This key can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
+     * is called. If the property is not set, the application name is used as fallback.
+     * @see #KEY_APPLICATION_NAME
+     * @see #initialize(boolean)
+     */
+    public static String KEY_APPLICATION_ICON_PREFIX = "application.iconPrefix";
 
-    static
+    /**
+     * The key of the property used as application name.<br>
+     * This key can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
+     * is called.<br>
+     * If not set 'prefs.ini' will be used as default.
+     * @see #initialize(boolean)
+     */
+    public static String KEY_APPLICATION_PROPERTIES_FILE = "application.properties";
+
+    /**
+     * The key of the property used as application version.<br>
+     * This key can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
+     * is called.<br>
+     * After {@link #initialize(boolean) initialize()} the value can be accessed by
+     * {@link Application#AppVersion Application.AppVersion}.
+     * @see #initialize(boolean)
+     */
+    public static String KEY_APPLICATION_VERSION = "application.version";
+
+
+    /**
+     * Property-key for the URL-prefix for the exception-report-dialog.<br>
+     * The value can be added to default-properties or the system-properties by
+     * command line.
+     * <i>Example value</i>
+     */
+    public static String PREF_ERROR_REPORT_URL = "error.reportToUrl";
+
+    private static StorageBase storage_;
+
+    /**
+     * Property-file to use , retrieved from "defaultsettings.properties" on initialization.<br>
+     * Default is "prefs.ini".
+     */
+    public static String  AppPropertyFile ;
+
+
+    /**
+     * Needs to be called by the application as FIRST method before any
+     * other functionality is used from this class.<br>
+     * Don't call this method directly.Use {@link com.bw.jtools.Application#initialize(java.lang.Class) Application.initialize(Class)}.
+     * @param useSysPropsForDefault if true, the default are initialized from system-properties.
+     * @see System#getProperties()
+     * @see com.bw.jtools.Application#initialize(java.lang.Class)
+     */
+    static public void initialize( boolean useSysPropsForDefault)
     {
-
-        defaults_ = new Properties();
+        Properties defaults = useSysPropsForDefault ? new Properties(System.getProperties()) : new Properties();
         String appName = null;
         String company = null;
         String propFile= null;
         String version = null;
+        String appIconPrefix = null;
         boolean forcePropFile = false;
         try
         {
-            InputStream is = IOTool.main_class_.getResourceAsStream("defaultsettings.properties");
+            InputStream is = Application.AppClass.getResourceAsStream(DEFAULT_INI);
             if ( is != null )
             {
-                defaults_.load(is);
+                defaults.load(is);
                 is.close();
             }
 
-            appName = defaults_.getProperty("application.name", null);
-            company = defaults_.getProperty("application.company", null);
-            propFile= defaults_.getProperty("application.properties", null);
-            version = defaults_.getProperty("application.version", null);
+            appName = defaults.getProperty(KEY_APPLICATION_NAME);
+            company = defaults.getProperty(KEY_APPLICATION_COMPANY);
+            propFile= defaults.getProperty(KEY_APPLICATION_PROPERTIES_FILE);
+            version = defaults.getProperty(KEY_APPLICATION_VERSION);
+            appIconPrefix = defaults.getProperty(KEY_APPLICATION_ICON_PREFIX);
         }
         catch (IOException ex)
         {
         }
 
-        if ( appName == null || appName .isEmpty() ) appName = "java";
-        if ( company == null || company .isEmpty() ) company = "bweng";
+        if ( appName == null || appName .isEmpty() )
+        {
+            Log.warn("Property '"+KEY_APPLICATION_NAME+"' is not set, please check "+DEFAULT_INI);
+            appName = "MyApp";
+        }
+        if ( company == null || company .isEmpty() ) company = "MyCompany";
+
         if ( version == null ) version = "1.0";
         if ( propFile== null || propFile.isEmpty() )
         {
@@ -90,18 +169,29 @@ public class Store
             forcePropFile = true;
         }
 
+        if ( appIconPrefix != null )
+        {
+            appIconPrefix = appIconPrefix.trim();
+        }
+        if ( appIconPrefix == null || appIconPrefix.isEmpty() )
+        {
+            appIconPrefix = appName;
+        }
 
-        AppName         = appName;
-        AppVersion      = version;
+        Application.AppName         = appName;
+        Application.AppVersion      = version;
+        Application.AppCompany      = company;
+        Application.AppIconPrefix   = appIconPrefix;
+
         AppPropertyFile = propFile;
 
         PreferencesStorage.PREF_ROOT_KEY =  company+"/"+appName ;
 
-        // try to be Portable
+        // try to be Portable (local ini-file)
         try
         {
             // Get the location of the application jar/class-root
-            URL codeLocation = IOTool.main_class_.getProtectionDomain().getCodeSource().getLocation();
+            URL codeLocation = Application.AppClass.getProtectionDomain().getCodeSource().getLocation();
             if (codeLocation != null)
             {
                 Path folder = Paths.get( codeLocation.toURI()).toRealPath();
@@ -115,7 +205,7 @@ public class Store
 
                 if ( fileFolder.exists() && fileFolder.isDirectory() && fileFolder.canWrite() )
                 {
-                    baseAppDir_ = fileFolder.toPath();
+                    Application.setBaseAppDirectory( fileFolder.toPath() );
                 }
                 else
                 {
@@ -127,17 +217,21 @@ public class Store
         {
             // Possibly no permissions...
         }
-        if ( baseAppDir_ == null )
-            baseAppDir_ = Paths.get( System.getProperty("user.home"), "."+appName );
+
+        if ( null == Application.getBaseAppDirectory() )
+        {
+            // Try deduction of app-directory by application class.
+            Application.setBaseAppDirectory(null);
+        }
 
         Path propPath = null;
 
         try
         {
-            propPath = baseAppDir_.resolve(AppPropertyFile);
+            propPath = Application.getBaseAppDirectory().resolve(AppPropertyFile);
             if ( forcePropFile || Files.exists(propPath) )
             {
-                storage_ = new FileStorage( propPath );
+                storage_ = new FileStorage( propPath, defaults );
             }
         }
         catch (Exception e)
@@ -148,54 +242,64 @@ public class Store
         if ( storage_ == null )
         {
             // Be Persistent
-            storage_ = new PreferencesStorage();
-            baseAppDir_ = Paths.get( System.getProperty("user.home"), "."+appName );
+            storage_ = new PreferencesStorage(defaults);
         }
 
     }
 
-    private static void transferStorage( IStorage newStorage )
+    private static void transferStorage( StorageBase newStorage )
     {
         newStorage.clear();
         List<String> keys = storage_.getKeysWithPrefix("");
         for ( String key : keys )
         {
-            newStorage.setString(key, storage_.getString(key));
+            newStorage.setString(key, storage_.getString(key,null));
         }
         storage_ = newStorage;
     }
 
+    /**
+     * Enable or disable storage to java-preferences.<br>
+     * If enabled, the current settings are transferred to java-preferences.<br>
+     * If disabled, the current settings are transferred to file-storage.
+     * The new storage will not automatic be flushed.
+     * @param enable If true storage is transferred to java-preferences.
+     */
     public static void enablePreferences(boolean enable)
     {
         if ( isPreferencesEnabled() != enable )
         {
             if ( enable )
             {
-                transferStorage( new PreferencesStorage() );
+                transferStorage( new PreferencesStorage( storage_ == null ? null : storage_.getDefaults() ) );
             }
             else
             {
-                IStorage old = storage_;
-                transferStorage(new FileStorage(baseAppDir_.resolve(AppPropertyFile)));
+                StorageBase old = storage_;
+                transferStorage(
+                        new FileStorage(Application.getBaseAppDirectory().resolve(AppPropertyFile),
+                        storage_ == null ? null : storage_.getDefaults()));
 
                 old.clear();
             }
         }
     }
 
+    /**
+     * Checks if currently java-preferences are enabled.
+     * @return true if java-preferences is enabled.
+     */
     public static boolean isPreferencesEnabled()
     {
         return storage_ instanceof PreferencesStorage;
     }
 
-    public static Path getBaseAppDirectory()
-    {
-        return baseAppDir_;
-    }
-
+    /**
+     * Tries to create application base directory if it not exists currently.
+     */
     public static void createBaseAppDirectory()
     {
-       Path baseAppDataPath = getBaseAppDirectory();
+       Path baseAppDataPath = Application.getBaseAppDirectory();
        try
        {
          if ( ! Files.exists( baseAppDataPath ) )
@@ -214,91 +318,118 @@ public class Store
        }
     }
 
+    /**
+     * @see StorageBase#getString(java.lang.String)
+     * @param key The key of the property to get.
+     * @return The value, never null.
+     * @throws com.bw.jtools.persistence.MissingPropertyException Thrown if property is not set.
+     */
+    public static String getString(String key) throws MissingPropertyException
+    {
+        return storage_.getString(key);
+    }
 
+    /**
+     * @see StorageBase#getString(java.lang.String, java.lang.String)
+     * @param key The key of the property to get.
+     * @param def Default value in case key is missing.
+     * @return The retrieved value or given default.
+     */
     public static String getString(String key, String def)
     {
-        String v = storage_.getString(key);
-        if ( v == null)
-        {
-            v = (String)defaults_.getProperty(key);
-        }
-        if ( v == null)
-            return def;
-        else
-            return v;
+        return storage_.getString(key, def);
     }
 
+    /**
+     * @see StorageBase#getDouble(java.lang.String, double)
+     * @param key The key of the property to get.
+     * @param def Default value in case key is missing.
+     * @return The retrieved value or given default.
+     */
     public static double getDouble(String key, double def)
     {
-      try
-      {
-          final String val = Store.getString(key, String.valueOf(def) );
-          return Double.parseDouble(val);
-      }
-      catch ( Exception e)
-      {
-      }
-      return def;
+      return storage_.getDouble(key, def);
     }
 
+    /**
+     * @see StorageBase#setDouble(java.lang.String, double)
+     * @param key The key of the property to set.
+     * @param value The new value to set.
+     */
     public static void setDouble(String key, double value)
     {
-        Store.setString(key, String.valueOf(value));
+        storage_.setDouble(key, value);
     }
 
-
+    /**
+     * @see StorageBase#getInt(java.lang.String, int)
+     * @param key The key of the property to get.
+     * @param def Default value in case key is missing.
+     * @return The retrieved value or given default.
+     */
     public static int getInt(String key, int def)
     {
-      try
-      {
-          final String val = Store.getString(key, String.valueOf(def) );
-          return Integer.parseInt(val);
-      }
-      catch ( Exception e)
-      {
-      }
-      return def;
+      return storage_.getInt(key, def);
     }
 
+    /**
+     * @see StorageBase#setInt(java.lang.String, int)
+     * @param key The key of the property to set.
+     * @param value The new value to set.
+     */
     public static void setInt(String key, int value)
     {
-        Store.setString(key, String.valueOf(value));
+        storage_.setInt(key, value);
     }
 
-
+    /**
+     * @see StorageBase#getBoolean(java.lang.String, boolean)
+     * @param key The key of the property to get.
+     * @param def Default value in case key is missing.
+     * @return The retrieved value or given default.
+     */
     public static boolean getBoolean(String key, boolean def)
     {
-      try
-      {
-          final String val = Store.getString(key, def ? "On":"Off" );
-          return  val.equalsIgnoreCase("On"  ) ||
-                  val.equalsIgnoreCase("Yes" )||
-                  val.equalsIgnoreCase("True") ;
-      }
-      catch ( Exception e)
-      {
-      }
-      return def;
+        return storage_.getBoolean(key, def);
     }
 
+    /**
+     * @see StorageBase#setBoolean(java.lang.String, boolean)
+     * @param key The key of the property to set.
+     * @param value The new value to set.
+     */
     public static void setBoolean(String key, boolean value)
     {
-        Store.setString( key, value ? "On" : "Off" );
+        storage_.setBoolean(key, value);
     }
 
 
+    /**
+     * @see StorageBase#setString(java.lang.String, java.lang.String)
+     * @param key The key of the property to set.
+     * @param value The new value to set.
+     */
     public static void setString(String key, String value)
     {
         storage_.setString(key, value);
     }
 
+    /**
+     * @see StorageBase#getKeysWithPrefix(java.lang.String)
+     * @param prefix The prefix for which all keys shall be retrieved.
+     * @return The found list of keys.
+     */
     public static List<String> getKeysWithPrefix(String prefix)
     {
        return storage_.getKeysWithPrefix(prefix);
     }
 
-    // Sets a preference from an other if not set already (can be used to
-    // use other prefs as default)
+    /**
+     * Sets a preference from an other if not set already, Can be used to
+     * take over other preferences as defaults.
+     * @param keyFrom Source key to copy from.
+     * @param keyTo Target key to copy to.
+     */
     public static void copyIfNotSet(String keyFrom, String keyTo)
     {
         if (Store.getString(keyTo, null) == null)
@@ -309,14 +440,17 @@ public class Store
         }
     }
 
-    // Deletes a preference.
+    /**
+     * Deletes a property.
+     * @param key The key to delete.
+     */
     public static void deleteKey(String key)
     {
        storage_.deleteKey(key);
     }
 
     /**
-     * Flush all changes to storage.
+     * Flush all changes to storage-backend.
      */
     public static void flushStorage()
     {
