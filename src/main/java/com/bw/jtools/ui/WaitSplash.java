@@ -46,7 +46,7 @@ final public class WaitSplash extends javax.swing.JFrame
         {
             if (show)
             {
-               if ( text == null ) text = UITool.getI18NText("wait.message");
+               if ( text == null ) text = I18N.getText("wait.message");
                instance_.text_.setText(text);
                instance_.setLocationRelativeTo(null);
                instance_.toFront();
@@ -94,7 +94,7 @@ final public class WaitSplash extends javax.swing.JFrame
 
         text_.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         text_.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        text_.setText( UITool.getI18NText("wait.message") );
+        text_.setText( I18N.getText("wait.message") );
 
         javax.swing.GroupLayout background_panel_Layout = new javax.swing.GroupLayout(background_panel_);
         background_panel_.setLayout(background_panel_Layout);

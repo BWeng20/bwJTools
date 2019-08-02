@@ -16,6 +16,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -43,7 +44,7 @@ import org.netbeans.swing.outline.Outline;
  * This class is based on a Netbeans widget - which can be used without any other Netbeans stuff around.<br>
  * The project contains a gradle reference to get this lib.<br>
  * Outline use a "JTree" column to show a collapsible tree structure. As
- * this table used only two levels (groups and properties), the layout of the first column is changed back to look like a table.<br>
+ * this table used only two levels (groups and properties), so the layout of the first column is changed back to look like a table.<br>
  * <br>
  * <b>Edit-support is build-in for these data-types:</b>
  * <table style="vertical-align:top">
@@ -148,6 +149,11 @@ public final class PropertyTable extends Outline
         }
     }
 
+    @Override
+    protected JTableHeader createDefaultTableHeader() {
+        return new ProperyTableHeader(columnModel);
+    }
+
     /**
      * Constructs a new Table.
      */
@@ -165,9 +171,6 @@ public final class PropertyTable extends Outline
 
         new PropertyColumnResizeAdapter( this );
 
-        // Simply setting the header to null would disbale the "resize" functionality
-        // in TableColumnResizer
-        getTableHeader().setUI(null);
         setRootVisible(false);
         setRenderDataProvider(new PropertyTableDataProvider());
         setCellSelectionEnabled(false);
@@ -236,6 +239,14 @@ public final class PropertyTable extends Outline
         };
         am.put("editMe", editAction);
     }
+
+    @Override
+    public void updateUI()
+    {
+        super.updateUI();
+    }
+
+
 
     private boolean editable_;
 

@@ -22,7 +22,8 @@
 package com.bw.jtools.ui;
 
 import java.awt.Container;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -33,10 +34,19 @@ import javax.swing.JTabbedPane;
 /**
  * Panel to work as Tab-Component in a JTabbedPane.<br>
  * Contains a text and a "close"-icons with roll-over effect.<br>
- * The application have to provide two icons in the icons-folder:<br>
+ * The icons can be specified by c'tor-call or use the defaults.<br>
+ * In the second case the application have to provide two icons in the icons-folder:<br>
  * <i>"icons/tab_action.png"</i> and <i>"icons/tab_action_ro.png"</i>.<br>
- *
+ * <br>
+ * <i><u>Note about UI behavior:</u></i><br>
+ * The Swing-UI place the tab-component fixed at the
+ * center of the available tab-area.<br>
+ * So the button will not at the right border if the area gets too big.<br>
+ * This can't be configured or bypasses in some reliable way. <br>
+ * <br>
+ * Example {@link com.bw.jtools.examples.tabcomponent.JTabComponentDemo JTabComponentDemo}
  * @see IconCache#getIcon(java.lang.String)
+
  */
 public class JTabComponent extends JPanel
 {
@@ -47,14 +57,16 @@ public class JTabComponent extends JPanel
      * @param name The name to show.
      * @param icon The tab-icon or null.
      * @param action Runnable to call if the close button is pressed.
+     *               If null, the button will select the tab if clicked.
      * @param action_icon Icon for the button.
      * @param action_icon_ro Rollover-Icon for the button or null.
      */
     public JTabComponent(String name, Icon icon, Runnable action,
             Icon action_icon, Icon action_icon_ro)
     {
-        super(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        // Add some
+        super(new GridBagLayout());
+
+        // Create some gap to upper edge.
         setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
 
         if ( action_icon == null )
@@ -75,14 +87,24 @@ public class JTabComponent extends JPanel
         {
             label.setIcon(icon);
         }
-        add(label);
+
+        GridBagConstraints gc = new GridBagConstraints();
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.weightx = 1;
+        gc.gridy = 0;
+        gc.gridx = 0;
+        gc.gridwidth  = 1;
+        gc.gridheight = 1;
+        gc.fill = GridBagConstraints.HORIZONTAL;
+        add(label, gc);
 
         JButton actionButton = new JButton(action_icon);
         actionButton.setContentAreaFilled(false);
         if ( action_icon_ro != null )
             actionButton.setRolloverIcon(action_icon_ro);
 
-        actionButton.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        actionButton.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 0));
+        actionButton.setBorderPainted(false);
 
         if (action != null)
         {
@@ -109,7 +131,17 @@ public class JTabComponent extends JPanel
                  }
             });
         }
-        add(actionButton);
+        gc.anchor = GridBagConstraints.LINE_END;
+        gc.weightx = 0;
+        gc.gridx = 1;
+        gc.fill = GridBagConstraints.NONE;
+        add(actionButton, gc);
+    }
+
+    @Override
+    public void setBounds( int x, int y, int w, int h)
+    {
+        super.setBounds(x, y, w, h );
     }
 
     /**

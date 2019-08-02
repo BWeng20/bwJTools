@@ -67,7 +67,7 @@ public class HtmlViewer extends javax.swing.JFrame {
         text_.setContentType("text/html"); // NOI18N
         text_scroller_.setViewportView(text_);
 
-        close_.setText( UITool.getI18NText("button.close"));// NOI18N
+        close_.setText( I18N.getText("button.close"));// NOI18N
         close_.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)

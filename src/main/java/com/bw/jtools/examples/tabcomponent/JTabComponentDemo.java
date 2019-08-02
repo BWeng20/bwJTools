@@ -22,6 +22,7 @@ package com.bw.jtools.examples.tabcomponent;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
+import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.IconCache;
 import com.bw.jtools.ui.JColorIcon;
 import com.bw.jtools.ui.JTabComponent;
@@ -29,10 +30,17 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
@@ -40,30 +48,59 @@ import javax.swing.UIManager;
  */
 public class JTabComponentDemo
 {
-    static String LAF = null;
-    static UIManager.LookAndFeelInfo[] lafs;
-    static JFrame frame;
+    String LAF = null;
+    UIManager.LookAndFeelInfo[] lafs;
+    JFrame frame;
 
-    static JTabbedPane tpane = new JTabbedPane(JTabbedPane.TOP);
+    JTabbedPane tpane = new JTabbedPane(JTabbedPane.TOP);
 
-    static Color colors[] = new Color[] {
-        Color.BLUE, Color.GREEN, Color.GRAY,
-        Color.RED, Color.YELLOW, Color.ORANGE,
-        Color.MAGENTA, Color.LIGHT_GRAY, Color.CYAN
+    final Color colors[] = new Color[] {
+        Color.BLUE  , Color.GREEN  , Color.GRAY      , Color.RED , Color.YELLOW,
+        Color.ORANGE, Color.MAGENTA, Color.LIGHT_GRAY, Color.CYAN, Color.PINK
     };
 
-    static void insertTab( int atIndex, String name )
+    final Boolean used[] = new Boolean[]
+    {
+        Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,
+        Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,Boolean.FALSE
+    };
+
+    void insertTab( int atIndex )
     {
         final JPanel tabpanel = new JPanel( new BorderLayout() );
-        tabpanel.setPreferredSize(new Dimension(300,300));
-        tabpanel.add( new JLabel(name), BorderLayout.CENTER );
+        tabpanel.setPreferredSize(new Dimension(500,300));
+
+        int idx=0;
+        for ( ; idx<used.length; ++idx)
+        {
+            if (!used[idx]) break;
+        }
+        if ( idx >= used.length) return;
+
+        used[idx] = true;
+
+        String name = I18N.getText( ""+(idx+1));
+
+        final int index = idx;
+        used[index] = true;
+        final JLabel l = new JLabel( I18N.format("IAm",name) );
+        l.setHorizontalAlignment(SwingConstants.CENTER);
+        tabpanel.add( l, BorderLayout.CENTER );
+
+        l.addHierarchyListener(new HierarchyListener()
+        {
+            @Override
+            public void hierarchyChanged(HierarchyEvent arg0)
+            {
+                used[index] = frame.isAncestorOf(l);
+            }
+        });
 
         // Text and icon in this call are replaces by the following
         // setTabComponentAt call.
-        tpane.insertTab( "", null, tabpanel, "I am "+name, atIndex );
+        tpane.insertTab( "", null, tabpanel, null, atIndex );
 
-        JColorIcon icon = new JColorIcon(14,14,
-                colors[ tpane.getTabCount() % colors.length]);
+        JColorIcon icon = new JColorIcon(14,14, colors[ idx ]);
         icon.setBorderPainted(false);
 
         tpane.setTabComponentAt(atIndex, new JTabComponent(name,
@@ -76,13 +113,25 @@ public class JTabComponentDemo
                 }
             }));
 
+        tpane.setSelectedIndex(atIndex);
+        tabPane_lastIndex = atIndex;
+
     }
 
     static public void main( String args[] )
     {
+        JTabComponentDemo demo = new JTabComponentDemo();
+    }
 
+    int tabPane_lastIndex = 0;
+
+    public JTabComponentDemo()
+    {
         // Initialize library.
         Application.initialize( JTabComponentDemo.class );
+        I18N.addBundle("com.bw.jtools.examples.tabcomponent.i18n", JTabComponentDemo.class);
+
+        // UIManager.getDefaults().put("TabbedPane.tabsOverlapBorder", true);
 
         // The library is now initialized from the "defaultsettings.properties"
         // parallel to the main-class.
@@ -95,11 +144,15 @@ public class JTabComponentDemo
             e.printStackTrace();
         }
 
-        frame = new JFrame("JTabComponent Demonstration");
+        frame = new JFrame( I18N.getText("Title"));
 
-        insertTab( 0, "Tab One"  );
-        insertTab( 1, "Tab Two"  );
-        insertTab( 2, "Tab Three");
+        JPanel mainPanel = new JPanel( new BorderLayout());
+        mainPanel.add(tpane, BorderLayout.CENTER );
+        frame.setContentPane(mainPanel);
+
+        insertTab( 0 );
+        insertTab( 1 );
+        insertTab( 2 );
 
         final JLabel plusTab = new JLabel("");
 
@@ -108,20 +161,18 @@ public class JTabComponentDemo
 
         int plusIndex = tpane.getTabCount();
         tpane.addTab("", plusTab );
-        tpane.setTabComponentAt(plusIndex, new JTabComponent("",null,null,
+        tpane.setTabComponentAt(plusIndex, new JTabComponent(
+                "",null, () ->
+                {
+                    insertTab( 0 );
+                },
                 IconCache.getIcon("plus.png"), IconCache.getIcon("plus_ro.png")));
 
         // we have to ensure that this empty tab is never really
-        // activates, so we add a change listener.
-        // The listener can add new tab or switch back ti the last
-        // tab. E.g. you may need to open a document for the tab.
-        // If the user cancel this operation or if it fails,
-        // you have to switch back to the previous tab, otherwise
-        // the empty "+"-Tab will get active.
+        // activated, so we add a change listener.
+        // E.g. if user clicks on th etab, outside the action button.
         tpane.addChangeListener((changeEvent) ->
         {
-           int tabPane_lastIndex = 0;
-
            final Component selectedComp = tpane.getSelectedComponent();
            if ( selectedComp == plusTab )
            {
@@ -134,11 +185,6 @@ public class JTabComponentDemo
                else
                {
                     tpane.setSelectedIndex(tabPane_lastIndex);
-                    if ( tpane.getTabCount() < 10 )
-                    {
-                        insertTab( 0, "New Tab "+tpane.getTabCount() );
-                        tpane.setSelectedIndex(0);
-                    }
                }
            }
            else
@@ -147,10 +193,47 @@ public class JTabComponentDemo
            }
         });
 
+        JComboBox<String> lafCB = new JComboBox<>();
+        lafs = UIManager.getInstalledLookAndFeels();
+        for ( UIManager.LookAndFeelInfo laf : lafs )
+            lafCB.addItem( laf.getName() );
+
+        LAF = UIManager.getLookAndFeel().getName();
+        lafCB.setSelectedItem( LAF );
+
+        lafCB.addItemListener(new ItemListener()
+        {
+            @Override
+            public void itemStateChanged(ItemEvent ie)
+            {
+                String lafName = (String)lafCB.getSelectedItem();
+                if (!lafName.equals(LAF))
+                {
+                    LAF = lafName;
+                    for ( UIManager.LookAndFeelInfo laf : lafs )
+                        if ( laf.getName().equals(lafName) )
+                        {
+                            try
+                            {
+                                UIManager.setLookAndFeel(laf.getClassName());
+                                SwingUtilities.updateComponentTreeUI(frame);
+
+                                LAF = laf.getName();
+                            } catch (Exception ex)
+                            {
+                                ex.printStackTrace();
+                            }
+                            frame.repaint();
+                            break;
+                        }
+                }
+            }
+        });
+
+        mainPanel.add(lafCB, BorderLayout.SOUTH );
 
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setIconImages( IconCache.getAppIconImages() );
-        frame.setContentPane(tpane);
         frame.pack();
 
         frame.setLocationByPlatform(true);

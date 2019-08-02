@@ -18,36 +18,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.persistence;
+package com.bw.jtools.ui.properties;
 
-import com.bw.jtools.ui.I18N;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
 
 /**
- * Exception used in case some property is missing.
+ * Table-Header for PropertyTable that suppress display
+ * by forcing UI to null.
  */
-public final class MissingPropertyException extends Exception
+public class ProperyTableHeader extends JTableHeader
 {
-    protected String missingKey_;
-
-    /**
-     * Creates a new Exception for the specified key.
-     * @param keyMissing The missing key.
-     */
-    public MissingPropertyException( String keyMissing )
+    public ProperyTableHeader(TableColumnModel model)
     {
-        super( I18N.format("missingpropertyexception.message", keyMissing ));
-        this.missingKey_ = keyMissing;
+        super(model);
+        setUI(null);
     }
 
-    /**
-     * Gets the property key that was the reason for the exception.
-     * @return They name of the missing key.
-     */
-    public String getKey( )
+    @Override
+    public void updateUI()
     {
-        return missingKey_;
     }
-
 
 
 }

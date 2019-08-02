@@ -22,9 +22,6 @@
 package com.bw.jtools.ui;
 
 import java.awt.Color;
-import java.util.Formatter;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 /**
  * Facade for creating Swing independent source-code and other
@@ -89,7 +86,7 @@ public final class UITool
 
     /**
      * Calculates a color with hight contrast.<br>
-     * Should be used to caluclate e.g. a front-color based on a dynamic background-color.
+     * Should be used to calculate e.g. a front-color based on a dynamic background-color.
      *
      * @param col Color to use as reference.
      * @return Block or White, depending on input.
@@ -99,64 +96,6 @@ public final class UITool
        // Calculate lumiance. See https://en.wikipedia.org/wiki/Relative_luminance
        final float luminance = 0.2126f*col.getRed()+ 0.7152f*col.getGreen() + 0.0722f*col.getBlue();
        return (luminance < 130) ? Color.WHITE : Color.BLACK;
-    }
-
-    private static Locale currentLocale_;
-    private static ResourceBundle resourceBundle_;
-
-    private final static String empty_string = "";
-
-
-    static
-    {
-        setI18Locale(null);
-    }
-
-    /**
-     * Sets the locate to use for i18n.
-     * Use null to restore system default.
-     * @param locale The local to use or null.
-     */
-    public static void setI18Locale( Locale locale )
-    {
-        currentLocale_ = (null == locale) ? Locale.getDefault() : locale ;
-        resourceBundle_ = null;
-    }
-
-    /**
-     * Gets a static text from library resource bundle.
-     * @param key Text-Id that is used to get the text from the resource-bundle.
-     * @return The language dependent text.
-     */
-    public static String getI18NText( String key )
-    {
-        ResourceBundle bundle = resourceBundle_;
-        if ( bundle == null )
-        {
-            bundle = ResourceBundle.getBundle("com.bw.jtools.ui.i18n", currentLocale_, UITool.class.getClassLoader() );
-            resourceBundle_ = bundle;
-        }
-        return bundle.getString(key);
-    }
-
-    /**
-     * Applies a i18n text format-string.
-     * @see #getI18NText(java.lang.String)
-     *
-     * @param key Text-Id that is used to get the text from the library-resource-bundle.
-     * @param arguments Argument list used in the format-pattern.
-     * @return The formatted language dependent text.
-     */
-    public static String formatI18N( String key, Object... arguments)
-    {
-        String f = getI18NText(key);
-        if ( f != null )
-        {
-            Formatter formatter = new Formatter(currentLocale_);
-            formatter.format(f, arguments);
-            return formatter.out().toString();
-        }
-        return empty_string;
     }
 
 }

@@ -51,7 +51,7 @@ public class JExceptionDialog extends javax.swing.JDialog
       String msg = throwed.getMessage();
       if (msg == null || msg.isEmpty()) msg = throwed.getClass().getSimpleName();
 
-      setTitle( UITool.formatI18N("exception.title", msg));
+      setTitle( I18N.format("exception.title", msg));
 
       shortST = IOTool.getRestrictedStackTrace(throwed,"", 10);
       fullST  = IOTool.getRestrictedStackTrace(throwed,"", 2000);
@@ -89,14 +89,14 @@ public class JExceptionDialog extends javax.swing.JDialog
         setPreferredSize(new java.awt.Dimension(600, 350));
 
         label_title_.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        label_title_.setText( UITool.getI18NText("exception.info"));
+        label_title_.setText( I18N.getText("exception.info"));
         label_title_.setAlignmentY(0.0F);
 
         mail_link_.setToolTipText("mailto:Bernd.Wengenroth@gmx.de");
         mail_link_.setAlias("Report Error");
         mail_link_.setUri("");
 
-        button_close_.setText(UITool.getI18NText("button.close") );
+        button_close_.setText(I18N.getText("button.close") );
         button_close_.setToolTipText("");
         button_close_.setAlignmentY(0.0F);
         button_close_.addActionListener(new java.awt.event.ActionListener()
@@ -113,7 +113,7 @@ public class JExceptionDialog extends javax.swing.JDialog
         text_.setRows(5);
         scroller_.setViewportView(text_);
 
-        SwitchTrace.setText( UITool.getI18NText("exception.fullTraces"));
+        SwitchTrace.setText( I18N.getText("exception.fullTraces"));
         SwitchTrace.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -167,7 +167,7 @@ public class JExceptionDialog extends javax.swing.JDialog
     private void SwitchTraceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SwitchTraceActionPerformed
         showFullST = !showFullST;
 
-        SwitchTrace.setText(showFullST ? UITool.getI18NText("exception.shortTraces") : UITool.getI18NText("exception.fullTraces"));
+        SwitchTrace.setText(showFullST ? I18N.getText("exception.shortTraces") : I18N.getText("exception.fullTraces"));
         text_.setText(showFullST ? fullST : shortST );
     }//GEN-LAST:event_SwitchTraceActionPerformed
 

@@ -21,6 +21,7 @@
  */
 package com.bw.jtools.ui.properties;
 
+import com.bw.jtools.ui.I18N;
 import java.awt.Font;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -30,7 +31,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.border.Border;
 import com.bw.jtools.ui.JColorIcon;
-import com.bw.jtools.ui.UITool;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Insets;
@@ -134,7 +134,7 @@ public class PropertyCellEditor extends AbstractCellEditor implements javax.swin
             {
                 Color newColor =
                         JColorChooser.showDialog(
-                            color_,UITool.getI18NText("propertytable.colorchooser.title"),
+                            color_,I18N.getText("propertytable.colorchooser.title"),
                             colorIcon_.getColor());
                 if ( newColor != null )
                 {
