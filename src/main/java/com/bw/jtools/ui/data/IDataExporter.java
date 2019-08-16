@@ -18,42 +18,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.log;
+package com.bw.jtools.ui.data;
 
-import com.bw.jtools.Log;
+import java.io.File;
+import java.io.IOException;
 
 /**
- * Implementation Log.LoggerFacade used as fallback in case no logger framework
- * is available.
+ * Interface to support exporter depending on availability of
+ * implementations in class-path.
  */
-public class ConsoleLogger extends Log.LoggerFacade
+public interface IDataExporter
 {
-
-    @Override
-    public void error(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.ERROR));
-        System.err.println(msg);
-    }
-
-    @Override
-    public void warn(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.WARN));
-        System.err.println(msg);
-    }
-
-    @Override
-    public void info(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.INFO));
-        System.out.println(msg);
-    }
-
-    @Override
-    public void debug(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.DEBUG));
-        System.out.println(msg);
-    }
+    public void export( File file, DataTableModel model ) throws IOException;
 }

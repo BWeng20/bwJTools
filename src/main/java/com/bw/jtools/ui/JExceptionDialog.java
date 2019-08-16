@@ -21,13 +21,14 @@
  */
 package com.bw.jtools.ui;
 
+import com.bw.jtools.Log;
 import java.awt.event.WindowEvent;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import javax.swing.WindowConstants;
 
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.persistence.Store;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Dialog to show exception details.
@@ -60,12 +61,17 @@ public class JExceptionDialog extends javax.swing.JDialog
 
       try
       {
-         mail_link_.setUri(
-                 Store.getString( Store.PREF_ERROR_REPORT_URL,
-                                  "mailto:info@company.com?subject=Exception&body=" )+URLEncoder.encode(shortST, "UTF-8") );
+          // URLEncoder doesn't confvorm to mailto-specific encoding.
+          // so we have to replace all "+" with "space".
+          // @TODO: Possibly also other chars are not correct.
+          String body = URLEncoder.encode(shortST, "UTF-8").replace("+", "%20");
+          mail_link_.setUri(
+                     Store.getString( Store.PREF_ERROR_REPORT_URL,
+                                  "mailto:info@company.com?subject=Exception&body=" )+body );
       }
       catch (UnsupportedEncodingException ex)
       {
+         Log.error("Failed to encode exception e-mail", ex);
       }
    }
 

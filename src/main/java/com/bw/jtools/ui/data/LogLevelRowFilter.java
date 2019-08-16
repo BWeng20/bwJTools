@@ -18,42 +18,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.log;
+package com.bw.jtools.ui.data;
 
-import com.bw.jtools.Log;
+import javax.swing.RowFilter;
 
 /**
- * Implementation Log.LoggerFacade used as fallback in case no logger framework
- * is available.
+ *
  */
-public class ConsoleLogger extends Log.LoggerFacade
+public class LogLevelRowFilter extends RowFilter<DataTableModel, Integer>
 {
+    boolean level_[];
 
-    @Override
-    public void error(CharSequence msg)
+    public LogLevelRowFilter( boolean level[] )
     {
-        System.err.print(getLevelPrefix(Log.ERROR));
-        System.err.println(msg);
+        level_ = level;
     }
 
-    @Override
-    public void warn(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.WARN));
-        System.err.println(msg);
-    }
 
     @Override
-    public void info(CharSequence msg)
+    public boolean include(Entry<? extends DataTableModel, ? extends Integer> entry)
     {
-        System.out.print(getLevelPrefix(Log.INFO));
-        System.out.println(msg);
+        final int N = entry.getValueCount();
+        if ( N >= 2 )
+        {
+            Object o = entry.getValue(1);
+            if ( o != null && o instanceof Number )
+            {
+                int i = ((Number)o).intValue();
+                if ( i>=0 && i<level_.length)
+                    return level_[i];
+            }
+        }
+        return false;
     }
 
-    @Override
-    public void debug(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.DEBUG));
-        System.out.println(msg);
-    }
 }

@@ -9,6 +9,7 @@ import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -64,7 +65,10 @@ public class IconCache
      */
     public static BufferedImage getImage(Class clazz, String name) throws IOException
     {
-        return ImageIO.read(clazz.getResourceAsStream(name));
+        try( InputStream is =  clazz.getResourceAsStream(name) )
+        {
+            return ImageIO.read(is);
+        }
     }
 
     /**
@@ -184,8 +188,13 @@ public class IconCache
     }
 
     /**
-     * Gets all icons from icons folder with name pattern "[AppName]_[size]x[size].png",
+     * Gets all icons from icons folder with name pattern "[application.iconPrefix]_[size]x[size].png",
      * where "size" is from  16,20,26,28,32,40,64,128.<br>
+     * <br>
+     * Property "application.iconPrefix" can be defined in "defaultsettings.properties".<br>
+     * If "useSysPropsForDefaults" is true in {@link com.bw.jtools.Application#initialize(java.lang.Class, boolean) Application.initialize(Class, useSysPropsForDefaults)}
+     * The property can also be defined in system environment or via the command-line -D option.<br>
+     * If the property is missing, the application name is used as fallback.
      * <br>
      * <u>A full example:</u>
      * <br>
@@ -193,20 +202,21 @@ public class IconCache
      *   // Somewhere at start-up...
      *   Application.initialize( org.myorg.app.MyClass.class );
      * </pre>
-     *   The Store will load defaults and application-name from the file
+     *   The Store will load settings from the file
      *   "org/myorg/app/defaultsettings.properties", e.g.:<br>
      *   <pre>
      *
      *    application.name=My App
      *    application.company=My Corp
      *    application.version=1.0
+     *    application.iconPrefix=AppIcon
      *    ...
      * </pre>
      * Then the icon images are e.g.:<br>
      * <ul>
-     * <li>org/myorg/app/icons/My App_16x16.png
-     * <li>org/myorg/app/icons/My App_32x32.png
-     * <li>org/myorg/app/icons/My App_64x64.png
+     * <li>org/myorg/app/icons/AppIcon_16x16.png
+     * <li>org/myorg/app/icons/AppIcon_32x32.png
+     * <li>org/myorg/app/icons/AppIcon_64x64.png
      * <li>...
      * </ul>
      * @return The list of found images.

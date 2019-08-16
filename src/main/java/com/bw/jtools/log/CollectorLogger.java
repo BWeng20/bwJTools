@@ -32,27 +32,32 @@ import java.util.HashMap;
 */
 public class CollectorLogger extends Log.LoggerFacade
 {
-    Log.LoggerFacade logger;
-
     public HashMap<Long,CollectorThreadLogger > threadLogger = new HashMap<>(10);
 
     /**
      * Creates a new CollectorLogger.
-     * @param logger The real logger back-end.
      */
-    public CollectorLogger( Log.LoggerFacade logger )
+    public CollectorLogger( )
     {
-        this.logger = logger;
     }
 
-    protected synchronized void addMessage(int level, CharSequence msg)
+    protected synchronized void addMessage(int level, CharSequence msg, Throwable t)
     {
-        CollectorThreadLogger tLogger = threadLogger.get( Thread.currentThread().getId() );
-        if ( tLogger != null )
+        if (this.level >= level )
         {
-            tLogger.addMessage( level, msg );
+            CollectorThreadLogger tLogger = threadLogger.get( Thread.currentThread().getId() );
+            if ( tLogger != null && tLogger.level >= level )
+            {
+                final String prefix = Log.LoggerFacade.getLevelPrefix(level);
+                tLogger.messages.add( prefix+" "+msg );
+
+                if (t != null && tLogger.maxTraceLines>0)
+                    tLogger.messages.add( prefix+" "+Log.getRestrictedStackTrace(t, " ", tLogger.maxTraceLines));
+            }
         }
+
     }
+
 
     public synchronized CollectorThreadLogger getThreadLog( )
     {
@@ -85,81 +90,49 @@ public class CollectorLogger extends Log.LoggerFacade
     @Override
     public void error(CharSequence msg)
     {
-        logger.error(msg);
-        addMessage( Log.ERROR, msg );
+        addMessage( Log.ERROR, msg, null );
     }
 
     @Override
     public void warn(CharSequence msg)
     {
-        logger.warn(msg);
-        addMessage( Log.WARN, msg );
+        addMessage( Log.WARN, msg, null );
     }
 
     @Override
     public void info(CharSequence msg)
     {
-        logger.info(msg);
-        addMessage( Log.INFO, msg );
+        addMessage( Log.INFO, msg, null );
     }
 
     @Override
     public void debug(CharSequence msg)
     {
-        logger.debug(msg);
-        addMessage( Log.DEBUG, msg );
+        addMessage( Log.DEBUG, msg, null );
     }
 
     @Override
     public void error(CharSequence msg, Throwable t)
     {
-        logger.error(msg,t);
-        if (level >= Log.ERROR )
-        {
-            addMessage( Log.ERROR, msg );
-            if (maxStackTraceLines>0) addMessage( Log.ERROR, Log.getRestrictedStackTrace(t, " ", maxStackTraceLines));
-        }
+        addMessage( Log.ERROR, msg, t );
     }
 
     @Override
     public void warn(CharSequence msg, Throwable t)
     {
-        logger.warn(msg,t);
-        if (level >= Log.WARN )
-        {
-            addMessage( Log.WARN, msg );
-            if (maxStackTraceLines>0) addMessage( Log.WARN, Log.getRestrictedStackTrace(t, " ", maxStackTraceLines));
-        }
+        addMessage( Log.WARN, msg, t );
     }
 
     @Override
     public void debug(CharSequence msg, Throwable t)
     {
-        logger.debug(msg,t);
-        if ( level >= Log.DEBUG )
-        {
-            addMessage( Log.DEBUG, msg );
-            if (maxStackTraceLines>0) addMessage( Log.DEBUG,Log.getRestrictedStackTrace(t, " ", maxStackTraceLines));
-        }
+        addMessage( Log.DEBUG, msg, t );
     }
 
     @Override
     public void info(CharSequence msg, Throwable t)
     {
-        logger.info(msg,t);
-        if ( level >= Log.INFO )
-        {
-            addMessage( Log.INFO, msg );
-            if (maxStackTraceLines>0) addMessage( Log.INFO, Log.getRestrictedStackTrace(t, " ", maxStackTraceLines));
-        }
+        addMessage( Log.INFO, msg, t );
     }
 
-    @Override
-    public boolean isDebugEnabled(){ return super.isDebugEnabled() || logger.isDebugEnabled(); }
-    @Override
-    public boolean isInfoEnabled() { return super.isInfoEnabled()  || logger.isInfoEnabled();  }
-    @Override
-    public boolean isWarnEnabled() { return super.isWarnEnabled()  || logger.isWarnEnabled();  }
-    @Override
-    public boolean isErrorEnabled(){ return super.isErrorEnabled() || logger.isErrorEnabled(); }
 }

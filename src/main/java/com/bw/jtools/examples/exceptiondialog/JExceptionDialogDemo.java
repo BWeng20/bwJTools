@@ -1,6 +1,5 @@
 /*
  * (c) copyright 2015-2019 Bernd Wengenroth
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -19,33 +18,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.examples.applicationicons;
+package com.bw.jtools.examples.exceptiondialog;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.JExceptionDialog;
+import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
- * Demonstration of Application-Icons.
+ * Demonstrates usage of JExceptionDialog.
  */
-public class ApplicationIconsDemo
+public class JExceptionDialogDemo
 {
-    static JFrame frame;
+    JFrame frame;
 
     static public void main( String args[] )
     {
-        // Initialize library.
-        Application.initialize(ApplicationIconsDemo.class);
+        JExceptionDialogDemo demo = new JExceptionDialogDemo();
+    }
 
-        // The librarie has now initialized itself from the defaultsettings.properties.
+    int count_ = 1;
+
+    public JExceptionDialogDemo()
+    {
+        // Initialize library.
+        Application.initialize(JExceptionDialogDemo.class );
+
+        // The library is now initialized from the "defaultsettings.properties"
         // parallel to the main-class.
 
         try
@@ -56,33 +64,45 @@ public class ApplicationIconsDemo
             e.printStackTrace();
         }
 
-        frame = new JFrame("Application Icons Demo");
-        JPanel panel = new JPanel(new BorderLayout());
+        frame = new JFrame( "Exception Dialog Demonstration" );
 
-        JLabel label = new JLabel(
-                "<html><body><b>"+
-                "Check icons in the title bar,<br>"+
-                "in OS status line and in windows<br>"+
-                "pressing Alt-Tab.<br>"+
-                "Java runtime will choose one of the<br>"+
-                "provided icons, depending on the platform."+
-                "</b></body></html>" );
-        label.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
-        label.setPreferredSize(new Dimension(420, 150));
-        panel.add( label, BorderLayout.CENTER );
+        JPanel mainPanel = new JPanel( new BorderLayout());
+        frame.setContentPane(mainPanel);
+
+        JButton exceptionButton = new JButton("Throw Exception");
+        exceptionButton.setPreferredSize(new Dimension(100, 100));
+        mainPanel.add(exceptionButton, BorderLayout.CENTER );
+
+        exceptionButton.addActionListener((evt) ->
+        {
+            try
+            {
+                throw new Exception("test Exception "+(count_++) );
+            }
+            catch ( Exception e)
+            {
+                JExceptionDialog d = new JExceptionDialog( SwingUtilities.getWindowAncestor(frame), e );
+                d.setLocationByPlatform(true);
+                d.setVisible(true);
+            }
+
+        } );
+
+        JLAFComboBox lafCB = new JLAFComboBox();
+        mainPanel.add(lafCB, BorderLayout.SOUTH );
+
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
         frame.setIconImages( IconCache.getAppIconImages() );
-
-        frame.setContentPane(panel);
         frame.pack();
 
         // Restore window-position and dimension from prefences.
         SettingsUI.loadWindowPosition(frame);
         SettingsUI.storePositionAndFlushOnClose( frame );
+
         frame.setVisible(true);
 
         Log.info("Started");
 
     }
 }
+

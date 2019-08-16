@@ -18,42 +18,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.log;
+package com.bw.jtools.ui.data;
 
-import com.bw.jtools.Log;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 /**
- * Implementation Log.LoggerFacade used as fallback in case no logger framework
- * is available.
+ * Abstract base for all log-models.
  */
-public class ConsoleLogger extends Log.LoggerFacade
+public abstract class DataTableModel extends  DefaultTableModel
 {
 
-    @Override
-    public void error(CharSequence msg)
+    /**
+     * Creates a model with specified columns and rows.
+     * @param columns Column Names
+     * @param rowCount Number of initial rows.
+     */
+    public DataTableModel( Object[] columns, int rowCount )
     {
-        System.err.print(getLevelPrefix(Log.ERROR));
-        System.err.println(msg);
+        super( columns, rowCount );
     }
 
-    @Override
-    public void warn(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.WARN));
-        System.err.println(msg);
-    }
+    /**
+     * Gets the implementation specific cell renderer of the log type.
+     * @param colIndex Index of column.
+     * @return The cell renderer.
+     */
+    public abstract TableCellRenderer getCellRenderer( int colIndex );
 
-    @Override
-    public void info(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.INFO));
-        System.out.println(msg);
-    }
-
-    @Override
-    public void debug(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.DEBUG));
-        System.out.println(msg);
-    }
 }

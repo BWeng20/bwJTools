@@ -25,22 +25,20 @@ import com.bw.jtools.Log;
 import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.IconCache;
 import com.bw.jtools.ui.JColorIcon;
+import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.JTabComponent;
+import com.bw.jtools.ui.SettingsUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
@@ -48,8 +46,6 @@ import javax.swing.UIManager;
  */
 public class JTabComponentDemo
 {
-    String LAF = null;
-    UIManager.LookAndFeelInfo[] lafs;
     JFrame frame;
 
     JTabbedPane tpane = new JTabbedPane(JTabbedPane.TOP);
@@ -131,8 +127,6 @@ public class JTabComponentDemo
         Application.initialize( JTabComponentDemo.class );
         I18N.addBundle("com.bw.jtools.examples.tabcomponent.i18n", JTabComponentDemo.class);
 
-        // UIManager.getDefaults().put("TabbedPane.tabsOverlapBorder", true);
-
         // The library is now initialized from the "defaultsettings.properties"
         // parallel to the main-class.
 
@@ -192,51 +186,16 @@ public class JTabComponentDemo
               tabPane_lastIndex = tpane.getSelectedIndex();
            }
         });
-
-        JComboBox<String> lafCB = new JComboBox<>();
-        lafs = UIManager.getInstalledLookAndFeels();
-        for ( UIManager.LookAndFeelInfo laf : lafs )
-            lafCB.addItem( laf.getName() );
-
-        LAF = UIManager.getLookAndFeel().getName();
-        lafCB.setSelectedItem( LAF );
-
-        lafCB.addItemListener(new ItemListener()
-        {
-            @Override
-            public void itemStateChanged(ItemEvent ie)
-            {
-                String lafName = (String)lafCB.getSelectedItem();
-                if (!lafName.equals(LAF))
-                {
-                    LAF = lafName;
-                    for ( UIManager.LookAndFeelInfo laf : lafs )
-                        if ( laf.getName().equals(lafName) )
-                        {
-                            try
-                            {
-                                UIManager.setLookAndFeel(laf.getClassName());
-                                SwingUtilities.updateComponentTreeUI(frame);
-
-                                LAF = laf.getName();
-                            } catch (Exception ex)
-                            {
-                                ex.printStackTrace();
-                            }
-                            frame.repaint();
-                            break;
-                        }
-                }
-            }
-        });
-
+        JLAFComboBox lafCB = new JLAFComboBox();
         mainPanel.add(lafCB, BorderLayout.SOUTH );
 
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setIconImages( IconCache.getAppIconImages() );
         frame.pack();
 
-        frame.setLocationByPlatform(true);
+        // Restore window-position and dimension from prefences.
+        SettingsUI.loadWindowPosition(frame);
+        SettingsUI.storePositionAndFlushOnClose( frame );
         frame.setVisible(true);
 
         Log.info("Started");

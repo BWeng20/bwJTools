@@ -60,8 +60,7 @@ public class Application
 
     /**
      * Gets the base application path.<br>
-     * The path is deducted from the class-path of the main-class.<br>
-     *
+     * For details see {@link #setBaseAppDirectory(java.nio.file.Path) setBaseAppDirectory}
      * @return The path to the base-directory.
      * @see #AppClass
      */
@@ -72,12 +71,13 @@ public class Application
 
     /**
      * Sets the base application path.<br>
-     * If null is given, the path will be "&lt;user.home&gt;.AppName".<br>
-     * On initialization set from code-location of Application-class.
+     * If null is given, the path will be "&lt;user.home&gt;.&lt;AppName&gt;".<br>
+     * The default value is set on initialization from code-location of the Application-class.
      *
      * @param path The path to the base-directory or null.
      * @see #AppClass
-     * @see Store#initialize(boolean)
+     * @see #initialize(java.lang.Class)
+     * @see #initialize(java.lang.Class, boolean)
      */
     public static void setBaseAppDirectory(Path path)
     {
@@ -90,30 +90,44 @@ public class Application
     /**
      * Have to be set by application to provide a base for resources.<br>
      * @see #initialize(java.lang.Class)
+     * @see #initialize(java.lang.Class, boolean)
      */
     public static Class<?> AppClass = Store.class;
 
     /**
-     * Name of application, retrieved by Store  on initialization.
-     * @see Store#KEY_APPLICATION_NAME
+     * Name of application<br>
+     * Value is retrieved from "defaultsettings.properties" or System, for details see {@link Store#initialize(boolean) Store.initialize}.<br>
+     * Used property key is {@link Store#KEY_APPLICATION_NAME Store.KEY_APPLICATION_NAME}.<br>
+     * If no property value is defines, the simple name of the application class is used, see {@link #AppClass AppClass}<br>
+     * If no value is defined and no application class is set, "MyApp" will be used.
      */
     public static String  AppName;
 
     /**
-     * Version of application, retrieved by Store on initialization.
-     * @see Store#KEY_APPLICATION_VERSION
+     * Version of application.<br>
+     * Value is retrieved from "defaultsettings.properties" or System, for details see {@link Store#initialize(boolean) Store.initialize}.<br>
+     * Used property key is {@link Store#KEY_APPLICATION_VERSION Store.KEY_APPLICATION_VERSION}.<br>
+     * If no value is defined, "1.0" will be used.
      */
     public static String  AppVersion;
 
     /**
-     * Prefix for Application-Icons.
-     * @see Store#KEY_APPLICATION_ICON_PREFIX
+     * Prefix for Application-Icons.<br>
+     * Value is retrieved from "defaultsettings.properties" or System, for details see {@link Store#initialize(boolean) Store.initialize}.<br>
+     * Used property key is {@link Store#KEY_APPLICATION_ICON_PREFIX Store.KEY_APPLICATION_ICON_PREFIX}.<br>
+     * If no values is defined, the application name is used, see {@link #AppName AppName}.<br>
+     *
      */
     public static String  AppIconPrefix;
 
     /**
-     * Company that owns the application.
-     * @see Store#KEY_APPLICATION_COMPANY
+     * Company that owns the application.<br>
+     * Value is retrieved from "defaultsettings.properties" or System, for details see {@link Store#initialize(boolean) Store.initialize}.<br>
+     * Used property key is {@link Store#KEY_APPLICATION_COMPANY Store.KEY_APPLICATION_COMPANY}.<br>
+     * If no values is defined, the value is guessed from application package name, second name.<br>
+     * E.g. if application class is "<i>com.mycorp.ui.MyApp</i>" company name will be "<i>mycorp</i>"., see {@link #AppClass AppClass}.
+     * @see Store#initialize(boolean)
+     *
      */
     public static String  AppCompany;
 

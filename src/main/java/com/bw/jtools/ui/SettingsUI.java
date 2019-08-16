@@ -86,7 +86,7 @@ public class SettingsUI
 
     /**
      * Stores window position to preferences with default key.
-     * @see #storeWindowPosition(java.awt.Window, java.lang.String) 
+     * @see #storeWindowPosition(java.awt.Window, java.lang.String)
      * @param w  The window to store position and dimension.
      */
     public static void storeWindowPosition(Window w)
@@ -121,6 +121,7 @@ public class SettingsUI
         {
             // Store window-positon and size.
             SettingsSwing.storeWindowPosition(e.getWindow() );
+
             // Most important: Make any change persistent:
             Store.flushStorage();
         }

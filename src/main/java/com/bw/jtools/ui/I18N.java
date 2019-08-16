@@ -21,11 +21,11 @@
  */
 package com.bw.jtools.ui;
 
+import com.bw.jtools.Log;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import jdk.internal.org.jline.utils.Log;
 
 /**
  * Simple wrapper to ease i18n stuff.<br>
@@ -100,11 +100,18 @@ public final class I18N
     {
         for ( BundleInfo bi : resourceBundles_ )
         {
-            final String text = bi.bundle_.getString(key);
-            if ( text != null && !text.isEmpty() )
-                return text;
+            try
+            {
+                final String text = bi.bundle_.getString(key);
+                if ( text != null && !text.isEmpty() )
+                    return text;
+            }
+            catch (Exception e)
+            {
+            }
         }
-        return null;
+        Log.warn("Missing i18n text '"+key+"'");
+        return key;
     }
 
     /**

@@ -22,17 +22,18 @@
 package com.bw.jtools.persistence;
 
 import com.bw.jtools.Application;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Properties;
 
 import com.bw.jtools.Log;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -47,7 +48,7 @@ public class Store
      * The name of the property file used to initialize this library and
      * to provide defaults for properties.<br>
      * Needs to be added to class-path, parallel to the application-class.<br>
-     * The value can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
+     * This key can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
      * is called.
      * @see #initialize(boolean)
      * @see Application#initialize(java.lang.Class)
@@ -61,6 +62,21 @@ public class Store
      * @see #initialize(boolean)
      */
     public static String KEY_APPLICATION_NAME    = "application.name";
+
+    /**
+     * The key of the property used as application base directory.<br>
+     * This key can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
+     * is called.<br>
+     * If the value is not set or is empty, the directory is guessed from the code-base of
+     * the application. For e.g. JARs this would be the directory in which the application-class-jar
+     * is located.<br>
+     * The value can use settings from defaults by enclosing the name in "%".<br>
+     * If {@link #initialize(boolean) initialize(true)} is used, also environment variables can be used.<br>
+     * <u>Example</u>:<br>
+     * application.basedir = %user.home%/MyApp
+     * @see #initialize(boolean)
+     */
+    public static String KEY_APPLICATION_BASEDIR  = "application.basedir";
 
     /**
      * The key of the property used as application name.<br>
@@ -80,10 +96,21 @@ public class Store
     public static String KEY_APPLICATION_ICON_PREFIX = "application.iconPrefix";
 
     /**
+     * The key of the property used as initial application log level.<br>
+     * This key can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
+     * is called. If the property is not set, the current log level is not modified.
+     * @see #initialize(boolean)
+     */
+    public static String KEY_APPLICATION_LOG_LEVEL = "application.loglevel";
+
+    /**
      * The key of the property used as application name.<br>
      * This key can be changed by application <i>before</i> {@link #initialize(boolean) initialize()}
      * is called.<br>
-     * If not set 'prefs.ini' will be used as default.
+     * The value can use settings from defaults by enclosing the name in "%".<br>
+     * If {@link #initialize(boolean) initialize(true)} is used, also system environment variables can be used.<br>
+     * <u>Example</u>:<br>
+     * application.properties = %application.basedir%/prefs.ini
      * @see #initialize(boolean)
      */
     public static String KEY_APPLICATION_PROPERTIES_FILE = "application.properties";
@@ -110,17 +137,58 @@ public class Store
     private static StorageBase storage_;
 
     /**
-     * Property-file to use , retrieved from "defaultsettings.properties" on initialization.<br>
-     * Default is "prefs.ini".
+     * Name of property-file to use for persistency, retrieved from "defaultsettings.properties" or System properties on initialization.<br>
+     * Used key is {@link #KEY_APPLICATION_PROPERTIES_FILE KEY_APPLICATION_PROPERTIES_FILE}.<br>
+     * If the value is not set or empty, persistence is stored via Java-Preferences..
+     * @see Application#initialize(java.lang.Class)
+     * @see Application#initialize(java.lang.Class, boolean)
      */
     public static String  AppPropertyFile ;
+
+    private static String resolveFromDefaults( String value, Properties defaults )
+    {
+        // Resolve any %XXX% property references in value.
+        Pattern p = Pattern.compile("%([^%]*)%");
+
+        Matcher m = p.matcher(value);
+
+        StringBuilder newPF = new StringBuilder(20);
+
+        int lindex = 0;
+
+        while ( m.find() )
+        {
+            newPF.append( value.substring(lindex, m.start(0) ) );
+            String propValue = defaults.getProperty( m.group(1) );
+            if ( propValue != null )
+                newPF.append(propValue);
+            lindex = m.end(0);
+        }
+        if ( lindex > 0 )
+        {
+            if ( lindex < value.length() )
+                newPF.append(value.substring(lindex));
+
+            if (Log.isDebugEnabled()) Log.debug( "Value '"+value+"' resolved to '"+newPF+"'" );
+            return newPF.toString();
+        }
+        return value;
+    }
 
 
     /**
      * Needs to be called by the application as FIRST method before any
      * other functionality is used from this class.<br>
-     * Don't call this method directly.Use {@link com.bw.jtools.Application#initialize(java.lang.Class) Application.initialize(Class)}.
-     * @param useSysPropsForDefault if true, the default are initialized from system-properties.
+     * The call will initialize several global settings:
+     * <ul>
+     * <li> {@link com.bw.jtools.Application#AppCompany Application.AppCompany}
+     * <li> {@link com.bw.jtools.Application#AppName Application.AppName}
+     * <li> {@link com.bw.jtools.Application#AppIconPrefix Application.AppIconPrefix}
+     * <li> {@link com.bw.jtools.Application#AppVersion Application.AppVersion}
+     * <li> {@link #AppPropertyFile Store.AppPropertyFile}
+     * </ul>
+     * Don't call this method directly. Please use {@link com.bw.jtools.Application#initialize(java.lang.Class) Application.initialize(Class)}.
+     * @param useSysPropsForDefault if true, the defaults are initialized from system-properties before loading the property file.
      * @see System#getProperties()
      * @see com.bw.jtools.Application#initialize(java.lang.Class)
      */
@@ -132,7 +200,8 @@ public class Store
         String propFile= null;
         String version = null;
         String appIconPrefix = null;
-        boolean forcePropFile = false;
+        String appLogLevel = null;
+        String appBaseDir = null;
         try
         {
             InputStream is = Application.AppClass.getResourceAsStream(DEFAULT_INI);
@@ -147,33 +216,94 @@ public class Store
             propFile= defaults.getProperty(KEY_APPLICATION_PROPERTIES_FILE);
             version = defaults.getProperty(KEY_APPLICATION_VERSION);
             appIconPrefix = defaults.getProperty(KEY_APPLICATION_ICON_PREFIX);
+            appLogLevel = defaults.getProperty( KEY_APPLICATION_LOG_LEVEL );
+            appBaseDir = defaults.getProperty( KEY_APPLICATION_BASEDIR );
         }
         catch (IOException ex)
         {
         }
 
-        if ( appName == null || appName .isEmpty() )
+        // Normalize
+        if ( appName    != null && appName .isEmpty() ) appName = null;
+        if ( company    != null && company .isEmpty() ) company = null;
+        if ( propFile   != null && propFile.isEmpty() ) propFile= null;
+        if ( appIconPrefix != null && appIconPrefix.isEmpty() ) appIconPrefix = null;
+        if ( appBaseDir != null && appBaseDir.isEmpty() ) appBaseDir = null;
+
+        if ( appLogLevel != null )
+        {
+            int level = -1;
+            if ("NONE".equalsIgnoreCase(appLogLevel))
+            {
+                level = Log.NONE;
+            }
+            else if ("ERROR".equalsIgnoreCase(appLogLevel))
+            {
+                level = Log.ERROR;
+            }
+            else if ("WARN".equalsIgnoreCase(appLogLevel))
+            {
+                level = Log.WARN;
+            }
+            else if ("INFO".equalsIgnoreCase(appLogLevel))
+            {
+                level = Log.INFO;
+            }
+            else if ("DEBUG".equalsIgnoreCase(appLogLevel))
+            {
+                level = Log.DEBUG;
+            }
+            else
+            {
+                try
+                {
+                    level = Integer.parseUnsignedInt(appLogLevel);
+                }
+                catch ( Exception e)
+                {
+                    Log.error( KEY_APPLICATION_LOG_LEVEL+": have to be NONE, ERROR, WARN, INFO, DEBUG or a positive integer.");
+                }
+            }
+            if ( level > -1 )
+                Log.setLevel( level );
+        }
+
+
+
+        if ( appName == null )
         {
             Log.warn("Property '"+KEY_APPLICATION_NAME+"' is not set, please check "+DEFAULT_INI);
-            appName = "MyApp";
+            if ( Application.AppClass != null )
+                appName = Application.AppClass.getSimpleName();
+            else
+                appName = "MyApp";
         }
-        if ( company == null || company .isEmpty() ) company = "MyCompany";
+
+        if ( company == null )
+        {
+            if ( Application.AppClass != null )
+            {
+                String fullname = Application.AppClass.getPackageName();
+                if (fullname != null)
+                {
+                    int firstDot = fullname.indexOf('.');
+                    if (firstDot > 0)
+                    {
+                        int nextDot  = fullname.indexOf('.', firstDot+1);
+                        if (nextDot>0)
+                        {
+                           company = fullname.substring(firstDot+1, nextDot);
+                        }
+                    }
+                }
+            }
+            if ( company == null || company .isEmpty() )
+                company = "MyCompany";
+        }
 
         if ( version == null ) version = "1.0";
-        if ( propFile== null || propFile.isEmpty() )
-        {
-            propFile= "prefs.ini";
-        }
-        else
-        {
-            forcePropFile = true;
-        }
 
-        if ( appIconPrefix != null )
-        {
-            appIconPrefix = appIconPrefix.trim();
-        }
-        if ( appIconPrefix == null || appIconPrefix.isEmpty() )
+        if ( appIconPrefix == null )
         {
             appIconPrefix = appName;
         }
@@ -183,60 +313,79 @@ public class Store
         Application.AppCompany      = company;
         Application.AppIconPrefix   = appIconPrefix;
 
-        AppPropertyFile = propFile;
-
-        PreferencesStorage.PREF_ROOT_KEY =  company+"/"+appName ;
-
-        // try to be Portable (local ini-file)
+        Path appBaseFolder = null;
         try
         {
-            // Get the location of the application jar/class-root
-            URL codeLocation = Application.AppClass.getProtectionDomain().getCodeSource().getLocation();
-            if (codeLocation != null)
+            if ( appBaseDir == null )
             {
-                Path folder = Paths.get( codeLocation.toURI()).toRealPath();
-                File fileFolder = folder.toFile();
-
-                if ( fileFolder.exists() && !fileFolder.isDirectory() )
+                // Get the location of the application jar/class-root
+                URL codeLocation = Application.AppClass.getProtectionDomain().getCodeSource().getLocation();
+                if (codeLocation != null)
+                {
+                    appBaseFolder = Paths.get( codeLocation.toURI()).toRealPath();
+                }
+            }
+            else
+            {
+                appBaseDir = resolveFromDefaults( appBaseDir, defaults );
+                appBaseFolder = Paths.get( appBaseDir );
+            }
+            if ( appBaseFolder != null )
+            {
+                if ( !Files.exists(appBaseFolder) )
+                {
+                    Log.warn("Creating none existing application base directory "+appBaseFolder );
+                    Files.createDirectories(appBaseFolder);
+                }
+                else if ( !Files.isDirectory(appBaseFolder) )
                 {
                     // Location may be a jar-file. In this case use containing folder.
-                    fileFolder = fileFolder.getParentFile();
+                    appBaseFolder = appBaseFolder.getParent();
+                    if ( !Files.isDirectory(appBaseFolder) )
+                        appBaseFolder = null;
                 }
-
-                if ( fileFolder.exists() && fileFolder.isDirectory() && fileFolder.canWrite() )
+                if ( appBaseFolder != null && !Files.isWritable(appBaseFolder) )
                 {
-                    Application.setBaseAppDirectory( fileFolder.toPath() );
-                }
-                else
-                {
-                    Log.warn("Failed to locate base folder ("+fileFolder+")");
+                    Log.warn("No write permissions to application base directory "+appBaseFolder );
                 }
             }
         }
         catch ( Exception se )
         {
             // Possibly no permissions...
+            Log.warn("Failed to access application base directory", se);
+            appBaseFolder = null;
         }
 
-        if ( null == Application.getBaseAppDirectory() )
+        // If folder == null, user-home and application name is used.
+        Application.setBaseAppDirectory( appBaseFolder );
+        // Put caluclated value back to defaults to feed property-file name resolver below
+        Path p = Application.getBaseAppDirectory();
+        if (p != null)
+            defaults.put( KEY_APPLICATION_BASEDIR, p.toString() );
+
+        if ( propFile != null  )
         {
-            // Try deduction of app-directory by application class.
-            Application.setBaseAppDirectory(null);
+            propFile = resolveFromDefaults( propFile, defaults );
         }
+        AppPropertyFile = propFile;
 
+        PreferencesStorage.PREF_ROOT_KEY =  company+"/"+appName ;
         Path propPath = null;
 
-        try
+        if ( AppPropertyFile != null )
         {
-            propPath = Application.getBaseAppDirectory().resolve(AppPropertyFile);
-            if ( forcePropFile || Files.exists(propPath) )
+            try
             {
+                propPath = Paths.get(AppPropertyFile);
+                if ( !propPath.isAbsolute() )
+                    propPath = Application.getBaseAppDirectory().resolve(propPath);
                 storage_ = new FileStorage( propPath, defaults );
             }
-        }
-        catch (Exception e)
-        {
-            Log.debug("Failed to load preferences from "+propPath, e);
+            catch (Exception e)
+            {
+                Log.debug("Failed to use preferences from "+propPath, e);
+            }
         }
 
         if ( storage_ == null )

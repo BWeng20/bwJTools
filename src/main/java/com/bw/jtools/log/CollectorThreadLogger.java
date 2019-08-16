@@ -40,19 +40,13 @@ public class CollectorThreadLogger
 
     /**
      * Creates a new CollectorLogger.
+     * @param level Level to restrict the collected messages to.
+     * @param maxTraceLines Maximum number of lines in stack-traces.
      */
     public CollectorThreadLogger( int level, int maxTraceLines )
     {
         this.level = level;
         this.maxTraceLines= maxTraceLines;
-    }
-
-    protected void addMessage(int level, CharSequence msg)
-    {
-        if ( this.level >= level )
-        {
-            messages.add( Log.LoggerFacade.getLevelPrefix(level)+" "+msg );
-        }
     }
 
 }

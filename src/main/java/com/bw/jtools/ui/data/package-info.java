@@ -1,5 +1,6 @@
 /*
  * (c) copyright 2015-2019 Bernd Wengenroth
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -18,42 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.log;
-
-import com.bw.jtools.Log;
 
 /**
- * Implementation Log.LoggerFacade used as fallback in case no logger framework
- * is available.
+ * UI Components to show row-oriented data.
+ * <p>
+ * <img src="doc-files/DataPanel_Screenshot.jpg" alt="Screenshot">
  */
-public class ConsoleLogger extends Log.LoggerFacade
-{
+package com.bw.jtools.ui.data;
 
-    @Override
-    public void error(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.ERROR));
-        System.err.println(msg);
-    }
-
-    @Override
-    public void warn(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.WARN));
-        System.err.println(msg);
-    }
-
-    @Override
-    public void info(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.INFO));
-        System.out.println(msg);
-    }
-
-    @Override
-    public void debug(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.DEBUG));
-        System.out.println(msg);
-    }
-}

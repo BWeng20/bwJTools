@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Abstract base for persistence back-ends.
+ * Abstract base for storage back-ends.
  */
 public abstract class StorageBase
 {
@@ -55,10 +55,10 @@ public abstract class StorageBase
 
     /**
      * Get a string-value from storage.<br>
-     * If the value is missing in the storage-backend, defaults are checked.<br>
-     * If storage-backend and defaults miss it, defaultVal is returned.<br>
+     * If the value is missing in the storage-back-end, defaults are checked.<br>
+     * If storage-back-end and defaults have no value, <i>defaultVal</i> is returned.<br>
      * The default value will not be checked for emptiness.
-     * So a <i>getString("unknownkey", "" )</i> will return the empty default-value even if
+     * As conclusion <i>getString("unknownkey", "" )</i> will return the empty default-value even if
      * "HandleEmptyAsNull" is on.
      * @param key The preference-key.
      * @param defaultVal The default value. Will not be checked for emptiness.
@@ -78,14 +78,14 @@ public abstract class StorageBase
 
     /**
      * Get a string-value from storage.<br>
-     * If the value is missing in the storage-backend, defaults are checked.<br>
-     * If storage-backend and defaults miss it, an exception is thrown.<br>
+     * If the value is missing in the storage-back-end, defaults are checked.<br>
+     * If storage-back-end and defaults have no value, an exception is thrown.<br>
      * If missing values shouldn't result in exceptions, use {@link #getString(java.lang.String, java.lang.String) getString(key,null)}.<br>
-     * This method is usefull where a number of mandatory settings needs to be retrieved.
+     * This method is useful where a number of mandatory settings needs to be retrieved.
      * In this case it is much easier to encapsulate all calls in one exception block instead to check each value.
      * @param key The preference-key.
      * @return The stored value - never null.
-     * @throws com.bw.jtools.persistence.MissingPropertyException Throws in case the key was not found.
+     * @throws com.bw.jtools.persistence.MissingPropertyException Thrown in case the key was not found.
      */
     public final String getString(String key ) throws MissingPropertyException
     {
@@ -95,8 +95,8 @@ public abstract class StorageBase
     }
 
     /**
-     * Get property and convert it to a double value.
-     * @param key The preference-key.
+     * Get a property and convert it to a double value.
+     * @param key The preference key.
      * @param def The default value.
      * @return The retrieved value or the default.
      */
@@ -113,8 +113,8 @@ public abstract class StorageBase
     }
 
     /**
-     * Set a property.
-     * @param key The preference-key.
+     * Sets a property.
+     * @param key The preference key.
      * @param value The new value.
      */
     public final void setDouble(String key, double value)
@@ -124,8 +124,8 @@ public abstract class StorageBase
 
 
     /**
-     * Get property and convert it to an integer value.
-     * @param key The preference-key.
+     * Get a property and convert it to an integer value.
+     * @param key The preference key.
      * @param def The default value.
      * @return The retrieved value or the default.
      */
@@ -144,7 +144,7 @@ public abstract class StorageBase
 
     /**
      * Sets a property.
-     * @param key The preference-key.
+     * @param key The preference key.
      * @param value The new value.
      */
     public final void setInt(String key, int value)
@@ -153,10 +153,10 @@ public abstract class StorageBase
     }
 
     /**
-     * Get a property, interpreting as boolean.<br>
+     * Get a property, interpreting it as boolean.<br>
      * If the property is "on", "yes" or "true", the method returns true.<br>
      * This check is done none-case-sensitive.
-     * @param key The preference-key.
+     * @param key The preference key.
      * @param def The default value.
      * @return The retrieved value or the default.
      */
@@ -171,7 +171,7 @@ public abstract class StorageBase
     /**
      * Sets a property.<br>
      * For true "On" is set, for false "Off".
-     * @param key The preference-key.
+     * @param key The preference key.
      * @param value The new value.
      */
     public final void setBoolean(String key, boolean value)
@@ -180,7 +180,7 @@ public abstract class StorageBase
     }
 
     /**
-     * Needs to be implemented by backend.
+     * Needs to be implemented by back-end.
      * @param key They key of the property.
      * @return  The value or null.
      */
@@ -205,7 +205,7 @@ public abstract class StorageBase
     public abstract void flush();
 
     /**
-     * Removed all keys and values.
+     * Removes all keys and values.
      */
     public abstract void clear();
 

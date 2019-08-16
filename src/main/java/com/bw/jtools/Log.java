@@ -25,6 +25,7 @@ import com.bw.jtools.log.CollectorLogger;
 import com.bw.jtools.log.CollectorThreadLogger;
 import com.bw.jtools.log.ConsoleLogger;
 import com.bw.jtools.log.Log4JLogger;
+import com.bw.jtools.log.MulticastLogger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
@@ -99,7 +100,7 @@ public final class Log
     public static abstract class LoggerFacade
     {
         protected int maxStackTraceLines = 10;
-        protected int level = DEBUG;
+        protected int level = ERROR;
 
         protected final static String DEBUG_PREFIX = "[DBG]";
         protected final static String INFO_PREFIX  = "[INF]";
@@ -126,6 +127,15 @@ public final class Log
         public void setLevel(int level )
         {
             this.level = level;
+        }
+
+        /**
+         * gets the logging level.
+         * @return The level.
+         */
+        public int getLevel()
+        {
+            return this.level;
         }
 
         /**
@@ -246,21 +256,19 @@ public final class Log
 
     public static LoggerFacade log;
 
-    protected static final LoggerFacade    systemLogger;
     protected static final CollectorLogger collectorLog;
 
     static
     {
-        LoggerFacade sysLog;
-        try{ sysLog = new Log4JLogger(); }
+        try{
+            log = MulticastLogger.addLogger( null, new Log4JLogger());
+        }
         catch ( NoClassDefFoundError ignored )
         {
-            sysLog = new ConsoleLogger();
-            // sysLog.error("Failed to initialize Log4J", ignored );
+            log = MulticastLogger.addLogger( null, new ConsoleLogger() );
+            log.debug("Log4J2 is not available. Logging to console.", ignored );
         }
-        systemLogger = sysLog;
-        collectorLog = new CollectorLogger(sysLog);
-        log = sysLog;
+        collectorLog = new CollectorLogger();
     }
 
     /**
@@ -275,7 +283,7 @@ public final class Log
     static public void startCollectMessages(int level, boolean includeStackTraces)
     {
         collectorLog.setThreadLog( new CollectorThreadLogger(level, includeStackTraces?10:0 ) );
-        log= collectorLog;
+        log = MulticastLogger.addLogger(log, collectorLog );
     }
 
     /**
@@ -290,7 +298,7 @@ public final class Log
         collectorLog.setThreadLog( null );
         if (!collectorLog.hasThreadLog())
         {
-            log = systemLogger;
+            log = MulticastLogger.removeLogger(log, collectorLog );
         }
 
         if (messages != null && tlog != null)
@@ -299,6 +307,37 @@ public final class Log
             tlog.messages.clear();
         }
     }
+
+    /**
+     * Adds a application specific logger.
+     */
+    static public void addLogger(LoggerFacade logger)
+    {
+        log = MulticastLogger.addLogger(log, logger );
+    }
+
+    static public void removeLogger(LoggerFacade logger)
+    {
+        log = MulticastLogger.removeLogger(log, logger);
+    }
+
+    /**
+     * Sets system log level.<br>
+     * The value can be one of the constants
+     * <ul>
+     * <li>NONE
+     * <li>ERROR
+     * <li>WARN
+     * <li>INFO
+     * <li>DEBUG
+     * </ul>
+     * @param level The new system log level.
+     */
+    static public void setLevel(int level)
+    {
+        log.setLevel(level);
+    }
+
 
     /**
      * Logs an error.

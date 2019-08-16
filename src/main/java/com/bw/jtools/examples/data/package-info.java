@@ -1,5 +1,6 @@
 /*
  * (c) copyright 2015-2019 Bernd Wengenroth
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -18,42 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.log;
-
-import com.bw.jtools.Log;
 
 /**
- * Implementation Log.LoggerFacade used as fallback in case no logger framework
- * is available.
+ * Example for usage of
+ * <ul>
+ * <li>{@link com.bw.jtools.ui.data.DataTable DataTable}
+ * <li>{@link com.bw.jtools.ui.data.DataTablePanel DataTablePanel}
+ * </ul>
+ * Shows also usage of
+ * <ul>
+ * <li> {@link com.bw.jtools.ui.JMenuButton JMenuButton} Button with Popup-Menu (Level Filter).
+ * <li> {@link com.bw.jtools.ui.JLink JLink} Clickable Internet-Link (RegExp Help).
+ * <li> {@link com.bw.jtools.ui.SettingsUI SettingsUI} Load and store windows position and dimension.
+ * <li> {@link com.bw.jtools.ui.IconCache IconCache} Use of application icons.
+ * <li> {@link com.bw.jtools.ui.JLAFComboBox JLAFComboBox} Look-And-Feel Chooser, useful for test purposes.
+ * </ul>
  */
-public class ConsoleLogger extends Log.LoggerFacade
-{
+package com.bw.jtools.examples.data;
 
-    @Override
-    public void error(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.ERROR));
-        System.err.println(msg);
-    }
-
-    @Override
-    public void warn(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.WARN));
-        System.err.println(msg);
-    }
-
-    @Override
-    public void info(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.INFO));
-        System.out.println(msg);
-    }
-
-    @Override
-    public void debug(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.DEBUG));
-        System.out.println(msg);
-    }
-}

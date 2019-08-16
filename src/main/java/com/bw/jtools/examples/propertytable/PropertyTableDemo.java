@@ -24,6 +24,7 @@ package com.bw.jtools.examples.propertytable;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.properties.PropertyBooleanValue;
 import com.bw.jtools.ui.properties.PropertyColorValue;
@@ -36,17 +37,12 @@ import com.bw.jtools.ui.properties.PropertyTable;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.text.NumberFormat;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.tree.DefaultTreeModel;
@@ -67,8 +63,6 @@ enum MyEnum
  */
 public class PropertyTableDemo
 {
-    static String LAF = null;
-    static LookAndFeelInfo[] lafs;
     static JFrame frame;
 
     static public void main( String args[] )
@@ -95,7 +89,6 @@ public class PropertyTableDemo
 
         PropertyGroup p = new PropertyGroup("Group I - Node Wrapper Classes.");
         root.add( p );
-
 
         p.add(new PropertyNumberValue("PropertyNumberNode(12234)", 1234 ) );
 
@@ -164,42 +157,7 @@ public class PropertyTableDemo
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        JComboBox<String> lafCB = new JComboBox<>();
-        lafs = UIManager.getInstalledLookAndFeels();
-        for ( LookAndFeelInfo laf : lafs )
-            lafCB.addItem( laf.getName() );
-
-        LAF = UIManager.getLookAndFeel().getName();
-        lafCB.setSelectedItem( LAF );
-
-        lafCB.addItemListener(new ItemListener()
-        {
-            @Override
-            public void itemStateChanged(ItemEvent ie)
-            {
-                String lafName = (String)lafCB.getSelectedItem();
-                if (!lafName.equals(LAF))
-                {
-                    LAF = lafName;
-                    for ( LookAndFeelInfo laf : lafs )
-                        if ( laf.getName().equals(lafName) )
-                        {
-                            try
-                            {
-                                UIManager.setLookAndFeel(laf.getClassName());
-                                SwingUtilities.updateComponentTreeUI(frame);
-
-                                LAF = laf.getName();
-                            } catch (Exception ex)
-                            {
-                                ex.printStackTrace();
-                            }
-                            frame.repaint();
-                            break;
-                        }
-                }
-            }
-        });
+        JLAFComboBox lafCB = new JLAFComboBox();
 
         JPanel ctrlPanel = new JPanel(new BorderLayout());
         ctrlPanel.add(lafCB, BorderLayout.WEST);
