@@ -1,5 +1,7 @@
 /*
- * (c) copyright 2019 Bernd Wengenroth
+ * The MIT License
+ *
+ * Copyright 2019-2020 Bernd Wengenroth.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8,20 +10,32 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
+package com.bw.jtools.profiling;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Examples for usage of this library.
+ * Base for profiling information instances that can be identified via an numerical ID.
  */
-package com.bw.jtools.examples;
+public class IdentifiableProfilingInformation extends ProfilingInformation
+{
+    private final static AtomicInteger idGenerator = new AtomicInteger(1);
 
+    /**
+     * The unique id of this profiling object.<br>
+     * Each id is unique during one life-cycle but may diff in different life-cycles.
+     */
+    public final Integer ID = idGenerator.incrementAndGet();
+
+}

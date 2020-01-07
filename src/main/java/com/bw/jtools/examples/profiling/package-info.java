@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2019 Bernd Wengenroth
+ * (c) copyright 2020 Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
  */
 
 /**
- * Examples for usage of this library.
+ * Examples for usage of {@link com.bw.jtools.profiling}.
  */
-package com.bw.jtools.examples;
+package com.bw.jtools.examples.profiling;
 
