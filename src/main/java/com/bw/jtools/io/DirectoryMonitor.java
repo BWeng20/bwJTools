@@ -434,20 +434,30 @@ public class DirectoryMonitor
      */
     public synchronized void removePath( Path path, DirectoryMonitorListener listener )
     {
-        PathData pd = getPathData( path );
-        if ( pd != null )
+        File file = path.toFile();
+        // Try to canonicalize.
+        synchronized ( this.paths )
         {
-            pd.listener.remove(listener);
-            if (pd.listener.isEmpty())
+            try
             {
-                synchronized ( this.paths )
+                final String cannonialPath = file.getCanonicalFile().getPath();
+                PathData pd = paths.get(cannonialPath);
+                if ( pd != null )
                 {
-                    this.paths.remove(pd);
-                    if ( pd.poll )
+                    pd.listener.remove(listener);
+                    if (pd.listener.isEmpty())
                     {
+                        this.paths.remove(cannonialPath);
+                        if ( pd.poll )
+                        {
+                        }
                     }
+                
                 }
-            }
+            } 
+            catch ( Exception ex )
+            {
+            }            
         }
     }
 
