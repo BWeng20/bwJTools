@@ -43,7 +43,7 @@ public class JExceptionDialogDemo
 
     static public void main( String args[] )
     {
-        JExceptionDialogDemo demo = new JExceptionDialogDemo();
+        new JExceptionDialogDemo();
     }
 
     int count_ = 1;

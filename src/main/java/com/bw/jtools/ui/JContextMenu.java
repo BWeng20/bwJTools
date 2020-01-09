@@ -8,7 +8,8 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import jdk.internal.org.jline.utils.Log;
+
+import com.bw.jtools.Log;
 
 /**
  * Helper to show context-relative Pop-Up-Menus.

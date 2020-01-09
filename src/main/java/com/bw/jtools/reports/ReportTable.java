@@ -21,8 +21,6 @@
  */
 package com.bw.jtools.reports;
 
-import java.util.ArrayList;
-
 public class ReportTable extends ReportElement
 {
     public ReportTable()

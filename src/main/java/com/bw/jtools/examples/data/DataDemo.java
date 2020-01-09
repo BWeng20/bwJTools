@@ -39,10 +39,10 @@ public class DataDemo extends JFrame
     static LoggerDataModel model_ ;
     static boolean running = true;
 
-    static public void main( String args[] )
+    public static void main( String args[] )
     {
         model_ = new LoggerDataModel();
-        DataDemo demo = new DataDemo();
+        new DataDemo();
         Log.info("Demo Started.");
     }
 

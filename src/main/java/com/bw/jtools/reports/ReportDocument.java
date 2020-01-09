@@ -21,9 +21,6 @@
  */
 package com.bw.jtools.reports;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ReportDocument extends ReportElement
 {
     public final String title;

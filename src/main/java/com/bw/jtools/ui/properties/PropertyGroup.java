@@ -90,7 +90,7 @@ public class PropertyGroup extends DefaultMutableTreeNode
      */
     public PropertyValue getProperty( String name )
     {
-        for ( TreeNode node : children)
+        for ( Object node : children)
         {
             if ( ((PropertyValue)node).displayName_.equals(name) )
             {

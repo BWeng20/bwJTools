@@ -283,7 +283,7 @@ public class Store
         {
             if ( Application.AppClass != null )
             {
-                String fullname = Application.AppClass.getPackageName();
+                String fullname = Application.AppClass.getPackage().getName();
                 if (fullname != null)
                 {
                     int firstDot = fullname.indexOf('.');

@@ -116,7 +116,7 @@ public class JTabComponentDemo
 
     static public void main( String args[] )
     {
-        JTabComponentDemo demo = new JTabComponentDemo();
+        new JTabComponentDemo();
     }
 
     int tabPane_lastIndex = 0;

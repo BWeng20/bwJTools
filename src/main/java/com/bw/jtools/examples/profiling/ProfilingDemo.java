@@ -23,6 +23,16 @@
  */
 package com.bw.jtools.examples.profiling;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.bw.jtools.profiling.CalleeProfilingInformation;
 import com.bw.jtools.profiling.ClassProfilingInformation;
 import com.bw.jtools.profiling.MethodProfiling;
@@ -32,15 +42,6 @@ import com.bw.jtools.profiling.callgraph.CallGraphGenerator;
 import com.bw.jtools.profiling.callgraph.CallNode;
 import com.bw.jtools.profiling.callgraph.FreeMindGraphRenderer;
 import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * A test for profiling with different examples about profiling methods and
@@ -176,7 +177,7 @@ public class ProfilingDemo
             Writer w = null;
             try
             {
-                w = Files.newBufferedWriter(Path.of(fileName), StandardCharsets.UTF_8);
+                w = Files.newBufferedWriter(Paths.get(fileName), StandardCharsets.UTF_8);
                 w.write(mindMap);
             }
             catch (IOException ex)

@@ -211,7 +211,7 @@ public abstract class StorageBase
 
     /**
      * Gets a list with all keys that share some prefix.<br>
-     * Defaults are not concidered here.
+     * Defaults are not considered here.
      * @param prefix The common prefix.
      * @return The list of matching preferences.
      */
