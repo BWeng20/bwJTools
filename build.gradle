@@ -15,19 +15,37 @@ repositories {
     jcenter()
 }
 
+project.version="1.0"
+
 task copyToDist(type: Copy) {
     from configurations.compile
     into "${buildDir}/output/dist"
 }
 
 task fatJar(type: Jar) {
-	manifest {
+    description = "Create a jar with all dependencies."
+    manifest {
         attributes 'Implementation-Title': 'jtools',  
         	   'Implementation-Version': '1.0',
         	   'Main-Class': 'com.bw.jtools.ui.properties.PropertyTableDemo'
     }
     baseName = project.name + '-all'
+    excludes = [ '**/com/bw/jtools/examples/**' ]
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+jar {
+    excludes = [ '**/com/bw/jtools/examples/**' ]
+}
+
+task profileJar(type: Jar) {
+    description = "Create a jar only with Profiling stuff."
+    group = "Build"
+    baseName = "bwJProfiling"
+    includes = [ '**/com/bw/jtools/Log**', '**/com/bw/jtools/profiling/**', '**/com/bw/jtools/log/**' ]
+    includeEmptyDirs = false
+    from { configurations.compile }
     with jar
 }
 
@@ -40,6 +58,12 @@ javadoc {
             }
         }
     }
+
+task javadocJar(type: Jar) {
+    from javadoc
+    group = "Documentation"
+    classifier = 'javadoc'
+}
 
 configurations {
     runtimeOnly {
