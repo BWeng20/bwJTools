@@ -43,14 +43,25 @@ public final class CallGraphGenerator
      * @param mi The method to use as root.
      * @return The root of the call-graph.
      */
-    public static CallNode generateGraph( MethodProfilingInformation mi )
+    public static CallNode generateGraph( MethodProfilingInformation mi, Options options )
     {
-        return new CallNode(mi, new GraphStack());
+        return new CallNode(mi, new GraphStack(), options);
     }
 
     /**
+     * Generates a call graph with default options.
+     * @param mi The method to use as root.
+     * @return The root of the call-graph.
+     */
+    public static CallNode generateGraph( MethodProfilingInformation mi )
+    {
+        return generateGraph(mi, DEFAULT_OPTIONS );
+    }
+
+
+    /**
      * Extracts all methods that are not called by other from the list.
-     * @param cis
+     * @param cis Collection of class information.
      * @return The list of top-level-methods.
      */
     public static List<MethodProfilingInformation> filterTopLevelCalls(Collection<ClassProfilingInformation> cis)
@@ -83,6 +94,23 @@ public final class CallGraphGenerator
         }
         return l;
     }
+
+    /**
+     * Options.
+     */
+    public static class Options
+    {
+        /** Adds the class name to each node. */
+        public boolean showClassName = true;
+
+        /** Highlights the critical path - if supported by renderer. */
+        public boolean hightlightCritical = true;
+    }
+
+    /**
+     * Default options.
+     */
+    public static final Options DEFAULT_OPTIONS = new Options();
 
     /**
      * Helper class to detect recursion.

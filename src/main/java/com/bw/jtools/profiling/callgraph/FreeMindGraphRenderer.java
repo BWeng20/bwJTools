@@ -33,6 +33,10 @@ public class FreeMindGraphRenderer extends AbstractCallGraphRenderer
     private boolean root = true;
     private CallEdge edge = null;
 
+    /**
+     * Creates a renderer that outputs Freemind xml content.
+     * @param nf Number format to use.
+     */
     public FreeMindGraphRenderer(NumberFormat nf)
     {
         super(nf);
@@ -55,10 +59,9 @@ public class FreeMindGraphRenderer extends AbstractCallGraphRenderer
             sb.append("bubble");
         }
 
-        sb.append("\">\n");
-        sb.append("<richcontent TYPE=\"NODE\"><html><head/><body>\n<p><b><font size=\"3\">");
+        sb.append("\"><richcontent TYPE=\"NODE\"><html><head/><body><p><b><font size=\"3\">");
         appendEscaped( node.name );
-        sb.append("</font></b></p>\n");
+        sb.append("</font></b></p>");
 
         if ( node.value != null )
         {
@@ -80,23 +83,35 @@ public class FreeMindGraphRenderer extends AbstractCallGraphRenderer
             if ( node.calls>1) {
                 sb.append('s');
             }
-            sb.append(".</p>\n");
+            sb.append(".</p>");
         }
         sb.append("</body></html></richcontent>");
 
-        if( edge != null && edge.value == null && !root )
+        if( edge != null )
         {
-            // Top-level-call that is not root -> multiple roots in one graph,
-            // add a cloud around each top-level call.
-            sb.append("<cloud COLOR=\"#ffffff\" SHAPE=\"ARC\"/>");
+            if( edge.value == null )
+            {
+                // Top-level-call that is not root -> multiple roots in one graph,
+                // add a cloud around each top-level call.
+                sb.append("<cloud COLOR=\"#ffffff\" SHAPE=\"ARC\"/>");
+                sb.append("<edge WIDTH=\"1\" DASH=\"CLOSE_DOTS\"/>");
+            }
+            else if ( edge.hightlight )
+            {
+                sb.append("<edge WIDTH=\"4\" DASH=\"SOLID\"/>");
+            }
+            else
+            {
+                sb.append("<edge WIDTH=\"1\" DASH=\"SOLID\"/>");
+            }
         }
-        sb.append("\n");
 
         if ( root )
         {
             root = false;
             // sb.append("<hook NAME=\"MapStyle\" layout=\"OUTLINE\"><font SIZE=\"16\"/></hook>\n" );
         }
+        sb.append('\n');
 
     }
 

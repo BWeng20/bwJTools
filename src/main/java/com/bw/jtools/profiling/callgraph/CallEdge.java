@@ -33,15 +33,17 @@ public final class CallEdge
 {
     public CallEdge( CallNode node )
     {
+        this.hightlight = false;
         callee = node;
         value = null;
         count = node.calls;
     }
 
-    public CallEdge( CalleeProfilingInformation ci, CallGraphGenerator.GraphStack g )
+    public CallEdge( CalleeProfilingInformation ci, CallGraphGenerator.GraphStack g, CallGraphGenerator.Options options )
     {
+        this.hightlight = false;
         if ( !g.onStack(ci.callee) ) {
-            callee = new CallNode(ci.callee, g);
+            callee = new CallNode(ci.callee, g, options);
             g.pop(ci.callee);
         }
         else {
@@ -61,5 +63,13 @@ public final class CallEdge
      */
     public final MeasurementValue value;
 
+    /**
+     * Number of calls for this relation.
+     */
     public final int count;
+
+    /**
+     * If true the edge shall be hightlighted.
+     */
+    public boolean hightlight;
 }

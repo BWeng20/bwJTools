@@ -37,18 +37,40 @@ import java.util.List;
 public final class CallNode
 {
 
-    public CallNode( MethodProfilingInformation mi, CallGraphGenerator.GraphStack g) {
+    public CallNode( MethodProfilingInformation mi, CallGraphGenerator.GraphStack g, CallGraphGenerator.Options options) {
 
-        name = mi.name;
+        if ( options.showClassName && mi.clazz != null ) {
+            name = mi.clazz.name+'.'+mi.name;
+        }
+        else
+        {
+            name = mi.name;
+        }
         calls = mi.calls;
         value = (mi.sum == null) ? null : mi.sum.clone();
 
         edges = new ArrayList<>( mi.callees.size() );
+
+        CalleeProfilingInformation highlight = null;
+
+        if ( options.hightlightCritical )
+        {
+            MeasurementValue v = null;
+            for ( CalleeProfilingInformation ci : mi.callees.values() )
+            {
+                if ( v == null || v.lessThan(ci.sum))
+                {
+                    highlight = ci;
+                    v = ci.sum;
+                }
+            }
+        }
         for ( CalleeProfilingInformation ci : mi.callees.values() )
         {
-            edges.add( new CallEdge( ci, g ));
+            CallEdge ce = new CallEdge( ci, g, options );
+            ce.hightlight = (highlight == ci);
+            edges.add( ce );
         }
-
     }
 
     /**
