@@ -23,7 +23,6 @@
  */
 package com.bw.jtools.profiling;
 
-import com.bw.jtools.Log;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
@@ -32,20 +31,27 @@ import java.util.stream.Stream;
  */
 public final class ReflectionProfilingUtil
 {
+    public static enum StackAccessMode {
+
+        /** StackWalker, since Java 9. */
+        STACKWALKER,
+
+        /** Via protected Throwable-Method, works through Java 8. */
+        GETSTACKTRACEELEMENT,
+
+        /** Fail-safe via {@link java.lang.Throwable#getStackTrace()}, works always but is slower by factor 10. */
+        FAILSAFE,
+
+        /** Try to detect the best way. */
+        AUTO;
+    }
 
     /**
      * Will be set to true during initialization if Java9 "StackWalker" should
      * be used.<br>
      * See static initialization.
      */
-    private static final boolean USE_STACK_WALKER;
-
-    /**
-     * Will be set to true if some fatal error occurs during access to a
-     * stack-trace.<br>
-     * If true the fallback will be used without trying optimized access.
-     */
-    private static boolean currentStrackTraceReflectError = false;
+    private static StackAccessMode stackAccessMode = StackAccessMode.AUTO;
 
     /**
      * For prior Java9 a protected method of "Throwable" will be sued to access
@@ -55,33 +61,48 @@ public final class ReflectionProfilingUtil
 
     static
     {
+        setStackTraceAccessMode( StackAccessMode.AUTO );
+    }
 
-        boolean useStackWalkerTemp;
-        try
-        {
-            Class.forName("java.lang.StackWalker");
-            useStackWalkerTemp = true;
-            Log.info("Using StackWalker to access stack");
-        } catch (Throwable t)
-        {
-            useStackWalkerTemp = false;
-        }
-        USE_STACK_WALKER = useStackWalkerTemp;
-
-        if (!useStackWalkerTemp)
+    /**
+     * Sets a new stack-trace-access mode, used to retrieve caller-methods.
+     * @param mode The mode to set.
+     */
+    public static void setStackTraceAccessMode( StackAccessMode mode )
+    {
+        if ( mode == StackAccessMode.AUTO )
         {
             try
             {
-                throwableGetStackTraceElement = Throwable.class.getDeclaredMethod("getStackTraceElement", int.class);
-                throwableGetStackTraceElement.setAccessible(true);
-                Log.info("Using Throwable.getStackTraceElement to access stack-trace");
-            } catch (Exception e)
-            {
-                // If exception is NoSuchMethodException, we should have Jdk 9+, but 9 has StackWalker.
-                Log.error("Failed to use Throwable.getStackTraceElement to access stack-trace, switching to fail-safe mode", e);
-                currentStrackTraceReflectError = true;
+                Class.forName("java.lang.StackWalker");
+                stackAccessMode = StackAccessMode.STACKWALKER;
             }
+            catch (Exception t)
+            {
+                try
+                {
+                    throwableGetStackTraceElement = Throwable.class.getDeclaredMethod("getStackTraceElement", int.class);
+                    throwableGetStackTraceElement.setAccessible(true);
+                    stackAccessMode = StackAccessMode.GETSTACKTRACEELEMENT;
+                } catch (Exception e)
+                {
+                    // If exception is NoSuchMethodException, we should have Jdk 9+, but 9 has StackWalker.
+                    stackAccessMode = StackAccessMode.FAILSAFE;
+                }
+            }
+        } else
+        {
+            stackAccessMode = mode;
         }
+    }
+
+    /**
+     * The current stack-trace-access mode.
+     * @return The current mode.
+     */
+    public static StackAccessMode getStackTraceAccessMode()
+    {
+        return stackAccessMode;
     }
 
     /**
@@ -96,34 +117,43 @@ public final class ReflectionProfilingUtil
      * Gets a stack-trace-element with minimal overhead.
      *
      * @param level 1 for caller of this method and +1 for each caller above.
-     * @return
+     * @return The Trace Element.
      */
     public static StackTraceElement getStackTraceElement(int level)
     {
-        if (!currentStrackTraceReflectError)
+        if ( stackAccessMode == StackAccessMode.STACKWALKER )
         {
             try
             {
-                if (USE_STACK_WALKER)
+                StackWalker.StackFrame result = StackWalker.getInstance().walk((Stream<StackWalker.StackFrame> stream) ->
                 {
-                    StackWalker.StackFrame result = StackWalker.getInstance().walk((Stream<StackWalker.StackFrame> stream) ->
-                    {
-                        return stream.skip(level).limit(1).findFirst().orElse(null);
-                    });
-                    return result != null ? result.toStackTraceElement() : null;
-                } else
-                {
-                    return (StackTraceElement) throwableGetStackTraceElement.invoke(new Throwable(), level);
-                }
-            } catch (ArrayIndexOutOfBoundsException ai)
+                    return stream.skip(level).limit(1).findFirst().orElse(null);
+                });
+                return result != null ? result.toStackTraceElement() : null;
+            }
+            catch (ArrayIndexOutOfBoundsException ai)
             {
                 return null;
-            } catch (Throwable t)
+            }
+            catch (Throwable t)
             {
-                Log.error("Failed to access stack-trace, switching to fail-safe mode", t);
-                currentStrackTraceReflectError = true;
+                // Failed to access stack-trace, switching to fail-safe mode
+                stackAccessMode = StackAccessMode.FAILSAFE;
             }
         }
+        else if ( stackAccessMode == StackAccessMode.GETSTACKTRACEELEMENT )
+        {
+            try
+            {
+                return (StackTraceElement)throwableGetStackTraceElement.invoke(new Throwable(), level);
+            }
+            catch (Throwable t)
+            {
+                // Failed to access stack-trace, switching to fail-safe mode
+                stackAccessMode = StackAccessMode.FAILSAFE;
+            }
+        }
+
         // Use the really slow (10x) but fail-safe method.
         // Remind, that some VMs (and really old versions) may NOT return the elements as expected!
         return new Throwable().getStackTrace()[level];
@@ -131,6 +161,8 @@ public final class ReflectionProfilingUtil
 
     /**
      * Normalize a class name according to settings.
+     * @param className The name of the class.
+     * @return The normalized class name.
      */
     public static String normalizeClassName(final String className)
     {
