@@ -50,15 +50,15 @@ public final class MethodProfilingInformation extends IdentifiableProfilingInfor
 
     /**
      * Callees from this method.<br>
-     * Methods that are profiled during a call of this method are collected here.<nr>
+     * Methods that are profiled during a call of this method are collected here.<br>
      * Remind that only profiled methods are collected. Relation is not transitive.
      */
     public final Map<Integer, CalleeProfilingInformation> callees;
 
     /**
      * C'tor to create a new Method-Information instance.
-     * @param clazz
-     * @param name
+     * @param clazz The class information the method belongs to.
+     * @param name The name of the method.
      */
     public MethodProfilingInformation(final ClassProfilingInformation clazz, final String name)
     {

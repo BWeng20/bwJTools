@@ -111,6 +111,7 @@ public final class DataTablePanel extends javax.swing.JPanel
 
     /**
      * Creates a new DataTable-Panel.
+     * @param model The model.
      */
     public DataTablePanel(DataTableModel model )
     {

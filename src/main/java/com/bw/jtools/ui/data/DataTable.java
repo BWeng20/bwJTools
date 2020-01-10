@@ -63,6 +63,7 @@ public final class DataTable extends JTable
 
     /**
      * Create a new DataTable instance.
+     * @param mdl The model.
      */
     public DataTable(DataTableModel mdl)
     {

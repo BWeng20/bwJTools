@@ -105,7 +105,8 @@ public final class ThreadProfilingInformation
     }
 
     /**
-     * Checks if a method is in current stack.
+     * Checks if a method is on stack.
+     * @param mi The method.
      * @return True if on stack.
      */
     public boolean isOnStack(MethodProfilingInformation mi)

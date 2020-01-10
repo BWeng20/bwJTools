@@ -79,7 +79,7 @@ public class MeasurementValue implements Comparable<MeasurementValue>, Cloneable
     }
 
     /**
-     * Convenience variant. Same as "compareTo(other)<0".
+     * Convenience variant. Same as "compareTo(other) &lt; 0".
      * @param other The other instance.
      * @return true if this instance is less than the other.
      */
@@ -89,7 +89,7 @@ public class MeasurementValue implements Comparable<MeasurementValue>, Cloneable
     }
 
     /**
-     * Convenience variant. Same as "compareTo(other)>0".
+     * Convenience variant. Same as "compareTo(other) &gt; 0".
      * @param other The other instance.
      * @return true if this instance is greater than the other.
      */

@@ -49,7 +49,7 @@ public abstract class AbstractCallGraphRenderer
 
     /**
      * Renders the call graph of one method
-     * @param root
+     * @param root Root node.
      * @return The call graph graphical description.
      */
     public final String render( CallNode root )
@@ -63,7 +63,7 @@ public abstract class AbstractCallGraphRenderer
 
     /**
      * Renders multiple calls in one graph
-     * @param roots
+     * @param roots Roots of the calls.
      * @return The call graph graphical description.
      */
     public final String render( List<CallNode> roots )

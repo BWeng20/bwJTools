@@ -27,12 +27,10 @@ import com.bw.jtools.log.OS;
 import java.text.NumberFormat;
 
 /**
- *
  * Producer interface for Measurement values.
  */
 public abstract class AbstractMeasurementSource
 {
-
     /**
      * The currently used measurement source.
      */
@@ -54,9 +52,10 @@ public abstract class AbstractMeasurementSource
     public abstract MeasurementValue measure();
 
     /**
-     * Returns a instance that reflects the current value.
-     * The first dimension have to be strictly monotone.
-     * @return The current value.
+     * Returns the formatted value.<br>
+     * @param nf The number format to use.
+     * @param value The value to format.
+     * @return The formatted value.
      */
     public abstract String format( NumberFormat  nf, MeasurementValue value );
 

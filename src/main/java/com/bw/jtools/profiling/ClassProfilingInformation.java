@@ -122,7 +122,7 @@ public final class ClassProfilingInformation extends IdentifiableProfilingInform
     /**
      * Gets or creates the information object for the method.<br>
      * The method is thread-safe.
-     * @param methodName
+     * @param methodName The name of the method.
      * @return The Method-Information instance
      */
     public MethodProfilingInformation getMethodInformation(String methodName)

@@ -310,12 +310,17 @@ public final class Log
 
     /**
      * Adds a application specific logger.
+     * @param logger The logger to add.
      */
     static public void addLogger(LoggerFacade logger)
     {
         log = MulticastLogger.addLogger(log, logger );
     }
 
+    /**
+     * Removes a application specific logger.
+     * @param logger The logger to remove.
+     */
     static public void removeLogger(LoggerFacade logger)
     {
         log = MulticastLogger.removeLogger(log, logger);
