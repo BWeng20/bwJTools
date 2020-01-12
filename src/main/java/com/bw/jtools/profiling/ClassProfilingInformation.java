@@ -24,6 +24,7 @@
 package com.bw.jtools.profiling;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,8 @@ public final class ClassProfilingInformation extends IdentifiableProfilingInform
     private final static Map<String,ClassProfilingInformation> classInfo = new HashMap<>(50);
 
     private final Map<String,MethodProfilingInformation> methods = new HashMap<>(15);
+
+    private static Date startOfProfiling = new Date();
 
     /**
      * Creates a new Class Information object.
@@ -77,12 +80,21 @@ public final class ClassProfilingInformation extends IdentifiableProfilingInform
     public static void clearProfilingInformation( )
     {
         synchronized( classInfo ) {
+            startOfProfiling = new Date();
             for ( ClassProfilingInformation ci : classInfo.values()) {
                 ci.clear();
             }
         }
     }
 
+    /**
+     * Get start date and time.
+     * @return The current system time of start of profiling.
+     */
+    public static Date getProfilingStartTime( )
+    {
+        return startOfProfiling;
+    }
 
     /**
      * Get the class information for the module/class.<br>

@@ -29,7 +29,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,11 +36,11 @@ import com.bw.jtools.profiling.CalleeProfilingInformation;
 import com.bw.jtools.profiling.ClassProfilingInformation;
 import com.bw.jtools.profiling.MethodProfiling;
 import com.bw.jtools.profiling.MethodProfilingInformation;
-import com.bw.jtools.profiling.callgraph.CallEdge;
-import com.bw.jtools.profiling.callgraph.CallGraphGenerator;
-import com.bw.jtools.profiling.callgraph.CallNode;
+import com.bw.jtools.profiling.callgraph.AbstractCallGraphRenderer;
 import com.bw.jtools.profiling.callgraph.FreeMindGraphRenderer;
+import com.bw.jtools.profiling.callgraph.Options;
 import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
+import java.util.Date;
 
 /**
  * A test for profiling with different examples about profiling methods and
@@ -147,7 +146,7 @@ public class ProfilingDemo
             ///////////////////////////////////////////////////
             // Access call-relations, beginning at top-level
             // methods.
-            List<MethodProfilingInformation> topMethods = CallGraphGenerator.filterTopLevelCalls(ClassProfilingInformation.getClassInformation());
+            List<MethodProfilingInformation> topMethods = AbstractCallGraphRenderer.filterTopLevelCalls(ClassProfilingInformation.getClassInformation());
 
             // "publicRecursiveMethod" is recursive. Recursive methods are only profiles by
             // the top-most call in the stack.
@@ -157,7 +156,7 @@ public class ProfilingDemo
             for ( MethodProfilingInformation mi : topMethods )
             {
                 System.out.println( "-- Top Method "+mi.name+" ------------" );
-                dumpCallNode( "-->", CallGraphGenerator.generateGraph(mi) );
+                dumpCall( "-->", mi );
             }
             System.out.println( "------------------------------------------------------" );
         }
@@ -167,12 +166,9 @@ public class ProfilingDemo
         String fileName = getArgument("file", null);
         if ( fileName != null )
         {
-            List<MethodProfilingInformation> topMethods = CallGraphGenerator.filterTopLevelCalls(ClassProfilingInformation.getClassInformation());
-            List<CallNode> topNodes = new ArrayList<>(topMethods.size());
-            for ( MethodProfilingInformation mi : topMethods ) {
-                topNodes.add( CallGraphGenerator.generateGraph(mi) );
-            }
-            String mindMap = new FreeMindGraphRenderer(nf).render(topNodes);
+            List<MethodProfilingInformation> topMethods = AbstractCallGraphRenderer.filterTopLevelCalls(ClassProfilingInformation.getClassInformation());
+            String mindMap = new FreeMindGraphRenderer(nf, Options.HIGHLIGHT_CRITICAL, Options.ADD_MIN_MAX)
+                    .render(topMethods, ClassProfilingInformation.getProfilingStartTime(), new Date() );
 
             Writer w = null;
             try
@@ -203,18 +199,18 @@ public class ProfilingDemo
 
     }
 
-    private static void dumpCallNode( String prefix, CallNode n )
+    private static void dumpCall( String prefix, MethodProfilingInformation mi )
     {
-        System.out.println( prefix+n.toString(nf) );
-        for ( CallEdge e : n.edges ){
-            dumpCallEdge("--"+prefix, e);
+        System.out.println( prefix+mi.name+" "+AbstractMeasurementSource.currentSource.format(nf,mi.sum) );
+        for ( CalleeProfilingInformation ci : mi.callees.values() ){
+            dumpCallEdge("--"+prefix, ci);
         }
-
     }
-    private static void dumpCallEdge( String prefix, CallEdge e )
+
+    private static void dumpCallEdge( String prefix, CalleeProfilingInformation ci )
     {
-        if ( e.callee != null )
-            dumpCallNode( prefix, e.callee );
+        if ( ci.callee != null )
+            dumpCall( prefix, ci.callee );
     }
 
     private void otherCallTop()
@@ -339,10 +335,10 @@ public class ProfilingDemo
     {
         try ( MethodProfiling np = new MethodProfiling() )
         {
-            double s = 0;
+            String s = "";
             for (long l=0 ; l<workLoop; l++)
             {
-                s = s+2 * Math.pow(s,5);
+              s = s + "+";
             }
         }
     }

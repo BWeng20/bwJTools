@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019-2020 Bernd Wengenroth.
+ * Copyright 2020 Bernd Wengenroth.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,45 +23,15 @@
  */
 package com.bw.jtools.profiling.callgraph;
 
-import com.bw.jtools.profiling.measurement.MeasurementValue;
-
 /**
- * A directed edge inside a call graph.
+ * Render Options.
  */
-public final class CallEdge
+public enum Options
 {
-
-    /**
-     * Creates an edge.
-     * @param value The measured value.
-     * @param count Number of calls via this edge.
-     * @param callee The callee.
-     */
-    public CallEdge( MeasurementValue value, int count, CallNode callee )
-    {
-        this.hightlight = false;
-        this.value = (value == null)?null:value.clone();
-        this.count = count;
-        this.callee = callee;
-    }
-
-    /**
-     * The Callee.
-     */
-    public final CallNode callee;
-
-    /**
-     * The measurement value of the callee-relation.
-     */
-    public final MeasurementValue value;
-
-    /**
-     * Number of calls for this relation.
-     */
-    public final int count;
-
-    /**
-     * If true the edge shall be highlighted.
-     */
-    public boolean hightlight;
+    /** Highlights the critical path - if supported by renderer. */
+    HIGHLIGHT_CRITICAL,
+    /** Adds the class name to each node. */
+    ADD_CLASSNAMES,
+    /** Add minimum and maximum values - if supported by renderer. */
+    ADD_MIN_MAX;
 }

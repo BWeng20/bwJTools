@@ -23,8 +23,6 @@
  */
 package com.bw.jtools.profiling.callgraph;
 
-import com.bw.jtools.profiling.CalleeProfilingInformation;
-import com.bw.jtools.profiling.MethodProfilingInformation;
 import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
 import com.bw.jtools.profiling.measurement.MeasurementValue;
 import java.text.NumberFormat;
@@ -36,41 +34,19 @@ import java.util.List;
  */
 public final class CallNode
 {
-
-    public CallNode( MethodProfilingInformation mi, CallGraphGenerator.GraphStack g, CallGraphGenerator.Options options) {
-
-        if ( options.showClassName && mi.clazz != null ) {
-            name = mi.clazz.name+'.'+mi.name;
-        }
-        else
-        {
-            name = mi.name;
-        }
-        calls = mi.calls;
-        value = (mi.sum == null) ? null : mi.sum.clone();
-
-        edges = new ArrayList<>( mi.callees.size() );
-
-        CalleeProfilingInformation highlight = null;
-
-        if ( options.hightlightCritical )
-        {
-            MeasurementValue v = null;
-            for ( CalleeProfilingInformation ci : mi.callees.values() )
-            {
-                if ( v == null || v.lessThan(ci.sum))
-                {
-                    highlight = ci;
-                    v = ci.sum;
-                }
-            }
-        }
-        for ( CalleeProfilingInformation ci : mi.callees.values() )
-        {
-            CallEdge ce = new CallEdge( ci, g, options );
-            ce.hightlight = (highlight == ci);
-            edges.add( ce );
-        }
+    /**
+     * Create a new Node for a method.<br>
+     * Remind that a method can have multiple nodes inside the graph.
+     * @param name  The name.
+     * @param calls Absolute number of calls.
+     * @param value The measured value.
+     */
+    public CallNode( String name, int calls, MeasurementValue value ) {
+        this.name    = name;
+        this.calls   = calls;
+        this.value   = (value == null)?null:value.clone();
+        this.details = new ArrayList<>();
+        this.edges   = new ArrayList<>();
     }
 
     /**
@@ -97,6 +73,12 @@ public final class CallNode
      * The name of the method/code-unit
      */
     public final String name;
+
+    /**
+     * Additional details to show.<br>
+     * Can be empty or null.
+     */
+    public List<String> details;
 
     /**
      * The absolute number of calls to the method.
