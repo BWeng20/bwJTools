@@ -73,7 +73,6 @@ configurations {
     }
 }
 
-
 dependencies {
     testCompile 'junit:junit:4.12'
     compile group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE110', classifier: 'sources'
@@ -85,9 +84,36 @@ dependencies {
     compile group: 'javax.interceptor', name: 'javax.interceptor-api', version: '3.1'
 }
 
-task runProfileDemo(type: Exec) {
+task runAppIconDemo(type: Exec) {
     dependsOn build
     group = "Examples"
-    description = "Run ProfileDemo"
-    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.profiling.ProfilingDemo", "-file=Test.mm" , "-workLoop=100000", "-repeat=50"
+    description = "Runs Aplication Icons Demo"
+    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.applicationicons.ApplicationIconsDemo" 
+}
+
+task runDataDemo(type: Exec) {
+    dependsOn build
+    group = "Examples"
+    description = "Runs DataDemo"
+    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.data.DataDemo" 
+}
+
+task runExceptionDialogDemo(type: Exec) {
+    dependsOn build
+    group = "Examples"
+    description = "Runs ExceptionDialogDemo"
+    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.exceptiondialog.JExceptionDialogDemo" 
+}
+task runProfilingDemo(type: Exec) {
+    dependsOn build
+    group = "Examples"
+    description = "Runs Profiling Demo"
+    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.profiling.ProfilingDemo", "-file=Test.mm" , "-workLoop=10000", "-repeat=50"
+}
+
+task runPropTableDemo(type: Exec) {
+    dependsOn build
+    group = "Examples"
+    description = "Runs PropertyTable Demo"
+    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.propertytable.PropertyTableDemo"
 }
