@@ -62,9 +62,9 @@ public final class CallNode
         {
             sb
                     .append( ' ' )
-                    .append( AbstractMeasurementSource.currentSource.format( nf, value) )
+                    .append( AbstractMeasurementSource.format( nf, value) )
                     .append( ", net " )
-                    .append( AbstractMeasurementSource.currentSource.format( nf, getNetMeasurement() ) );
+                    .append( AbstractMeasurementSource.format( nf, getNetMeasurement() ) );
         }
         return sb.toString();
     }

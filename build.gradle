@@ -17,6 +17,7 @@ repositories {
 
 project.version="1.0"
 
+
 task copyToDist(type: Copy) {
     from configurations.compile
     into "${buildDir}/output/dist"
@@ -26,28 +27,73 @@ task fatJar(type: Jar) {
     description = "Create a jar with all dependencies."
     manifest {
         attributes 'Implementation-Title': 'jtools',  
-        	   'Implementation-Version': '1.0',
+        	   'Implementation-Version': project.version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
         	   'Main-Class': 'com.bw.jtools.ui.properties.PropertyTableDemo'
     }
     baseName = project.name + '-all'
-    excludes = [ '**/com/bw/jtools/examples/**' ]
+    includeEmptyDirs = false
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
-jar {
-    excludes = [ '**/com/bw/jtools/examples/**' ]
-}
-
-task profileJar(type: Jar) {
-    description = "Create a jar only with Profiling stuff."
-    group = "Build"
-    baseName = "bwJProfiling"
-    includes = [ '**/com/bw/jtools/Log**', '**/com/bw/jtools/profiling/**', '**/com/bw/jtools/log/**' ]
-    includeEmptyDirs = false
-    from { configurations.compile }
+task uiClientJar(type: Jar) {
+    description = "Create a jar for UI clients without dependencies."
+    manifest {
+        attributes 'Implementation-Title': 'jtools',  
+        	   'Implementation-Version': project.version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})"
+    }
+    excludes = [ '**/com/bw/jtools/examples/**',
+                 '**/com/bw/jtools/profiling/weaving/**',
+                 '**/org/apache/logging/**',
+                 '**/net/bytebuddy/**' ];
+    baseName = project.name + 'UI';
+    includeEmptyDirs = false;
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+
+task exampleJar(type: Jar) {
+    description = "Create a jar with examples for tests."
+    group = "Build"
+    baseName = project.name + 'Examples';
+    excludes = [ '**/com/bw/jtools/profiling/weaving/**',
+                 '**/org/apache/logging/**',
+                 '**/net/bytebuddy/**' ];
+    includeEmptyDirs = false
+    manifest {
+        attributes 'Implementation-Title': 'jtools',  
+        	   'Implementation-Version': project.version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})"
+    }    
+    
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task profilingWeaverAgentJar(type: Jar) {
+    description = "Create a jar only with Profiling stuff - including weaving."
+    group = "Build"
+    baseName = "bwJProfilingWeaverAgent"
+    includes = [ '**/com/bw/jtools/Log**', '**/com/bw/jtools/profiling/**', '**/com/bw/jtools/log/**', '**/net/bytebuddy/**' ]
+    includeEmptyDirs = false
+    manifest {
+        attributes 'Implementation-Title': 'jtools',  
+        	   'Implementation-Version': project.version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                   'Premain-Class'  : "com.bw.jtools.profiling.weaving.ProfilingWeaver"
+    }    
+    
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 
 javadoc {
         doLast {
@@ -71,6 +117,7 @@ configurations {
         exclude group: 'org.apache.logging.log4j', module: 'log4j-core'
         /* exclude group: 'org.apache.commons', module: 'commons-csv' --> */
     }
+    weaving
 }
 
 dependencies {
@@ -82,6 +129,10 @@ dependencies {
     compile group: 'javax.json', name: 'javax.json-api', version: '1.1.4'
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.1'
     compile group: 'javax.interceptor', name: 'javax.interceptor-api', version: '3.1'
+    compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.10.6'
+    compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.10.6', classifier: 'sources'
+    compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.10.6', classifier: 'javadoc'
+    compile group: 'org.glassfish', name: 'javax.json', version: '1.1.4'
 }
 
 task runAppIconDemo(type: Exec) {
@@ -110,6 +161,51 @@ task runProfilingDemo(type: Exec) {
     description = "Runs Profiling Demo"
     commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.profiling.ProfilingDemo", "-file=Test.mm" , "-workLoop=10000", "-repeat=50"
 }
+
+task runProfilingWeaverDemo(type: Exec) {
+    dependsOn build
+    dependsOn profilingWeaverAgentJar
+    group = "Examples"
+    description = "Runs Profiling Weaver Demo"
+    // Configuration of ProfilingWeaver via system properties:
+    //   profiling.weaver.regex    RegExp to match class/method-names.
+    //   profiling.weaver.verbose  'true' or 'false' 
+    
+    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(),
+        "--add-opens", "java.base/java.lang=ALL-UNNAMED", "--illegal-access=deny",
+        "-Dprofiling.weaver.regex=.*ProfilingWeaverDemo:.*",
+        "-Dprofiling.weaver.verbose=false",
+        "-javaagent:${project.buildDir}/libs/bwJProfilingWeaverAgent-${project.version}.jar",
+         "com.bw.jtools.examples.profiling.ProfilingWeaverDemo", "-mmFile=build/Test.mm", "-jsonFile=build/Test.json" , "-workLoop=10000", "-repeat=20"
+}
+
+task runProfilingWeaverDemoVerbose(type: Exec) {
+    dependsOn build
+    dependsOn profilingWeaverAgentJar
+    dependsOn exampleJar
+    group = "Examples"
+    description = "Runs Profiling Weaver Demo in Verbose Mode"
+    commandLine "java", "-classpath", "${project.buildDir}/libs/${project.name}Examples-${project.version}.jar",
+        "--add-opens", "java.base/java.lang=ALL-UNNAMED", "--illegal-access=deny",
+        "-javaagent:${project.buildDir}/libs/bwJProfilingWeaverAgent-${project.version}.jar=jar:file:\$CODESOURCE${project.name}Examples-${project.version}.jar!/com/bw/jtools/examples/profiling/Weaver.properties",
+        "com.bw.jtools.examples.profiling.ProfilingWeaverDemo", 
+        "-mmFile=build/Test.mm", "-jsonFile=build/Test.json", "-jsonPrettyFile=build/TestPretty.json",
+        "-workLoop=10000", "-repeat=1"
+}
+
+task debugProfilingWeaverDemoVerbose(type: JavaExec) {
+    dependsOn build
+    dependsOn profilingWeaverAgentJar
+    dependsOn exampleJar
+    group = "Examples"
+    description = "Debug Profiling Weaver Demo in Verbose Mode"
+    main = "com.bw.jtools.examples.profiling.ProfilingWeaverDemo"
+    classpath = layout.files("${project.buildDir}/libs/${project.name}Examples-${project.version}.jar")
+    jvmArgs = [ "--add-opens", "java.base/java.lang=ALL-UNNAMED", "--illegal-access=deny", "-javaagent:${project.buildDir}/libs/bwJProfilingWeaverAgent-${project.version}.jar=jar:file:\$CODESOURCE${project.name}Examples-${project.version}.jar!/com/bw/jtools/examples/profiling/Weaver.properties" ]       
+    args = [ "-mmFile=build/Test.mm", "-jsonFile=build/Test.json", "-jsonPrettyFile=build/TestPretty.json", "-workLoop=10000", "-repeat=1" ]
+    debug = true
+}
+
 
 task runPropTableDemo(type: Exec) {
     dependsOn build

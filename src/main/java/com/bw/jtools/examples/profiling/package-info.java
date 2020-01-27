@@ -21,7 +21,7 @@
  */
 
 /**
- * Examples for usage of {@link com.bw.jtools.profiling}.
+ * Examples of usage of {@link com.bw.jtools.profiling}.
  */
 package com.bw.jtools.examples.profiling;
 

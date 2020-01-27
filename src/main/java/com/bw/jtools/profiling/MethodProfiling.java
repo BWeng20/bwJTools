@@ -67,7 +67,7 @@ public final class MethodProfiling implements AutoCloseable
      */
     public MethodProfiling()
     {
-        startTime = AbstractMeasurementSource.currentSource.measure();
+        startTime = AbstractMeasurementSource.measure();
         StackTraceElement ste = ReflectionProfilingUtil.getStackTraceElement(ReflectionProfilingUtil.CALLING_METHOD_STACK_INDEX);
         method = ThreadProfilingInformation.getInstance().getClassInformation(ReflectionProfilingUtil.normalizeClassName(ste.getClassName()) ).getMethodInformation( ste.getMethodName() );
         notRecursive = this.method.startCall();
@@ -80,7 +80,7 @@ public final class MethodProfiling implements AutoCloseable
      */
     public MethodProfiling(final String clazz, final String method)
     {
-        startTime = AbstractMeasurementSource.currentSource.measure();
+        startTime = AbstractMeasurementSource.measure();
         ThreadProfilingInformation ti = ThreadProfilingInformation.getInstance();
         this.method = ti.getClassInformation(clazz).getMethodInformation( method );
         notRecursive = this.method.startCall();
@@ -92,7 +92,7 @@ public final class MethodProfiling implements AutoCloseable
      */
     public MethodProfiling(MethodProfilingInformation method)
     {
-        startTime = AbstractMeasurementSource.currentSource.measure();
+        startTime = AbstractMeasurementSource.measure();
         this.method = method;
         notRecursive = this.method.startCall();
     }
@@ -111,7 +111,7 @@ public final class MethodProfiling implements AutoCloseable
     @Override
     public void close()
     {
-        usedTime = AbstractMeasurementSource.currentSource.measure();
+        usedTime = AbstractMeasurementSource.measure();
         usedTime.subtract(startTime);
 
         method.endCall(usedTime, notRecursive );

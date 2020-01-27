@@ -33,7 +33,7 @@ public final class ThreadExecutionTime extends AbstractMeasurementSource
 {
 
     @Override
-    public MeasurementValue measure()
+    public MeasurementValue getMeasurement()
     {
         return new MeasurementValue(new long[]
         {
@@ -42,7 +42,7 @@ public final class ThreadExecutionTime extends AbstractMeasurementSource
     }
 
     @Override
-    public String format(NumberFormat nf, MeasurementValue value)
+    public String formatValue(NumberFormat nf, MeasurementValue value)
     {
         StringBuilder sb = new StringBuilder(30);
         sb

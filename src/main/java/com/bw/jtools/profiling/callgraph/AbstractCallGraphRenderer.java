@@ -50,13 +50,16 @@ public abstract class AbstractCallGraphRenderer
             switch( option )
             {
                 case ADD_CLASSNAMES:
-                    showMinMax = true;
+                    showClassName = true;
                     break;
                 case ADD_MIN_MAX:
                     showMinMax = true;
                     break;
                 case HIGHLIGHT_CRITICAL:
                     hightlightCritical = true;
+                    break;
+                case PRETTY:
+                    pretty = true;
                     break;
             }
         }
@@ -67,7 +70,7 @@ public abstract class AbstractCallGraphRenderer
 
     protected String renderValue( MeasurementValue value)
     {
-        return AbstractMeasurementSource.currentSource.format(nf, value);
+        return AbstractMeasurementSource.format(nf, value);
     }
 
     /**
@@ -77,10 +80,23 @@ public abstract class AbstractCallGraphRenderer
      */
     public final String render( MethodProfilingInformation root )
     {
+        return render( generateNode(root, new GraphStack()) );
+    }
+
+    /**
+     * Renders a converted call graph.
+     * @param root Root node.
+     * @return The call graph graphical description.
+     */
+    public final String render( CallNode root )
+    {
         sb.setLength(0);
-        renderNode( generateNode(root, new GraphStack()) );
+        start(root);
+        renderNode( root );
+        end(root);
         return sb.toString();
     }
+
 
     private CallNode generateNode( MethodProfilingInformation mi, GraphStack g )
     {
@@ -139,8 +155,6 @@ public abstract class AbstractCallGraphRenderer
      */
     public final String render( List<MethodProfilingInformation> roots, Date startDate, Date endDate )
     {
-        sb.setLength(0);
-
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         CallNode fakeRoot = new CallNode( "Application", 0, null );
 
@@ -156,11 +170,7 @@ public abstract class AbstractCallGraphRenderer
             fakeRoot.edges.add(new CallEdge( null, 0, generateNode(n, new GraphStack())));
         }
 
-        start(fakeRoot);
-        renderNode(fakeRoot);
-        end(fakeRoot);
-
-        return sb.toString();
+        return render(fakeRoot);
     }
 
     private void renderNode(CallNode node)
@@ -188,6 +198,9 @@ public abstract class AbstractCallGraphRenderer
 
     /** Option: Add minimum and maximum values - if supported by renderer. */
     protected boolean showMinMax = false;
+
+    /** Option: Output should be easily human readable. */
+    protected boolean pretty = false;
 
     /**
      * Helper class to detect recursion.

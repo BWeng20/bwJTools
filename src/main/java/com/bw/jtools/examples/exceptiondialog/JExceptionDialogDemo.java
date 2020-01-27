@@ -31,7 +31,6 @@ import java.awt.Dimension;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
@@ -81,7 +80,7 @@ public class JExceptionDialogDemo
             }
             catch ( Exception e)
             {
-                JExceptionDialog d = new JExceptionDialog( SwingUtilities.getWindowAncestor(frame), e );
+                JExceptionDialog d = new JExceptionDialog( frame, e );
                 d.setLocationByPlatform(true);
                 d.setVisible(true);
             }

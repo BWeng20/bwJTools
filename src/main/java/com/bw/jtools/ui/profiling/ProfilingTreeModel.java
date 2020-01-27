@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019-2020 Bernd Wengenroth.
+ * Copyright 2020 Bernd Wengenroth.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,32 +21,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.bw.jtools.profiling.measurement;
+package com.bw.jtools.ui.profiling;
 
+import com.bw.jtools.profiling.callgraph.CallEdge;
+import com.bw.jtools.profiling.callgraph.CallNode;
+import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import java.text.NumberFormat;
 
 /**
- * Measures monotonic system time in nanoseconds.
+ *
  */
-public final class SystemNanoTime extends AbstractMeasurementSource
+public class ProfilingTreeModel extends DefaultTreeModel
 {
-
-    @Override
-    public MeasurementValue getMeasurement()
+    public ProfilingTreeModel(JSONCallGraphParser.GraphInfo graph)
     {
-        return new MeasurementValue( new long[] { System.nanoTime()} );
+        super( createTree(graph) );
     }
 
-    @Override
-    public String formatValue(NumberFormat nf, MeasurementValue value)
+    private static TreeNode createTree( JSONCallGraphParser.GraphInfo graph )
     {
-        StringBuilder sb = new StringBuilder(30);
-        if ( value != null ) {
-            sb
-                    .append(nf.format(value.values[0] / 1000000000.0))
-                    .append('s');
+        if ( graph != null ) {
+            return new ProfilingTreeNode(graph.root, NumberFormat.getInstance());
         }
-        return sb.toString();
+        else
+            return null;
     }
 
+    private final static class ProfilingTreeNode extends DefaultMutableTreeNode
+    {
+        CallNode node;
+
+        ProfilingTreeNode( CallNode node, NumberFormat nf )
+        {
+            super( node.toString(nf), !node.edges.isEmpty() );
+            this.node = node;
+            for ( CallEdge e : node.edges )
+            {
+                add( new ProfilingTreeNode(e.callee, nf));
+            }
+        }
+    }
 }

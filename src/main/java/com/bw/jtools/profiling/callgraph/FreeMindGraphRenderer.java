@@ -26,7 +26,7 @@ package com.bw.jtools.profiling.callgraph;
 import java.text.NumberFormat;
 
 /**
- * Call graph renderer to output a freemind/freeplane-file.
+ * Call graph renderer to create a freemind/freeplane-file.
  */
 public class FreeMindGraphRenderer extends AbstractCallGraphRenderer
 {
@@ -34,7 +34,7 @@ public class FreeMindGraphRenderer extends AbstractCallGraphRenderer
     private CallEdge edge = null;
 
     /**
-     * Creates a renderer that outputs Freemind xml content.
+     * Creates a renderer that creates Freemind xml content.
      * @param nf Number format to use.
      * @param options Options.
      */

@@ -45,18 +45,38 @@ public abstract class AbstractMeasurementSource
     }
 
     /**
-     * Returns a instance that reflects the current value.
-     * The first dimension have to be strictly monotone.
+     * Convenience method as replacement for currentSource.getMeasurement.
      * @return The current value.
      */
-    public abstract MeasurementValue measure();
+    public static MeasurementValue measure()
+    {
+        return currentSource.getMeasurement();
+    }
 
     /**
-     * Returns the formatted value.<br>
+     * Convenience method as replacement for currentSource.formatValue.
      * @param nf The number format to use.
      * @param value The value to format.
      * @return The formatted value.
      */
-    public abstract String format( NumberFormat  nf, MeasurementValue value );
+    public static String format(NumberFormat  nf, MeasurementValue value)
+    {
+        return currentSource.formatValue(nf,value);
+    }
+
+    /**
+     * Returns a instance that reflects the current value.
+     * The first dimension have to be strictly monotone.
+     * @return The current value.
+     */
+    public abstract MeasurementValue getMeasurement();
+
+    /**
+     * Returns the formatted value.
+     * @param nf The number format to use.
+     * @param value The value to format.
+     * @return The formatted value.
+     */
+    public abstract String formatValue( NumberFormat  nf, MeasurementValue value );
 
 }

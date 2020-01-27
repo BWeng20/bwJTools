@@ -48,6 +48,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.bw.jtools.persistence.Store;
+import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.IconCache;
 import com.bw.jtools.ui.WaitSplash;
 import java.io.PrintWriter;
@@ -254,15 +255,69 @@ public final class IOTool
     private static JFileChooser fileChooser_ = null;
     private static Frame fileChooserFrame_ = null;
 
+    private static FileNameExtensionFilter filterJson;
+
     /**
      * Predefined file filter for json files with extension json or js.
+     * @return The filter.
      */
-    public static FileNameExtensionFilter filterJson = new FileNameExtensionFilter("Json File", "json", "js");
+    public static FileFilter getFileFilterJson()
+    {
+        if ( filterJson == null )
+        {
+            filterJson = new FileNameExtensionFilter( I18N.getText( "filefilter.json" ), "json", "js");
+        }
+        return filterJson;
+    }
+
+    private static FileNameExtensionFilter filterLog;
 
     /**
      * Predefined file filter for log files with extension log or txt.
+     * @return The filter.
      */
-    public static FileNameExtensionFilter filterLog = new FileNameExtensionFilter("Log File", "log", "txt");
+    public static FileFilter getFileFilterLog()
+    {
+        if ( filterLog == null )
+        {
+            filterLog = new FileNameExtensionFilter( I18N.getText( "filefilter.log" ), "log", "txt");
+        }
+        return filterLog;
+    }
+
+    private static FileFilter filterAll;
+
+    private static class AllFileFilter extends FileFilter
+    {
+
+        final String description = I18N.getText( "filefilter.all" );
+
+        @Override
+        public boolean accept(File f)
+        {
+            return true;
+        }
+
+        @Override
+        public String getDescription()
+        {
+            return description;
+        }
+    }
+
+
+    /**
+     * Predefined file filter for all files.
+     */
+    public static FileFilter getFileFilterAll()
+    {
+        if ( filterAll == null )
+        {
+            filterAll = new AllFileFilter();
+        }
+        return filterAll;
+    }
+
 
     /**
      * Mode for selecting files or directories to write or create.
@@ -289,8 +344,6 @@ public final class IOTool
         if (null == fileChooser_)
         {
             fileChooser_ = new JFileChooser();
-            fileChooser_.addChoosableFileFilter(filterJson);
-            fileChooser_.addChoosableFileFilter(filterLog);
         }
         return comp;
     }
@@ -316,6 +369,7 @@ public final class IOTool
         fileChooser_.setMultiSelectionEnabled(false);
         fileChooser_.setFileHidingEnabled(true);
         fileChooser_.setFileFilter(null);
+        fileChooser_.setAcceptAllFileFilterUsed(true);
         fileChooser_.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         setFileChooserDirectory(fileChooser_, dir);
@@ -338,10 +392,10 @@ public final class IOTool
      * @param dialogTitle Title of the dialog.
      * @param mode Mode of operation. Possible values are {@link OPEN} and
      * {@link SAVE}.
-     * @param filter File filer to use. Can be null.
+     * @param filter File filters to use. Null values force to add the "all" filter.
      * @return Null or the selected file.
      */
-    public static File selectFile(Component comp, String prefPrefix, String dialogTitle, int mode, FileFilter filter)
+    public static File selectFile(Component comp, String prefPrefix, String dialogTitle, int mode, FileFilter... filter)
     {
         final File f[] = internal_selectFiles(comp, prefPrefix, dialogTitle, mode, filter, false);
         if (f != null && f.length > 0)
@@ -362,15 +416,15 @@ public final class IOTool
      * @param dialogTitle Title of the dialog.
      * @param mode Mode of operation. Possible values are {@link OPEN} and
      * {@link SAVE}.
-     * @param filter File filer to use. Can be null.
+     * @param filter File filters to use. Null values force to add a "all" filter.
      * @return Null or a none-empty array.
      */
-    public static File[] selectFiles(Component comp, String prefPrefix, String dialogTitle, int mode, FileFilter filter)
+    public static File[] selectFiles(Component comp, String prefPrefix, String dialogTitle, int mode, FileFilter... filter)
     {
         return internal_selectFiles(comp, prefPrefix, dialogTitle, mode, filter, true);
     }
 
-    private static File[] internal_selectFiles(Component comp, String prefPrefix, String dialogTitle, int mode, FileFilter filter, boolean multiSelectionAllowed)
+    private static File[] internal_selectFiles(Component comp, String prefPrefix, String dialogTitle, int mode, FileFilter[] filter, boolean multiSelectionAllowed)
     {
         comp = prepareFileChooser(comp);
 
@@ -382,7 +436,26 @@ public final class IOTool
         fileChooser_.setDialogTitle(dialogTitle);
         fileChooser_.setMultiSelectionEnabled(multiSelectionAllowed);
         fileChooser_.setFileHidingEnabled(true);
-        fileChooser_.setFileFilter(filter);
+        fileChooser_.resetChoosableFileFilters();
+        fileChooser_.setAcceptAllFileFilterUsed(false);
+
+        boolean firstFilter = true;
+        for ( FileFilter f : filter )
+        {
+            if ( f == null )
+            {
+                f = getFileFilterAll();
+            }
+            if ( firstFilter )
+            {
+                fileChooser_.setFileFilter(f);
+                firstFilter = false;
+            }
+            else
+            {
+                fileChooser_.addChoosableFileFilter(f);
+            }
+        }
 
         String lastDir;
         String lastFile;

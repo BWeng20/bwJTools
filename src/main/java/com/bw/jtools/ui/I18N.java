@@ -115,6 +115,29 @@ public final class I18N
     }
 
     /**
+     * Check is a key is available in the resource bundles.
+     * @param key Text-Id.
+     * @return true if the key is available.
+     */
+    public static boolean hasText( String key )
+    {
+        for ( BundleInfo bi : resourceBundles_ )
+        {
+            try
+            {
+                final String text = bi.bundle_.getString(key);
+                if ( text != null && !text.isEmpty() )
+                    return true;
+            }
+            catch (Exception e)
+            {
+            }
+        }
+        return false;
+    }
+
+
+    /**
      * Applies a i18n text format-string.
      * @see #getText(java.lang.String)
      *

@@ -24,14 +24,17 @@
 package com.bw.jtools.examples.profiling;
 
 import java.text.NumberFormat;
+
 import com.bw.jtools.profiling.ClassProfilingInformation;
-import com.bw.jtools.profiling.MethodProfiling;
 
 /**
- * A test for profiling with different examples about manual profiling methods and
- * how to output the information.
+ * <h2>A test target for profiling via Weaving.</h2>
+ * The profiles methods are configured via the ini file below "resources/com/bw/jtools/examples/profiling/Weaver.properties".<br/>
+ * Check Gradle tasks "runProfilingWeaverDemo" and "runProfilingWeaverDemoVerbose" how ProfileWeaver is used..
+
+ * @see com.bw.jtools.profiling.weaving.ProfilingWeaver
  */
-public class ProfilingDemo
+public class ProfilingWeaverDemo
 {
 
     static int workLoop = 100000;
@@ -44,7 +47,7 @@ public class ProfilingDemo
     {
         ProfilingDemoUtils.parseArguments(args);
 
-        ProfilingDemo demo = new ProfilingDemo();
+        ProfilingWeaverDemo demo = new ProfilingWeaverDemo();
 
         int fractions = ProfilingDemoUtils.getArgument("fractionDigits", 5);
         NumberFormat nf = NumberFormat.getInstance();
@@ -69,125 +72,94 @@ public class ProfilingDemo
             demo.rec = 0;
 
             ///////////////////////////////////////////////////
-            // Call the top-level method to trigger profiling.
+            // Call the top-level methods to trigger profiling.
             // The run can be executed in a loop to show performance of
             // profiling. Beside "doSomeWork" all net times are
             // mainly profiling overhead.
             // This overhead will be reduced a bit after system runs hot (~40 runs).
-            demo.privateMethodAutomatic();
+            demo.privateTopMethod();
             demo.otherCallTop();
-
-
 
             ProfilingDemoUtils.dumpProfilingInformation();
             ProfilingDemoUtils.dumpAllCallGraphs();
         }
 
         ///////////////////////////////////////////////////
-        // Generate files
+        // Generate output files
         ProfilingDemoUtils.writeMindMap( ProfilingDemoUtils.getArgument("mmFile", null) );
         ProfilingDemoUtils.writeJSON( ProfilingDemoUtils.getArgument("jsonFile", null), false );
+        ProfilingDemoUtils.parseJSON( ProfilingDemoUtils.getArgument("jsonFile", null) );
         ProfilingDemoUtils.writeJSON( ProfilingDemoUtils.getArgument("jsonPrettyFile", null), true );
+        ProfilingDemoUtils.parseJSON( ProfilingDemoUtils.getArgument("jsonPrettyFile", null) );
+
     }
 
-    private void otherCallTop()
+
+    public void otherCallTop()
     {
-        try ( MethodProfiling np = new MethodProfiling() )
-        {
-            otherCallL1A();
-            otherCallL2A();
-        }
+        otherCallL1A();
+        otherCallL2A();
     }
 
-    private void otherCallL1A()
+    public void otherCallL1A()
     {
-        try ( MethodProfiling np = new MethodProfiling() )
-        {
-            otherCallL1B();
-            otherCallL2B();
-        }
+        otherCallL1B();
+        otherCallL2B();
     }
 
-    private void otherCallL2A()
+    public void otherCallL2A()
     {
-        try ( MethodProfiling np = new MethodProfiling() )
-        {
-            otherCallL1B();
-            otherCallL2B();
-        }
+        otherCallL1B();
+        otherCallL2B();
     }
 
     private void otherCallL1B()
     {
-        try ( MethodProfiling np = new MethodProfiling() )
+        StringBuffer sb = new StringBuffer(1);
+        for (long l=0 ; l<workLoop; l++)
         {
-            StringBuffer sb = new StringBuffer(1);
-            for (long l=0 ; l<workLoop; l++)
-            {
-                sb.append("test");
-            }
+            sb.append("test");
         }
     }
 
     private void otherCallL2B()
     {
-        try ( MethodProfiling np = new MethodProfiling() )
+        StringBuffer sb = new StringBuffer(1);
+        for (long l=0 ; l<workLoop; l++)
         {
-            StringBuffer sb = new StringBuffer(1);
-            for (long l=0 ; l<workLoop; l++)
-            {
-                sb.append("test");
-            }
+            sb.append("test");
         }
     }
 
-    private void privateMethodAutomatic()
+    private void privateTopMethod()
     {
-        try ( MethodProfiling np = new MethodProfiling() )
-        {
-            privateMethodManual();
-            privateMethod2();
-            privateMethod3();
-        }
+        privateMethodManual();
+        privateMethod2();
+        privateMethod3();
     }
 
     private void privateMethodManual()
     {
-        MethodProfiling np = new MethodProfiling("The ProfileDemo", "privateMethodManual");
-        try
-        {
-            for ( int i=0 ; i<100 ; ++i )
-                publicRecursiveMethod(0);
-        }
-        finally
-        {
-            np.close();
-        }
+        for ( int i=0 ; i<100 ; ++i )
+            publicRecursiveMethod(0);
 
     }
 
     private void privateMethod2()
     {
-        try ( MethodProfiling np = new MethodProfiling() )
+        StringBuffer sb = new StringBuffer(1);
+        for (long l=0 ; l<1000; l++)
         {
-            StringBuffer sb = new StringBuffer(1);
-            for (long l=0 ; l<1000; l++)
-            {
-                sb.append("test");
-            }
+            sb.append("test");
         }
-
     }
 
     private void privateMethod3()
     {
-        try ( MethodProfiling np = new MethodProfiling() )
+        StringBuffer sb = new StringBuffer(1);
+        for (long l=0 ; l<1000; l++)
         {
-            StringBuffer sb = new StringBuffer(1);
-            for (long l=0 ; l<1000; l++)
-            {
-                sb.append("test");
-            }
+            sb.append("test");
         }
 
     }
@@ -197,26 +169,20 @@ public class ProfilingDemo
     public void publicRecursiveMethod(int level)
     {
         rec++;
-        try ( MethodProfiling np = new MethodProfiling() )
+        if ( level < 100 )
         {
-            if ( level < 100 )
-            {
-               publicRecursiveMethod( level +1);
-            }
-            else
-                doSomeWork();
+           publicRecursiveMethod( level +1);
         }
+        else
+            doSomeWork();
     }
 
     public void doSomeWork()
     {
-        try ( MethodProfiling np = new MethodProfiling() )
+        String s = "";
+        for (long l=0 ; l<workLoop; l++)
         {
-            String s = "";
-            for (long l=0 ; l<workLoop; l++)
-            {
-              s = s + "+";
-            }
+          s = s + "+";
         }
     }
 }

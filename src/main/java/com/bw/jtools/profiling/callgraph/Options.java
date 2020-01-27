@@ -33,5 +33,9 @@ public enum Options
     /** Adds the class name to each node. */
     ADD_CLASSNAMES,
     /** Add minimum and maximum values - if supported by renderer. */
-    ADD_MIN_MAX;
+    ADD_MIN_MAX,
+    /** Creates human readable output - if supported by renderer. */
+    PRETTY,
+    /** Does nothing */
+    NONE
 }

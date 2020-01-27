@@ -125,15 +125,6 @@ public class Store
      */
     public static String KEY_APPLICATION_VERSION = "application.version";
 
-
-    /**
-     * Property-key for the URL-prefix for the exception-report-dialog.<br>
-     * The value can be added to default-properties or the system-properties by
-     * command line.
-     * <i>Example value</i>
-     */
-    public static String PREF_ERROR_REPORT_URL = "error.reportToUrl";
-
     private static StorageBase storage_;
 
     /**

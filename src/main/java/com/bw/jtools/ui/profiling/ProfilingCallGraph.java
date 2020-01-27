@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019-2020 Bernd Wengenroth.
+ * Copyright 2020 Bernd Wengenroth.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,32 +21,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.bw.jtools.profiling.measurement;
+package com.bw.jtools.ui.profiling;
 
-import java.text.NumberFormat;
+import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
+import javax.swing.JTree;
 
 /**
- * Measures monotonic system time in nanoseconds.
+ * Component to show call graphs.
+ * @see #main(java.lang.String[])
  */
-public final class SystemNanoTime extends AbstractMeasurementSource
+public class ProfilingCallGraph extends JTree
 {
-
-    @Override
-    public MeasurementValue getMeasurement()
+    /**
+     * Initialize the panel.
+     */
+    public ProfilingCallGraph()
     {
-        return new MeasurementValue( new long[] { System.nanoTime()} );
+        super(new ProfilingTreeModel(null));
     }
 
-    @Override
-    public String formatValue(NumberFormat nf, MeasurementValue value)
+
+    /**
+     * Can be used by Application to restore last stored state from persistence.
+     *
+     * @see com.bw.jtools.persistence.Store
+     * @see #storePreferences()
+     */
+    public void loadPreferences()
     {
-        StringBuilder sb = new StringBuilder(30);
-        if ( value != null ) {
-            sb
-                    .append(nf.format(value.values[0] / 1000000000.0))
-                    .append('s');
-        }
-        return sb.toString();
     }
+
+    /**
+     * Can be used by Application to store the current state to persistence.
+     *
+     * @see com.bw.jtools.persistence.Store
+     */
+    public void storePreferences()
+    {
+    }
+
+    public void setGraph(JSONCallGraphParser.GraphInfo graph)
+    {
+        this.graph = graph;
+        ProfilingTreeModel model = new ProfilingTreeModel(graph);
+        setModel( model );
+    }
+
+    JSONCallGraphParser.GraphInfo graph;
+
 
 }

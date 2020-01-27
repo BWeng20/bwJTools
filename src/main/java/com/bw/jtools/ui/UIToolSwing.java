@@ -31,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import com.bw.jtools.Log;
+import javax.swing.JLabel;
 
 
 /**
@@ -139,6 +140,76 @@ public final class UIToolSwing
         b.setRolloverIcon(roIcon);
         b.setPressedIcon(roIcon);
         return b;
+    }
+
+    /**
+     * Creates a text button with mnemonic.<br/>
+     * If a I18N key with the additional postfix ".mnemonic" exists, the first character of this text is used as mnemonic character.
+     * @param i18NKey The I18N key for the button text.
+     * @return The created button.
+     * @see com.bw.jtools.ui.I18N#getText(java.lang.String)
+     */
+    public static JButton createI18NTextButton( String i18NKey )
+    {
+        JButton b = new JButton(  );
+        setI18NText( b, i18NKey );
+        return b;
+    }
+
+    /**
+     * Sets button text and mnemonic.<br/>
+     * If a I18N key with the additional postfix ".mnemonic" exists, the first character of this text is used as mnemonic character.
+     * @param i18NKey The I18N key for the button text.
+     * @param button The button.
+     * @see com.bw.jtools.ui.I18N#getText(java.lang.String)
+     */
+    public static void setI18NText( JButton button, String i18NKey )
+    {
+        button.setText(I18N.getText(i18NKey) );
+        final String mnemonicKey = i18NKey+".mnemonic";
+        if ( I18N.hasText( mnemonicKey ) )
+        {
+            button.setMnemonic( I18N.getText(mnemonicKey).charAt(0));
+        }
+        else if ( button.getMnemonic() != 0)
+        {
+            button.setMnemonic(0);
+        }
+    }
+
+    /**
+     * Creates a text label with mnemonic.<br/>
+     * If a I18N key with the additional postfix ".mnemonic" exists, the first character of this text is used as mnemonic character.
+     * @param i18NKey The I18N key for the button text.
+     * @return The created label.
+     * @see com.bw.jtools.ui.I18N#getText(java.lang.String)
+     */
+    public static JLabel createI18NLabel( String i18NKey )
+    {
+        JLabel l = new JLabel( );
+        setI18NText( l, i18NKey );
+        return l;
+    }
+
+    /**
+     * Sets text and mnemonic.<br>
+     * If a I18N key with the additional postfix ".mnemonic" exists, the first character of this text is used as mnemonic character.
+     * @param i18NKey The I18N key.
+     * @param label The label.
+     * @see com.bw.jtools.ui.I18N#getText(java.lang.String)
+     */
+    public static void setI18NText( JLabel label, String i18NKey )
+    {
+        label.setText(I18N.getText(i18NKey) );
+        final String mnemonicKey = i18NKey+".mnemonic";
+        if ( I18N.hasText( mnemonicKey ) )
+        {
+            label.setDisplayedMnemonic(I18N.getText(mnemonicKey).charAt(0));
+        }
+        else if ( label.getDisplayedMnemonic() != 0)
+        {
+            label.setDisplayedMnemonic(0);
+        }
     }
 
 }
