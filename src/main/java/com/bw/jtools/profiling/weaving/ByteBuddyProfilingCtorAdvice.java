@@ -24,46 +24,34 @@
 package com.bw.jtools.profiling.weaving;
 
 import com.bw.jtools.profiling.MethodProfiling;
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.bytebuddy.asm.Advice;
 
 /**
- * Interceptor for use with Byte Buddy.
+ * Advice for use with Byte Buddy.
  */
-public final class ByteBuddyProfilingInterceptor
+public final class ByteBuddyProfilingCtorAdvice
 {
 
-    /**
-     * Interceptor method for none static methods.
-     * @param zuper    The intercepted method-call
-     * @param method   The method
-     * @return         The return value of the intercepted method
-     * @throws Throwable Any by the intercepted method thrown ThroWable.
-     */
-    @RuntimeType
-    static public Object profileReturn(@SuperCall Callable<?> zuper, @Origin Method method) throws Throwable
+    @Advice.OnMethodEnter(inline = true)
+    static public void adviceEnter(
+            @Advice.Origin("#t") String clazz,
+            @Advice.Origin("#m") String method,
+            @Advice.Local("MP") MethodProfiling mp
+              )
     {
+System.out.println("CtAd: -> "+clazz+":"+method)        ;
+        mp = new MethodProfiling(clazz, method);
+    }
 
-        final MethodProfiling mp = new MethodProfiling(method.getDeclaringClass().getName(), method.getName());
-        try
-        {
-            if (zuper != null)
-            {
-                return zuper.call();
-            } else
-            {
-                return null;
-            }
-        } catch (Throwable t)
-        {
-            mp.exception(t);
-            throw t;
-        } finally
+
+    @Advice.OnMethodExit(inline = true)
+    static public void adviceExitThrown(@Advice.Local("MP") MethodProfiling mp )
+    {
+System.out.println("CAd: <- "+(mp != null ? mp.method.name : "null" ));
+        if (mp != null )
         {
             mp.close();
         }
     }
+
 }
