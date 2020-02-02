@@ -16,7 +16,7 @@ repositories {
     jcenter()
 }
 
-group = "com.bweng20"
+group = "io.github.bweng20"
 project.version="1.0"
 
 task uiProfilingJar(type: Jar) {
@@ -230,10 +230,17 @@ task runPropTableDemo(type: Exec) {
     commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.propertytable.PropertyTableDemo"
 }
 
-
 publishing {
-    repositories {
-        mavenCentral()
+    repositories {        
+        maven {
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                // Place this two variable with the correct values in your 
+                // ~/.gradle/gradle.properties
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
     }
     publications {
         mavenJava(MavenPublication) {
@@ -259,6 +266,11 @@ publishing {
                         email = 'Bernd.Wengenrot@gmail.com'
                     }
                 }
+                scm {
+                    connection = 'scm:git:git://github.com/BWeng20/bwJTools.git'
+                    developerConnection = 'scm:git:ssh://github.com:BWeng20/bwJTools.git'
+                    url = 'https://github.com/BWeng20/bwJTools'
+                }                
             }
         }        
     }
