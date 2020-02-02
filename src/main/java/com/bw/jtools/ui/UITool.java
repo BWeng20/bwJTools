@@ -62,17 +62,30 @@ public final class UITool
     }
 
     /**
-     * Escapes special characters to use in html-code.
-     * @param s The test to escape.
-     * @return The escaped html code.
+     * Escapes special characters to use in UI HTML-code.
+     * @param s The text to escape.
+     * @return The escaped HTML code.
      */
-    public static String escapeHTML(String s)
+    public static String escapeHTML(final String s)
     {
        final int n = s.length();
        StringBuilder sb = new StringBuilder(n*2);
-       for (int i = 0; i < n; ++i)
+       return escapeHTML(s, 0, n, sb ).toString();
+    }
+
+    /**
+     * Adds escaped characters to use in UI HTML-code.
+     * @param s The text to escape.
+     * @param start Start index (inclusive).
+     * @param end End index (exclusive).
+     * @param sb The StringBuilder to append to.
+     * @return sb
+     */
+    public static StringBuilder escapeHTML(final String s, int start, final int end, final StringBuilder sb)
+    {
+       while (start < end)
        {
-           final char c = s.charAt(i);
+           final char c = s.charAt(start++);
            switch ( c )
            {
             case '<': sb.append("&lt;"); break;
@@ -81,8 +94,9 @@ public final class UITool
             default:  sb.append(c); break;
            }
       }
-      return sb.toString();
+      return sb;
     }
+
 
     /**
      * Calculates a color with hight contrast.<br>

@@ -308,6 +308,7 @@ public final class IOTool
 
     /**
      * Predefined file filter for all files.
+     * @return The file filter.
      */
     public static FileFilter getFileFilterAll()
     {

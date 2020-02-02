@@ -155,7 +155,7 @@ public class FreeMindGraphRenderer extends AbstractCallGraphRenderer
 
     private void appendEscaped(String text)
     {
-        // Only relevant codes, we don't want to be fully html compliant .
+        // Only relevant codes, we don't want to be fully html compliant.
         char data[] = text.toCharArray();
         for (char c : data )
         {

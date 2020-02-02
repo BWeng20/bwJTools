@@ -145,7 +145,10 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
     }
 
 
-    /** Appends a JSON element name */
+    /**
+     * Appends a JSON element name
+     * @param name The name to append.
+     */
     protected void appendName( String name )
     {
         if (pretty)
@@ -239,7 +242,7 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
     }
 
     /**
-     * Starts a new array.<br/>
+     * Starts a new array.<br>
      * If inside an array, the element name is ignored.
      * @param name The name of the element.
      */
@@ -287,6 +290,7 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
 
     /**
      * Appends a text value. Cares about quotes and escaping.
+     * @param text The value.
      */
     protected void value(String text)
     {
@@ -317,6 +321,7 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
 
     /**
      * Appends a numeric value.
+     * @param value The value.
      */
     protected void value(Number value)
     {
@@ -328,13 +333,18 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
 
     /**
      * Appends a boolean value.
+     * @param value The value.
      */
     protected void value(boolean value)
     {
         sb.append( value ? trueString : falseString );
     }
 
-    /** Adds a simple text element */
+    /**
+     * Adds a simple text element
+     * @param name The name.
+     * @param value The value.
+     */
     protected void element( String name, String value )
     {
         prepareForNextElement();
@@ -342,7 +352,11 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
         value(value);
     }
 
-    /** Adds a simple number element */
+    /**
+     * Adds a simple number element
+     * @param name The name.
+     * @param value The value.
+     */
     protected void element( String name, Number value )
     {
         prepareForNextElement();
@@ -353,6 +367,7 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
     /**
      * Adds a simple Boolean element
      * @param name The name of the element.
+     * @param value The value.
      */
     protected void element( String name, boolean value )
     {
@@ -361,7 +376,11 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
         value(value);
     }
 
-    /** Adds a measurement value */
+    /**
+     * Adds a measurement value
+     * @param name The name of the element.
+     * @param v The value.
+     */
     protected void addValue( String name, MeasurementValue v )
     {
         if ( v != null && v.values != null )

@@ -143,7 +143,7 @@ public final class UIToolSwing
     }
 
     /**
-     * Creates a text button with mnemonic.<br/>
+     * Creates a text button with mnemonic.<br>
      * If a I18N key with the additional postfix ".mnemonic" exists, the first character of this text is used as mnemonic character.
      * @param i18NKey The I18N key for the button text.
      * @return The created button.
@@ -157,7 +157,7 @@ public final class UIToolSwing
     }
 
     /**
-     * Sets button text and mnemonic.<br/>
+     * Sets button text and mnemonic.<br>
      * If a I18N key with the additional postfix ".mnemonic" exists, the first character of this text is used as mnemonic character.
      * @param i18NKey The I18N key for the button text.
      * @param button The button.
@@ -178,7 +178,7 @@ public final class UIToolSwing
     }
 
     /**
-     * Creates a text label with mnemonic.<br/>
+     * Creates a text label with mnemonic.<br>
      * If a I18N key with the additional postfix ".mnemonic" exists, the first character of this text is used as mnemonic character.
      * @param i18NKey The I18N key for the button text.
      * @return The created label.

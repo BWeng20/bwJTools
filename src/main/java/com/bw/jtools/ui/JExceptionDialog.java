@@ -26,7 +26,6 @@ import java.awt.event.WindowEvent;
 import javax.swing.WindowConstants;
 
 import com.bw.jtools.io.IOTool;
-import com.bw.jtools.persistence.Store;
 import java.awt.Component;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -40,9 +39,9 @@ public class JExceptionDialog extends javax.swing.JDialog
 {
    /**
     * Creates new exception dialog with default title and message.<br>
-    * Content of property {@link Store#PREF_ERROR_REPORT_URL} is used to create a link to
+    * Content of I18N property <i>exception.reportToUrl</i> is used to create a link to
     * send the report,<br>
-    * e.g. a mailto-url 'mailto:info@company.com?subject=Exception&body=' can be used
+    * e.g. a mailto-url 'mailto:info@company.com?subject=Exception&amp;body=' can be used
     * to use the system e-mail application to send the report.
     * @param parent The parent for the dialog. Normally the main window of the application.
     * @param throwed The Throwable to show.
@@ -54,9 +53,9 @@ public class JExceptionDialog extends javax.swing.JDialog
 
    /**
     * Creates new exception dialog.<br>
-    * Content of property {@link Store#PREF_ERROR_REPORT_URL} is used to create a link to
+    * Content of I18N property <i>exception.reportToUrl</i> is used to create a link to
     * send the report,<br>
-    * e.g. a mailto-url 'mailto:info@company.com?subject=Exception&body=' can be used
+    * e.g. a mailto-url 'mailto:info@company.com?subject=Exception&amp;body=' can be used
     * to use the system e-mail application to send the report.
     * @param parent The parent for the dialog. Normally the main window of the application.
     * @param title   Title of the dialog.

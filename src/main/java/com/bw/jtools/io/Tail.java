@@ -320,7 +320,7 @@ public final class Tail
     }
 
     /**
-     * Removed a stream from monitor.<br/>
+     * Removed a stream from monitor.<br>
      * If both arguments are null, all stream are removed from monitor.
      * @param inputstream The stream. if null, all streams for the listener are removed.
      * @param t The listener. If null, all listener are removed.

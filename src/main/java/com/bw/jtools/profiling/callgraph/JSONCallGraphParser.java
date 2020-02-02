@@ -59,7 +59,7 @@ public class JSONCallGraphParser
 
     /**
      * Parse the complete content.
-     * @param reader
+     * @param reader The reader.
      */
     public void parse( Reader reader )
     {
@@ -89,9 +89,11 @@ public class JSONCallGraphParser
     boolean formatShort;
     StringBuilder graph = new StringBuilder(2048);
     StringBuilder chunkBuffer = new StringBuilder(2048);
+    String endPattern = null;
 
     public void reset()
     {
+        endPattern = null;
         inGraph = false;
         formatShort = false;
         graph.setLength(0);
@@ -100,6 +102,7 @@ public class JSONCallGraphParser
 
     /**
      * Parse input continuously.
+     * @param  chunk The next chunk to parse.
      */
     public void parse( String chunk )
     {
@@ -110,7 +113,6 @@ public class JSONCallGraphParser
                 chunkBuffer.delete(0, chunkBuffer.length()-plong.length() );
             }
 
-            String endPattern = null;
             int startIndex = 0;
             do {
                 if ( inGraph )

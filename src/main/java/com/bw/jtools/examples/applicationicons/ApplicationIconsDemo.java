@@ -61,9 +61,10 @@ public class ApplicationIconsDemo
 
         JLabel label = new JLabel(
                 "<html><body><b>"+
-                "Check icons in the title bar,<br>"+
-                "in OS status line and in windows<br>"+
-                "pressing Alt-Tab.<br>"+
+                "Check icons:<br><ul>"+
+                "<li>in the title bar</li>"+
+                "<li>in OS status line</li>"+
+                "<li><i>in windows</i>: holding Alt-Tab.</li></ul><br>"+
                 "Java runtime will choose one of the<br>"+
                 "provided icons, depending on the platform."+
                 "</b></body></html>" );
