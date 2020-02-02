@@ -34,7 +34,7 @@ import com.bw.jtools.profiling.MethodProfiling;
 public class ProfilingDemo
 {
 
-    static int workLoop = 100000;
+    static int workLoop = 1000;
 
     /**
      * Main function.
@@ -51,7 +51,7 @@ public class ProfilingDemo
         nf.setMaximumFractionDigits(fractions);
         ProfilingDemoUtils.setNumberFormat(nf);
 
-        int repeat = ProfilingDemoUtils.getArgument("repeat", 1);
+        int repeat = ProfilingDemoUtils.getArgument("repeat", 5);
         if ( repeat<1 ) {
             repeat=1;
         }

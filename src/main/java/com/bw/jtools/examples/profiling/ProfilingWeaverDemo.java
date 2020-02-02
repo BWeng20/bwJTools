@@ -26,10 +26,11 @@ package com.bw.jtools.examples.profiling;
 import java.text.NumberFormat;
 
 import com.bw.jtools.profiling.ClassProfilingInformation;
+import java.beans.BeanProperty;
 
 /**
  * <h2>A test target for profiling via Weaving.</h2>
- * The profiles methods are configured via the ini file below "resources/com/bw/jtools/examples/profiling/Weaver.properties".<br/>
+ * The profiles methods are configured via the ini file below "resources/com/bw/jtools/examples/profiling/Weaver.properties".<br>
  * Check Gradle tasks "runProfilingWeaverDemo" and "runProfilingWeaverDemoVerbose" how ProfileWeaver is used..
 
  * @see com.bw.jtools.profiling.weaving.ProfilingWeaver
@@ -37,7 +38,7 @@ import com.bw.jtools.profiling.ClassProfilingInformation;
 public class ProfilingWeaverDemo
 {
 
-    static int workLoop = 100000;
+    static int workLoop = 10000;
 
     /**
      * Main function.
@@ -60,6 +61,10 @@ public class ProfilingWeaverDemo
         }
 
         workLoop = ProfilingDemoUtils.getArgument("workLoop", workLoop);
+
+        System.out.println("fractionDigits= "+fractions);
+        System.out.println("repeat        = "+repeat);
+        System.out.println("workLoop      = "+workLoop);
 
         for ( int i=0 ; i<repeat ; ++i )
         {
@@ -86,11 +91,14 @@ public class ProfilingWeaverDemo
 
         ///////////////////////////////////////////////////
         // Generate output files
+        System.out.println("== Generating Files :");
         ProfilingDemoUtils.writeMindMap( ProfilingDemoUtils.getArgument("mmFile", null) );
         ProfilingDemoUtils.writeJSON( ProfilingDemoUtils.getArgument("jsonFile", null), false );
         ProfilingDemoUtils.parseJSON( ProfilingDemoUtils.getArgument("jsonFile", null) );
         ProfilingDemoUtils.writeJSON( ProfilingDemoUtils.getArgument("jsonPrettyFile", null), true );
         ProfilingDemoUtils.parseJSON( ProfilingDemoUtils.getArgument("jsonPrettyFile", null) );
+
+        ProfilingDemoUtils.dumpClass( ProfilingWeaverDemo.class );
 
     }
 
@@ -107,6 +115,7 @@ public class ProfilingWeaverDemo
         otherCallL2B();
     }
 
+    @BeanProperty
     public void otherCallL2A()
     {
         otherCallL1B();
@@ -169,7 +178,7 @@ public class ProfilingWeaverDemo
     public void publicRecursiveMethod(int level)
     {
         rec++;
-        if ( level < 100 )
+        if ( level < 25 )
         {
            publicRecursiveMethod( level +1);
         }

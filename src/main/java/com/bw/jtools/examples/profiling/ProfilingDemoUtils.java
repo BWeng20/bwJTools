@@ -36,6 +36,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -159,8 +163,39 @@ public final class ProfilingDemoUtils
     }
 
     /**
+     * Dumps information about a class
+     * @param c     The Class of interest.
+     */
+    static public void dumpClass( Class c )
+    {
+        System.out.println("== Dumping methods of "+c.getSimpleName()+":");
+
+        Method[] ms = c.getDeclaredMethods();
+        for ( Method m : ms )
+        {
+            Annotation[] as = m.getAnnotations();
+            for ( Annotation a : as)
+            {
+                System.out.println(" @"+a.annotationType().getName() );
+
+            }
+
+            System.out.print(" "+String.format("0x%08X", m.getModifiers())+" "+Modifier.toString(m.getModifiers())+" "+m.getReturnType().getSimpleName()+" "+m.getName()+"(");
+            Parameter[] ps = m.getParameters();
+            for ( int i = 0 ; i<ps.length; ++i)
+            {
+                Parameter p = ps[i];
+                if (i>0) System.out.print(", ");
+                System.out.print( p.getType().getSimpleName()+" "+p.getName() );
+            }
+            System.out.println(")");
+        }
+    }
+
+    /**
      * Call JSON renderer with all top-level methods and writes the content to file.
      * @param fileName the JSON-file to write.
+     * @param pretty If true output is human readable.
      */
     static public void writeJSON( String fileName, boolean pretty )
     {
