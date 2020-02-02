@@ -21,25 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.bw.jtools.ui.profiling;
+package com.bw.jtools.ui.profiling.calltree;
 
 import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
+import java.text.NumberFormat;
+import java.util.regex.Pattern;
 import javax.swing.JTree;
 
 /**
  * Component to show call graphs.
- * @see #main(java.lang.String[])
  */
-public class ProfilingCallGraph extends JTree
+public class ProfilingCallTree extends JTree
 {
+    protected JSONCallGraphParser.GraphInfo graph;
+    protected NumberFormat nf;
+
     /**
      * Initialize the panel.
+     * @param nf The number-format to use.
      */
-    public ProfilingCallGraph()
+    public ProfilingCallTree(NumberFormat nf )
     {
-        super(new ProfilingTreeModel(null));
+        super(new ProfilingCallTreeModel(null));
+        this.nf = nf;
+        init();
     }
 
+    protected final void init()
+    {
+        setCellRenderer(new ProfilingCallTreeRenderer(nf));
+        setRowHeight(0);
+    }
 
     /**
      * Can be used by Application to restore last stored state from persistence.
@@ -60,14 +72,50 @@ public class ProfilingCallGraph extends JTree
     {
     }
 
+    /**
+     * Sets the shown graph.
+     * @param graph The graph to show.
+     */
     public void setGraph(JSONCallGraphParser.GraphInfo graph)
     {
+        ProfilingCallTreeModel oldmodel = (ProfilingCallTreeModel)getModel();
         this.graph = graph;
-        ProfilingTreeModel model = new ProfilingTreeModel(graph);
+        ProfilingCallTreeModel model = new ProfilingCallTreeModel(graph);
+        model.setNameFilter(oldmodel.getNameFilter());
+        model.setShowFullClassNames(oldmodel.getShowFullClassNames());
         setModel( model );
     }
 
-    JSONCallGraphParser.GraphInfo graph;
+    /**
+     * Sets display mode for classes.
+     * @param sff If true class-names are printed with package prefix.
+     */
+    public void setShowFullClassNames( boolean sff )
+    {
+        ProfilingCallTreeModel model = (ProfilingCallTreeModel)getModel();
+        if (model != null)
+        {
+            model.setShowFullClassNames(sff);
+        }
+    }
 
+    public boolean getShowFullClassNames()
+    {
+        ProfilingCallTreeModel model = (ProfilingCallTreeModel)getModel();
+        if (model != null)
+        {
+            return model.getShowFullClassNames();
+        }
+        return false;
+    }
+
+    public void setNameFilter(Pattern pattern)
+    {
+        ProfilingCallTreeModel model = (ProfilingCallTreeModel)getModel();
+        if (model != null)
+        {
+            model.setNameFilter(pattern);
+        }
+    }
 
 }

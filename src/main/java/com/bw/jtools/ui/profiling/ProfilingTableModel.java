@@ -28,19 +28,28 @@ import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 
 /**
- *
+ * Table Model for the list of found Call Graphs.
  */
 public class ProfilingTableModel extends AbstractTableModel
 {
     private String[] columnNames = { "Root", "Details", "" };
     private ArrayList<JSONCallGraphParser.GraphInfo> graphs = new ArrayList<>();
 
+    /**
+     * Adds a graph.
+     * @param g The Graph to add.
+     */
     public void addGraph( JSONCallGraphParser.GraphInfo g )
     {
         graphs.add(g);
         fireTableRowsInserted(graphs.size()-1,graphs.size()-1);
     }
 
+    /**
+     * Gets a graph by index.
+     * @param index The index of the graph to get. Have to be in [0..{@link #getRowCount()}-1]:
+     * @return The graph or null.
+     */
     public JSONCallGraphParser.GraphInfo getGraph( int index )
     {
         if ( index >= 0 && index < graphs.size())

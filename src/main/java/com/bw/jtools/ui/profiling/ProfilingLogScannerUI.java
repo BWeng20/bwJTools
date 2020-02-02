@@ -23,6 +23,7 @@
  */
 package com.bw.jtools.ui.profiling;
 
+import com.bw.jtools.ui.profiling.calltree.ProfilingCallTree;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
@@ -51,9 +52,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.text.NumberFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -95,6 +99,14 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
 
     private void initComponents()
     {
+
+        decimalFormat = new DecimalFormat("#.#####");
+
+        DecimalFormatSymbols ds = decimalFormat.getDecimalFormatSymbols();
+        ds.setDecimalSeparator('.');
+        decimalFormat.setDecimalFormatSymbols( ds );
+        decimalFormat.setDecimalSeparatorAlwaysShown(false);
+
         freemindFileFilter = new FileNameExtensionFilter( I18N.getText( "callgraph.export.freemind") , "mm");
 
         status_error = I18N.getText("callgraph.status.error");
@@ -126,7 +138,7 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
 
         add( file, BorderLayout.NORTH );
 
-        dataPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT );
+        splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT );
 
         model = new ProfilingTableModel();
         JTable foundCallGraphs = new JTable(model);
@@ -185,12 +197,35 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
 
         left.add(leftButtons, BorderLayout.SOUTH);
 
-        dataPanel.setLeftComponent(left);
+        splitter.setLeftComponent(left);
 
-        callGraph = new ProfilingCallGraph();
-        dataPanel.setRightComponent(new JScrollPane(callGraph));
+        JPanel right = new JPanel(new BorderLayout());
 
-        add( dataPanel, BorderLayout.CENTER  );
+        graphFilter = new JTextField();
+        graphFilter.addActionListener((ev) ->
+        {
+            updateGraphFilter();
+        });
+
+        right.add(graphFilter, BorderLayout.NORTH);
+
+        callGraph = new ProfilingCallTree(decimalFormat);
+        right.add(new JScrollPane(callGraph), BorderLayout.CENTER );
+
+        showClassNames = new JCheckBox(I18N.getText("callgraph.graph.showFullClassNames"));
+        JPanel rightButtons = new JPanel( new FlowLayout(FlowLayout.LEADING) );
+        rightButtons.add( showClassNames, BorderLayout.NORTH );
+        right.add(rightButtons, BorderLayout.SOUTH);
+
+        showClassNames.setSelected( callGraph.getShowFullClassNames() );
+        showClassNames.addItemListener( (ev) ->
+        {
+          callGraph.setShowFullClassNames( showClassNames.isSelected() );
+        });
+
+        splitter.setRightComponent(right);
+
+        add(splitter, BorderLayout.CENTER  );
         status = new JLabel(" ");
         add( status, BorderLayout.SOUTH );
 
@@ -212,16 +247,17 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
                     else
                     {
                         ticksToIdle = 9999;
-                        status.setText(status_idle);
                         jsonParser= new JSONCallGraphParser();
                         logStream = new BufferedInputStream( Files.newInputStream( Paths.get(filePath), StandardOpenOption.READ ));
                         Tail.addStream( logStream, this, 100, 10240 );
+                        status.setText(status_idle);
                     }
                 }
             }
             catch ( Exception e)
             {
                 logStream = null;
+                status.setText( String.format(status_error, e.getClass().getSimpleName()+ " - " + e.getLocalizedMessage()));
             }
             updateStatus();
         });
@@ -264,45 +300,77 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
                     });
                 }
             }
+            UITool.executeInUIThread(() ->
+            {
+                updateGraphFilter();
+            });
+
         }
 
     }
 
     /**
-     * Persistence-prefix.<br/>
+     * Persistence-prefix.<br>
      * Can be modified by inheritances to make it unique.
      */
     protected String preference_prefix_ = "ProfilingPanel.";
     protected JSONCallGraphParser jsonParser;
 
-    JTextField fileName;
-    ProfilingTableModel model;
-    JLabel status;
-    JSplitPane dataPanel;
-    JButton startStop;
-    JButton open;
+    protected JTextField fileName;
+    protected ProfilingTableModel model;
 
-    JButton export;
-    JCheckBox exportPretty;
+    /** The status line at bottom. */
+    protected JLabel status;
 
-    ProfilingCallGraph callGraph;
+    /** The main split area, separates table of found graphs and the tree. */
+    protected JSplitPane splitter;
 
-    InputStream logStream;
+    /** The top "start" button. Changes to "Stop" if scan was started.. */
+    protected JButton startStop;
+    protected Color runningBackground = new Color( 180,210,145 );
 
-    String status_error;
-    String status_read;
-    String status_idle;
-    String status_closed;
 
-    Timer uiUpdateTimer;
+    /** The browse-button. */
+    protected JButton open;
 
-    FileFilter freemindFileFilter;
+    /** The export-button. */
+    protected JButton export;
 
+    /** The "pretty" export option. */
+    protected JCheckBox exportPretty;
+
+    /** The selected graph is shown here. */
+    protected ProfilingCallTree callGraph;
+    /** Text box above the tree to search for nodes. */
+    protected JTextField  graphFilter;
+    protected JCheckBox showClassNames;
+
+    protected InputStream logStream;
+
+    protected String status_error;
+    protected String status_read;
+    protected String status_idle;
+    protected String status_closed;
+
+    /** Timer for update of the status line during scan. */
+    protected Timer uiUpdateTimer;
+
+    /** In the browse-dialog selectable file-filter to find "mm" files. */
+    protected FileFilter freemindFileFilter;
+
+    /** The used format to render numbers. */
+    protected DecimalFormat decimalFormat;
+
+    /**
+     * Exports a graph to a Freemind file.
+     * @param exportFile The file to export to.
+     * @param graph The graph to export.
+     */
     protected void exportFreeMind( File exportFile, JSONCallGraphParser.GraphInfo graph )
     {
         try
         {
-            FreeMindGraphRenderer renderer = new FreeMindGraphRenderer(NumberFormat.getInstance(), Options.ADD_CLASSNAMES, Options.ADD_MIN_MAX, Options.HIGHLIGHT_CRITICAL, exportPretty.isSelected() ? Options.PRETTY : Options.NONE );
+            FreeMindGraphRenderer renderer = new FreeMindGraphRenderer(decimalFormat, Options.ADD_CLASSNAMES, Options.ADD_MIN_MAX, Options.HIGHLIGHT_CRITICAL, exportPretty.isSelected() ? Options.PRETTY : Options.NONE );
             String source = renderer.render( graph.root );
             try ( FileWriter writer = new FileWriter(exportFile) )
             {
@@ -317,11 +385,16 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
         }
     }
 
+    /**
+     * Exports a graph to a JSON file.
+     * @param exportFile The file to export to.
+     * @param graph The graph to export.
+     */
     protected void exportJson( File exportFile, JSONCallGraphParser.GraphInfo graph )
     {
         try
         {
-            JSONCallGraphRenderer renderer = new JSONCallGraphRenderer(NumberFormat.getInstance(), Options.ADD_CLASSNAMES, Options.ADD_MIN_MAX, Options.HIGHLIGHT_CRITICAL, exportPretty.isSelected() ? Options.PRETTY : Options.NONE );
+            JSONCallGraphRenderer renderer = new JSONCallGraphRenderer(decimalFormat, Options.ADD_CLASSNAMES, Options.ADD_MIN_MAX, Options.HIGHLIGHT_CRITICAL, exportPretty.isSelected() ? Options.PRETTY : Options.NONE );
             String source = renderer.render( graph.root );
 
             try ( FileWriter writer = new FileWriter(exportFile) )
@@ -336,6 +409,9 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
         }
     }
 
+    /**
+     * Updates status and button according to the current state (scanning, idle etc.).
+     */
     protected void updateStatus()
     {
         if ( logStream == null )
@@ -351,7 +427,8 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
             UIToolSwing.setI18NText(startStop, "callgraph.button.stop");
 
             open.setEnabled(false);
-            startStop.setBackground(Color.green);
+
+            startStop.setBackground( runningBackground);
             startStop.setOpaque(true);
             startStop.setBorderPainted(false);
         }
@@ -375,7 +452,7 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
         int splitPos = Store.getInt(preference_prefix_+"splitpos", -1);
         if (splitPos > 0)
         {
-            dataPanel.setDividerLocation(splitPos);
+            splitter.setDividerLocation(splitPos);
         }
 
     }
@@ -388,10 +465,14 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
     public void storePreferences()
     {
         Store.setString(preference_prefix_+"logfile", fileName.getText().trim() );
-        Store.setInt(preference_prefix_+"splitpos", dataPanel.getDividerLocation() );
+        Store.setInt(preference_prefix_+"splitpos", splitter.getDividerLocation() );
 
     }
 
+    /**
+     * Updates UI to show newly received graphs.
+     * @param newGraphs Number of appended graphs.
+     */
     protected void updateCallGraphs(int newGraphs )
     {
         JSONCallGraphParser.GraphInfo[] graphs = jsonParser.getCallGraphs();
@@ -429,6 +510,35 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
         }
     }
 
+    protected String oldGraphFilter = null;
+
+    protected void updateGraphFilter()
+    {
+        final String regExp = this.graphFilter.getText().trim();
+        if ( !regExp.equals( oldGraphFilter ) )
+        {
+            try
+            {
+
+                if ( regExp.isEmpty() ) {
+                   callGraph.setNameFilter(null);
+                }
+                else
+                {
+                    Pattern graphFilterPattern = Pattern.compile(regExp);
+                    callGraph.setNameFilter( graphFilterPattern  );
+                }
+            }
+            catch ( Exception e)
+            {
+                e.printStackTrace();
+                status.setText( "RegExp Error" );
+            }
+            oldGraphFilter = regExp;
+        }
+    }
+
+
     @Override
     public void exception(Throwable ex)
     {
@@ -462,8 +572,11 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
      */
     public static void main( String args[] )
     {
+        Locale.setDefault(Locale.ENGLISH);
+
         // Initialize library.
         Application.initialize(ProfilingLogScannerUI.class);
+
 
         // The librarie has now initialized itself from defaultsettings.properties.
         // (located in same package as the main-class).
@@ -494,7 +607,11 @@ public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
             public void windowClosing(WindowEvent e)
             {
                 logPanel.storePreferences();
-                logPanel.stop();
+
+                UITool.executeInUIThread(() ->
+                {
+                    logPanel.stop();
+                });
             }
 
         });
