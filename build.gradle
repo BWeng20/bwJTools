@@ -13,11 +13,87 @@ apply plugin: 'maven'
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
+sourceSets {
+    // Define different source sets, one for each artefact that we
+    // need to publish.
+    jProfilingAgent{
+        java {
+            srcDir 'src/main/java' 
+            include '**/com/bw/jtools/Log**', 
+                    '**/com/bw/jtools/profiling/measurement/**', 
+                    '**/com/bw/jtools/profiling/MethodProfiling.java',
+                    '**/com/bw/jtools/profiling/**Information.java',
+                    '**/com/bw/jtools/profiling/ReflectionProfilingUtil.java',
+                    '**/com/bw/jtools/profiling/weaving/**',
+                    '**/com/bw/jtools/log/**', '**/net/bytebuddy/**'
+            exclude '**/com/bw/jtools/profiling/callgraph/**'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+    jToolsExamples{
+        java {
+            srcDir 'src/main/java' 
+            include '**/com/bw/jtools/**'
+            exclude '**/com/bw/jtools/profiling/weaving/**'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+    jTools {
+        java {
+            srcDir 'src/main/java' 
+            exclude '**/com/bw/jtools/profiling/weaving/**'
+            exclude '**/com/bw/jtools/examples/**'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+}
+
+dependencies {
+    
+    compile group:'org.apache.logging.log4j', name:'log4j-api', version:'2.12.0'
+    compile group:'org.apache.logging.log4j', name:'log4j-core', version:'2.12.0'
+    compile group:'javax.json', name:'javax.json-api', version:'1.1.4'
+    compile group:'org.apache.commons', name:'commons-csv', version:'1.1'
+    compile group:'javax.interceptor', name:'javax.interceptor-api', version:'1.2'
+    compile group:'org.glassfish', name:'javax.json', version:'1.1.4'
+    compile group:'org.netbeans.api', name:'org-netbeans-swing-outline', version:'RELEASE110'
+/*
+    jToolsCompile( group:'org.netbeans.api', name:'org-netbeans-swing-outline', version:'RELEASE110' )
+    jToolsCompile( group:'org.apache.logging.log4j', name:'log4j-api', version:'2.12.0' )
+    jToolsCompile( group:'org.apache.logging.log4j', name:'log4j-core', version:'2.12.0')
+    jToolsCompile( group:'javax.json', name:'javax.json-api', version:'1.1.4')
+    jToolsCompile( group:'org.apache.commons', name:'commons-csv', version:'1.1')
+    jToolsCompile( group:'javax.interceptor', name:'javax.interceptor-api', version:'1.2')
+    jToolsCompile( group:'org.glassfish', name:'javax.json', version:'1.1.4')
+*/    
+    // jToolsCompile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE110:sources'
+    // jToolsCompile 'net.bytebuddy:byte-buddy:1.10.6:sources'
+       
+    jProfilingAgentCompile( group:'org.apache.logging.log4j', name:'log4j-api', version:'2.12.0')
+    jProfilingAgentCompile( group:'org.apache.logging.log4j', name:'log4j-core', version:'2.12.0')
+    jProfilingAgentCompile( group:'net.bytebuddy', name:'byte-buddy', version:'1.10.6')
+    // jProfilingAgentCompile 'net.bytebuddy', name:'byte-buddy:1.10.6:javadoc'
+
+    compile( group:'net.bytebuddy', name:'byte-buddy', version:'1.10.6')
+
+}
+
+configurations {   
+    jToolsExamplesCompile.extendsFrom compile
+    jToolsCompile.extendsFrom compile
+}
+
+
 group = "io.github.bweng20"
-project.version="1.0"
+project.version="1.01"
 
 task uiProfilingJar(type: Jar) {
     description = "Create a jar for Profiling Scanner UI."
@@ -46,14 +122,15 @@ task uiProfilingJar(type: Jar) {
     includeEmptyDirs = false;
     from 'NOTICE'
     from 'licenses/**'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from { configurations.jTools.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
-task exampleJar(type: Jar) {
+task jToolsExamplesJar(type: Jar) {
+    dependsOn jToolsExamplesClasses
     description = "Create a jar with examples."
     group = "Build"
-    baseName = project.name + 'Examples';
+    baseName = 'jToolsExamples';
     includeEmptyDirs = false
     
     excludes = [ '**/com/bw/jtools/profiling/weaving/**',
@@ -76,30 +153,33 @@ task exampleJar(type: Jar) {
 
     from 'NOTICE'
     from 'licenses/**'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+//    from sourceSets.jToolsExamples.output
+    from { sourceSets.jToolsExamples.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
-task bwJProfilingAgentJar(type: Jar) {
-    description = "Create a jar only with Profiling stuff - including weaving."
-    group = "Build"
-    baseName = "bwJProfilingAgent"
-    includes = [ 'NOTICE', '**/com/bw/jtools/Log**', '**/com/bw/jtools/profiling/**', '**/com/bw/jtools/log/**', '**/net/bytebuddy/**' ]
-    includeEmptyDirs = false
+task jToolsJar(type: Jar) {
+    description = "Create a jar for jTools."
+    group = "jTools"
     manifest {
-        attributes 'Implementation-Title': 'jtools',  
+        attributes 'Implementation-Title': 'JTools',  
         	   'Implementation-Version': project.version,
                    'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
-                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
-                   'Premain-Class'  : "com.bw.jtools.profiling.weaving.ProfilingWeaver"
-    }    
-    
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})"
+    }
+    includes = [ 'NOTICE','licenses/**', '**/com/bw/jtools/**' ];
+    excludes = [ '**/com/bw/jtools/examples/**' ];
+
+    baseName = 'jTools';
+    includeEmptyDirs = false;
+    from 'NOTICE'
+    from 'licenses/**'
+    from sourceSets.jTools.output
 }
 
-javadoc {
-    source = sourceSets.main.allJava
+task jToolsJavadoc(type: Javadoc) {
+    source = sourceSets.jTools.allJava
+    group = "jTools"
+    classpath = sourceSets.jTools.runtimeClasspath 
     failOnError = false
     doLast {
         copy {
@@ -110,16 +190,71 @@ javadoc {
     }
 }
 
-task javadocJar(type: Jar) {
-    from javadoc
-    group = "Documentation"
+task jToolsJavadocJar(type: Jar) {
+    from jToolsJavadoc
+    group = "jTools"
+    baseName = 'jTools'
     classifier = 'javadoc'
+    includeEmptyDirs = false;
 }
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
-    group = "Documentation"
+task jToolsSourcesJar(type: Jar) {
+    from sourceSets.jTools.allJava
+    group = "jTools"
+    baseName = 'jTools'
     classifier = 'sources'
+    includeEmptyDirs = false;
+}
+
+task jProfilingAgentJar(type: Jar) {
+    dependsOn jProfilingAgentClasses
+    description = "Create a jar only with Profiling stuff - including weaving."
+    group = "jProfilingAgent"
+    baseName = "jProfilingAgent"
+    includes = [ 'NOTICE', '**/com/bw/jtools/Log**', '**/com/bw/jtools/profiling/**', '**/com/bw/jtools/log/**', '**/net/bytebuddy/**' ]
+    includeEmptyDirs = false
+    manifest {
+        attributes 'Implementation-Title': 'jtools',  
+        	   'Implementation-Version': project.version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                   'Premain-Class'  : "com.bw.jtools.profiling.weaving.ProfilingWeaver"
+    }    
+    
+    from 'NOTICE'
+    from 'licenses/**'
+    from { sourceSets.jProfilingAgent.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+
+}
+
+task jProfilingAgentJavadoc(type: Javadoc) {
+    source = sourceSets.jProfilingAgent.allJava
+    group = "jProfilingAgent"
+    classpath = sourceSets.jProfilingAgent.runtimeClasspath 
+    failOnError = false
+    doLast {
+        copy {
+            from "src/main/java"
+            include "**/doc-files/**"
+            into "$buildDir/docs/javadoc"
+        }
+    }  
+}
+
+task jProfilingAgentJavadocJar(type: Jar) {
+    from jProfilingAgentJavadoc
+    group = "jProfilingAgent"
+    baseName = "jProfilingAgent"
+    classifier = 'javadoc'
+    includeEmptyDirs = false
+}
+
+task jProfilingAgentSourcesJar(type: Jar) {
+    from sourceSets.jProfilingAgent.allJava
+    group = "jProfilingAgent"
+    classifier = 'sources'
+    baseName = "jProfilingAgent"
+    includeEmptyDirs = false
 }
 
 configurations {
@@ -130,93 +265,78 @@ configurations {
     }
 }
 
-dependencies {
-    testCompile 'junit:junit:4.12'
-    compile group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE110'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.12.0'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.12.0'
-    compile group: 'javax.json', name: 'javax.json-api', version: '1.1.4'
-    compile group: 'org.apache.commons', name: 'commons-csv', version: '1.1'
-    compile group: 'javax.interceptor', name: 'javax.interceptor-api', version: '3.1'
-    compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.10.6'
-    // compile group: 'org.netbeans.api', name: 'org-netbeans-swing-outline', version: 'RELEASE110', classifier: 'sources'
-    // compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.10.6', classifier: 'sources'
-    // compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.10.6', classifier: 'javadoc'
-    compile group: 'org.glassfish', name: 'javax.json', version: '1.1.4'
-}
+
 
 task runAppIconDemo(type: Exec) {
-    dependsOn build
+    dependsOn jToolsExamplesJar
     group = "Examples"
     description = "Runs Aplication Icons Demo"
-    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.applicationicons.ApplicationIconsDemo" 
+    commandLine "java", "-classpath", sourceSets.jToolsExamples.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.applicationicons.ApplicationIconsDemo" 
 }
 
 task runDataDemo(type: Exec) {
-    dependsOn build
+    dependsOn jToolsExamplesJar
     group = "Examples"
     description = "Runs DataDemo"
-    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.data.DataDemo" 
+    commandLine "java", "-classpath", sourceSets.jToolsExamples.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.data.DataDemo" 
 }
 
 task runExceptionDialogDemo(type: Exec) {
-    dependsOn build
+    dependsOn jToolsExamplesJar
     group = "Examples"
     description = "Runs ExceptionDialogDemo"
-    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.exceptiondialog.JExceptionDialogDemo" 
+    commandLine "java", "-classpath", sourceSets.jToolsExamples.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.exceptiondialog.JExceptionDialogDemo" 
 }
 task runProfilingDemo(type: Exec) {
-    dependsOn build
+    dependsOn jToolsExamplesJar
     group = "Examples"
     description = "Runs Profiling Demo"
-    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.profiling.ProfilingDemo", "-file=Test.mm" , "-workLoop=10000", "-repeat=50"
+    commandLine "java", "-classpath", sourceSets.jToolsExamples.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.profiling.ProfilingDemo", "-file=Test.mm" , "-workLoop=10000", "-repeat=50"
 }
 
 task runProfilingWeaverDemo(type: Exec) {
-    dependsOn build
-    dependsOn bwJProfilingAgentJar
+    dependsOn jProfilingAgentJar
+    dependsOn jToolsExamplesJar
     group = "Examples"
     description = "Runs Profiling Weaver Demo"
     // Configuration of ProfilingWeaver via system properties:
     //   profiling.weaver.regex    RegExp to match class/method-names.
     //   profiling.weaver.verbose  'true' or 'false' 
     
-    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(),
+    commandLine "java", "-classpath", sourceSets.jToolsExamples.runtimeClasspath.getAsPath(),
         "--add-opens", "java.base/java.lang=ALL-UNNAMED", "--illegal-access=deny",
         "-Dprofiling.weaver.regex=.*ProfilingWeaverDemo:.*",
         "-Dprofiling.weaver.verbose=false",
-        "-javaagent:${project.buildDir}/libs/bwJProfilingWeaverAgent-${project.version}.jar",
+        "-javaagent:${project.buildDir}/libs/jProfilingAgent-${project.version}.jar",
          "com.bw.jtools.examples.profiling.ProfilingWeaverDemo", "-mmFile=build/Test.mm", "-jsonFile=build/Test.json" , "-workLoop=10000", "-repeat=20"
 }
 
 task runProfilingWeaverDemoVerbose(type: Exec) {
-    dependsOn build
-    dependsOn bwJProfilingAgentJar
-    dependsOn exampleJar
+    dependsOn jProfilingAgentJar
+    dependsOn jToolsExamplesJar
     group = "Examples"
     description = "Runs Profiling Weaver Demo in Verbose Mode"
-    commandLine "java", "-classpath", "${project.buildDir}/libs/${project.name}Examples-${project.version}.jar",
+    commandLine "java", "-classpath", "${project.buildDir}/libs/jToolsExamples-${project.version}.jar",
         "--add-opens", "java.base/java.lang=ALL-UNNAMED", "--illegal-access=deny",
-        "-javaagent:${project.buildDir}/libs/bwJProfilingWeaverAgent-${project.version}.jar=jar:file:\$CODESOURCE${project.name}Examples-${project.version}.jar!/com/bw/jtools/examples/profiling/Weaver.properties",
+        "-javaagent:${project.buildDir}/libs/jProfilingAgent-${project.version}.jar=jar:file:\$CODESOURCEjToolsExamples-${project.version}.jar!/com/bw/jtools/examples/profiling/Weaver.properties",
         "com.bw.jtools.examples.profiling.ProfilingWeaverDemo", 
         "-mmFile=build/Test.mm", "-jsonFile=build/Test.json", "-jsonPrettyFile=build/TestPretty.json",
         "-workLoop=10000", "-repeat=20"
 }
 
 task debugProfilingWeaverDemoVerbose(type: JavaExec) {
-    dependsOn build
-    dependsOn bwJProfilingAgentJar
-    dependsOn exampleJar
+    dependsOn jProfilingAgentJar
+    dependsOn jToolsExamplesJar
     group = "Examples"
     description = "Debug Profiling Weaver Demo in Verbose Mode"
     main = "com.bw.jtools.examples.profiling.ProfilingWeaverDemo"
-    classpath = layout.files("${project.buildDir}/libs/${project.name}Examples-${project.version}.jar")
+    classpath = layout.files("${project.buildDir}/libs/jToolsExamples-${project.version}.jar")
     jvmArgs = [ \
         "-Dprofiling.weaver.regex=.*ProfilingWeaverDemo:.*",\
         "-Dprofiling.weaver.verbose=true",\
         "--add-opens", "java.base/java.lang=ALL-UNNAMED", "--illegal-access=deny", \
-        "-javaagent:${project.buildDir}/libs/bwJProfilingWeaverAgent-${project.version}.jar" 
-        // "-javaagent:${project.buildDir}/libs/bwJProfilingWeaverAgent-${project.version}.jar=jar:file:\$CODESOURCE${project.name}Examples-${project.version}.jar!/com/bw/jtools/examples/profiling/Weaver.properties" 
+        "-javaagent:${project.buildDir}/libs/jProfilingAgent-${project.version}.jar" 
+        // "-javaagent:${project.buildDir}/libs/jProfilingAgent-${project.version}.jar=jar:file:\$CODESOURCE$jToolsExamples-${project.version}.jar!/com/bw/jtools/examples/profiling/Weaver.properties" 
     ]
     args = [ "-mmFile=build/Test.mm", "-jsonFile=build/Test.json", "-jsonPrettyFile=build/TestPretty.json", "-workLoop=10000", "-repeat=2" ]
     debug = true
@@ -224,10 +344,10 @@ task debugProfilingWeaverDemoVerbose(type: JavaExec) {
 
 
 task runPropTableDemo(type: Exec) {
-    dependsOn build
+    dependsOn jToolsExamplesJar
     group = "Examples"
     description = "Runs PropertyTable Demo"
-    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.propertytable.PropertyTableDemo"
+    commandLine "java", "-classpath", sourceSets.jToolsExamples.runtimeClasspath.getAsPath(), "com.bw.jtools.examples.propertytable.PropertyTableDemo"
 }
 
 publishing {
@@ -243,12 +363,40 @@ publishing {
         }
     }
     publications {
-        mavenJava(MavenPublication) {
+        jtools(MavenPublication) {
             artifactId = 'jtools'
             from components.java
             
-            artifact tasks.sourcesJar 
-            artifact tasks.javadocJar
+            artifacts = [ jToolsJar, jToolsSourcesJar, jToolsJavadocJar ]
+            
+            pom {
+                name = 'jAppTools'
+                description = 'A minimalistic set of tools for rapid application development'
+                url = 'https://github.com/BWeng20/bwJTools'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'bweng20'
+                        name = 'Bernd Wengenrot'
+                        email = 'Bernd.Wengenrot@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/BWeng20/bwJTools.git'
+                    developerConnection = 'scm:git:ssh://github.com:BWeng20/bwJTools.git'
+                    url = 'https://github.com/BWeng20/bwJTools'
+                }                
+            }
+        }
+        jProfilingAgent(MavenPublication) {
+            artifactId = 'jProfilingAgent'
+            from components.java
+            
+            artifacts = [ jProfilingAgentJar, jProfilingAgentSourcesJar, jProfilingAgentJavadocJar ]
             
             pom {
                 name = 'bwJProfiling'
@@ -277,5 +425,6 @@ publishing {
 }
     
 signing {
-    sign publishing.publications.mavenJava
+    sign publishing.publications.jtools
+    sign publishing.publications.jProfilingAgent
 }
