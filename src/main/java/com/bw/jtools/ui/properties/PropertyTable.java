@@ -29,7 +29,7 @@ import org.netbeans.swing.outline.Outline;
  * <br>
  * It's designed to work in UIs where you need to show a huge amount of settings.<br>
  * At least this was my reason to create it.<br>
- * As reference please see also the example {@link com.bw.jtools.examples.propertytable.PropertyTableDemo PropertyTableDemo}.
+ * As reference please see also the example com.bw.jtools.examples.propertytable.PropertyTableDemo.
  * <br>
  * There is no "introspector" that builds a table from some object via reflection.
  * A lot more effort needed to be done to support all kinds of data (e.g. lists).<br>
@@ -63,7 +63,7 @@ import org.netbeans.swing.outline.Outline;
  * <br>
  * All properties are marked as "nullable" per default. This can be changed by setting a member of PropertyValue<br>
  * <br>
- * Check out the example for this class: {@link com.bw.jtools.examples.propertytable.PropertyTableDemo PropertyTableDemo}.
+ * Check out the example for this class com.bw.jtools.examples.propertytable.PropertyTableDemo.
  */
 public final class PropertyTable extends Outline
 {

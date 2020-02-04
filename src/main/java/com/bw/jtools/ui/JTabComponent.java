@@ -44,7 +44,7 @@ import javax.swing.JTabbedPane;
  * So the button will not at the right border if the area gets too big.<br>
  * This can't be configured or bypasses in some reliable way. <br>
  * <br>
- * Example {@link com.bw.jtools.examples.tabcomponent.JTabComponentDemo JTabComponentDemo}
+ * See example com.bw.jtools.examples.tabcomponent.JTabComponentDemo.
  * @see IconCache#getIcon(java.lang.String)
 
  */
