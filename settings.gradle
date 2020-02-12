@@ -1,1 +1,8 @@
 rootProject.name = 'bwJTools'
+
+include 'jtools', 'jProfiling'
+include 'jProfilingAgent'
+include 'jProfilingUI'
+include 'jToolsExamples'
+
+

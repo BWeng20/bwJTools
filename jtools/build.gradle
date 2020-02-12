@@ -1,0 +1,103 @@
+plugins {
+    id 'java'
+    id 'maven'
+    id 'maven-publish'
+    id 'signing'
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main{
+        java.srcDir file('src/main/java')
+        resources.srcDir file('src/main/resources')
+    }
+}
+
+dependencies {
+    implementation 'org.apache.logging.log4j:log4j-api:2.12.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.12.0'
+    implementation 'javax.json:javax.json-api:1.1.4'
+    implementation 'org.apache.commons:commons-csv:1.1'
+    implementation 'javax.interceptor:javax.interceptor-api:1.2'
+    implementation 'org.glassfish:javax.json:1.1.4'
+    implementation 'org.netbeans.api:org-netbeans-swing-outline:RELEASE110'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'JTools',  
+        	   'Implementation-Version': version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})"
+    }
+
+    baseName = 'jtools';
+    includeEmptyDirs = false;
+    from "${rootProject.projectDir}/licenses" 
+
+}
+
+publishing {
+    repositories {        
+        maven {
+            url publishUrl
+            credentials {
+                // Place this two variable with the correct values in your 
+                // ~/.gradle/gradle.properties
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+    publications {
+        jtools(MavenPublication) {
+            artifactId = 'jtools'
+            from components.java
+            
+            artifacts = [ jar, sourcesJar, javadocJar ]
+            
+            pom {
+                name = 'jtools'
+                description = 'A minimalistic set of tools for rapid application development'
+                url = 'https://github.com/BWeng20/bwJTools'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'bweng20'
+                        name = 'Bernd Wengenrot'
+                        email = 'Bernd.Wengenrot@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/BWeng20/bwJTools.git'
+                    developerConnection = 'scm:git:ssh://github.com:BWeng20/bwJTools.git'
+                    url = 'https://github.com/BWeng20/bwJTools'
+                }                
+            }
+        }
+    }
+}
+    
+signing {
+    sign publishing.publications.jtools
+}

@@ -1,0 +1,109 @@
+plugins {
+    id 'java'
+    id 'maven'
+    id 'maven-publish'
+    id 'signing'
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main{
+        java {
+            srcDir 'src/java' 
+        }
+        resources {
+        }
+    }
+}
+
+dependencies {
+    implementation project(':jtools')
+    implementation group:'javax.interceptor', name:'javax.interceptor-api', version:'1.2'
+    implementation group:'javax.json', name:'javax.json-api', version:'1.1.4'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+jar {
+   
+    manifest {
+        attributes 'Implementation-Title': 'A minimalistic long term profiling framework',  
+        	   'Implementation-Version': version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})"
+    }
+
+    baseName = 'jProfiling'
+    includeEmptyDirs = false
+
+    from "${rootProject.projectDir}/licenses" 
+    from { project(':jtools').sourceSets.main.runtimeClasspath.collect()  { (!it.exists() || it.isDirectory()) ? it : zipTree(it) } }
+    includes = [ '**/com/bw/jtools/Log*', '**/com/bw/jtools/log/*', 
+                 '**/com/bw/jtools/io/JsonTool*',
+                 '**/com/bw/jtools/profiling/**', 
+                 '/NOTICE', '/LICENSE', '/3ThPartyLicenses/**' 
+    ]
+}
+
+publishing {
+    repositories {        
+        maven {
+            url publishUrl
+            credentials {
+                // Place this two variable with the correct values in your 
+                // ~/.gradle/gradle.properties
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+    publications {
+        jProfiling(MavenPublication) {
+            artifactId = 'jProfiling'
+            from components.java
+            
+            artifacts = [ jar, sourcesJar, javadocJar ]
+            
+            pom {
+                name = 'jProfiling'
+                description = 'A minimalistic long term profiling framework'
+                url = 'https://github.com/BWeng20/bwJTools'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'bweng20'
+                        name = 'Bernd Wengenrot'
+                        email = 'Bernd.Wengenrot@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/BWeng20/bwJTools.git'
+                    developerConnection = 'scm:git:ssh://github.com:BWeng20/bwJTools.git'
+                    url = 'https://github.com/BWeng20/bwJTools'
+                }                
+            }
+        }
+    }
+}
+    
+signing {
+   sign publishing.publications.jProfiling
+}

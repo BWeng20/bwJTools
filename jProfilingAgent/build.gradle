@@ -1,0 +1,109 @@
+plugins {
+    id 'maven-publish'
+    id 'signing'
+    id 'java'
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'  
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main{
+        java {
+            srcDir 'src/java' 
+        }
+        resources {
+        }
+    }
+}
+
+dependencies {
+    // implementation project(':jProfiling')
+    implementation project(':jtools')
+    implementation group:'net.bytebuddy', name:'byte-buddy', version:'1.10.6'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+jar {
+    dependsOn ':jtools:jar'
+    dependsOn ':jProfiling:jar'
+    manifest {
+        attributes 'Implementation-Title': 'Profiling Java Agent',  
+        	   'Implementation-Version': version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})"
+    }
+
+    baseName = 'jProfilingAgent'
+    includeEmptyDirs = false
+    from "${rootProject.projectDir}/licenses" 
+    from sourceSets.main.runtimeClasspath.filter( {! (it.name=~/log4j.*jar/)}).collect  { (!it.exists() || it.isDirectory()) ? it : zipTree(it) }
+    excludes = [ '**/META-INF/**', '**/module-info.class', '**/org/netbeans/**', '**/org/apache/**', '**/json/**',
+                 '**/com/bw/jtools/ui/**', '**/com/bw/jtools/profiling/callgraph/**' ]
+    
+    doLast { task ->
+            println "Added infos from ${rootProject.projectDir}/resources/licenses/**"
+    }
+}
+
+publishing {
+    repositories {        
+        maven {
+            url publishUrl
+            credentials {
+                // Place this two variable with the correct values in your 
+                // ~/.gradle/gradle.properties
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+    publications {
+        jProfilingAgent(MavenPublication) {
+            artifactId = 'jProfilingAgent'
+            from components.java
+            
+            artifacts = [ jar, sourcesJar, javadocJar ]
+            
+            pom {
+                name = 'jProfilingAgent'
+                description = 'Profiling Java Agent'
+                url = 'https://github.com/BWeng20/bwJTools'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'bweng20'
+                        name = 'Bernd Wengenrot'
+                        email = 'Bernd.Wengenrot@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/BWeng20/bwJTools.git'
+                    developerConnection = 'scm:git:ssh://github.com:BWeng20/bwJTools.git'
+                    url = 'https://github.com/BWeng20/bwJTools'
+                }                
+            }
+        }
+    }
+}
+    
+signing {
+   sign publishing.publications.jProfilingAgent
+}

@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+    id 'maven'
+    id 'maven-publish'
+    id 'signing'
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+description = 'jProfilingUI'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':jtools')
+    implementation project(':jProfiling')
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}

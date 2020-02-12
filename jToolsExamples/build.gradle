@@ -1,0 +1,52 @@
+plugins {
+    id 'maven-publish'
+    id 'java'
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+description = 'jToolsExamples'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main{
+        java {
+            srcDir 'src/java' 
+        }
+        resources {
+            srcDir 'src/resources'
+        }
+    }
+}
+
+dependencies {
+    implementation project(':jtools')
+    implementation 'org.netbeans.api:org-netbeans-swing-outline:RELEASE110'
+}
+
+jar {
+    dependsOn ':jtools:jar'
+    manifest {
+        attributes 'Implementation-Title': 'Examples for usage of jtools',
+        	   'Implementation-Version': version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+        	   'Main-Class': "com.bw.jtools.examples.starter.ExampleList"
+    }
+
+    archiveBaseName = 'jToolsExamples';
+    // duplicatesStrategy = 'exclude'
+    includeEmptyDirs = false;
+    from "${rootProject.projectDir}/licenses" 
+    from sourceSets.main.runtimeClasspath.filter( {! (it.name=~/log4j.*jar/)}).collect  { it.isDirectory() ? it : zipTree(it) }
+    excludes = [ '**/META-INF/**', '/module-info.*' ]
+    
+    doLast { task ->
+            println "Added infos from ${rootProject.projectDir}/resources/licenses/**"
+    }
+}
+
