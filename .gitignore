@@ -1,2 +1,3 @@
-/build/
-/nb-configuration.xml
+/jtools/build/
+/jProfiling/build/
+/jProfilingAgent/build/

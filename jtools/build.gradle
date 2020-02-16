@@ -59,7 +59,7 @@ publishing {
             url publishUrl
             credentials {
                 // Place this two variable with the correct values in your 
-                // ~/.gradle/gradle.properties
+                // <Gradle-User-Home>/gradle.properties
                 username sonatypeUsername
                 password sonatypePassword
             }

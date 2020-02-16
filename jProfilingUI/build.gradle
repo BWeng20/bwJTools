@@ -8,10 +8,19 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'maven'
 
-description = 'jProfilingUI'
-
 repositories {
     mavenCentral()
+}
+
+sourceSets {
+    main{
+        java {
+            srcDir 'src/main/java' 
+        }
+        resources {
+            srcDir 'src/main/resources' 
+        }
+    }
 }
 
 dependencies {
@@ -27,4 +36,21 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'UI for Profiling Log Scanner',
+        	   'Implementation-Version': version,
+                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+        	   'Main-Class': "com.bw.jtools.ui.profiling.ProfilingLogScannerUI"
+    }
+
+    archiveBaseName = 'jProfilingUI'
+    includeEmptyDirs = false;
+    from "${rootProject.projectDir}/licenses" 
+    from sourceSets.main.runtimeClasspath.filter( {! (it.name=~/log4j.*jar/)}).collect  { it.isDirectory() ? it : zipTree(it) }
+    excludes = [ '**/META-INF/**', '/module-info.*' ]
+
 }
