@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * A node inside a call graph.
  */
-public final class CallNode
+public final class CallNode extends CallBase
 {
     /**
      * Create a new Node for a method.<br>
@@ -42,9 +42,8 @@ public final class CallNode
      * @param value The measured value.
      */
     public CallNode( String name, int calls, MeasurementValue value ) {
+        super( calls, value );
         this.name    = name;
-        this.calls   = calls;
-        this.value   = (value == null)?null:value.clone();
         this.details = new ArrayList<>();
         this.edges   = new ArrayList<>();
     }
@@ -78,17 +77,7 @@ public final class CallNode
      * Additional details to show.<br>
      * Can be empty or null.
      */
-    public List<String> details;
-
-    /**
-     * The absolute number of calls to the method.
-     */
-    public final int calls;
-
-    /**
-     * The measurement value.
-     */
-    public final MeasurementValue value;
+    public List<NodeDetail> details;
 
     /**
      * The net measurement value (value minus sum of edges)

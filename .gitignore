@@ -1,3 +1,10 @@
 /jtools/build/
 /jProfiling/build/
 /jProfilingAgent/build/
+/gradle/
+/.idea/
+/.gradle/
+/jProfilingUI/build/
+/jToolsExamples/build/
+/gradlew
+/gradlew.bat

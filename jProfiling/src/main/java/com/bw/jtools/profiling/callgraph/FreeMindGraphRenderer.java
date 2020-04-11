@@ -23,6 +23,8 @@
  */
 package com.bw.jtools.profiling.callgraph;
 
+import com.bw.jtools.profiling.measurement.DateTimeValue;
+
 import java.text.NumberFormat;
 
 /**
@@ -69,8 +71,8 @@ public class FreeMindGraphRenderer extends AbstractCallGraphRenderer
             {
                 sb.append( "<p>");
                 appendEscaped( renderValue(edge.value) );
-                sb.append(" in ").append(edge.count).append( " call");
-                if ( edge.count>1) {
+                sb.append(" in ").append(edge.calls).append( " call");
+                if ( edge.calls >1) {
                     sb.append('s');
                 }
                 sb.append(".</p>");
@@ -91,10 +93,33 @@ public class FreeMindGraphRenderer extends AbstractCallGraphRenderer
         {
             sb.append( "<richcontent TYPE=\"DETAILS\" HIDDEN=\"true\"><html><body style=\"text-align: right\"><i>");
 
-            for (int i=0 ; i < node.details.size() ; ++i )
+            for (NodeDetail d : node.details )
             {
                 sb.append("<p>");
-                appendEscaped( node.details.get(i) );
+                switch ( d.ID )
+                {
+                    case NodeDetail.DETAIL_START:
+                        appendEscaped("Start: ");
+                        appendEscaped( ((DateTimeValue)d.value).toISO8601() );
+                        break;
+                    case NodeDetail.DETAIL_END:
+                        appendEscaped("End: ");
+                        appendEscaped( ((DateTimeValue)d.value).toISO8601() );
+                        break;
+                    case NodeDetail.DETAIL_MINIMUM:
+                        appendEscaped("Minimum: ");
+                        renderValue( d.value );
+                        break;
+                    case NodeDetail.DETAIL_MAXIMUM:
+                        appendEscaped("Maximum: ");
+                        renderValue( d.value );
+                        break;
+                    default:
+                        sb.append( d.ID );
+                        appendEscaped(":");
+                        renderValue( d.value );
+                        break;
+                }
                 sb.append("</p>");
             }
             sb.append("</i></body></html></richcontent>");

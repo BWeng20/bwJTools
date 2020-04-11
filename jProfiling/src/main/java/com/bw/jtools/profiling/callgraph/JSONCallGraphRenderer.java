@@ -97,9 +97,12 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
         if ( node.details != null && !node.details.isEmpty() )
         {
             startArray("details");
-            for ( String t : node.details)
+            for ( NodeDetail d : node.details)
             {
-                element("", t);
+                startObject("" );
+                element("id", d.ID );
+                addValue("value", d.value );
+                endObject();
             }
             endArray();
         }
@@ -123,7 +126,7 @@ public class JSONCallGraphRenderer extends AbstractCallGraphRenderer
     {
         startObject("edge" );
         element("highlight", edge.hightlight);
-        element("count", edge.count);
+        element("count", edge.calls);
         addValue( "time", edge.value);
     }
 

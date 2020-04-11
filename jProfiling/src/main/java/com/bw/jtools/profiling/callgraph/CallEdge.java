@@ -28,9 +28,8 @@ import com.bw.jtools.profiling.measurement.MeasurementValue;
 /**
  * A directed edge inside a call graph.
  */
-public final class CallEdge
+public final class CallEdge extends CallBase
 {
-
     /**
      * Creates an edge.
      * @param value The measured value.
@@ -39,9 +38,8 @@ public final class CallEdge
      */
     public CallEdge( MeasurementValue value, int count, CallNode callee )
     {
+        super( count, value );
         this.hightlight = false;
-        this.value = (value == null)?null:value.clone();
-        this.count = count;
         this.callee = callee;
     }
 
@@ -49,16 +47,6 @@ public final class CallEdge
      * The Callee.
      */
     public final CallNode callee;
-
-    /**
-     * The measurement value of the callee-relation.
-     */
-    public final MeasurementValue value;
-
-    /**
-     * Number of calls for this relation.
-     */
-    public final int count;
 
     /**
      * If true the edge shall be highlighted.
