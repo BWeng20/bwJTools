@@ -23,16 +23,20 @@
  */
 package com.bw.jtools.profiling.callgraph;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.bw.jtools.profiling.CalleeProfilingInformation;
 import com.bw.jtools.profiling.ClassProfilingInformation;
 import com.bw.jtools.profiling.MethodProfilingInformation;
 import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
 import com.bw.jtools.profiling.measurement.DateTimeValue;
 import com.bw.jtools.profiling.measurement.MeasurementValue;
-
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * Abstract base for call graph renderer.
@@ -56,6 +60,8 @@ public abstract class AbstractCallGraphRenderer {
                 case PRETTY:
                     pretty = true;
                     break;
+                case NONE:
+                    break;                    
             }
         }
     }
@@ -140,7 +146,6 @@ public abstract class AbstractCallGraphRenderer {
      * @return The call graph graphical description.
      */
     public final String render(List<MethodProfilingInformation> roots, Calendar startDate, Calendar endDate) {
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         CallNode fakeRoot = new CallNode("Application", 0, null);
 
         if (startDate != null) {

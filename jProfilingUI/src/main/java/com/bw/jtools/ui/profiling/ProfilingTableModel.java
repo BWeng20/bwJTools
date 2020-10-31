@@ -32,7 +32,12 @@ import javax.swing.table.AbstractTableModel;
  */
 public class ProfilingTableModel extends AbstractTableModel
 {
-    private String[] columnNames = { "Root", "Details", "" };
+    /**
+	 *  Generated Serial Version
+	 */
+	private static final long serialVersionUID = 8616212306085967142L;
+
+	private String[] columnNames = { "Root", "Details", "" };
     private ArrayList<JSONCallGraphParser.GraphInfo> graphs = new ArrayList<>();
 
     /**
@@ -102,7 +107,7 @@ public class ProfilingTableModel extends AbstractTableModel
         return NULL;
     }
 
-    public Class getColumnClass(int c)
+    public Class<?> getColumnClass(int c)
     {
         return String.class;
     }

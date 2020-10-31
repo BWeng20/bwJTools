@@ -39,6 +39,11 @@ import javax.swing.table.TableCellRenderer;
 public class LoggerDataModel extends DataTableModel
 {
    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 7840030172914321289L;
+
+	/**
     * Logger back-end that feeds the log-table-model.
     */
    protected class LogTableLogger extends Log.LoggerFacade
@@ -114,7 +119,12 @@ public class LoggerDataModel extends DataTableModel
 
     public static class DateRenderer extends DefaultTableCellRenderer
     {
-        public DateFormat format_;
+        /**
+		 * Generated Serial Version
+		 */
+		private static final long serialVersionUID = -4804789855338153948L;
+
+		public DateFormat format_;
 
         public DateRenderer()
         {
@@ -130,7 +140,12 @@ public class LoggerDataModel extends DataTableModel
 
     public static class LevelRenderer extends DefaultTableCellRenderer
     {
-        final String DEBUG_LABEL = "DBG";
+        /**
+		 * Generated Serial Version
+		 */
+		private static final long serialVersionUID = -8735962220537799583L;
+
+		final String DEBUG_LABEL = "DBG";
         final String INFO_LABEL  = "INF";
         final String WARN_LABEL  = "WRN";
         final String ERROR_LABEL = "ERR";

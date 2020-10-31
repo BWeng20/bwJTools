@@ -41,22 +41,22 @@ public class PropertyOutlineModel extends DefaultOutlineModel
 
       /**
        * Getter for Tree Model.<br>
-       * For unknown reasons this member function and the member is package-protected
+       * For unknown reasons getTreeModel member function and the member is package-protected
        * in DefaultOutlineModel.
        * @return The current tree model.
        */
-      public DefaultTreeModel getTreeModel()
+      public DefaultTreeModel getDefaultTreeModel()
       {
           return treeModel_;
       }
 
       /**
        * Getter for Tree Model.<br>
-       * For unknown reasons this member function and the member is package-protected
+       * For unknown reasons getTableModel member function and the member is package-protected
        * in DefaultOutlineModel.
        * @return The current table model.
        */
-      public PropertyTableModel getTableModel()
+      public PropertyTableModel getDefaultTableModel()
       {
           return tableModel_;
       }

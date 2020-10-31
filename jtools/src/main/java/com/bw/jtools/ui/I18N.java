@@ -38,7 +38,7 @@ public final class I18N
 
     static class BundleInfo
     {
-        Class          clazz_;
+        Class<?>       clazz_;
         String         name_;
         ResourceBundle bundle_;
     }
@@ -74,7 +74,7 @@ public final class I18N
      * @param name The resource name in package-syntax. E.g. "com.bw.jtools.ui.i18n"
      * @param clazz The class to use for loading.
      */
-    public static void addBundle( String name, Class clazz )
+    public static void addBundle( String name, Class<?> clazz )
     {
         BundleInfo bi = new BundleInfo();
         bi.name_  = name;
@@ -154,12 +154,21 @@ public final class I18N
     public static String format( String key, Object... arguments)
     {
         String f = getText(key);
-        if ( f != null )
+        Formatter formatter  = null;
+        try 
         {
-            Formatter formatter = new Formatter(currentLocale_);
-            formatter.format(f, arguments);
-            return formatter.out().toString();
-        }
+	        if ( f != null )
+	        {
+	            formatter = new Formatter(currentLocale_);
+	            formatter.format(f, arguments);
+	            String r = formatter.out().toString();
+	            return r;
+	        }
+        } finally {
+			if (formatter != null) {
+				formatter.close();
+			}
+		}
         return empty_string;
     }
 

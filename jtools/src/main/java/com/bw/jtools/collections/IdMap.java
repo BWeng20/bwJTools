@@ -53,7 +53,8 @@ public final class IdMap<E> extends AbstractCollection<E>
         this( initialCapacity, 0.75f );
     }
 
-    public IdMap(int initialCapacity, float loadFactor)
+	@SuppressWarnings("unchecked")
+	public IdMap(int initialCapacity, float loadFactor)
     {
         if (initialCapacity < 0)
             throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
@@ -252,19 +253,20 @@ public final class IdMap<E> extends AbstractCollection<E>
         return key & (table.length-1);
     }
 
-    protected final void resize(int newCapacity)
+    @SuppressWarnings("unchecked")
+	protected final void resize(int newCapacity)
     {
         final int oldLength = table.length;
-        IdEntry[] oldTable = table;
+        IdEntry<E>[] oldTable = table;
         table = new IdEntry[newCapacity];
         threshold = (int)(newCapacity * loadFactor);
 
         for ( int i=0 ; i<oldLength ; ++i)
         {
-            IdEntry e = oldTable[i];
+            IdEntry<E> e = oldTable[i];
             while ( e != null )
             {
-                IdEntry next = e.next;
+                IdEntry<E> next = e.next;
                 int newIndex = indexForId(e.id);
                 e.next = table[newIndex];
                 table[newIndex] = e;

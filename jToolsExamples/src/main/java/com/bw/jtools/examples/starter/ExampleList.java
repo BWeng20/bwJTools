@@ -39,8 +39,12 @@ import javax.swing.JPanel;
  */
 public final class ExampleList extends JFrame
 {
-
-    static String[][] examples =
+    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -1470942606169822654L;
+	
+	static String[][] examples =
     {
         { "Application Icons", "com.bw.jtools.examples.applicationicons.ApplicationIconsDemo" }  ,
         { "Data Table", "com.bw.jtools.examples.data.DataDemo" }  ,

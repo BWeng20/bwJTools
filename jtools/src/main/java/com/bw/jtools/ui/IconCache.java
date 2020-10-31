@@ -63,7 +63,7 @@ public class IconCache
      * @return The image or null.
      * @throws java.io.IOException If something goes wrong.
      */
-    public static BufferedImage getImage(Class clazz, String name) throws IOException
+    public static BufferedImage getImage(Class<?> clazz, String name) throws IOException
     {
         try( InputStream is =  clazz.getResourceAsStream(name) )
         {
@@ -80,7 +80,7 @@ public class IconCache
      * @param name File name of the icon to load.
      * @return The icon or null.
      */
-    public static Icon getIcon(Class clazz, String name)
+    public static Icon getIcon(Class<?> clazz, String name)
     {
         Icon ic;
         synchronized (icons_)

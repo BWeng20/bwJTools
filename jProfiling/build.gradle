@@ -26,6 +26,7 @@ dependencies {
     implementation project(':jtools')
     implementation group:'javax.interceptor', name:'javax.interceptor-api', version:'1.2'
     implementation group:'javax.json', name:'javax.json-api', version:'1.1.4'
+    implementation group: 'org.apache.openejb', name: 'javaee-api', version: '6.0-4'    
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -55,6 +56,7 @@ jar {
     includes = [ '**/com/bw/jtools/Log*', '**/com/bw/jtools/log/*', 
                  '**/com/bw/jtools/io/JsonTool*',
                  '**/com/bw/jtools/profiling/**', 
+                 '**/com/bw/jtools/reports/**',
                  '/NOTICE', '/LICENSE', '/3ThPartyLicenses/**' 
     ]
 }

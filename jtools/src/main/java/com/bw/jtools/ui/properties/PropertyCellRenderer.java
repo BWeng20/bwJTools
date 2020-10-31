@@ -102,10 +102,8 @@ public class PropertyCellRenderer implements TableCellRenderer
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
     {
-        PropertyTable etable = (PropertyTable) table;
-
         column = table.convertColumnIndexToModel(column);
-        if ( etable instanceof Outline )
+        if ( table instanceof Outline )
            --column;
 
         JComponent comp = null;

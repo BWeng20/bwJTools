@@ -23,15 +23,6 @@
  */
 package com.bw.jtools.examples.profiling;
 
-import com.bw.jtools.profiling.CalleeProfilingInformation;
-import com.bw.jtools.profiling.ClassProfilingInformation;
-import com.bw.jtools.profiling.MethodProfilingInformation;
-import com.bw.jtools.profiling.callgraph.AbstractCallGraphRenderer;
-import com.bw.jtools.profiling.callgraph.FreeMindGraphRenderer;
-import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
-import com.bw.jtools.profiling.callgraph.JSONCallGraphRenderer;
-import com.bw.jtools.profiling.callgraph.Options;
-import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -44,9 +35,19 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.NumberFormat;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+
+import com.bw.jtools.profiling.CalleeProfilingInformation;
+import com.bw.jtools.profiling.ClassProfilingInformation;
+import com.bw.jtools.profiling.MethodProfilingInformation;
+import com.bw.jtools.profiling.callgraph.AbstractCallGraphRenderer;
+import com.bw.jtools.profiling.callgraph.FreeMindGraphRenderer;
+import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
+import com.bw.jtools.profiling.callgraph.JSONCallGraphRenderer;
+import com.bw.jtools.profiling.callgraph.Options;
+import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
 
 /**
  * Some helpful function for the demos in this package.
@@ -166,7 +167,8 @@ public final class ProfilingDemoUtils
      * Dumps information about a class
      * @param c     The Class of interest.
      */
-    static public void dumpClass( Class c )
+    @SuppressWarnings("rawtypes")
+	static public void dumpClass( Class c )
     {
         System.out.println("== Dumping methods of "+c.getSimpleName()+":");
 
@@ -204,7 +206,7 @@ public final class ProfilingDemoUtils
 
             List<MethodProfilingInformation> topMethods = AbstractCallGraphRenderer.filterTopLevelCalls(ClassProfilingInformation.getClassInformation());
             String mindMap = new JSONCallGraphRenderer(nf, Options.ADD_CLASSNAMES, Options.HIGHLIGHT_CRITICAL, Options.ADD_MIN_MAX, pretty ? Options.PRETTY : Options.NONE )
-                    .render(topMethods, ClassProfilingInformation.getProfilingStartTime(), new Date() );
+                    .render(topMethods, ClassProfilingInformation.getProfilingStartTime(), Calendar.getInstance() );
 
             Writer w = null;
             try
@@ -244,7 +246,7 @@ public final class ProfilingDemoUtils
 
             List<MethodProfilingInformation> topMethods = AbstractCallGraphRenderer.filterTopLevelCalls(ClassProfilingInformation.getClassInformation());
             String mindMap = new FreeMindGraphRenderer(nf, Options.ADD_CLASSNAMES, Options.HIGHLIGHT_CRITICAL, Options.ADD_MIN_MAX)
-                    .render(topMethods, ClassProfilingInformation.getProfilingStartTime(), new Date() );
+                    .render(topMethods, ClassProfilingInformation.getProfilingStartTime(), Calendar.getInstance() );
 
             Writer w = null;
             try

@@ -34,7 +34,8 @@ public class DataCSVExporter implements IDataExporter
     public DataCSVExporter()
     {
         // Ensure that we can use CSV functionality.
-        CSVFormat f = CSVFormat.EXCEL;
+        @SuppressWarnings("unused")
+		CSVFormat f = CSVFormat.EXCEL;
     }
 
     @Override

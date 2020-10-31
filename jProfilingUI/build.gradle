@@ -47,7 +47,8 @@ jar {
     }
 
     archiveBaseName = 'jProfilingUI'
-    includeEmptyDirs = false;
+    includeEmptyDirs = false
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from "${rootProject.projectDir}/licenses" 
     from sourceSets.main.runtimeClasspath.filter( {! (it.name=~/log4j.*jar/)}).collect  { it.isDirectory() ? it : zipTree(it) }
     excludes = [ '**/META-INF/**', '/module-info.*' ]

@@ -29,6 +29,11 @@ import java.awt.Color;
 public class PropertyColorValue extends PropertyValue
 {
     /**
+	 * Variable serialVersionUID of long
+	 */
+	private static final long serialVersionUID = 8880872805669539218L;
+
+	/**
      * Creates a "color"-value with name and value.
      * @param name   Name of the property.
      * @param value  The value. Can be null.

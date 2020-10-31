@@ -34,7 +34,8 @@ import net.bytebuddy.asm.Advice;
 public final class ByteBuddyProfilingThrowAdvice
 {
 
-    @Advice.OnMethodEnter(inline = true)
+    @SuppressWarnings({ "unused", "resource" })
+	@Advice.OnMethodEnter(inline = true)
     static public void adviceEnter(
             @Advice.Origin("#t") String clazz,
             @Advice.Origin("#m") String method,

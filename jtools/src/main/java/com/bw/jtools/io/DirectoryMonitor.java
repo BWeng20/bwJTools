@@ -526,7 +526,8 @@ public class DirectoryMonitor
                         continue;
                     }
 
-                    WatchEvent<Path> ev = (WatchEvent<Path>)event;
+                    @SuppressWarnings("unchecked")
+					WatchEvent<Path> ev = (WatchEvent<Path>)event;
                     Path filename = ev.context();
                     if ( filename != null )
                     {

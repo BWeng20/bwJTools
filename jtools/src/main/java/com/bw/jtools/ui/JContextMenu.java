@@ -17,7 +17,12 @@ import com.bw.jtools.Log;
 public class JContextMenu extends JPopupMenu
 {
 
-    Runnable actions_[];
+    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -4608782575452517082L;
+	
+	Runnable actions_[];
 
     private ActionListener createActionListener(final int i)
     {

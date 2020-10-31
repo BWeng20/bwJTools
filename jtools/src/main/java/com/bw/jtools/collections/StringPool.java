@@ -1,7 +1,6 @@
 package com.bw.jtools.collections;
 
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A simple String Pool
@@ -53,7 +52,7 @@ public class StringPool {
         }
     }
 
-    protected StringId addString( String str, int id ) {
+    protected StringId addString( String str, @SuppressWarnings("unused") int id ) {
         StringId sid = new StringId( str, ++idGenerator );
         stringpool.put(str, sid);
         return sid;

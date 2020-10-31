@@ -108,9 +108,9 @@ public class PropertyTableDemo
         p.add( nb3 );
 
         // Normally you will not simply add properties. You will store a reference to the "ProperyValue" instance
-        // (or of the used derived class) and use this instance to sync the data with your own data-modell.
-        p.add(new PropertyEnumValue("PropertyEnumNode<MyEnum>(MyEnum.FOUR)", MyEnum.FOUR ) );
-        p.add(new PropertyEnumValue("PropertyEnumNode<MyEnum>(MyEnum.class )", MyEnum.class ) );
+        // (or of the used derived class) and use this instance to sync the data with your own data-model.
+        p.add(new PropertyEnumValue<MyEnum>("PropertyEnumNode<MyEnum>(MyEnum.FOUR)", MyEnum.FOUR ) );
+        p.add(new PropertyEnumValue<MyEnum>("PropertyEnumNode<MyEnum>(MyEnum.class )", MyEnum.class ) );
         p.add(new PropertyBooleanValue("PropertyBooleanNode(null)", null ) );
         p.add(new PropertyColorValue("PropertyColorNode(new Color(200,200,200 ))", new Color(200,200,200 )) );
         p.add(new PropertyStringValue("PropertyStringNode(null)", null ) );

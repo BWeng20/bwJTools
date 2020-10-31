@@ -70,7 +70,7 @@ public abstract class StorageBase
         if ( v != null && handleEmptyAsNull_ && v.isEmpty() ) v = null;
         if ( v == null )
         {
-            v = (String)defaults_.getProperty(key);
+            v = defaults_.getProperty(key);
         }
         if ( v == null ) return defaultVal;
         return v;

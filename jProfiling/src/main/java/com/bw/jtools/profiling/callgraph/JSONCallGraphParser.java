@@ -38,225 +38,261 @@ import javax.json.JsonNumber;
 
 /**
  * Parser that reads output from {@link JSONCallGraphRenderer}.<br>
- * This class is designed to be used by offline analyst software that read some log output.<br>
+ * This class is designed to be used by offline analyst software that read some
+ * log output.<br>
  * The graphs in the input should not have additional new-lines added inside.
  */
-public class JSONCallGraphParser {
-    static final String plong = "{\t\"title\": \"CallGraph\",";
-    static final String pshort = "{\"t\":\"CallGraph\"";
+public class JSONCallGraphParser
+{
+	static final String plong = "{\t\"title\": \"CallGraph\",";
+	static final String pshort = "{\"t\":\"CallGraph\"";
 
-    static final String elong = "\"version\": 1}";
-    static final String eshort = ",\"v\":1}";
+	static final String elong = "\"version\": 1}";
+	static final String eshort = ",\"v\":1}";
 
-    public JSONCallGraphParser(Reader reader) {
-        parse(reader);
-    }
+	public JSONCallGraphParser(Reader reader)
+	{
+		parse(reader);
+	}
 
-    public JSONCallGraphParser() {
-        reset();
-    }
+	public JSONCallGraphParser()
+	{
+		reset();
+	}
 
-    /**
-     * Parse the complete content.
-     *
-     * @param reader The reader.
-     */
-    public void parse(Reader reader) {
-        reset();
-        LineNumberReader lr;
+	/**
+	 * Parse the complete content.
+	 *
+	 * @param reader The reader.
+	 */
+	public void parse(Reader reader)
+	{
+		reset();
+		LineNumberReader lr;
 
-        if (reader instanceof LineNumberReader)
-            lr = (LineNumberReader) reader;
-        else
-            lr = new LineNumberReader(reader);
+		if (reader instanceof LineNumberReader)
+			lr = (LineNumberReader) reader;
+		else
+			lr = new LineNumberReader(reader);
 
-        try {
-            String line;
-            do {
-                line = lr.readLine();
-                parse(line);
-            } while (line != null);
-        } catch (Exception e) {
-            Log.error("Failed to parse call-graph.", e);
-        }
-    }
+		try
+		{
+			String line;
+			do
+			{
+				line = lr.readLine();
+				parse(line);
+			} while (line != null);
+		} catch (Exception e)
+		{
+			Log.error("Failed to parse call-graph.", e);
+		}
+	}
 
+	boolean inGraph;
+	boolean formatShort;
+	StringBuilder graph = new StringBuilder(2048);
+	StringBuilder chunkBuffer = new StringBuilder(2048);
+	String endPattern = null;
 
-    boolean inGraph;
-    boolean formatShort;
-    StringBuilder graph = new StringBuilder(2048);
-    StringBuilder chunkBuffer = new StringBuilder(2048);
-    String endPattern = null;
+	public void reset()
+	{
+		endPattern = null;
+		inGraph = false;
+		formatShort = false;
+		graph.setLength(0);
+		chunkBuffer.setLength(0);
+	}
 
-    public void reset() {
-        endPattern = null;
-        inGraph = false;
-        formatShort = false;
-        graph.setLength(0);
-        chunkBuffer.setLength(0);
-    }
+	/**
+	 * Parse input continuously.
+	 *
+	 * @param chunk The next chunk to parse.
+	 */
+	public void parse(String chunk)
+	{
+		if (chunk != null)
+		{
+			if (chunkBuffer.length() > 200)
+			{
+				chunkBuffer.delete(0, chunkBuffer.length() - plong.length());
+			}
 
-    /**
-     * Parse input continuously.
-     *
-     * @param chunk The next chunk to parse.
-     */
-    public void parse(String chunk) {
-        if (chunk != null) {
-            if (chunkBuffer.length() > 200) {
-                chunkBuffer.delete(0, chunkBuffer.length() - plong.length());
-            }
+			int startIndex = 0;
+			do
+			{
+				if (inGraph)
+				{
+					final int oldLength = graph.length();
+					appendText(graph, chunk, startIndex, chunk.length());
+					int graphEndIndex = graph.indexOf(endPattern);
+					if (graphEndIndex >= 0)
+					{
+						graphEndIndex += endPattern.length();
+						graph.setLength(graphEndIndex);
 
-            int startIndex = 0;
-            do {
-                if (inGraph) {
-                    final int oldLength = graph.length();
-                    appendText(graph, chunk, startIndex, chunk.length());
-                    int graphEndIndex = graph.indexOf(endPattern);
-                    if (graphEndIndex >= 0) {
-                        graphEndIndex += endPattern.length();
-                        graph.setLength(graphEndIndex);
+						parseGraph(graph, formatShort);
+						graph.setLength(0);
 
-                        parseGraph(graph, formatShort);
-                        graph.setLength(0);
+						startIndex += graphEndIndex - oldLength;
+						inGraph = false;
+					} else
+					{
+						startIndex = -1;
+					}
+				} else
+				{
+					appendText(chunkBuffer, chunk, startIndex, chunk.length());
 
-                        startIndex += graphEndIndex - oldLength;
-                        inGraph = false;
-                    } else {
-                        startIndex = -1;
-                    }
-                } else {
-                    final int oldLength = chunkBuffer.length();
-                    appendText(chunkBuffer, chunk, startIndex, chunk.length());
+					int bufferStartIndex;
+					if ((bufferStartIndex = chunkBuffer.indexOf(pshort, startIndex)) >= 0)
+					{
+						inGraph = true;
+						formatShort = true;
+						endPattern = eshort;
+						graph.append(pshort);
 
-                    int bufferStartIndex;
-                    if ((bufferStartIndex = chunkBuffer.indexOf(pshort, startIndex)) >= 0) {
-                        inGraph = true;
-                        formatShort = true;
-                        endPattern = eshort;
-                        graph.append(pshort);
+						chunk = chunkBuffer.substring(bufferStartIndex + pshort.length());
+						startIndex = 0;
+						chunkBuffer.setLength(0);
+					} else if ((bufferStartIndex = chunkBuffer.indexOf(plong, startIndex)) >= 0)
+					{
+						inGraph = true;
+						formatShort = false;
+						endPattern = elong;
+						graph.append(plong);
 
-                        chunk = chunkBuffer.substring(bufferStartIndex + pshort.length());
-                        startIndex = 0;
-                        chunkBuffer.setLength(0);
-                    } else if ((bufferStartIndex = chunkBuffer.indexOf(plong, startIndex)) >= 0) {
-                        inGraph = true;
-                        formatShort = false;
-                        endPattern = elong;
-                        graph.append(plong);
+						chunk = chunkBuffer.substring(bufferStartIndex + plong.length());
+						startIndex = 0;
+						chunkBuffer.setLength(0);
+					} else
+					{
+						startIndex = -1;
+					}
+				}
+			} while (startIndex >= 0);
+		}
+	}
 
-                        chunk = chunkBuffer.substring(bufferStartIndex + plong.length());
-                        startIndex = 0;
-                        chunkBuffer.setLength(0);
-                    } else {
-                        startIndex = -1;
-                    }
-                }
-            } while (startIndex >= 0);
-        }
-    }
+	protected final void appendText(StringBuilder buffer, final String chunk, int start, int end)
+	{
+		buffer.ensureCapacity(buffer.length() + (end - start));
+		for (int i = start; i < end; ++i)
+		{
+			final char c = chunk.charAt(i);
+			if (c == '\r' || c == '\n')
+			{
+			} else
+			{
+				buffer.append(c);
+			}
+		}
+	}
 
-    protected final void appendText(StringBuilder buffer, final String chunk, int start, int end) {
-        buffer.ensureCapacity(buffer.length() + (end - start));
-        for (int i = start; i < end; ++i) {
-            final char c = chunk.charAt(i);
-            if (c == '\r' || c == '\n') {
-            } else {
-                buffer.append(c);
-            }
-        }
-    }
+	public static class GraphInfo
+	{
+		private GraphInfo(String source, CallNode root)
+		{
+			this.source = source;
+			this.root = root;
+		}
 
+		public final String source;
+		public final CallNode root;
+	}
 
-    public static class GraphInfo {
-        private GraphInfo(String source, CallNode root) {
-            this.source = source;
-            this.root = root;
-        }
+	/**
+	 * Get all found call graphs.
+	 *
+	 * @return The call graphs.
+	 */
+	public GraphInfo[] getCallGraphs()
+	{
+		return callGraphs.toArray(new GraphInfo[0]);
+	}
 
-        public final String source;
-        public final CallNode root;
-    }
+	public int getNumberOfCallGraphs()
+	{
+		return callGraphs.size();
+	}
 
-    /**
-     * Get all found call graphs.
-     *
-     * @return The call graphs.
-     */
-    public GraphInfo[] getCallGraphs() {
-        return callGraphs.toArray(new GraphInfo[0]);
-    }
+	ArrayList<GraphInfo> callGraphs = new ArrayList<>();
 
-    public int getNumberOfCallGraphs() {
-        return callGraphs.size();
-    }
+	private void parseGraph(CharSequence graph, boolean formatShort)
+	{
+		final String graphSource = graph.toString();
+		JsonObject json = JsonTool.parseJson(graphSource);
+		if (json == null)
+		{
+			Log.warn("Failed to parse graph.");
+			System.err.println(graph);
+		} else
+		{
+			callGraphs.add(new GraphInfo(graphSource,
+			        parseJsonMethod(JsonTool.getJsonObject(json, formatShort ? "C" : "Call"), formatShort)));
+		}
+	}
 
-    ArrayList<GraphInfo> callGraphs = new ArrayList<>();
+	private CallNode parseJsonMethod(JsonObject js, boolean formatShort)
+	{
 
-    private void parseGraph(CharSequence graph, boolean formatShort) {
-        final String graphSource = graph.toString();
-        JsonObject json = JsonTool.parseJson(graphSource);
-        if (json == null) {
-            Log.warn("Failed to parse graph.");
-            System.err.println(graph);
-        } else {
-            callGraphs.add(new GraphInfo(graphSource, parseJsonMethod(JsonTool.getJsonObject(json, formatShort ? "C" : "Call"), formatShort)));
-        }
-    }
+		CallNode node = new CallNode(JsonTool.getJsonString(js, formatShort ? "n" : "name"),
+		        JsonTool.getJsonInt(js, formatShort ? "c" : "calls", 0),
+		        parseMeasurementValue(JsonTool.getJsonValue(js, formatShort ? "t" : "time")));
+		node.netValue = parseMeasurementValue(JsonTool.getJsonValue(js, formatShort ? "s" : "self"));
+		JsonArray details = JsonTool.getJsonArray(js, formatShort ? "d" : "details");
+		if (details != null)
+		{
+			for (JsonValue v : details)
+			{
+				final int id = JsonTool.getJsonInt(v, "id", 0);
+				MeasurementValue value = parseMeasurementValue(JsonTool.getJsonValue(v, formatShort ? "v" : "value"));
+				switch (id)
+				{
+				case NodeDetail.DETAIL_START:
+				case NodeDetail.DETAIL_END:
+					value = new DateTimeValue(value.values);
+					break;
+				default:
+					break;
+				}
+				if (value != null)
+					node.details.add(new NodeDetail(id, value));
+			}
+		}
+		JsonArray calls = JsonTool.getJsonArray(js, formatShort ? "u" : "using");
+		if (calls != null)
+		{
+			for (JsonValue cv : calls)
+			{
+				CallNode callee = parseJsonMethod(JsonTool.getJsonObject(cv, formatShort ? "C" : "Call"), formatShort);
+				CallEdge edge = new CallEdge(
+				        parseMeasurementValue(JsonTool.getJsonValue(cv, formatShort ? "t" : "time")),
+				        JsonTool.getJsonInt(cv, formatShort ? "c" : "count", 0), callee);
+				edge.hightlight = JsonTool.getJsonBoolean(cv, formatShort ? "h" : "highlight", false);
+				node.edges.add(edge);
+			}
+		}
+		return node;
+	}
 
-    private CallNode parseJsonMethod(JsonObject js, boolean formatShort) {
-
-        CallNode node = new CallNode(
-                JsonTool.getJsonString(js, formatShort ? "n" : "name"),
-                JsonTool.getJsonInt(js, formatShort ? "c" : "calls", 0),
-                parseMeasurementValue(JsonTool.getJsonValue(js, formatShort ? "t" : "time"))
-        );
-        node.netValue = parseMeasurementValue(JsonTool.getJsonValue(js, formatShort ? "s" : "self"));
-        JsonArray details = JsonTool.getJsonArray(js, formatShort ? "d" : "details");
-        if (details != null) {
-            for (JsonValue v : details) {
-                final int id = JsonTool.getJsonInt(v, "id", 0);
-                MeasurementValue value = parseMeasurementValue(JsonTool.getJsonValue(v, formatShort ? "v" : "value"));
-                switch (id) {
-                    case NodeDetail.DETAIL_START:
-                    case NodeDetail.DETAIL_END:
-                        value = new DateTimeValue(value.values);
-                        break;
-                    default:
-                        break;
-                }
-                if (value != null)
-                    node.details.add(new NodeDetail(id,value));
-            }
-        }
-        JsonArray calls = JsonTool.getJsonArray(js, formatShort ? "u" : "using");
-        if (calls != null) {
-            for (JsonValue cv : calls) {
-                CallNode callee = parseJsonMethod(JsonTool.getJsonObject(cv, formatShort ? "C" : "Call"), formatShort);
-                CallEdge edge = new CallEdge(
-                        parseMeasurementValue(JsonTool.getJsonValue(cv, formatShort ? "t" : "time")),
-                        JsonTool.getJsonInt(cv, formatShort ? "c" : "count", 0),
-                        callee);
-                edge.hightlight = JsonTool.getJsonBoolean(cv, formatShort ? "h" : "highlight", false);
-                node.edges.add(edge);
-            }
-        }
-        return node;
-    }
-
-    private MeasurementValue parseMeasurementValue(JsonValue value) {
-        MeasurementValue v = null;
-        if (value instanceof JsonArray) {
-            JsonArray ar = (JsonArray) value;
-            long[] data = new long[ar.size()];
-            for (int i = 0; i < data.length; ++i) {
-                data[i] = ((JsonNumber) ar.get(i)).longValue();
-            }
-            v = new MeasurementValue(data);
-        } else if (value != null) {
-            v = new MeasurementValue(new long[]{JsonTool.getJsonLong(value, "", 0)});
-        }
-        return v;
-    }
+	private MeasurementValue parseMeasurementValue(JsonValue value)
+	{
+		MeasurementValue v = null;
+		if (value instanceof JsonArray)
+		{
+			JsonArray ar = (JsonArray) value;
+			long[] data = new long[ar.size()];
+			for (int i = 0; i < data.length; ++i)
+			{
+				data[i] = ((JsonNumber) ar.get(i)).longValue();
+			}
+			v = new MeasurementValue(data);
+		} else if (value != null)
+		{
+			v = new MeasurementValue(new long[] { JsonTool.getJsonLong(value, "", 0) });
+		}
+		return v;
+	}
 
 }

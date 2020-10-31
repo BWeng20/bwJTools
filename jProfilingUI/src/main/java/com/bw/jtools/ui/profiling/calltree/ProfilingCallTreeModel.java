@@ -35,7 +35,12 @@ import java.util.regex.Pattern;
  */
 public class ProfilingCallTreeModel extends DefaultTreeModel
 {
-    public ProfilingCallTreeModel(JSONCallGraphParser.GraphInfo graph)
+    /**
+	 *  Generated Serial Version
+	 */
+	private static final long serialVersionUID = 5905885415975534799L;
+	
+	public ProfilingCallTreeModel(JSONCallGraphParser.GraphInfo graph)
     {
         super( graph == null ? null : new ProfilingTreeNode(graph.root, NumberFormat.getInstance()) );
     }

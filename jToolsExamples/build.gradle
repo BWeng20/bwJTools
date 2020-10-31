@@ -25,6 +25,7 @@ sourceSets {
 
 dependencies {
     implementation project(':jtools')
+    implementation project(':jProfiling')
     implementation 'org.netbeans.api:org-netbeans-swing-outline:RELEASE110'
 }
 
@@ -40,7 +41,7 @@ jar {
 
     archiveBaseName = 'jToolsExamples';
     // duplicatesStrategy = 'exclude'
-    includeEmptyDirs = false;
+    includeEmptyDirs = false
     from "${rootProject.projectDir}/licenses" 
     from sourceSets.main.runtimeClasspath.filter( {! (it.name=~/log4j.*jar/)}).collect  { it.isDirectory() ? it : zipTree(it) }
     excludes = [ '**/META-INF/**', '/module-info.*' ]

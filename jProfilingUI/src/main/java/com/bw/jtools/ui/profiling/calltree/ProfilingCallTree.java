@@ -33,7 +33,12 @@ import javax.swing.JTree;
  */
 public class ProfilingCallTree extends JTree
 {
-    protected JSONCallGraphParser.GraphInfo graph;
+    /**
+	 *  Generated Serial Version
+	 */
+	private static final long serialVersionUID = 4279375455458945581L;
+	
+	protected JSONCallGraphParser.GraphInfo graph;
     protected NumberFormat nf;
 
     /**

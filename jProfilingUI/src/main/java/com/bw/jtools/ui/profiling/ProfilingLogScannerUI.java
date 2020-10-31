@@ -81,8 +81,12 @@ import javax.swing.table.TableColumnModel;
  */
 public class ProfilingLogScannerUI extends JPanel implements Tail.TailListener
 {
-    private static boolean addI18nBundle = true;
-
+    /**
+	 *  Generated Serial Version
+	 */
+	private static final long serialVersionUID = 5086226721139377624L;
+	
+	private static boolean addI18nBundle = true;
 
     /**
      * Initialize a ProfilingLogViewer.

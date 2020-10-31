@@ -68,6 +68,11 @@ import org.netbeans.swing.outline.Outline;
 public final class PropertyTable extends Outline
 {
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 2469783456629141389L;
+
+	/**
      * In an "Outline" the columns starts left of the tree column.
      * So for some API calls you need to add "+1" to the values below.
      */
@@ -117,7 +122,7 @@ public final class PropertyTable extends Outline
      */
     public DefaultTreeModel getTreeModel()
     {
-        return (DefaultTreeModel)((PropertyOutlineModel)getOutlineModel()).getTreeModel();
+        return ((PropertyOutlineModel)getOutlineModel()).getDefaultTreeModel();
     }
 
     /**
@@ -126,7 +131,7 @@ public final class PropertyTable extends Outline
      */
     public PropertyTableModel getTableModel()
     {
-        return ((PropertyOutlineModel)getOutlineModel()).getTableModel();
+        return ((PropertyOutlineModel)getOutlineModel()).getDefaultTableModel();
     }
 
     /**
@@ -184,7 +189,7 @@ public final class PropertyTable extends Outline
         setAutoscrolls(true);
 
         PropertyOutlineModel mdl = PropertyOutlineModel.createOutlineModel();
-        mdl.getTableModel().setEditable(editable_);
+        mdl.getDefaultTableModel().setEditable(editable_);
 
         setModel(mdl);
         getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -217,7 +222,12 @@ public final class PropertyTable extends Outline
         ActionMap am = this.getActionMap();
         Action editAction = new AbstractAction()
         {
-            @Override
+            /**
+			 * Generated Serial Version
+			 */
+			private static final long serialVersionUID = 2889693532750609569L;
+
+			@Override
             public void actionPerformed(ActionEvent e)
             {
                 final int row = getSelectedRow();

@@ -25,6 +25,11 @@ import javax.swing.table.TableRowSorter;
 public final class DataTable extends JTable
 {
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -6224197112864315363L;
+
+	/**
      * Sorter instance to be used for sorting.
      */
     protected TableRowSorter<DataTableModel> sorter_;

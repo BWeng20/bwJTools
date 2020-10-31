@@ -24,12 +24,16 @@
 package com.bw.jtools.profiling.weaving;
 
 import com.bw.jtools.Log;
+import com.bw.jtools.log.ConsoleLogger;
+import com.bw.jtools.log.FileLogger;
+
 import java.io.InputStreamReader;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -118,6 +122,12 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 public class ProfilingWeaver
 {
     /**
+     * Arguments for logging.
+     */
+    public static final String ARG_LOG = "log";
+    public static final String ARG_LOG_LEVEL = "logLevel";
+    
+    /**
      * Argument for class and method matching.
      */
     public static final String ARG_REGEX = "regex";
@@ -148,7 +158,8 @@ public class ProfilingWeaver
      * @param agentArgument   The agent-argument from command line.
      * @param instrumentation The provided instrumentation from JVM.
      */
-    public static void premain(String agentArgument, Instrumentation instrumentation)
+    @SuppressWarnings({"rawtypes","unchecked"})
+	public static void premain(String agentArgument, Instrumentation instrumentation)
     {
         java.util.HashMap<String, String> args = new java.util.HashMap<>();
 
@@ -159,20 +170,17 @@ public class ProfilingWeaver
         /////////////////////////////////////////
         // Setting arguments from system properties
 
-        String val = System.getProperty(PROP_PREFIX+ARG_REGEX);
-        if (val != null)
-        {
-            args.put(ARG_REGEX, val);
-        }
-
         String argPropertyFile = System.getProperty(PROP_PROPERTY_FILE);
-
-        val = System.getProperty(PROP_PREFIX+ARG_VERBOSE);
-        if (val != null)
+        
+        for ( String argName :  Arrays.asList( ARG_REGEX, ARG_VERBOSE, ARG_LOG, ARG_LOG_LEVEL ) ) 
         {
-            args.put(ARG_VERBOSE, val);
+            String val = System.getProperty(PROP_PREFIX+argName);
+            if (val != null)
+            {
+                args.put(argName, val);
+            }
         }
-
+        
         /////////////////////////////////////////
         // Setting file from agent-argument
 
@@ -229,6 +237,25 @@ public class ProfilingWeaver
 
         final boolean verbose = Boolean.valueOf(args.get(ARG_VERBOSE));
 
+        final String log = args.get(ARG_LOG);
+        if ( "con".equalsIgnoreCase(log)) {
+            Log.setLogger(new ConsoleLogger() );        	
+        }
+        else if ( "null".equalsIgnoreCase(log)) {
+            Log.setLogger(null);        	
+        }
+        else if ( log != null ) {
+            Log.setLogger( new FileLogger( log ) );        	
+        }
+
+        final String logLevel = args.get(ARG_LOG_LEVEL);
+        try {
+        	if ( logLevel != null ) {
+        		Log.setLevel( Integer.parseInt( logLevel ));
+        	}
+        } catch (Exception e) {        	
+        }
+        
         if ( verbose && !args.isEmpty())
         {
             Log.info("Arguments:");
@@ -314,7 +341,7 @@ public class ProfilingWeaver
                                         excludeMatch = excludeMatch.or(ElementMatchers.isTypeInitializer());
                                     }
 
-                                    ElementMatcher.Junction matcher =
+									ElementMatcher.Junction matcher =
                                         ElementMatchers.nameMatches(methodRegExp)
                                                    .and(isDeclaredBy(typeDescription))
                                                    .and(ElementMatchers.not( excludeMatch ));

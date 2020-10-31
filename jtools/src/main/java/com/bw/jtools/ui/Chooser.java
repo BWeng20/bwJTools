@@ -41,6 +41,11 @@ import javax.swing.WindowConstants;
 public class Chooser extends JDialog {
 
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 6208669340733620989L;
+
+	/**
      * Creates new Chooser.
      *
      * @param title Title of the dialog.

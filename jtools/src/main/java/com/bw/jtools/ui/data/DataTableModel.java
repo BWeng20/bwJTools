@@ -30,6 +30,11 @@ public abstract class DataTableModel extends  DefaultTableModel
 {
 
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -4501330366939433299L;
+
+	/**
      * Creates a model with specified columns and rows.
      * @param columns Column Names
      * @param rowCount Number of initial rows.

@@ -33,6 +33,11 @@ import javax.swing.Icon;
 public class JMenuButton extends JToggleButton
 {
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 8971737844940749760L;
+	
+	/**
      * The menu to show.
      */
     public JPopupMenu menu_;

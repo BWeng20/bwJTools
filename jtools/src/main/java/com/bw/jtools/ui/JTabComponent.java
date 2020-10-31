@@ -52,6 +52,11 @@ public class JTabComponent extends JPanel
 {
 
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -7716113934005257056L;
+
+	/**
      * Creates a new Tab-Component.
      *
      * @param name The name to show.

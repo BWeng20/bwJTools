@@ -38,7 +38,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public final class DataTablePanel extends javax.swing.JPanel
 {
-    boolean auto_scroll_ = false;
+    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 8742358607589881044L;
+
+	boolean auto_scroll_ = false;
 
     /**
      * Scrolls to end of list.
@@ -138,7 +143,7 @@ public final class DataTablePanel extends javax.swing.JPanel
             Log.debug("CSV support not available.", t );
             contextMenuEntries[1] = null;
         }
-        JContextMenu menu = new JContextMenu(
+        new JContextMenu(
                 "LogPanel", view_,
                 contextMenuEntries,
                 new Runnable[]
@@ -254,7 +259,7 @@ public final class DataTablePanel extends javax.swing.JPanel
         }
     };
 
-    private void auto_scroll_check_ItemStateChanged(java.awt.event.ItemEvent evt)
+    private void auto_scroll_check_ItemStateChanged(@SuppressWarnings("unused") java.awt.event.ItemEvent evt)
     {
         auto_scroll_ = auto_scroll_check_.isSelected();
 

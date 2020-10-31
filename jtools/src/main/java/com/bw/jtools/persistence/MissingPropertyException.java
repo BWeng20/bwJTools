@@ -27,7 +27,12 @@ import com.bw.jtools.ui.I18N;
  */
 public final class MissingPropertyException extends Exception
 {
-    protected String missingKey_;
+    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -3988126060036005140L;
+	
+	protected String missingKey_;
 
     /**
      * Creates a new Exception for the specified key.

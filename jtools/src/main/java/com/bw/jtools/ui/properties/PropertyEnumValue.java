@@ -38,9 +38,14 @@ package com.bw.jtools.ui.properties;
  *}
  * </pre>
  */
-public class PropertyEnumValue<E extends Enum> extends PropertyValue
+public class PropertyEnumValue<E extends Enum<?>> extends PropertyValue
 {
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 7637301669504922709L;
+
+	/**
      * Constructs a property by declaring class. Value must not be null.
      * @param name Name of the property that is displayed.
      * @param clazz Value class, in this case an Enum.
@@ -76,7 +81,8 @@ public class PropertyEnumValue<E extends Enum> extends PropertyValue
      * Same as "(E)getUserObject".
      * @return the current value as E.
      */
-    public E getValue()
+    @SuppressWarnings("unchecked")
+	public E getValue()
     {
         return (E)getUserObject();
     }

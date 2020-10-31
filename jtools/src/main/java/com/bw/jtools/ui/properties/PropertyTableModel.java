@@ -59,7 +59,7 @@ public class PropertyTableModel implements TableModel
 
 
     @Override
-    public Class getColumnClass(int columnIndex) {
+    public Class<?> getColumnClass(int columnIndex) {
         return String.class;
     }
 
