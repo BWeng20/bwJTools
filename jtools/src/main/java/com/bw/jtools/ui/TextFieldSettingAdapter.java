@@ -21,18 +21,18 @@
  */
 package com.bw.jtools.ui;
 
-import javax.swing.JTextField;
+import com.bw.jtools.persistence.Store;
+
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-import com.bw.jtools.persistence.Store;
 
 /**
  * Adapter to write changed from a text-field to some preference-setting.<br>
  * Can be used in custom setting panels to ease handling of update/store.<br>
  * The values are retrieved and stored via class {@link Store Store}.<br>
- * The value is updated each time the value of the text-field is changed by used.
- * Store is not flushed, so the caller has to ensure that Store is written to
+ * The value is updated each time the value of the text-field is changed by user.
+ * Store is not flushed, so the caller has to ensure that the Store is written to
  * storage if needed. Typically this is done on application exit.<br>
  * <i>Example</i>
  * <pre><code>

@@ -22,27 +22,17 @@
 package com.bw.jtools.ui.properties;
 
 import com.bw.jtools.ui.I18N;
-import java.awt.Font;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import javax.swing.AbstractCellEditor;
-import javax.swing.JTextField;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.border.Border;
 import com.bw.jtools.ui.JColorIcon;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Insets;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JTable;
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 /**
  * Custom Cell Editor to support different value types in one column.

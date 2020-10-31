@@ -22,7 +22,8 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Application;
-import java.awt.Dimension;
+
+import java.awt.*;
 
 /**
  * Frame to show an internal html document.

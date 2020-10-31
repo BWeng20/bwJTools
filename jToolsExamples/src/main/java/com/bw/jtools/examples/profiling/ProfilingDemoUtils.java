@@ -203,14 +203,14 @@ public final class ProfilingDemoUtils
         {
 
             List<MethodProfilingInformation> topMethods = AbstractCallGraphRenderer.filterTopLevelCalls(ClassProfilingInformation.getClassInformation());
-            String mindMap = new JSONCallGraphRenderer(nf, Options.ADD_CLASSNAMES, Options.HIGHLIGHT_CRITICAL, Options.ADD_MIN_MAX, pretty ? Options.PRETTY : Options.NONE )
+            String json = new JSONCallGraphRenderer(nf, Options.ADD_CLASSNAMES, Options.HIGHLIGHT_CRITICAL, Options.ADD_MIN_MAX, pretty ? Options.PRETTY : Options.NONE )
                     .render(topMethods, ClassProfilingInformation.getProfilingStartTime(), new Date() );
 
             Writer w = null;
             try
             {
                 w = Files.newBufferedWriter(Paths.get(fileName), StandardCharsets.UTF_8);
-                w.write(mindMap);
+                w.write(json);
             }
             catch (IOException ex)
             {

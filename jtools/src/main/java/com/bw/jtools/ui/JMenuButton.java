@@ -20,12 +20,10 @@
  */
 package com.bw.jtools.ui;
 
-import java.awt.event.ActionEvent;
-import javax.swing.JPopupMenu;
-import javax.swing.JToggleButton;
+import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.Icon;
+import java.awt.event.ActionEvent;
 
 /**
  * A Button that shows a popup-menu directly below.

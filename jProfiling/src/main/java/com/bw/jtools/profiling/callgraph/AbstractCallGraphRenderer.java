@@ -39,7 +39,6 @@ import java.util.*;
  */
 public abstract class AbstractCallGraphRenderer {
 
-
     protected AbstractCallGraphRenderer(NumberFormat nf, Options... options) {
         this.nf = nf;
         for (Options option : options) {

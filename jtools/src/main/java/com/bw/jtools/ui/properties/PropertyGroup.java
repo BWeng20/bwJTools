@@ -22,7 +22,6 @@
 package com.bw.jtools.ui.properties;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 /**
  * A Property-Group.<br>

@@ -25,6 +25,7 @@ import com.bw.jtools.log.CollectorLogger;
 import com.bw.jtools.log.CollectorThreadLogger;
 import com.bw.jtools.log.ConsoleLogger;
 import com.bw.jtools.log.MulticastLogger;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;

@@ -1,17 +1,11 @@
 package com.bw.jtools.ui.properties;
 
-import java.awt.Cursor;
-import java.awt.Point;
-import java.awt.Rectangle;
+import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.Dimension;
-import java.awt.Container;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JViewport;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.awt.event.MouseEvent;
 
 /**
  * Mouse handler that enabled the user to resizes columns via Drag &amp; Drop

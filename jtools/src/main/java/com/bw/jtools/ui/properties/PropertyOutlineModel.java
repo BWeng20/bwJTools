@@ -20,8 +20,9 @@
  */
 package com.bw.jtools.ui.properties;
 
-import javax.swing.tree.DefaultTreeModel;
 import org.netbeans.swing.outline.DefaultOutlineModel;
+
+import javax.swing.tree.DefaultTreeModel;
 
 public class PropertyOutlineModel extends DefaultOutlineModel
 {

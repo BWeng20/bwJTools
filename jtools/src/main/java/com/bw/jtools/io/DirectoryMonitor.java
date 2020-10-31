@@ -23,18 +23,11 @@ package com.bw.jtools.io;
 
 import com.bw.jtools.Log;
 import com.bw.jtools.persistence.Store;
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
+import java.nio.file.*;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -243,7 +236,7 @@ public class DirectoryMonitor
                 if ( !pathsToPoll_Read )
                 {
                     pollTimeOutMS = Store.getInt(KEY_POLL_TIME_MS, 1000);
-                    List<String> keys = Store.getKeysWithPrefix(KEY_POLL_PATH_PREFIX);
+                    Collection<String> keys = Store.getKeysWithPrefix(KEY_POLL_PATH_PREFIX);
                     pathsToPoll.clear();
                     pathsToPoll.ensureCapacity(keys.size());
                     for ( String pkey : keys )

@@ -2,22 +2,15 @@ package com.bw.jtools.ui.properties;
 
 import com.bw.jtools.ui.IconCache;
 import com.bw.jtools.ui.JColorIcon;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.text.NumberFormat;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.UIManager;
+import org.netbeans.swing.outline.Outline;
+
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.AbstractLayoutCache;
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.netbeans.swing.outline.Outline;
+import java.awt.*;
+import java.text.NumberFormat;
 
 /**
  * Custom Cell Renderer to support different value types in the same column.

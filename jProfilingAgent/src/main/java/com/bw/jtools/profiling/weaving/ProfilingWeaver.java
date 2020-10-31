@@ -24,6 +24,14 @@
 package com.bw.jtools.profiling.weaving;
 
 import com.bw.jtools.Log;
+import com.bw.jtools.persistence.MapStorage;
+import com.bw.jtools.profiling.service.LogService;
+import com.bw.jtools.profiling.service.StatusService;
+import net.bytebuddy.agent.builder.AgentBuilder;
+import net.bytebuddy.asm.Advice;
+import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
+
 import java.io.InputStreamReader;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -32,10 +40,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
-import net.bytebuddy.agent.builder.AgentBuilder;
-import net.bytebuddy.asm.Advice;
-import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
+
 import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 
 /**
@@ -69,7 +74,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
  *
  *   java -classpath myClassPath "-D<b><i>profiling.weaver.regex=com\.myorg\..*:get.*;com\.myorg\..*:print.*;com\.otherlib\..*:set.*"</i></b>
  *        -D<b><i>profiling.weaver.verbose=true</i></b>
- *        -javaagent:path/bwJProfilingWeaverAgent-1.0.jar MyMainClass ...
+ *        -javaagent:path/jProfilingAgent-1.0.jar MyMainClass ...
  * </pre>
  * <p><u>As property-file:</u></p>
  * <p>This is useful if e.g. you command processor has issues with the regular expressions.<br>
@@ -77,10 +82,10 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
  * </p>
  * <pre>
  *
- *   java -classpath myClassPath -javaagent:path/bwJProfilingWeaverAgent-1.0.jar=<b><i>file:/path/profilingWeaver.ini</i></b> MyMainClass ...
+ *   java -classpath myClassPath -javaagent:path/jProfilingAgent-1.0.jar=<b><i>file:/path/profilingWeaver.ini</i></b> MyMainClass ...
  *
  *   java -classpath myClassPath <b><i>-Dprofiling.weaver.ini=file:/path/profilingWeaver.ini</i></b>
- *        -javaagent:path/bwJProfilingWeaverAgent-1.0.jar MyMainClass ...
+ *        -javaagent:path/jProfilingAgent-1.0.jar MyMainClass ...
  * </pre>
  * The property-file has two settings, identical to the system-properties, but without prefix:
  * <pre>
@@ -94,7 +99,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
  * E.g. if the file is located inside the META-INF-folder of a jar file you can try to use a JAR-url:
  * <pre>
  *
- *   java -classpath myClassPath -javaagent:path/bwJProfilingWeaverAgent-1.0.jar=<b><i>jar:file:/path/myJar.jar!/META-INF/profiling.ini</i></b>
+ *   java -classpath myClassPath -javaagent:path/jProfilingAgent-1.0.jar=<b><i>jar:file:/path/myJar.jar!/META-INF/profiling.ini</i></b>
  *        MyMainClass ...
  * </pre>
  * URLs always use absolute paths. As configuration via absolute paths is pain, you can use the key-word '$CODESOURCE' in you url.<br>
@@ -103,7 +108,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
  * <pre>
  *
  *   java -classpath myClassPath
- *        -javaagent:path/bwJProfilingWeaverAgent-1.0.jar=jar:file:<b><i>$CODESOURCE</i></b>../apps/myJar.jar!/META-INF/profiling.ini
+ *        -javaagent:path/jProfilingAgent-1.0.jar=jar:file:<b><i>$CODESOURCE</i></b>../apps/myJar.jar!/META-INF/profiling.ini
  *        MyMainClass ...
  * </pre>
  * If you are using a newer Java version with activated module-security, you may
@@ -114,6 +119,13 @@ import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
  *   java --add-opens java.base/java.lang=ALL-UNNAMED --illegal-access=deny ...
  * </pre>
  * But use this only as hint, as such issues may be related to specific configurations or JVM implementations.
+ * <br>
+ * Other features of this agent and their options see below.<br>
+ * Any module option can also be specified on system level "profiling.FEATUREPREFIX.OPTION" or inside a property file "FEATUREPREFIX.OPTION".
+ * <ul>
+ *     <li>Logger: Feature option prefix "log". E.g. "log.delay=10". See {@link  LogService ProfilingLogService } </li>
+ *     <li>Status Port: Feature option prefix "status". E.g. "status.port=9999". See {@link  com.bw.jtools.profiling.service.StatusService StatusService } </li>
+ * </ul>
  */
 public class ProfilingWeaver
 {
@@ -150,11 +162,7 @@ public class ProfilingWeaver
      */
     public static void premain(String agentArgument, Instrumentation instrumentation)
     {
-        java.util.HashMap<String, String> args = new java.util.HashMap<>();
-
-        /////////////////////////////////////////
-        // Setting defaults.
-        args.put(ARG_VERBOSE, "false");
+        MapStorage args = new MapStorage( null );
 
         /////////////////////////////////////////
         // Setting arguments from system properties
@@ -162,7 +170,7 @@ public class ProfilingWeaver
         String val = System.getProperty(PROP_PREFIX+ARG_REGEX);
         if (val != null)
         {
-            args.put(ARG_REGEX, val);
+            args.setString(ARG_REGEX, val);
         }
 
         String argPropertyFile = System.getProperty(PROP_PROPERTY_FILE);
@@ -170,7 +178,7 @@ public class ProfilingWeaver
         val = System.getProperty(PROP_PREFIX+ARG_VERBOSE);
         if (val != null)
         {
-            args.put(ARG_VERBOSE, val);
+            args.setString(ARG_VERBOSE, val);
         }
 
         /////////////////////////////////////////
@@ -218,7 +226,7 @@ public class ProfilingWeaver
 
                 for (Map.Entry<Object, Object> v : o.entrySet())
                 {
-                    args.put(((String) v.getKey()), ((String) v.getValue()));
+                    args.setString(((String) v.getKey()), ((String) v.getValue()));
                 }
 
             } catch (Exception e)
@@ -227,18 +235,18 @@ public class ProfilingWeaver
             }
         }
 
-        final boolean verbose = Boolean.valueOf(args.get(ARG_VERBOSE));
+        final boolean verbose = args.getBoolean(ARG_VERBOSE, false);
 
-        if ( verbose && !args.isEmpty())
+        if ( verbose && !args.getMap().isEmpty())
         {
             Log.info("Arguments:");
-            for( Map.Entry<String, String> arg : args.entrySet())
+            for( Map.Entry<String, String> arg : args.getMap().entrySet())
             {
                 Log.info("\t"+arg.getKey()+ " = " + arg.getValue());
             }
         }
 
-        final String regExp = args.get(ARG_REGEX);
+        final String regExp = args.getString(ARG_REGEX, null);
 
         if (regExp != null && !regExp.isEmpty())
         {
@@ -340,6 +348,11 @@ public class ProfilingWeaver
                 }
             }
             agent.installOn(instrumentation);
+
+            args.setPrefix("log.");
+            LogService.start(args);
+            args.setPrefix("status.");
+            StatusService.start(args);
         }
     }
 }

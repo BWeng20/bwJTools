@@ -22,11 +22,12 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
-import java.awt.Desktop;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URI;
-import javax.swing.JLabel;
 
 /**
  * Label with "link" functionality.<br>

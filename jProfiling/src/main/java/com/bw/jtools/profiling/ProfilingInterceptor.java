@@ -23,9 +23,9 @@
  */
 package com.bw.jtools.profiling;
 
-import java.lang.reflect.Method;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
+import java.lang.reflect.Method;
 
 /**
  * J2EE Interceptor for profiling.

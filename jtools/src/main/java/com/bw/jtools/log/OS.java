@@ -22,9 +22,10 @@
 package com.bw.jtools.log;
 
 import com.bw.jtools.Log;
+import com.sun.management.UnixOperatingSystemMXBean;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
-import com.sun.management.UnixOperatingSystemMXBean;
 import java.lang.management.ThreadMXBean;
 
 /**

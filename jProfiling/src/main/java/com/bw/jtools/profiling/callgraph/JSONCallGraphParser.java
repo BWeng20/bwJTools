@@ -28,13 +28,14 @@ import com.bw.jtools.io.JsonTool;
 import com.bw.jtools.profiling.measurement.DateTimeValue;
 import com.bw.jtools.profiling.measurement.MeasurementValue;
 
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-import javax.json.JsonNumber;
+import java.util.Calendar;
 
 /**
  * Parser that reads output from {@link JSONCallGraphRenderer}.<br>
@@ -169,13 +170,43 @@ public class JSONCallGraphParser {
 
 
     public static class GraphInfo {
+
         private GraphInfo(String source, CallNode root) {
             this.source = source;
             this.root = root;
+
+            if ( root != null && root.details != null )
+            {
+                for ( NodeDetail d : root.details)
+                {
+                    switch (d.ID)
+                    {
+                        case NodeDetail.DETAIL_START:
+                            this.start = (DateTimeValue)d.value;
+                            break;
+                        case NodeDetail.DETAIL_END:
+                            this.end  = (DateTimeValue)d.value;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        public Calendar getStartTime() {
+            return (start != null) ? start.toTime() : null;
+        }
+
+        public Calendar getEndTime() {
+            return (end != null) ? end.toTime() : null;
         }
 
         public final String source;
         public final CallNode root;
+
+        public DateTimeValue start;
+        public DateTimeValue end;
     }
 
     /**

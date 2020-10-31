@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui;
 
-import java.awt.Graphics;
+import java.awt.*;
 
 
 /**

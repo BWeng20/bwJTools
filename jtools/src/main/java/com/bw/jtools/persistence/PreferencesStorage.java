@@ -21,8 +21,8 @@
  */
 package com.bw.jtools.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -51,7 +51,7 @@ class PreferencesStorage extends StorageBase
     /**
      * Get all keys.
      */
-    public static String[] getAllKeys()
+    public static String[] getAllKeysArray()
     {
        try
        {
@@ -110,14 +110,8 @@ class PreferencesStorage extends StorageBase
     }
 
     @Override
-    public List<String> getKeysWithPrefix(String prefix)
+    protected synchronized Collection<String> getAllKeys()
     {
-       ArrayList<String> l = new ArrayList<>();
-       String all[] = getAllKeys();
-       for ( String k : all )
-       {
-          if ( k.startsWith(prefix)) l.add(k);
-       }
-       return l;
+       return Arrays.asList(getAllKeysArray() );
     }
 }

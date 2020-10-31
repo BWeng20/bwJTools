@@ -24,6 +24,7 @@
 package com.bw.jtools.ui.profiling.calltree;
 
 import com.bw.jtools.profiling.callgraph.CallNode;
+import com.bw.jtools.profiling.callgraph.NodeDetail;
 import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
 import com.bw.jtools.ui.I18N;
 import java.awt.BorderLayout;
@@ -96,13 +97,13 @@ public class ProfilingCallTreeRenderer extends DefaultTreeCellRenderer
         sb.setLength(0);
         if (node.details != null)
         {
-            for (String d : node.details)
+            for (NodeDetail d : node.details)
             {
                 if (sb.length() > 0)
                 {
                     sb.append(" / ");
                 }
-                sb.append(d);
+                sb.append(d.toString());
             }
         }
         details.setText(sb.toString());
