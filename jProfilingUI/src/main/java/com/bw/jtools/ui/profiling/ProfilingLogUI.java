@@ -83,7 +83,6 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 
 	private void initComponents()
 	{
-
 		decimalFormat = new DecimalFormat("#.#####");
 
 		DecimalFormatSymbols ds = decimalFormat.getDecimalFormatSymbols();
@@ -133,37 +132,11 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 
 		add(connections, BorderLayout.NORTH);
 
-		splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-
-		model = new ProfilingTableModel();
-		JTable foundCallGraphs = new JTable(model);
-		foundCallGraphs.getSelectionModel().addListSelectionListener((ListSelectionEvent ev) ->
-		{
-			if (ev.getFirstIndex() >= 0)
-			{
-				export.setEnabled(true);
-				callGraph.setGraph(model.getGraph(ev.getFirstIndex()));
-			} else
-			{
-				export.setEnabled(false);
-			}
-		});
-
-		TableColumnModel cm = foundCallGraphs.getColumnModel();
-		cm.getColumn(0).setHeaderValue(I18N.getText("callgraph.table.root"));
-		cm.getColumn(1).setHeaderValue(I18N.getText("callgraph.table.details"));
-		cm.getColumn(2).setHeaderValue("");
-
-		foundCallGraphs.setFillsViewportHeight(true);
-
-		JPanel left = new JPanel(new BorderLayout());
-		left.add(new JScrollPane(foundCallGraphs), BorderLayout.CENTER);
-
 		JPanel leftButtons = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		export = UIToolSwing.createI18NTextButton("callgraph.button.export");
 		export.addActionListener((ev) ->
 		{
-			JSONCallGraphParser.GraphInfo graph = model.getGraph(foundCallGraphs.getSelectedRow());
+			JSONCallGraphParser.GraphInfo graph = callGraph.getGraph();
 			if (graph != null)
 			{
 
@@ -182,17 +155,14 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 				}
 			}
 		});
+		JPanel lowerButtons = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		export.setEnabled(false);
-		leftButtons.add(export);
+		lowerButtons.add(export);
 
 		exportPretty = new JCheckBox(I18N.getText("callgraph.export.pretty"));
-		leftButtons.add(exportPretty);
+		lowerButtons.add(exportPretty);
 
-		left.add(leftButtons, BorderLayout.SOUTH);
-
-		splitter.setLeftComponent(left);
-
-		JPanel right = new JPanel(new BorderLayout());
+		JPanel graphPanel = new JPanel(new BorderLayout());
 
 		graphFilter = new JTextField();
 		graphFilter.addActionListener((ev) ->
@@ -200,15 +170,14 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 			updateGraphFilter();
 		});
 
-		right.add(graphFilter, BorderLayout.NORTH);
+		graphPanel.add(graphFilter, BorderLayout.NORTH);
 
 		callGraph = new ProfilingCallTree(decimalFormat);
-		right.add(new JScrollPane(callGraph), BorderLayout.CENTER);
+		graphPanel.add(new JScrollPane(callGraph), BorderLayout.CENTER);
 
 		showClassNames = new JCheckBox(I18N.getText("callgraph.graph.showFullClassNames"));
-		JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.LEADING));
-		rightButtons.add(showClassNames, BorderLayout.NORTH);
-		right.add(rightButtons, BorderLayout.SOUTH);
+		lowerButtons.add(showClassNames, BorderLayout.NORTH);
+		graphPanel.add(lowerButtons, BorderLayout.SOUTH);
 
 		showClassNames.setSelected(callGraph.getShowFullClassNames());
 		showClassNames.addItemListener((ev) ->
@@ -216,9 +185,7 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 			callGraph.setShowFullClassNames(showClassNames.isSelected());
 		});
 
-		splitter.setRightComponent(right);
-
-		add(splitter, BorderLayout.CENTER);
+		add(graphPanel, BorderLayout.CENTER);
 		status = new JLabel(" ");
 		add(status, BorderLayout.SOUTH);
 
@@ -322,10 +289,8 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 		@Override
 		public void newCallGraphs(List<JSONCallGraphParser.GraphInfo> g)
 		{
-			for ( JSONCallGraphParser.GraphInfo gi : g )
-			{
-				model.addGraph(gi);
-			}
+			if ( !g.isEmpty() )
+				callGraph.setGraph(g.get(g.size()-1));
 		}
 
 		@Override
@@ -447,18 +412,10 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 	protected JTextField statusPortInput;
 	protected JButton socketStartButton;
 
-	/** Table model for collected call graphs. */
-	protected ProfilingTableModel model;
-
 	/**
 	 * The status line at bottom.
 	 */
 	protected JLabel status;
-
-	/**
-	 * The main split area, separates table of found graphs and the tree.
-	 */
-	protected JSplitPane splitter;
 
 	/**
 	 * The top "start" button. Changes to "Stop" if scan was started..
@@ -614,12 +571,6 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 	 */
 	public void loadPreferences()
 	{
-		int splitPos = Store.getInt(preference_prefix_ + "splitpos", -1);
-		if (splitPos > 0)
-		{
-			splitter.setDividerLocation(splitPos);
-		}
-
 	}
 
 	/**
@@ -629,8 +580,6 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 	 */
 	public void storePreferences()
 	{
-		Store.setInt(preference_prefix_ + "splitpos", splitter.getDividerLocation());
-
 	}
 
 	/**
@@ -645,13 +594,9 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 			JSONCallGraphParser.GraphInfo[] graphs = jsonParser.getCallGraphs();
 			if (graphs != null)
 			{
-				for (int i = graphs.length - newGraphs; i < graphs.length; ++i)
-				{
-					model.addGraph(graphs[i]);
-				}
-			} else
-			{
-				model.clear();
+				export.setEnabled(true);
+				callGraph.setGraph(graphs[graphs.length-1]);
+
 			}
 		}
 	}

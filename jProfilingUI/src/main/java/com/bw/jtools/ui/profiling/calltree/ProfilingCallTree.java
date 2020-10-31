@@ -92,6 +92,15 @@ public class ProfilingCallTree extends JTree
     }
 
     /**
+     * gets the shown graph.
+     * @return  The current graph or null.
+     */
+    public JSONCallGraphParser.GraphInfo getGraph()
+    {
+        return graph;
+    }
+
+    /**
      * Sets display mode for classes.
      * @param sff If true class-names are printed with package prefix.
      */
@@ -122,5 +131,6 @@ public class ProfilingCallTree extends JTree
             model.setNameFilter(pattern);
         }
     }
+
 
 }
