@@ -23,11 +23,7 @@
  */
 package com.bw.jtools.profiling;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Holds profiling information about a class during run-time.

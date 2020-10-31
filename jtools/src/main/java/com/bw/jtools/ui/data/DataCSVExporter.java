@@ -20,11 +20,12 @@
  */
 package com.bw.jtools.ui.data;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 
 /**
  * Exporter implementation using Apache CSV.

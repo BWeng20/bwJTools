@@ -45,6 +45,17 @@ public final class MissingPropertyException extends Exception
     }
 
     /**
+     * Creates a new Exception for the specified key.
+     * @param keyMissing The missing key.
+     * @param cause The cause in case it was some exception.
+     */
+    public MissingPropertyException( String keyMissing, Throwable cause )
+    {
+        super( I18N.format("missingpropertyexception.message", keyMissing ), cause);
+        this.missingKey_ = keyMissing;
+    }
+
+    /**
      * Gets the property key that was the reason for the exception.
      * @return They name of the missing key.
      */

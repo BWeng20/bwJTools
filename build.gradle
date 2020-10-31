@@ -9,7 +9,7 @@ ext {
 allprojects {
 
     group = "io.github.bweng20"
-    version="1.03"
+    version="1.04"
     
     task projects_say_hello {
         doLast { task ->

@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * Facade for creating Swing independent source-code and other

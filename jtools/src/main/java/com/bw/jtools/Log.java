@@ -318,7 +318,7 @@ public final class Log
     {
     	log = ( logger == null ) ? new NullLogger() : logger;
     }
-    
+
     /**
      * Adds a application specific logger.
      * @param logger The logger to add.

@@ -3,32 +3,18 @@ package com.bw.jtools.ui.data;
 import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.persistence.Store;
-import com.bw.jtools.ui.I18N;
-import com.bw.jtools.ui.IconCache;
-import com.bw.jtools.ui.JContextMenu;
-import com.bw.jtools.ui.JLink;
-import com.bw.jtools.ui.JMenuButton;
-import com.bw.jtools.ui.UITool;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import com.bw.jtools.ui.*;
+
+import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.RowFilter;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * Panel to show a Data Table plus filter and a context-menu.<br>

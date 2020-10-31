@@ -23,15 +23,15 @@ package com.bw.jtools.persistence;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -188,19 +188,10 @@ class FileStorage extends StorageBase
     }
 
     @Override
-    public synchronized List<String> getKeysWithPrefix(String prefix)
+    protected synchronized Collection<String> getAllKeys()
     {
         loadIfNeeded();
-
-        ArrayList<String> l = new ArrayList<>();
-        for ( Map.Entry<String,String> entry : values_.entrySet() )
-        {
-            if ( entry.getValue() != null && entry.getKey().startsWith(prefix) )
-            {
-                l.add(entry.getKey());
-            }
-        }
-        return l;
+        return values_.keySet();
     }
 
 }

@@ -23,11 +23,12 @@ package com.bw.jtools.ui.data;
 
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.I18N;
+
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 
 /**
  * Data model for Data Table that connects to the internal Log-Interface.<br>

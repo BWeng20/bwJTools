@@ -23,28 +23,14 @@
 package com.bw.jtools.io;
 
 import com.bw.jtools.Log;
-import java.awt.Rectangle;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import javax.json.JsonWriter;
-import javax.json.JsonWriterFactory;
+import javax.json.*;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
+import java.awt.*;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Collection of methods for JSON handling.<br>

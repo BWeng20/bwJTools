@@ -25,6 +25,9 @@ package com.bw.jtools.ui.profiling;
 
 import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -39,15 +42,26 @@ public class ProfilingTableModel extends AbstractTableModel
 
 	private String[] columnNames = { "Root", "Details", "" };
     private ArrayList<JSONCallGraphParser.GraphInfo> graphs = new ArrayList<>();
+    private Map<Calendar, JSONCallGraphParser.GraphInfo> graphByStartTime = new HashMap<Calendar,JSONCallGraphParser.GraphInfo>();
 
     /**
-     * Adds a graph.
+     * Adds a graph. Replace any older graph with same start time.
      * @param g The Graph to add.
      */
     public void addGraph( JSONCallGraphParser.GraphInfo g )
     {
-        graphs.add(g);
-        fireTableRowsInserted(graphs.size()-1,graphs.size()-1);
+        final Calendar start = g.getStartTime();
+        JSONCallGraphParser.GraphInfo old = graphByStartTime.put( start, g );
+        if ( old != null ) {
+            int index = graphs.indexOf(old);
+            graphs.set(index,g);
+            fireTableRowsUpdated(index, index);
+        }
+        else
+        {
+            graphs.add(g);
+            fireTableRowsInserted(graphs.size() - 1, graphs.size() - 1);
+        }
     }
 
     /**

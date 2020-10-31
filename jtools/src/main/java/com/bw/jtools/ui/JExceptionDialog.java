@@ -22,14 +22,13 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
-import java.awt.event.WindowEvent;
-import javax.swing.WindowConstants;
-
 import com.bw.jtools.io.IOTool;
-import java.awt.Component;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import javax.swing.SwingUtilities;
 
 /**
  * Dialog to show exception details.

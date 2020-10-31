@@ -21,8 +21,8 @@
  */
 package com.bw.jtools.ui.properties;
 
-import java.text.NumberFormat;
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.text.NumberFormat;
 
 /**
  * Node inside the tree that represents a property.<br>

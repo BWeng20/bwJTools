@@ -21,8 +21,7 @@
  */
 package com.bw.jtools.ui;
 
-import java.awt.Color;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;

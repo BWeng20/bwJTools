@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui.properties;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * Convenience wrapper for a property with Color content.

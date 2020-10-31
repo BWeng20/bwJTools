@@ -1,22 +1,13 @@
 package com.bw.jtools.ui.data;
 
 import com.bw.jtools.persistence.Store;
-import java.awt.Color;
-import java.util.List;
-import javax.swing.Action;
-import javax.swing.InputMap;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JViewport;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.TransferHandler;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
+
+import javax.swing.*;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
+import java.awt.*;
+import java.util.List;
 
 /**
  * Table to show generic data.

@@ -21,7 +21,10 @@
  */
 package com.bw.jtools.persistence;
 
-import java.util.List;
+import com.bw.jtools.Log;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -108,9 +111,32 @@ public abstract class StorageBase
           return Double.parseDouble(val);
       }
       catch ( Exception e)
-      {}
+      {
+          Log.warn("Failed to parse floating-point property "+key+".");
+      }
       return def;
     }
+
+    /**
+     * Get a property and convert it to a double value.
+     * @param key The preference key.
+     * @return The retrieved value or the default.
+     * @throws MissingPropertyException In case the value for this key is missing or couldn't be converted.
+     */
+    public final double getDouble(String key) throws MissingPropertyException
+    {
+        final String val = getString(key);
+        try
+        {
+            return Double.parseDouble(val);
+        }
+        catch ( Exception e)
+        {
+            Log.error("Failed to parse floating-point property "+key+".");
+            throw new MissingPropertyException(key,e);
+        }
+    }
+
 
     /**
      * Sets a property.
@@ -122,6 +148,25 @@ public abstract class StorageBase
         setString(key, String.valueOf(value));
     }
 
+    /**
+     * Get a property and convert it to an integer value.
+     * @param key The preference key.
+     * @return The retrieved value.
+     * @throws MissingPropertyException In case the value for this key is missing or couldn't be converted.
+     */
+    public final int getInt(String key) throws MissingPropertyException
+    {
+        final String val = getString(key );
+        try
+        {
+            return Integer.parseInt(val);
+        }
+        catch ( Exception e)
+        {
+            Log.error("Failed to parse integer property "+key+".");
+            throw new MissingPropertyException(key,e);
+        }
+    }
 
     /**
      * Get a property and convert it to an integer value.
@@ -138,6 +183,7 @@ public abstract class StorageBase
       }
       catch ( Exception e)
       {
+          Log.warn("Failed to parse integer property "+key+".");
       }
       return def;
     }
@@ -215,7 +261,27 @@ public abstract class StorageBase
      * @param prefix The common prefix.
      * @return The list of matching preferences.
      */
-    public abstract List<String> getKeysWithPrefix(String prefix);
+    public Collection<String> getKeysWithPrefix(String prefix) {
+        // Implementations can also override this method if optimization is needed.
+
+        ArrayList<String> l = new ArrayList<>();
+        Collection<String> allKeys = getAllKeys();
+        for ( String key : allKeys )
+        {
+            if ( key != null && getString_impl(key) != null && key.startsWith(prefix) )
+            {
+                l.add(key);
+            }
+        }
+        return l;
+
+    }
+
+    /**
+     * Needs to be implemented by back-end.
+     * @return All keys. May also contain null values.
+     */
+    protected abstract Collection<String> getAllKeys();
 
     protected Properties defaults_;
     private boolean handleEmptyAsNull_ = false;
