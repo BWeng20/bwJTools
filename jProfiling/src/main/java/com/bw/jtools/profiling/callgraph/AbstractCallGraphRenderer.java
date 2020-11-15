@@ -43,6 +43,10 @@ import com.bw.jtools.profiling.measurement.MeasurementValue;
  */
 public abstract class AbstractCallGraphRenderer {
 
+    protected AbstractCallGraphRenderer() {
+        this.nf =  NumberFormat.getInstance();
+    }
+
     protected AbstractCallGraphRenderer(NumberFormat nf, Options... options) {
         this.nf = nf;
         for (Options option : options) {
@@ -54,7 +58,7 @@ public abstract class AbstractCallGraphRenderer {
                     showMinMax = true;
                     break;
                 case HIGHLIGHT_CRITICAL:
-                    hightlightCritical = true;
+                    highlightCritical = true;
                     break;
                 case PRETTY:
                     pretty = true;
@@ -112,7 +116,7 @@ public abstract class AbstractCallGraphRenderer {
         }
 
         CalleeProfilingInformation highlight = null;
-        if (hightlightCritical) {
+        if (highlightCritical) {
             MeasurementValue v = null;
             for (CalleeProfilingInformation ci : mi.callees.values()) {
                 if (v == null || v.lessThan(ci.sum)) {
@@ -182,7 +186,7 @@ public abstract class AbstractCallGraphRenderer {
     /**
      * Option: Highlights the critical path - if supported by renderer.
      */
-    protected boolean hightlightCritical = false;
+    protected boolean highlightCritical = false;
 
     /**
      * Option: Add minimum and maximum values - if supported by renderer.

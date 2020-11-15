@@ -18,7 +18,7 @@ import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;
 
-public class StatusService
+public class StatusSocketService
 {
 	/**
 	 * Runnable to executed in the log thread.
