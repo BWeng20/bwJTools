@@ -17,6 +17,11 @@ sourceSets {
         java.srcDir file('src/main/java')
         resources.srcDir file('src/main/resources')
     }
+    test {
+        java.srcDir file('src/test/java')
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
 }
 
 dependencies {
@@ -27,12 +32,25 @@ dependencies {
     implementation 'javax.interceptor:javax.interceptor-api:1.2'
     implementation 'org.glassfish:javax.json:1.1.4'
     implementation 'org.netbeans.api:org-netbeans-swing-outline:RELEASE110'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
+
+task intTest(type: Test) {
+    description = 'Runs tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+}
+
+check.dependsOn intTest
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
