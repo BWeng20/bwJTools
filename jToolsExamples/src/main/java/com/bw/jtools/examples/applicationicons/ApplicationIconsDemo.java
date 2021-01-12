@@ -25,13 +25,9 @@ import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.IconCache;
 import com.bw.jtools.ui.SettingsUI;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
+
+import java.awt.*;
+import javax.swing.*;
 
 /**
  * Demonstration of Application-Icons.
@@ -45,7 +41,7 @@ public class ApplicationIconsDemo
         // Initialize library.
         Application.initialize(ApplicationIconsDemo.class);
 
-        // The librarie has now initialized itself from the defaultsettings.properties.
+        // The library has now initialized itself from the defaultsettings.properties.
         // parallel to the main-class.
 
         try
@@ -71,6 +67,7 @@ public class ApplicationIconsDemo
         label.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         label.setPreferredSize(new Dimension(420, 150));
         panel.add( label, BorderLayout.CENTER );
+
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         frame.setIconImages( IconCache.getAppIconImages() );

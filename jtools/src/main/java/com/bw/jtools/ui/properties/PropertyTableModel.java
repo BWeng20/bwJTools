@@ -120,12 +120,17 @@ public class PropertyTableModel implements TableModel
         for (int i=0; i < l.length; i++) {
             l[i].tableChanged(e);
         }
+
+        DefaultMutableTreeNode node = getNodeForRow(e.getFirstRow());
+        if ( node instanceof  PropertyValue ) {
+            ((PropertyValue) node).firePropertyChange();
+        }
     }
 
     /**
      * Used by CellEditor.
-     * @param rowIndex The index of the row.
-     * @param columnIndex The index of the column.
+     * @param rowIndex The model index of the row.
+     * @param columnIndex The model index of the column.
      */
     public void fireTableChanged( int rowIndex, int columnIndex )
     {

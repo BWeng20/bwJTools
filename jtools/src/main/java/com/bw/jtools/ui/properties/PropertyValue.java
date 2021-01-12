@@ -23,6 +23,8 @@ package com.bw.jtools.ui.properties;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Node inside the tree that represents a property.<br>
@@ -67,6 +69,12 @@ public class PropertyValue extends DefaultMutableTreeNode
     public boolean nullable_ = true;
 
     /**
+     * List of change listeners that listen for this property.<br>
+     */
+    private List<PropertyChangeListener> propertyChangeListener;
+
+
+    /**
      * Constructs a new property by name and value-clazz.
      * The value will initially be null.
      * @param name        The name of the property to show.
@@ -86,6 +94,38 @@ public class PropertyValue extends DefaultMutableTreeNode
     public boolean hasContent()
     {
         return getUserObject() != null;
+    }
+
+    /**
+     * Adds a change listener.
+     * @param l The listener.
+     */
+    public void addPropertyChangeListener( PropertyChangeListener l ) {
+        removePropertyChangeListener(l);
+        if ( propertyChangeListener == null )
+            propertyChangeListener = new ArrayList<>();
+        propertyChangeListener.add( l );
+    }
+
+    /**
+     * Removes a change listener.
+     * @param l The listener.
+     */
+    public void removePropertyChangeListener( PropertyChangeListener l ) {
+        if ( propertyChangeListener != null )
+            propertyChangeListener.remove(l);
+    }
+
+    /**
+     * Calls all change listener.
+     */
+    public void firePropertyChange( ) {
+        if ( propertyChangeListener != null )
+        {
+            List<PropertyChangeListener> l = new ArrayList<>(propertyChangeListener);
+            for (PropertyChangeListener p : l)
+                p.propertyChanged(this);
+        }
     }
 
 }

@@ -219,4 +219,12 @@ public class ProfilingDemo
             }
         }
     }
+
+    public void run()
+    {
+        rec = 0;
+        privateMethodAutomatic();
+        otherCallTop();
+
+    }
 }

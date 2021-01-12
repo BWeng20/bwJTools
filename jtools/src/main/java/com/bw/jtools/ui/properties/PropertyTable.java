@@ -33,7 +33,7 @@ import java.awt.event.KeyEvent;
  * This class is based on a Netbeans widget - which can be used without any other Netbeans stuff around.<br>
  * The project contains a gradle reference to get this lib.<br>
  * Outline use a "JTree" column to show a collapsible tree structure. As
- * this table used only two levels (groups and properties), so the layout of the first column is changed back to look like a table.<br>
+ * this table used only two levels (groups and properties), the layout of the first column is changed back to look like a table.<br>
  * <br>
  * <b>Edit-support is build-in for these data-types:</b>
  * <table style="vertical-align:top">

@@ -10,7 +10,9 @@ import com.bw.jtools.Log;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -54,7 +56,7 @@ public class IconCache
     }
 
     /**
-     * Load an image from class resources.<br>
+     * Load an image from class resources and tries to create a compatible image from it.<br>
      * The image is not cached. This method simply loads the image from
      * the class-resources.
      *
@@ -67,7 +69,41 @@ public class IconCache
     {
         try( InputStream is =  clazz.getResourceAsStream(name) )
         {
-            return ImageIO.read(is);
+            if ( is == null )
+            {
+                throw new IOException("Resource '"+name+"' not found for class "+clazz.getName() );
+            }
+
+            BufferedImage image = ImageIO.read(is);
+            if ( image != null )
+            {
+                try
+                {
+                    GraphicsConfiguration gConf = GraphicsEnvironment
+                            .getLocalGraphicsEnvironment()
+                            .getDefaultScreenDevice()
+                            .getDefaultConfiguration();
+
+                    final ColorModel orgCM = image.getColorModel();
+                    final ColorModel optCM = gConf.getColorModel();
+
+                    if (!orgCM.equals(optCM))
+                    {
+                        if ( Log.isDebugEnabled() )
+                        {
+                            Log.debug("Create compatible image '"+name+"': "+orgCM+" -> "+optCM );
+                        }
+                        BufferedImage compatibleImage = gConf.createCompatibleImage(image.getWidth(), image.getHeight(), image.getTransparency());
+                        Graphics g = compatibleImage.getGraphics();
+                        g.drawImage(image, 0, 0, null);
+                        g.dispose();
+                        image = compatibleImage;
+                    }
+                } catch ( Exception e) {
+                    // Possible e.g. in headless environment.
+                }
+            }
+            return image;
         }
     }
 
@@ -127,6 +163,41 @@ public class IconCache
     {
         return getIcon(Application.AppClass, name);
     }
+
+    /**
+     * Get device compatible image.<br>
+     *
+     * @param width The desired width.
+     * @param height The desired height.
+     * @param transparencyMode  Transparency mode.
+     * @see Transparency#OPAQUE
+     * @see Transparency#BITMASK
+     * @see Transparency#TRANSLUCENT
+     * @return The image.
+     */
+    public static BufferedImage createImage(int width, int height, int transparencyMode)
+    {
+        GraphicsConfiguration gConf = GraphicsEnvironment
+                .getLocalGraphicsEnvironment()
+                .getDefaultScreenDevice()
+                .getDefaultConfiguration();
+
+        return gConf.createCompatibleImage(width, height, transparencyMode);
+    }
+
+    /**
+     * Get device compatible image.<br>
+     * @param width The desired width.
+     * @param height The desired height.
+     * @param transparency True if image shall support transparency.
+     * @return The image.
+     */
+    public static BufferedImage createImage(int width, int height, boolean transparency)
+    {
+        return createImage(width, height, transparency ? Transparency.TRANSLUCENT : Transparency.OPAQUE);
+    }
+
+
 
     /**
      * Tries to find a application images that fits the preferred size.<br>
