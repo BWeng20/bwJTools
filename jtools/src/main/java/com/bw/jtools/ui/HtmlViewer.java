@@ -22,7 +22,8 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Application;
-import java.awt.Dimension;
+
+import java.awt.*;
 
 /**
  * Frame to show an internal html document.
@@ -30,6 +31,11 @@ import java.awt.Dimension;
 public class HtmlViewer extends javax.swing.JFrame {
 
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 3324027265797613525L;
+	
+	/**
      * Creates new form HtmlViewer
      */
     public HtmlViewer()
@@ -97,7 +103,7 @@ public class HtmlViewer extends javax.swing.JFrame {
         pack();
     }
 
-    private void close_ActionPerformed(java.awt.event.ActionEvent evt)
+    private void close_ActionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent evt)
     {
         dispose();
     }

@@ -25,6 +25,7 @@ package com.bw.jtools.io;
 
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.UITool;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -111,11 +112,6 @@ public final class Tail
             return end-start;
         }
 
-        boolean isEmpty()
-        {
-            return start == end;
-        }
-
         void consume( int amount )
         {
             synchronized(this) {
@@ -128,42 +124,6 @@ public final class Tail
             }
         }
 
-        void ensureFree( int amount )
-        {
-            synchronized(this) {
-                int avail = getAvail();
-                if ( avail > 0 )
-                {
-                    // Check available space.
-                    if ( (buffer.length-avail) < amount )
-                    {
-                        byte[] newBuffer = createBuffer( avail+amount );
-                        System.arraycopy( buffer, start, newBuffer, 0, avail);
-                        buffer = newBuffer;
-                        start = 0;
-                        end = avail;
-                    }
-                    // Check available space at end.
-                    else if ( (buffer.length-end) < amount )
-                    {
-                        System.arraycopy( buffer, start, buffer, 0, avail);
-                        start = 0;
-                        end = avail;
-                    }
-                }
-                else if (buffer.length < amount )
-                {
-                    buffer = createBuffer(amount);
-                    start = 0;
-                    end = 0;
-                }
-            }
-        }
-
-        private byte[] createBuffer( int neededSpace )
-        {
-            return new byte[ 10240*((int)(neededSpace+10239)/10240) ];
-        }
     }
 
     static void fireData( final StreamInfo s )

@@ -34,6 +34,11 @@ package com.bw.jtools.ui.properties;
 public class PropertyStringValue extends PropertyValue
 {
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 5599878965239413140L;
+
+	/**
      * Creates a string property with name and value.
      * @param name   Name of the property.
      * @param value  The number-value. Can be null.

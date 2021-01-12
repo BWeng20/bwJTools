@@ -21,19 +21,10 @@
  */
 package com.bw.jtools.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
 
 /**
  * A generic dialog to prompt the user for some choice to make.
@@ -41,6 +32,11 @@ import javax.swing.WindowConstants;
 public class Chooser extends JDialog {
 
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 6208669340733620989L;
+
+	/**
      * Creates new Chooser.
      *
      * @param title Title of the dialog.

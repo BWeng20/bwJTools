@@ -32,14 +32,14 @@ import net.bytebuddy.asm.Advice;
 public final class ByteBuddyProfilingCtorAdvice
 {
 
-    @Advice.OnMethodEnter(inline = true)
+    @SuppressWarnings({ "resource", "unused" })
+	@Advice.OnMethodEnter(inline = true)
     static public void adviceEnter(
             @Advice.Origin("#t") String clazz,
             @Advice.Origin("#m") String method,
             @Advice.Local("MP") MethodProfiling mp
               )
     {
-System.out.println("CtAd: -> "+clazz+":"+method)        ;
         mp = new MethodProfiling(clazz, method);
     }
 
@@ -47,7 +47,6 @@ System.out.println("CtAd: -> "+clazz+":"+method)        ;
     @Advice.OnMethodExit(inline = true)
     static public void adviceExitThrown(@Advice.Local("MP") MethodProfiling mp )
     {
-System.out.println("CAd: <- "+(mp != null ? mp.method.name : "null" ));
         if (mp != null )
         {
             mp.close();

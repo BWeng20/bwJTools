@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui;
 
-import java.awt.Graphics;
+import java.awt.*;
 
 
 /**
@@ -29,7 +29,12 @@ import java.awt.Graphics;
  */
 final public class WaitSplash extends javax.swing.JFrame
 {
-    private static WaitSplash instance_;
+    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 707461739107938372L;
+
+	private static WaitSplash instance_;
 
     public static void showWait( boolean show )
     {

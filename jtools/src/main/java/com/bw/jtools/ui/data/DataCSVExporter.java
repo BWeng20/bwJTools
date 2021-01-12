@@ -20,11 +20,12 @@
  */
 package com.bw.jtools.ui.data;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 
 /**
  * Exporter implementation using Apache CSV.
@@ -34,7 +35,8 @@ public class DataCSVExporter implements IDataExporter
     public DataCSVExporter()
     {
         // Ensure that we can use CSV functionality.
-        CSVFormat f = CSVFormat.EXCEL;
+        @SuppressWarnings("unused")
+		CSVFormat f = CSVFormat.EXCEL;
     }
 
     @Override

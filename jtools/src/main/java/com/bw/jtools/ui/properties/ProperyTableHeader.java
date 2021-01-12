@@ -29,7 +29,12 @@ import javax.swing.table.TableColumnModel;
  */
 public class ProperyTableHeader extends JTableHeader
 {
-    public ProperyTableHeader(TableColumnModel model)
+    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -6150457632365752222L;
+
+	public ProperyTableHeader(TableColumnModel model)
     {
         super(model);
         setUI(null);

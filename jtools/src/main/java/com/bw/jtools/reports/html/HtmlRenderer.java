@@ -26,8 +26,9 @@ import com.bw.jtools.reports.TextOptions;
 
 public class HtmlRenderer extends ReportRenderer
 {
-    StringBuilder sb = new StringBuilder(1000);
+    StringBuilder sb = new StringBuilder(10000);
     int reloadTimeS = 0;
+    boolean collapsiblesLists = false;
 
     /**
      * Sets the auto-reload option.
@@ -37,6 +38,16 @@ public class HtmlRenderer extends ReportRenderer
     public void setReloadTime( int seconds )
     {
         reloadTimeS = seconds;
+    }
+    
+    /**
+     * Enabled support of collapsible lists.
+     * @param collapsible True: enable: False: disable
+     */
+    public void enableCollapsiblesLists( boolean collapsible )
+    {
+        collapsiblesLists = collapsible;
+    	
     }
 
     public void addEscaped(String text)
@@ -148,10 +159,42 @@ public class HtmlRenderer extends ReportRenderer
         }
         sb.append("<title>");
         addEscaped(title);
-        sb.append(title);
-        sb.append("</title>");
-        sb.append("<style>table{width:100%;border:1px solid black;border-collapse:collapse;} th,td{border:1px solid black;text-align:left;vertical-align:top;}tr:hover{background-color:#f5f5f5;}</style>");
-        sb.append("<body>");
+        sb.append("</title>\n"+
+                  "<style>\n"+
+                  " table{width:100%;border:1px solid black;border-collapse:collapse;}\n"+ 
+	              " th,td{border:1px solid black;text-align:left;vertical-align:top;}\n"+
+	              " tr:hover{background-color:#f5f5f5;}\n");
+        if ( collapsiblesLists ) {
+        	sb.append(" .clp { cursor: pointer; padding: 10px; }\n"+
+        	          " .active,.clp:hover {background-color: #555;}\n");
+        }
+	    sb.append("</style>\n");
+        
+        if ( collapsiblesLists ) {
+        	sb.append( "<script>\n" );
+        	sb.append( 
+        			"function initClpsl() {\n"+
+        			"	var coll = document.getElementsByClassName(\"clpsl\");\n"+
+        			"	var i;\n"+
+        			"	for (i = 0; i < coll.length; i++) {\n"+
+        			"		coll[i].addEventListener(\"click\", function() {\n"+
+        			"		this.classList.toggle(\"active\");\n"+
+        			"		var content = this.nextElementSibling;\n"+
+        			"		if (content.style.display === \"block\") {\n"+
+        			"			this.innerHtml='+';\n"+
+        			"			content.style.display = \"none\";\n"+
+        			"		} else {\n"+
+        			"			this.innerHtml='-';\n"+
+        			"			content.style.display = \"block\";\n"+
+        			"		}\n"+
+        			"	});\n"+
+        			"} };\n");
+        	sb.append("</script>\n");
+        
+        	sb.append("<body onload=\"initClpsl()\">");
+        } else {
+        	sb.append("<body>");
+        }
     }
 
     @Override
@@ -177,5 +220,61 @@ public class HtmlRenderer extends ReportRenderer
     {
         sb.append("</thead>");
     }
+
+	@Override
+	public void startList()
+	{
+	}
+	
+	@Override
+	public void startListHeader()
+	{
+		if ( collapsiblesLists) {
+			sb.append("<div class='clpsl'><span width='10px'>+</span>");
+		} else {
+			sb.append("<div>");			
+		}
+		
+	}	
+
+	@Override
+	public void endListHeader()
+	{
+		sb.append("</div>");
+	}	
+
+	@Override
+	public void startListBody()
+	{
+		if ( collapsiblesLists) {
+			sb.append("<ul class='clpslContent'>");
+		} else {
+			sb.append("<ul>");			
+		}
+	}
+
+	@Override
+	public void endListBody()
+	{
+		sb.append("</ul>");
+	}
+
+	@Override
+	public void startListElement()
+	{
+		sb.append("<li>");
+	}
+
+	@Override
+	public void endListElement()
+	{
+        sb.append("</li>");
+	}
+
+	@Override
+	public void endList()
+	{
+        sb.append("</ul>");
+	}
 
 }

@@ -36,7 +36,12 @@ import javax.swing.UIManager;
 
 public class DataDemo extends JFrame
 {
-    static LoggerDataModel model_ ;
+    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 3507746476032767071L;
+	
+	static LoggerDataModel model_ ;
     static boolean running = true;
 
     public static void main( String args[] )

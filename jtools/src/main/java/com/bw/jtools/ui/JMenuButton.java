@@ -20,12 +20,10 @@
  */
 package com.bw.jtools.ui;
 
-import java.awt.event.ActionEvent;
-import javax.swing.JPopupMenu;
-import javax.swing.JToggleButton;
+import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.Icon;
+import java.awt.event.ActionEvent;
 
 /**
  * A Button that shows a popup-menu directly below.
@@ -33,6 +31,11 @@ import javax.swing.Icon;
 public class JMenuButton extends JToggleButton
 {
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 8971737844940749760L;
+	
+	/**
      * The menu to show.
      */
     public JPopupMenu menu_;

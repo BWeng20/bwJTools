@@ -20,13 +20,14 @@
  */
 package com.bw.jtools.ui.properties;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.netbeans.swing.outline.OutlineModel;
+
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.netbeans.swing.outline.OutlineModel;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Table model for the Property-Table.<br>
@@ -59,7 +60,7 @@ public class PropertyTableModel implements TableModel
 
 
     @Override
-    public Class getColumnClass(int columnIndex) {
+    public Class<?> getColumnClass(int columnIndex) {
         return String.class;
     }
 

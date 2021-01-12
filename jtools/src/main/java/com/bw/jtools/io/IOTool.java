@@ -22,37 +22,25 @@
 package com.bw.jtools.io;
 
 import com.bw.jtools.Log;
-import java.awt.Component;
-import java.awt.Frame;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import javax.imageio.ImageIO;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.bw.jtools.persistence.Store;
 import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.IconCache;
 import com.bw.jtools.ui.WaitSplash;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.*;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Collection of tool methods for IO handling.

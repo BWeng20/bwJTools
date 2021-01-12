@@ -35,6 +35,14 @@ public abstract class ReportRenderer
     public abstract void endRow();
     public abstract void endTableHead();
     public abstract void endTable();
+	public abstract void startList();
+	public abstract void startListHeader();	
+	public abstract void endListHeader();	
+	public abstract void startListBody();
+	public abstract void endListBody();
+	public abstract void startListElement();
+	public abstract void endListElement();
+	public abstract void endList();
     public abstract void endDocument();
 
 

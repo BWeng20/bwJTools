@@ -23,8 +23,6 @@
  */
 package com.bw.jtools.profiling.measurement;
 
-import java.util.Date;
-
 /**
  * Holds a measurement value.<br>
  * Holds a value that is produced by some measurement function.<br>

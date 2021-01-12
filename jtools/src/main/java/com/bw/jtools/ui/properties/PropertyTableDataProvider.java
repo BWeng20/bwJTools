@@ -1,9 +1,8 @@
 package com.bw.jtools.ui.properties;
 
 import java.awt.Color;
-import javax.swing.Icon;
+
 import org.netbeans.swing.outline.RenderDataProvider;
-import com.bw.jtools.io.IOTool;
 
 /**
  * Implementation of a "RenderDataProvider".

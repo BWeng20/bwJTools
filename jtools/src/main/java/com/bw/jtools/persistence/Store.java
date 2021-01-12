@@ -22,16 +22,16 @@
 package com.bw.jtools.persistence;
 
 import com.bw.jtools.Application;
+import com.bw.jtools.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Properties;
-
-import com.bw.jtools.Log;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -390,7 +390,7 @@ public class Store
     private static void transferStorage( StorageBase newStorage )
     {
         newStorage.clear();
-        List<String> keys = storage_.getKeysWithPrefix("");
+        Collection<String> keys = storage_.getKeysWithPrefix("");
         for ( String key : keys )
         {
             newStorage.setString(key, storage_.getString(key,null));
@@ -559,7 +559,7 @@ public class Store
      * @param prefix The prefix for which all keys shall be retrieved.
      * @return The found list of keys.
      */
-    public static List<String> getKeysWithPrefix(String prefix)
+    public static Collection<String> getKeysWithPrefix(String prefix)
     {
        return storage_.getKeysWithPrefix(prefix);
     }

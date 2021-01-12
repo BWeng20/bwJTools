@@ -21,8 +21,8 @@
  */
 package com.bw.jtools.ui.properties;
 
-import java.text.NumberFormat;
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.text.NumberFormat;
 
 /**
  * Node inside the tree that represents a property.<br>
@@ -41,6 +41,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class PropertyValue extends DefaultMutableTreeNode
 {
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -7565043274211746142L;
+
+	/**
      * The name of the property to show.
      */
     public String displayName_;
@@ -48,7 +53,7 @@ public class PropertyValue extends DefaultMutableTreeNode
     /**
      * The value-class of this property.
      */
-    public Class  valueClazz_;
+    public Class<?>  valueClazz_;
 
     /**
      * The format to display numbers.
@@ -67,7 +72,7 @@ public class PropertyValue extends DefaultMutableTreeNode
      * @param name        The name of the property to show.
      * @param valueClazz  The value-class of the property.
      */
-    public PropertyValue( String name, Class valueClazz )
+    public PropertyValue( String name, Class<?> valueClazz )
     {
         this.displayName_=name;
         this.valueClazz_ = valueClazz;

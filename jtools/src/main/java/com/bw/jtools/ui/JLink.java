@@ -22,142 +22,147 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
-import java.awt.Desktop;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URI;
-import javax.swing.JLabel;
 
 /**
  * Label with "link" functionality.<br>
- * If clicked, the class requested to "browse" the link via the "Desktop" interface.<br>
- * In case of web-links the standard web-browser will open and show the referenced page.<br>
+ * If clicked, the class requested to "browse" the link via the "Desktop"
+ * interface.<br>
+ * In case of web-links the standard web-browser will open and show the
+ * referenced page.<br>
  * Check java.awt.Desktop.isDesktopSupported() and java.awt.Desktop.browse().
  */
 public class JLink extends JLabel
 {
-   URI uri_;
-   boolean force_disable_ = true;
-   boolean enabled_ = true;
-   String alias_;
+	/**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 2361958659238654569L;
 
-   String col_ = "blue";
-   boolean mouse_entered_ = false;
+	URI uri_;
+	boolean force_disable_ = true;
+	boolean enabled_ = true;
+	String alias_;
 
-   static boolean log_desktop_support_missing_ = true;
+	String col_ = "blue";
+	boolean mouse_entered_ = false;
 
-   /**
-    * Sets the URI to link to.
-     * @param uri The URI call on click.
-    */
-   public void setUri(String uri  )
-   {
-      try
-      {
-         col_ = "blue";
-         uri_ = new URI( uri );
-         setToolTipText(uri);
-         force_disable_ = !Desktop.isDesktopSupported();
-      }
-      catch ( Exception uriEx )
-      {
-         setToolTipText(null);
-         Log.error("Malformed URI "+uri, uriEx);
-         force_disable_ = true;
-      }
-      if ( force_disable_ )
-         super.setEnabled(false);
-      else
-         super.setEnabled(enabled_);
-   }
+	static boolean log_desktop_support_missing_ = true;
 
-   /**
-    * Sets the shown Alias.
-    * @param name The alias to show instead of the full link.
-    */
-   public void setAlias(String name  )
-   {
-      alias_ = name;
-      update_text();
-   }
+	/**
+	 * Sets the URI to link to.
+	 * 
+	 * @param uri The URI call on click.
+	 */
+	public void setUri(String uri)
+	{
+		try
+		{
+			col_ = "blue";
+			uri_ = new URI(uri);
+			setToolTipText(uri);
+			force_disable_ = !Desktop.isDesktopSupported();
+		} catch (Exception uriEx)
+		{
+			setToolTipText(null);
+			Log.error("Malformed URI " + uri, uriEx);
+			force_disable_ = true;
+		}
+		if (force_disable_)
+			super.setEnabled(false);
+		else
+			super.setEnabled(enabled_);
+	}
 
-   private void update_text()
-   {
-      setText(mouse_entered_
-              ? "<HTML><FONT color='"+col_+"'><u>"+alias_+"</u></FONT></HTML>"
-              : "<HTML><FONT color='"+col_+"'>"+alias_+"</FONT></HTML>"
-              );
-   }
+	/**
+	 * Sets the shown Alias.
+	 * 
+	 * @param name The alias to show instead of the full link.
+	 */
+	public void setAlias(String name)
+	{
+		alias_ = name;
+		update_text();
+	}
 
-   /**
-    * Create a link label with URI and alias text.
-     * @param uri The URI to link to.
-     * @param text The shown text.
-    */
-   public JLink( String uri, String text )
-   {
-      this();
-      setUri(uri);
-      setAlias(text);
-   }
+	private void update_text()
+	{
+		setText(mouse_entered_ ? "<HTML><FONT color='" + col_ + "'><u>" + alias_ + "</u></FONT></HTML>"
+		        : "<HTML><FONT color='" + col_ + "'>" + alias_ + "</FONT></HTML>");
+	}
 
-   /**
-    * Creates a link label with initially empty URI and alias text.
-    */
-   public JLink( )
-   {
-      if (Desktop.isDesktopSupported())
-      {
-         force_disable_ = false;
-         addMouseListener( new MouseAdapter()
-         {
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-               try
-               {
-                 Desktop.getDesktop().browse(uri_);
-                 col_ = "#660099";
-                 update_text();
+	/**
+	 * Create a link label with URI and alias text.
+	 * 
+	 * @param uri  The URI to link to.
+	 * @param text The shown text.
+	 */
+	public JLink(String uri, String text)
+	{
+		this();
+		setUri(uri);
+		setAlias(text);
+	}
 
-               }
-               catch (Exception exp)
-               {
-                  Log.error("Failed to open "+uri_,exp);
-               }
-            }
+	/**
+	 * Creates a link label with initially empty URI and alias text.
+	 */
+	public JLink()
+	{
+		if (Desktop.isDesktopSupported())
+		{
+			force_disable_ = false;
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e)
+				{
+					try
+					{
+						Desktop.getDesktop().browse(uri_);
+						col_ = "#660099";
+						update_text();
 
-            public void mouseEntered(MouseEvent e)
-            {
-               mouse_entered_ = true;
-               update_text();
-            }
+					} catch (Exception exp)
+					{
+						Log.error("Failed to open " + uri_, exp);
+					}
+				}
 
-            public void mouseExited(MouseEvent e)
-            {
-               mouse_entered_ = false;
-               update_text();
-            }
+				public void mouseEntered(MouseEvent e)
+				{
+					mouse_entered_ = true;
+					update_text();
+				}
 
-         });
-      }
-      else
-      {
-         force_disable_ = true;
-         // Report this only once.
-         if ( log_desktop_support_missing_ )
-         {
-            log_desktop_support_missing_ = false;
-            Log.error("No Desktop Support available, link buttons will be disabled.");
-         }
-      }
+				public void mouseExited(MouseEvent e)
+				{
+					mouse_entered_ = false;
+					update_text();
+				}
 
-   }
+			});
+		} else
+		{
+			force_disable_ = true;
+			// Report this only once.
+			if (log_desktop_support_missing_)
+			{
+				log_desktop_support_missing_ = false;
+				Log.error("No Desktop Support available, link buttons will be disabled.");
+			}
+		}
 
-   public void setEnabled( boolean enabled )
-   {
-      enabled_ = enabled;
-      super.setEnabled(enabled && force_disable_);
-   }
+	}
+
+	public void setEnabled(boolean enabled)
+	{
+		enabled_ = enabled;
+		super.setEnabled(enabled && force_disable_);
+	}
 
 }

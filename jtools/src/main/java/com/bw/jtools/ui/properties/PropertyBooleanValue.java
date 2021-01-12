@@ -30,6 +30,11 @@ package com.bw.jtools.ui.properties;
 public class PropertyBooleanValue extends PropertyValue
 {
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 8337941711281436742L;
+
+	/**
      * Creates a new Boolean value.
      * @param name Name to display.
      * @param value The initial value. Can be null.

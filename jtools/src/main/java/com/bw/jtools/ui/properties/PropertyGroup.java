@@ -22,7 +22,6 @@
 package com.bw.jtools.ui.properties;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 /**
  * A Property-Group.<br>
@@ -31,6 +30,10 @@ import javax.swing.tree.TreeNode;
 public class PropertyGroup extends DefaultMutableTreeNode
 {
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 1582128396793964999L;
+	/**
      * The name of the property to show.
      */
     public String displayName_;
@@ -66,7 +69,7 @@ public class PropertyGroup extends DefaultMutableTreeNode
      *                    The value will initial be null.
      * @return The created node.
      */
-    public PropertyValue addProperty( String name, Class valueClazz )
+    public PropertyValue addProperty( String name, Class<?> valueClazz )
     {
         PropertyValue node = new PropertyValue(name, valueClazz );
         add(node);

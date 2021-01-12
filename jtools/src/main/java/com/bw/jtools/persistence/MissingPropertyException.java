@@ -27,7 +27,12 @@ import com.bw.jtools.ui.I18N;
  */
 public final class MissingPropertyException extends Exception
 {
-    protected String missingKey_;
+    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -3988126060036005140L;
+	
+	protected String missingKey_;
 
     /**
      * Creates a new Exception for the specified key.
@@ -36,6 +41,17 @@ public final class MissingPropertyException extends Exception
     public MissingPropertyException( String keyMissing )
     {
         super( I18N.format("missingpropertyexception.message", keyMissing ));
+        this.missingKey_ = keyMissing;
+    }
+
+    /**
+     * Creates a new Exception for the specified key.
+     * @param keyMissing The missing key.
+     * @param cause The cause in case it was some exception.
+     */
+    public MissingPropertyException( String keyMissing, Throwable cause )
+    {
+        super( I18N.format("missingpropertyexception.message", keyMissing ), cause);
         this.missingKey_ = keyMissing;
     }
 

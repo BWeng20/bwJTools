@@ -21,15 +21,8 @@
  */
 package com.bw.jtools.ui;
 
-import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Panel to work as Tab-Component in a JTabbedPane.<br>
@@ -52,6 +45,11 @@ public class JTabComponent extends JPanel
 {
 
     /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = -7716113934005257056L;
+
+	/**
      * Creates a new Tab-Component.
      *
      * @param name The name to show.

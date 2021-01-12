@@ -21,6 +21,7 @@
 package com.bw.jtools.log;
 
 import com.bw.jtools.Log;
+
 import java.util.HashMap;
 
 /**

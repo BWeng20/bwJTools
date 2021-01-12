@@ -1,6 +1,6 @@
 package com.bw.jtools.ui.data;
 
-import javax.swing.RowFilter;
+import javax.swing.*;
 
 /**
  * Simple textual filter for Data Table.<br>

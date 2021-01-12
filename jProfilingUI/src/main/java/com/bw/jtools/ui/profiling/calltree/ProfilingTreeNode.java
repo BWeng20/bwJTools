@@ -34,7 +34,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public final class ProfilingTreeNode extends DefaultMutableTreeNode
 {
-    private static AtomicInteger idGenerator = new AtomicInteger(1);
+    /**
+	 *  Generated Serial Version
+	 */
+	private static final long serialVersionUID = 7176085103179510548L;
+
+	private static AtomicInteger idGenerator = new AtomicInteger(1);
 
     /**
      * Run-time unique ID of the node. Usable for maps.

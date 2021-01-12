@@ -21,6 +21,7 @@
 package com.bw.jtools;
 
 import com.bw.jtools.persistence.Store;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -38,7 +39,7 @@ public class Application
      * @param useSysPropsForDefaults Use System-Properties as Defaults.
      * @see Store#getString(java.lang.String, java.lang.String)
      */
-    static public void initialize( Class mainClass, boolean useSysPropsForDefaults  )
+    static public void initialize( Class<?> mainClass, boolean useSysPropsForDefaults  )
     {
         AppClass = mainClass;
         Store.initialize(useSysPropsForDefaults);
@@ -52,7 +53,7 @@ public class Application
      * @param mainClass Application main class. Uses as base for resources.
      * @see #initialize(java.lang.Class, boolean)
      */
-    static public void initialize( Class mainClass  )
+    static public void initialize( Class<?> mainClass  )
     {
         AppClass = mainClass;
         Store.initialize(true);

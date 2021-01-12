@@ -21,13 +21,12 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
+
+import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JComboBox;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 /**
  * ComboBox for LAF selection.<br>
@@ -37,7 +36,12 @@ import javax.swing.UIManager;
  */
 public class JLAFComboBox extends JComboBox<String>
 {
-    protected List<UIManager.LookAndFeelInfo> lafs_ = new ArrayList<>();
+    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 6612891946735768684L;
+	
+	protected List<UIManager.LookAndFeelInfo> lafs_ = new ArrayList<>();
 
     /**
      * Creates a new LAF ComboBox.<br>

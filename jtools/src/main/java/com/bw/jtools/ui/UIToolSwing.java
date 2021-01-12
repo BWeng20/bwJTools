@@ -21,17 +21,11 @@
  */
 package com.bw.jtools.ui;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 import com.bw.jtools.Log;
-import javax.swing.JLabel;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 
 /**

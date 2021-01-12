@@ -22,14 +22,13 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
-import java.awt.event.WindowEvent;
-import javax.swing.WindowConstants;
-
 import com.bw.jtools.io.IOTool;
-import java.awt.Component;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import javax.swing.SwingUtilities;
 
 /**
  * Dialog to show exception details.
@@ -38,6 +37,11 @@ import javax.swing.SwingUtilities;
 public class JExceptionDialog extends javax.swing.JDialog
 {
    /**
+	 * Generated Serial Version
+	 */
+	private static final long serialVersionUID = 754679126955976546L;
+	
+	/**
     * Creates new exception dialog with default title and message.<br>
     * Content of I18N property <i>exception.reportToUrl</i> is used to create a link to
     * send the report,<br>
@@ -183,12 +187,12 @@ public class JExceptionDialog extends javax.swing.JDialog
         pack();
     }
 
-    private void button_close_ActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_button_close_ActionPerformed
+    private void button_close_ActionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent evt)//GEN-FIRST:event_button_close_ActionPerformed
     {
         dispatchEvent (new WindowEvent (this, WindowEvent.WINDOW_CLOSING));
     }
 
-    private void SwitchTraceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SwitchTraceActionPerformed
+    private void SwitchTraceActionPerformed(@SuppressWarnings("unused") java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SwitchTraceActionPerformed
         showFullST = !showFullST;
 
         SwitchTrace.setText(showFullST ? I18N.getText("exception.shortTraces") : I18N.getText("exception.fullTraces"));

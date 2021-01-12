@@ -25,6 +25,8 @@ import com.bw.jtools.log.CollectorLogger;
 import com.bw.jtools.log.CollectorThreadLogger;
 import com.bw.jtools.log.ConsoleLogger;
 import com.bw.jtools.log.MulticastLogger;
+import com.bw.jtools.log.NullLogger;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
@@ -260,6 +262,7 @@ public final class Log
     static
     {
         try{
+            // log = MulticastLogger.addLogger( null, new ConsoleLogger() );
             log = MulticastLogger.addLogger( null, new com.bw.jtools.log.Log4JLogger() );
         }
         catch ( NoClassDefFoundError ignored )
@@ -305,6 +308,15 @@ public final class Log
             messages.addAll(tlog.messages);
             tlog.messages.clear();
         }
+    }
+
+    /**
+     * Sets the specific logger. All other logger will be removed.
+     * @param logger The logger to set.
+     */
+    static public void setLogger(LoggerFacade logger)
+    {
+    	log = ( logger == null ) ? new NullLogger() : logger;
     }
 
     /**
