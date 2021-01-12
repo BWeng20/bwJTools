@@ -51,3 +51,21 @@ jar {
     }
 }
 
+task runProfilingWeaverDemo(type: Exec) {
+    dependsOn build
+    dependsOn ":jProfilingAgent:jar"
+    group = "Examples"
+    description = "Runs Profiling Weaver Demo"
+    // Configuration of ProfilingWeaver via system properties:
+    //   profiling.weaver.regex    RegExp to match class/method-names.
+    //   profiling.weaver.verbose  'true' or 'false'
+
+    def p = file( "${buildPath}/../../jProfilingAgent/build/libs/jProfilingAgent-${project.version}.jar")
+
+    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(),
+            "--add-opens", "java.base/java.lang=ALL-UNNAMED", "--illegal-access=deny",
+            "-Dprofiling.weaver.regex=.*ProfilingWeaverDemo:.*",
+            "-Dprofiling.weaver.verbose=false",
+            "-javaagent:${p}",
+            "com.bw.jtools.examples.profiling.ProfilingWeaverDemo", "-mmFile=build/Test.mm", "-jsonFile=build/Test.json" , "-workLoop=10000", "-repeat=20"
+}

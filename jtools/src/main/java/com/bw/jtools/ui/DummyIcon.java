@@ -57,8 +57,8 @@ public class DummyIcon implements Icon
         g2D.setRenderingHint( RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON );
         g2D.setColor(Color.RED);
         g2D.setStroke(stroke_);
-        g2D.drawLine(1, 1, width_-2, + height_-2 );
-        g2D.drawLine(1, height_-2, width_ -2, 1 );
+        g2D.drawLine(x+1, y+1, x+width_-2, y+ height_-2 );
+        g2D.drawLine(x+1, y+height_-2, x+width_ -2, y+1 );
 
         g2D.dispose();
     }

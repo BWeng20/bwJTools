@@ -49,7 +49,6 @@ public final class ExampleList extends JFrame
         { "Application Icons", "com.bw.jtools.examples.applicationicons.ApplicationIconsDemo" }  ,
         { "Data Table", "com.bw.jtools.examples.data.DataDemo" }  ,
         { "Exception Dialog", "com.bw.jtools.examples.exceptiondialog.JExceptionDialogDemo" }  ,
-        { "Profiling Demo (console only)", "com.bw.jtools.examples.profiling.ProfilingDemo" }  ,
         { "Property Table", "com.bw.jtools.examples.propertytable.PropertyTableDemo" }  ,
         { "Tab Component", "com.bw.jtools.examples.tabcomponent.JTabComponentDemo" }
     };
