@@ -1,14 +1,20 @@
 package com.bw.jtools.ui.graph.impl;
 
-import com.bw.jtools.Application;
 import com.bw.jtools.Log;
+import com.bw.jtools.graph.Edge;
+import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.IconCache;
-import com.bw.jtools.ui.graph.*;
+import com.bw.jtools.ui.graph.Geometry;
+import com.bw.jtools.ui.graph.Layout;
+import com.bw.jtools.ui.graph.Visual;
+import com.bw.jtools.ui.graph.VisualState;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Shows only raw text.
@@ -20,11 +26,12 @@ public class SimpleVisual implements Visual
 	protected int margin_y2 = 10;
 	protected int margin_x2 = 10;
 	protected Geometry geo;
+	protected Layout layout;
 
 	protected Map<Integer, VisualState> visualStates = new HashMap<>();
 
 	protected Node focusedNode;
-	protected Point focudedNodePressedAt;
+	protected Point focusedNodePressedAt;
 
 	protected BufferedImage expandImage;
 	protected BufferedImage collapseImage;
@@ -57,7 +64,10 @@ public class SimpleVisual implements Visual
 	public Rectangle getVisualBounds( Node n )
 	{
 		Rectangle r =geo.getBounds(n);
-		if ( r != null ) r = new Rectangle(r);
+		if ( r != null )
+			r = new Rectangle(r);
+		else
+			r = new Rectangle();
 		return r;
 	}
 
@@ -127,9 +137,10 @@ public class SimpleVisual implements Visual
 
 	}
 
-	public SimpleVisual(Geometry geo )
+	public SimpleVisual(Layout layout )
 	{
-		this.geo = geo;
+		this.geo = layout.getGeometry();
+		this.layout = layout;
 		this.expandImage = defaultExpandImage;
 		this.collapseImage = defaultCollapseImage;
 
@@ -170,13 +181,14 @@ public class SimpleVisual implements Visual
 		if ( expand != state.expanded )
 		{
 			geo.beginUpdate();
+			geo.dirty( getVisualBounds(node) );
 			state.expanded = expand;
 			for (Iterator<Node> it = node.children(); it.hasNext(); )
 			{
 				geo.setVisibility( it.next(), expand );
 			}
-			geo.dirty(geo.getTreeArea(node));
-			geo.notifyDependencies(node);
+			if ( expand )
+				layout.placeChildren(node);
 			geo.endUpdate();
 		}
 	}
@@ -296,6 +308,9 @@ public class SimpleVisual implements Visual
 
 	}
 
+	/**
+	 * Updates visibility according to parents expand state.
+	 */
 	protected void updateVisibility(Node node)
 	{
 		Iterator<Node> it = node.parents();
@@ -316,6 +331,12 @@ public class SimpleVisual implements Visual
 	public Geometry getGeometry()
 	{
 		return geo;
+	}
+
+	@Override
+	public Layout getLayout()
+	{
+		return layout;
 	}
 
 	public void click( Node node, Point p )
@@ -350,9 +371,9 @@ public class SimpleVisual implements Visual
 			focusedNode = node;
 		}
 		if ( pressedAt != null )
-			focudedNodePressedAt = new Point(pressedAt);
+			focusedNodePressedAt = new Point(pressedAt);
 		else
-			focudedNodePressedAt = null;
+			focusedNodePressedAt = null;
 
 	}
 
@@ -365,7 +386,7 @@ public class SimpleVisual implements Visual
 	@Override
 	public void released()
 	{
-		focudedNodePressedAt = null;
+		focusedNodePressedAt = null;
 		if ( focusedNode != null )
 		{
 			final Rectangle fr = geo.getBounds(focusedNode);

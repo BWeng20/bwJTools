@@ -20,12 +20,12 @@
  */
 package com.bw.jtools.log;
 
+import com.bw.jtools.Log;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-
-import com.bw.jtools.Log;
 
 public class FileLogger extends Log.LoggerFacade
 {

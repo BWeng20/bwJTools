@@ -1,5 +1,7 @@
 package com.bw.jtools.ui.graph;
 
+import com.bw.jtools.graph.GraphElement;
+
 import java.util.Arrays;
 import java.util.List;
 

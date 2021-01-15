@@ -1,8 +1,10 @@
 package com.bw.jtools.ui.graph;
 
-import java.awt.Shape;
-import java.awt.Rectangle;
-import java.awt.Point;
+import com.bw.jtools.graph.Graph;
+import com.bw.jtools.graph.GraphElement;
+import com.bw.jtools.graph.Node;
+
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -63,7 +65,7 @@ public interface Geometry
 	 */
 	public List<Point> getTreeDescendantPoints(Node node);
 
-	public void moveTree(Graph g,Node node, int dx, int dy);
+	public void moveTree(Graph g, Node node, int dx, int dy);
 
 	public void moveNode(Graph g,Node node, int dx, int dy);
 
@@ -140,5 +142,11 @@ public interface Geometry
 		r1.width = ((r1x2 < r2x2) ? r2x2 : r1x2 ) - r1.x;
 		r1.height = ((r1y2 < r2y2) ? r2y2 : r1y2 ) - r1.y;
 	}
+
+	public static boolean isEmpty(Rectangle r)
+	{
+		return r == null || r.isEmpty();
+	}
+
 
 }

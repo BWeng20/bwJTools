@@ -1,5 +1,7 @@
 package com.bw.jtools.ui.graph;
 
+import com.bw.jtools.graph.Node;
+
 import java.awt.*;
 
 public interface Decorator

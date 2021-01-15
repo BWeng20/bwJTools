@@ -1,12 +1,16 @@
 package com.bw.jtools.ui.graph.impl;
 
-import com.bw.jtools.ui.graph.*;
-import com.bw.jtools.ui.graph.algorithm.ConvexHull;
+import com.bw.jtools.geometry.ConvexHull;
+import com.bw.jtools.graph.GraphElement;
+import com.bw.jtools.graph.Node;
+import com.bw.jtools.ui.graph.Decorator;
+import com.bw.jtools.ui.graph.Geometry;
+import com.bw.jtools.ui.graph.GeometryListener;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 
 public class CloudDecorator implements Decorator, GeometryListener

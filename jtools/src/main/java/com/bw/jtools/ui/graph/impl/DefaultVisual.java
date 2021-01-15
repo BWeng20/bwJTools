@@ -1,6 +1,7 @@
 package com.bw.jtools.ui.graph.impl;
 
-import com.bw.jtools.ui.graph.*;
+import com.bw.jtools.graph.Node;
+import com.bw.jtools.ui.graph.Layout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,10 +10,10 @@ import java.util.Map;
 
 public class DefaultVisual extends SimpleVisual
 {
-	Map<Integer, JNodeRenderer> labels = new HashMap<>();
+	protected Map<Integer, JNodeRenderer> renderer = new HashMap<>();
 
-	public DefaultVisual( Geometry geo ) {
-		super(geo);
+	public DefaultVisual( Layout layout ) {
+		super(layout);
 	}
 
 	@Override
@@ -30,7 +31,7 @@ public class DefaultVisual extends SimpleVisual
 
 		paintBorder( g, node, r );
 
-		JLabel l = labels.get(node.id);
+		JLabel l = renderer.get(node.id);
 		if ( l != null) {
 			String text = ((TextData)node.data).text;
 			if ( !text.equals(l.getText()) )
@@ -63,10 +64,10 @@ public class DefaultVisual extends SimpleVisual
 
 		String text = ((TextData)node.data).text;
 
-		JNodeRenderer l = labels.get(node.id);
+		JNodeRenderer l = renderer.get(node.id);
 		if ( l == null){
 			l = new JNodeRenderer();
-			labels.put(node.id, l);
+			renderer.put(node.id, l);
 		}
 		l.setText(text);
 		l.setFont(g.getFont());

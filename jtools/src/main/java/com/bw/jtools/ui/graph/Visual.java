@@ -1,5 +1,8 @@
 package com.bw.jtools.ui.graph;
 
+import com.bw.jtools.graph.Edge;
+import com.bw.jtools.graph.Node;
+
 import java.awt.*;
 
 public interface Visual
@@ -16,6 +19,7 @@ public interface Visual
 	public void updateGeometry(Graphics2D g, Node node);
 
 	public Geometry getGeometry();
+	public Layout getLayout();
 
 	public int getHorizontalMargin();
 	public int getVerticalMargin();

@@ -2,13 +2,12 @@ package com.bw.jtools.examples.graph;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
+import com.bw.jtools.graph.Graph;
+import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.IconCache;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
-import com.bw.jtools.ui.graph.Graph;
-import com.bw.jtools.ui.graph.GraphPanel;
-import com.bw.jtools.ui.graph.GraphOptionDialog;
-import com.bw.jtools.ui.graph.Node;
+import com.bw.jtools.ui.graph.*;
 import com.bw.jtools.ui.graph.impl.*;
 
 import javax.swing.*;
@@ -47,11 +46,9 @@ public class JGraphDemo
 		JPanel mainPanel = new JPanel( new BorderLayout() );
 		frame.setContentPane(mainPanel);
 
+		DecoratorVisual v = new DecoratorVisual( new DefaultVisual( new TreeLayout( new TreeRectangleGeometry() )) );
 
-
-		DecoratorVisual v = new DecoratorVisual( new DefaultVisual(new TreeRectangleGeometry()) );
-
-		gpanel.setVisual(v, new TreeLayout(v.getGeometry()));
+		gpanel.setVisual(v);
 		Graph g = gpanel.getGraph();
 
 		URL urlHugo = JGraphDemo.class.getResource("icons/Hugo.png");

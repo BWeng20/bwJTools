@@ -1,5 +1,7 @@
 package com.bw.jtools.ui.graph.impl;
 
+import com.bw.jtools.graph.Edge;
+import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.graph.*;
 
 import java.awt.*;
@@ -36,7 +38,7 @@ public class DecoratorVisual implements Visual
 	public Rectangle getVisualBounds( Node node )
 	{
 		Rectangle r = visual.getVisualBounds(node);
-		if ( r != null )
+		if ( !Geometry.isEmpty( r ))
 		{
 			Decorator d = decorators.get(node.id);
 			if ( d != null )
@@ -60,6 +62,9 @@ public class DecoratorVisual implements Visual
 	{
 		return visual.getGeometry();
 	}
+
+	@Override
+	public Layout getLayout() {  return visual.getLayout(); }
 
 	@Override
 	public int getHorizontalMargin()
