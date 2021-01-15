@@ -23,6 +23,7 @@ package com.bw.jtools.ui;
 import com.bw.jtools.Log;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -73,7 +74,8 @@ public class JLAFComboBox extends JComboBox<String>
                             try
                             {
                                 UIManager.setLookAndFeel(laf.getClassName());
-                                SwingUtilities.updateComponentTreeUI(SwingUtilities.getWindowAncestor(JLAFComboBox.this));
+                                Component window = SwingUtilities.getWindowAncestor(JLAFComboBox.this);
+                                SwingUtilities.updateComponentTreeUI(window);
                             }
                             catch (Exception ex)
                             {

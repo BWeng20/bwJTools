@@ -1,6 +1,7 @@
 package com.bw.jtools.ui.graph;
 
 import com.bw.jtools.Log;
+import com.bw.jtools.graph.Node;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;

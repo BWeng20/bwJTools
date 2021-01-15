@@ -35,6 +35,11 @@ import java.awt.event.WindowListener;
 public class SettingsUI
 {
     /**
+     * The default settings prefix for window-position and -size.
+     */
+    public static final String DEFAULT_WINDOW_PREFIX = "Window";
+
+    /**
      * Get a dimension from preferences.<br>
      * Returns (0,0) if settings are missing.
      * @param pref_prefix The preference-key to use.
@@ -55,7 +60,7 @@ public class SettingsUI
      */
     public static void loadWindowPosition(Window w)
     {
-        loadWindowPosition( w, "Window" );
+        loadWindowPosition( w, DEFAULT_WINDOW_PREFIX );
     }
 
     /**
@@ -89,7 +94,7 @@ public class SettingsUI
      */
     public static void storeWindowPosition(Window w)
     {
-        storeWindowPosition( w, "Window" );
+        storeWindowPosition( w, DEFAULT_WINDOW_PREFIX );
     }
 
     /**
@@ -112,13 +117,20 @@ public class SettingsUI
        Store.setInt( pref_prefix+".y", pos.y );
     }
 
-    protected static WindowListener autoFlushPosWindowListerner_ = new WindowAdapter()
+    protected static class AutoFlushPosWindowListerner extends WindowAdapter
     {
+        public final String pref_prefix_;
+
+        public AutoFlushPosWindowListerner(String pref_prefix)
+        {
+            pref_prefix_ = pref_prefix;
+        }
+
         @Override
         public void windowClosing(WindowEvent e)
         {
             // Store window-positon and size.
-            SettingsSwing.storeWindowPosition(e.getWindow() );
+            SettingsSwing.storeWindowPosition(e.getWindow(), pref_prefix_ );
 
             // Most important: Make any change persistent:
             Store.flushStorage();
@@ -142,9 +154,20 @@ public class SettingsUI
      */
     public static void storePositionAndFlushOnClose( Window w )
     {
-        w.removeWindowListener(autoFlushPosWindowListerner_);
-        w.addWindowListener(autoFlushPosWindowListerner_);
+        storePositionAndFlushOnClose( w, DEFAULT_WINDOW_PREFIX );
     }
+
+    /**
+     * Installs a window-listener on the window that stores the window-position
+     * and dimension and flushes the storage on close.
+     * @param w The window.
+     * @param pref_prefix The preferences prefix without ".". E.g. "window".
+     */
+    public static void storePositionAndFlushOnClose( Window w, String pref_prefix )
+    {
+        w.addWindowListener(new AutoFlushPosWindowListerner(pref_prefix));
+    }
+
 
     /**
      * Installs a window-listener on the window that flushes the storage on close.

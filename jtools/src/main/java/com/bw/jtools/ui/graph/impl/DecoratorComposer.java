@@ -1,8 +1,8 @@
 package com.bw.jtools.ui.graph.impl;
 
+import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.graph.Decorator;
 import com.bw.jtools.ui.graph.Geometry;
-import com.bw.jtools.ui.graph.Node;
 
 import java.awt.*;
 import java.util.ArrayList;

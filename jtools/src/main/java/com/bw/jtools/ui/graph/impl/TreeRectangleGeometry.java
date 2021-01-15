@@ -1,12 +1,15 @@
 package com.bw.jtools.ui.graph.impl;
 
-import com.bw.jtools.collections.IdMap;
-import com.bw.jtools.ui.graph.*;
+import com.bw.jtools.graph.Graph;
+import com.bw.jtools.graph.GraphElement;
+import com.bw.jtools.graph.Node;
+import com.bw.jtools.ui.graph.Geometry;
+import com.bw.jtools.ui.graph.GeometryListener;
+import com.bw.jtools.ui.graph.GeometryState;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 /**
  * Manages node geometry as rectangle-shapes. This means "shape" equals "bounds".
@@ -91,7 +94,6 @@ public class TreeRectangleGeometry implements Geometry
 			dirty(r);
 			setShape(node, r);
 			updateTreeArea(node);
-			updateParentTreeArea(node);
 		}
 		endUpdate();
 	}
@@ -101,7 +103,9 @@ public class TreeRectangleGeometry implements Geometry
 		Rectangle r = new Rectangle(getBounds(node));
 		for (Iterator<Node> c = node.children(); c.hasNext(); )
 		{
-			Geometry.union(r, getTreeArea(c.next()));
+			GeometryState state = getGeometryState(c.next());
+			if ( state.visible && state.treeArea != null )
+				Geometry.union(r, state.treeArea);
 		}
 		setTreeArea(node, r);
 	}
@@ -112,7 +116,6 @@ public class TreeRectangleGeometry implements Geometry
 		{
 			Node parent = p.next();
 			updateTreeArea(parent);
-			updateParentTreeArea(parent);
 		}
 	}
 
@@ -249,13 +252,19 @@ public class TreeRectangleGeometry implements Geometry
 		s.treeArea = r;
 		if (or == null)
 		{
+			beginUpdate();
 			dirty(r);
+			updateParentTreeArea(node);
 			notifyDependencies(node);
+			endUpdate();
 		} else if (!or.equals(r))
 		{
+			beginUpdate();
 			dirty(or);
 			dirty(r);
+			updateParentTreeArea(node);
 			notifyDependencies(node);
+			endUpdate();
 		}
 	}
 

@@ -1,6 +1,6 @@
 package com.bw.jtools.ui.graph.impl;
 
-import com.bw.jtools.ui.graph.Data;
+import com.bw.jtools.graph.Data;
 
 public class TextData implements Data
 {

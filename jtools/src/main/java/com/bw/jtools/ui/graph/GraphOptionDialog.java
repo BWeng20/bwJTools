@@ -1,9 +1,9 @@
 package com.bw.jtools.ui.graph;
 
-import com.bw.jtools.ui.graph.Graph;
-import com.bw.jtools.ui.graph.GraphPanel;
-import com.bw.jtools.ui.graph.Visual;
-import com.bw.jtools.ui.properties.*;
+import com.bw.jtools.graph.Graph;
+import com.bw.jtools.properties.*;
+import com.bw.jtools.ui.properties.table.PropertyGroupNode;
+import com.bw.jtools.ui.properties.table.PropertyTable;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -88,13 +88,14 @@ public class GraphOptionDialog extends JDialog
 		Visual v = graphPanel.getVisual();
 
 		DefaultTreeModel model = table.getTreeModel();
-		PropertyGroup root = new PropertyGroup("Root");
-		PropertyGroup p = new PropertyGroup("Visual Settings");
-		root.add(p);
 
+		PropertyGroup p = new PropertyGroup("Visual Settings");
 		addProperty( p, "Vertical Margin", v.getVerticalMargin(), value -> { v.setVerticalMargin( getInt( value, v.getVerticalMargin() ) ); graphPanel.repaint();});
 		addProperty( p,  "Horizontal Margin", v.getHorizontalMargin(), value -> { v.setHorizontalMargin( getInt( value, v.getHorizontalMargin() ) ); graphPanel.repaint();});
 		addProperty( p,  "Debug", v.isDebug(), value -> { v.setDebug( getBoolean( value, v.isDebug() ) ); graphPanel.repaint();});
+
+		PropertyGroupNode root = new PropertyGroupNode(null);
+		root.add(new PropertyGroupNode(p));
 
 		model.setRoot(root);
 		table.expandAll();

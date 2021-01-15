@@ -3,7 +3,6 @@ package com.bw.jtools.collections;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 
 /**
  * A simple Class-Name compressor for streaming binary class-related data

@@ -1,9 +1,10 @@
 package com.bw.jtools.ui.graph;
 
-import java.awt.*;
+import com.bw.jtools.graph.Node;
 
 public interface Layout
 {
-	public void place(Node node );
+	public Geometry getGeometry();
+	public void placeChildren(Node node );
 
 }

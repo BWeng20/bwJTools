@@ -1,22 +1,35 @@
 package com.bw.jtools.ui.graph;
 
+import com.bw.jtools.graph.Edge;
+import com.bw.jtools.graph.Graph;
+import com.bw.jtools.graph.GraphElement;
+import com.bw.jtools.graph.Node;
+import com.bw.jtools.ui.graph.impl.DefaultVisual;
 import com.bw.jtools.ui.graph.impl.TreeLayout;
 import com.bw.jtools.ui.graph.impl.TreeRectangleGeometry;
-import com.bw.jtools.ui.graph.impl.DefaultVisual;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Iterator;
+import java.util.List;
 
 public class GraphPanel extends JPanel
 {
 	private Graph graph = new Graph();
-	private Geometry geo = new TreeRectangleGeometry();
-	private Visual visual = new DefaultVisual(geo);
-	private Layout layout = new TreeLayout(geo);
+	private Geometry geo;
+	private Visual visual;
 	private boolean dragging = false;
 	private Point  graphOrigin = new Point(0,0);
 	private	GraphMouseHandler mouseHandler;
+
+	private GeometryListener sizeListener = new GeometryListener()
+	{
+		@Override
+		public void geometryUpdated(Geometry geo, List<GraphElement> e)
+		{
+			SwingUtilities.invokeLater(() -> updateSize());
+		}
+	};
 
 	protected final static Stroke clippingDebugStroke = new BasicStroke(1f);
 
@@ -27,22 +40,28 @@ public class GraphPanel extends JPanel
 
 
 	public GraphPanel() {
+		setLayout(null);
 		mouseHandler = new GraphMouseHandler(this);
 		addMouseListener(mouseHandler);
 		addMouseMotionListener(mouseHandler);
+		setVisual( null  );
 	}
 
-	public void setVisual( Visual v, Layout layout ) {
+	public void setVisual( Visual v) {
+
+		Node root = graph.getRoot();
+		if ( root != null &&  this.geo != null )
+			this.geo.removeDependency( sizeListener, root );
+
 		if ( v == null ) {
-			v = new DefaultVisual(new TreeRectangleGeometry());
-		}
-		this.geo = v.getGeometry();
-		this.geo.clear();
-		if ( layout == null ) {
-			layout = new TreeLayout(this.geo);
+			v = new DefaultVisual(new TreeLayout(new TreeRectangleGeometry()) );
 		}
 
-		this.layout = layout;
+		this.geo = v.getGeometry();
+		if ( root != null )
+			this.geo.addDependency( sizeListener, root );
+
+		this.geo.clear();
 		this.graphOrigin.x = 0;
 		this.graphOrigin.y = 0;
 		this.visual = v;
@@ -54,7 +73,7 @@ public class GraphPanel extends JPanel
 	}
 
 
-		@Override
+	@Override
 	public void updateUI()
 	{
 		super.updateUI();
@@ -82,15 +101,6 @@ public class GraphPanel extends JPanel
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g2.translate(graphOrigin.x, graphOrigin.y);
 
-				if (geo.getShape(root) == null)
-				{
-					geo.beginUpdate();
-					updateGeometry(g2, root);
-					layout.place(root);
-					geo.endUpdate();
-					updateSize();
-				}
-
 				Rectangle clipping = g2.getClipBounds();
 				g2.setColor( getBackground() );
 				g2.fillRect(clipping.x, clipping.y, clipping.width, clipping.height);
@@ -112,6 +122,19 @@ public class GraphPanel extends JPanel
 		} else {
 			Rectangle clipping = g.getClipBounds();
 			g.fillRect( clipping.x, clipping.y, clipping.width, clipping.height );
+		}
+	}
+
+	public void doLayoutGraph()
+	{
+		Node root = graph.getRoot();
+		if ( root != null )
+		{
+			geo.beginUpdate();
+			updateGeometry((Graphics2D) getGraphics(), root);
+			visual.getLayout().placeChildren(root);
+			geo.endUpdate();
+			updateSize();
 		}
 	}
 
@@ -256,6 +279,30 @@ public class GraphPanel extends JPanel
 			setPreferredSize( new Dimension(0,0));
 			revalidate();
 		}
+	}
+
+	@Override
+	public Dimension getPreferredSize()
+	{
+		Dimension d;
+		if ( isPreferredSizeSet() )
+ 		 	d = super.getPreferredSize();
+		else
+		{
+			Node root = graph.getRoot();
+			if (root != null)
+			{
+				Rectangle r = geo.getTreeArea(root);
+				if (r == null)
+				{
+					doLayoutGraph();
+				} else
+					updateSize();
+				d = super.getPreferredSize();
+			} else
+				d = getMinimumSize();
+		}
+		return d;
 	}
 
 	public void repaintIfNeeded()
