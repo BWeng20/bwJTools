@@ -22,19 +22,16 @@
 package com.bw.jtools.ui.properties.table;
 
 import com.bw.jtools.properties.PropertyColorValue;
-import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.JColorIcon;
+import com.bw.jtools.ui.properties.PropertyEditorComponents;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.text.NumberFormat;
-import java.text.ParseException;
 
 /**
  * Custom Cell Editor to support different value types in one column. Detection
@@ -54,167 +51,22 @@ public class PropertyCellEditor extends AbstractCellEditor implements javax.swin
 	 */
 	private static final long serialVersionUID = 2666866100515133280L;
 
-	protected final Border empty_border_;
+	protected final PropertyEditorComponents components_ = new PropertyEditorComponents();
 
-	protected final JComboBox<Object> enums_;
-	protected final JComboBox<Boolean> booleanNullable_;
-	protected final JCheckBox booleanCheckbox_;
-	protected final JTextField text_;
-	protected final JButton color_;
-	protected final JColorIcon colorIcon_;
 	protected final PropertyTable table_;
-	protected final Font font_;
 
-	protected int currentCol_;
-	protected int currentRow_;
-	protected PropertyNode currentNode_;
-
-	protected NumberFormat nf_;
 
 	public PropertyCellEditor(PropertyTable table)
 	{
-		font_ = new java.awt.Font("SansSerif", Font.PLAIN, 11);
-
-		empty_border_ = BorderFactory.createEmptyBorder();
 		table_ = table;
-
-		text_ = new JTextField();
-		text_.setFont(font_);
-		text_.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				triggerUpdate();
-			}
-		});
-
-		ItemListener il = new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent arg0)
-			{
-				triggerUpdate();
-			}
-		};
-
-		enums_ = new JComboBox<>();
-		enums_.setFont(font_);
-		// Force UI to act as Cell editor (mainly to use a different selection/focus
-		// handling)
-		enums_.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-		enums_.addItemListener(il);
-
-		booleanNullable_ = new JComboBox<>();
-		booleanNullable_.addItem(null);
-		booleanNullable_.addItem(Boolean.TRUE);
-		booleanNullable_.addItem(Boolean.FALSE);
-		booleanNullable_.setFont(font_);
-		booleanNullable_.addItemListener(il);
-
-		booleanCheckbox_ = new JCheckBox();
-		booleanCheckbox_.setFont(font_);
-		booleanCheckbox_.addItemListener(il);
-
-		colorIcon_ = new JColorIcon(13, 13, null);
-
-		color_ = new JButton();
-		color_.setIcon(colorIcon_);
-		color_.setOpaque(true);
-		color_.setBorderPainted(false);
-		color_.setMargin(new Insets(0, 2, 0, 0));
-		color_.setHorizontalAlignment(JButton.LEFT);
-		color_.setFont(font_);
-		color_.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent ae)
-			{
-				Color newColor = JColorChooser.showDialog(color_, I18N.getText("propertytable.colorchooser.title"),
-				        colorIcon_.getColor());
-				if (newColor != null)
-				{
-					colorIcon_.setColor(newColor);
-					color_.setText(PropertyColorValue.toString(newColor));
-					triggerUpdate();
-				}
-			}
-		});
-
-		nf_ = NumberFormat.getInstance();
-		nf_.setGroupingUsed(false);
 	}
 
 	@Override
 	public Object getCellEditorValue()
 	{
 		// We use this call only to handle the update after a stopEdit,
-		// triggered by base-functionality.
-		triggerUpdate();
+		components_.updateCurrentValue();
 		return null;
-	}
-
-	protected void triggerUpdate()
-	{
-		if (updateCurrentValue())
-		{
-			table_.getTableModel().fireTableChanged(currentRow_, currentCol_);
-		}
-	}
-
-	protected boolean updateCurrentValue()
-	{
-		if (currentNode_ == null)
-			return false;
-
-		PropertyValue currentValue = currentNode_.property_;
-
-		Object newUserObject = currentValue.getPayload();
-
-		if (currentValue.valueClazz_ == String.class)
-		{
-			String text = text_.getText();
-			if ( text.isEmpty() && currentValue.nullable_)
-				newUserObject = null;
-			else
-				newUserObject = text;
-		}
-		else if (Number.class.isAssignableFrom(currentValue.valueClazz_))
-		{
-			Number nb = getNumberValue();
-			if (nb != null)
-			{
-				newUserObject = currentValue.scaleNumber(nb);
-			} else if (currentValue.nullable_)
-			{
-				newUserObject = null;
-			}
-		} else if (currentValue.valueClazz_ == Boolean.class)
-		{
-			Boolean newBool;
-			if (currentValue.nullable_)
-			{
-				newBool = (Boolean) booleanNullable_.getSelectedItem();
-			} else
-			{
-				newBool = booleanCheckbox_.isSelected();
-			}
-			newUserObject = newBool;
-		} else if (currentValue.valueClazz_.isEnum())
-		{
-			newUserObject = enums_.getSelectedItem();
-		} else if (Color.class.isAssignableFrom(currentValue.valueClazz_))
-		{
-			newUserObject = colorIcon_.getColor();
-		}
-
-		boolean changed = false;
-		if (newUserObject == null)
-		{
-			changed = currentValue.getPayload() != null;
-		} else
-		{
-			changed = !newUserObject.equals(currentValue.getPayload());
-		}
-		currentValue.setPayload(newUserObject);
-		return changed;
 	}
 
 	@Override
@@ -229,107 +81,16 @@ public class PropertyCellEditor extends AbstractCellEditor implements javax.swin
 
 			PropertyNode pv = (PropertyNode) table_.getModel().getValueAt(row, -1);
 
-			currentNode_ = null;
-			currentCol_ = column;
-			currentRow_ = row;
-
 			switch (column)
 			{
 			case PropertyTable.COLUMN_VALUE + 1:
-				comp = getEditorComponent(pv.property_);
+				comp = components_.getEditorComponent(pv.property_);
 			default:
 				break;
 			}
-			currentNode_ = pv;
 
 		}
 		return comp;
-	}
-
-	protected Component getEditorComponent(PropertyValue value)
-	{
-		boolean useGenericText = false;
-		JComponent ed = null;
-		if (value.valueClazz_ == String.class)
-		{
-			useGenericText = true;
-		}
-		if (Number.class.isAssignableFrom(value.valueClazz_))
-		{
-			ed = text_;
-			Number i = (Number) value.getPayload();
-			if (i != null)
-			{
-				NumberFormat nf = (value.nf_ == null ? nf_ : value.nf_);
-				boolean gu = nf.isGroupingUsed();
-				if ( gu ) nf.setGroupingUsed(false);
-				text_.setText(nf.format(i));
-				if ( gu ) nf.setGroupingUsed(true);
-			}
-			else
-				text_.setText("");
-		} else if (value.valueClazz_ == Boolean.class)
-		{
-			Boolean val = (Boolean) value.getPayload();
-			if (value.nullable_)
-			{
-				booleanNullable_.setSelectedItem(val);
-				ed = booleanNullable_;
-			} else
-			{
-				booleanCheckbox_.setSelected(val != null && val.booleanValue());
-				ed = booleanCheckbox_;
-
-			}
-		} else if (value.valueClazz_.isEnum())
-		{
-			enums_.removeAllItems();
-			if (value.nullable_)
-				enums_.addItem(null);
-
-			Object vals[] = value.valueClazz_.getEnumConstants();
-			for (Object v : vals)
-				enums_.addItem(v);
-			enums_.setSelectedItem(value.getPayload());
-			ed = enums_;
-		}
-		else if (Color.class.isAssignableFrom(value.valueClazz_))
-		{
-			Color c = (Color) value.getPayload();
-			if (c == null) c = Color.BLACK;
-			color_.setText(PropertyColorValue.toString(c));
-			colorIcon_.setColor(c);
-			ed = color_;
-		} else
-		{
-			useGenericText = true;
-		}
-		if (useGenericText)
-		{
-			ed = text_;
-			if (value.hasContent())
-				text_.setText(String.valueOf(value.getPayload()));
-			else
-				text_.setText("");
-		}
-
-		return ed;
-	}
-
-	protected Number getNumberValue()
-	{
-		try
-		{
-			NumberFormat nf = nf_;
-			if (currentNode_ != null && currentNode_.property_.nf_ != null)
-				nf = currentNode_.property_.nf_;
-			Number nb = nf.parse(text_.getText());
-			return nb;
-
-		} catch (ParseException e)
-		{
-		}
-		return null;
 	}
 
 }

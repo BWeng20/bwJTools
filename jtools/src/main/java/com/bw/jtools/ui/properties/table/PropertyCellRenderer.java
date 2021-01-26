@@ -22,8 +22,9 @@
 package com.bw.jtools.ui.properties.table;
 
 import com.bw.jtools.properties.PropertyColorValue;
+import com.bw.jtools.properties.PropertyFontValue;
 import com.bw.jtools.properties.PropertyValue;
-import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.graphic.IconTool;
 import com.bw.jtools.ui.JColorIcon;
 import org.netbeans.swing.outline.Outline;
 
@@ -34,6 +35,8 @@ import javax.swing.tree.AbstractLayoutCache;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.text.NumberFormat;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Custom Cell Renderer to support different value types in the same column.
@@ -44,6 +47,7 @@ public class PropertyCellRenderer implements TableCellRenderer
 
     protected final Border noBorder_;
     protected final JLabel text_;
+    protected final JLabel fontLabel_;
     protected final JLabel emptyLabel_;
     protected final Font font_;
     protected final Icon closed;
@@ -88,11 +92,15 @@ public class PropertyCellRenderer implements TableCellRenderer
         color_.setOpaque(true);
         color_.setFont(font_);
 
-        closed = IconCache.getIcon( PropertyTable.class, "group_closed.png" );
-        open   = IconCache.getIcon( PropertyTable.class, "group_open.png" );
+        fontLabel_ = new JLabel();
+        fontLabel_.setOpaque(false);
+        fontLabel_.setFont(font_);
+
+        closed = IconTool.getIcon( PropertyTable.class, "group_closed.png" );
+        open   = IconTool.getIcon( PropertyTable.class, "group_open.png" );
 
         // An empty icon for leafs, only to ensure all items are aligned.
-        empty  = IconCache.getIcon( PropertyTable.class, "group_empty.png" );
+        empty  = IconTool.getIcon( PropertyTable.class, "group_empty.png" );
 
         nf_ = NumberFormat.getInstance();
 
@@ -147,7 +155,20 @@ public class PropertyCellRenderer implements TableCellRenderer
 
                 final Object val = propVal.getPayload();
 
-                if ( val instanceof Number )
+                if ( propVal.possibleValues_ != null )
+                {
+                    String key = null;
+                    for ( Map.Entry<String, Object> entry : propVal.possibleValues_.entrySet())
+                    {
+                        if (Objects.equals( entry.getValue(), val ))
+                        {
+                            key = entry.getKey();
+                        }
+                    }
+                    text_.setText( key == null ? "" : key);
+                    comp = text_;
+                }
+                else if ( val instanceof Number )
                 {
                     text_.setText( (propVal.nf_ == null ? nf_: propVal.nf_).format(val) );
                     comp = text_;
@@ -159,6 +180,13 @@ public class PropertyCellRenderer implements TableCellRenderer
                     colorIcon_.setColor(c);
                     color_.setText(PropertyColorValue.toString( c ));
                     comp = color_;
+                }
+                else if (Font.class.isAssignableFrom( propVal.valueClazz_))
+                {
+                    Font f = (Font)val;
+                    fontLabel_.setText( PropertyFontValue.toString( f));
+                    fontLabel_.setFont( f == null ? font_ : f);
+                    comp = fontLabel_;
                 }
                 else if ((propVal.valueClazz_ == Boolean.class) && !propVal.nullable_)
                 {
