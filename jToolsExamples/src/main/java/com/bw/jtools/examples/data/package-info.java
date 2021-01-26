@@ -31,7 +31,7 @@
  * <li> {@link com.bw.jtools.ui.JMenuButton JMenuButton} Button with Popup-Menu (Level Filter).
  * <li> {@link com.bw.jtools.ui.JLink JLink} Clickable Internet-Link (RegExp Help).
  * <li> {@link com.bw.jtools.ui.SettingsUI SettingsUI} Load and store windows position and dimension.
- * <li> {@link com.bw.jtools.ui.IconCache IconCache} Use of application icons.
+ * <li> {@link com.bw.jtools.ui.graphic.IconTool IconCache} Use of application icons.
  * <li> {@link com.bw.jtools.ui.JLAFComboBox JLAFComboBox} Look-And-Feel Chooser, useful for test purposes.
  * </ul>
  */

@@ -22,7 +22,7 @@
 
 /**
  * Example for usage of Application Icons.
- * @see com.bw.jtools.ui.IconCache#getAppIconImages
+ * @see com.bw.jtools.ui.graphic.IconTool#getAppIconImages
  */
 package com.bw.jtools.examples.applicationicons;
 

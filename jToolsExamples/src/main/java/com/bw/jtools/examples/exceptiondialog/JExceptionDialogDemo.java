@@ -22,7 +22,7 @@ package com.bw.jtools.examples.exceptiondialog;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.graphic.IconTool;
 import com.bw.jtools.ui.JExceptionDialog;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
@@ -91,7 +91,7 @@ public class JExceptionDialogDemo
         mainPanel.add(lafCB, BorderLayout.SOUTH );
 
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setIconImages( IconCache.getAppIconImages() );
+        frame.setIconImages( IconTool.getAppIconImages() );
         frame.pack();
 
         // Restore window-position and dimension from prefences.

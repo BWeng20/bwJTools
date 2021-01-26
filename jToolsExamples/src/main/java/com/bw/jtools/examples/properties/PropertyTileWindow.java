@@ -25,38 +25,55 @@ import com.bw.jtools.Application;
 import com.bw.jtools.properties.PropertyGroup;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.JCardBorder;
+import com.bw.jtools.ui.properties.sheet.PropertyGroupCard;
 import com.bw.jtools.ui.properties.sheet.PropertyGroupSheet;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.List;
 
 /**
- * Demonstration of the property-sheets.
+ * Demonstration of the property-tiles.
  */
-public class PropertySheetWindow extends PropertyDemoWindowBase
+public class PropertyTileWindow extends PropertyDemoWindowBase
 {
 
-    public PropertySheetWindow(List<PropertyGroup> groups)
+    JPanel tiles;
+    boolean addTitle_;
+
+    public PropertyTileWindow(List<PropertyGroup> groups)
+    {
+        this( groups, true );
+    }
+
+    public PropertyTileWindow(List<PropertyGroup> groups, boolean addTitle)
     {
         // Base class creates frame, adds propertychangelisterer etc.
-        super("Property Sheet Demo", groups );
+        super("Property Tile Demo", groups );
 
-        JTabbedPane tabs = new JTabbedPane();
+        addTitle_ = addTitle;
+
+        FlowLayout fl = new FlowLayout();
+        fl.setAlignment(FlowLayout.LEADING);
+        tiles = new JPanel( fl );
+        tiles.setBorder( BorderFactory.createEmptyBorder(20,20,20,20));
+
         for ( PropertyGroup pg : groups_)
         {
-            PropertyGroupSheet sheet = new PropertyGroupSheet(pg);
-            sheet.setBorder( BorderFactory.createEmptyBorder(5,10,10,10));
-            tabs.add(pg.displayName_, sheet);
+            PropertyGroupCard sheet = new PropertyGroupCard(pg, addTitle);
+            sheet.setBackground(Color.WHITE);
+            tiles.add(sheet);
         }
 
-        show( tabs );
+        show( tiles );
     }
 
     public static void main(String[] args)
     {
-        Application.initialize( PropertySheetWindow.class );
+        Application.initialize( PropertyTileWindow.class );
         try
         {
             UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName());
@@ -64,7 +81,7 @@ public class PropertySheetWindow extends PropertyDemoWindowBase
         { e.printStackTrace();}
 
         List<PropertyGroup> groups = createGroups();
-        PropertySheetWindow sheet = new PropertySheetWindow(groups);
+        PropertyTileWindow sheet = new PropertyTileWindow(groups);
     }
 
 }

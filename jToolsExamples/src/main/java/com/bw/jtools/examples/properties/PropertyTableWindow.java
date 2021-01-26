@@ -21,6 +21,7 @@
  */
 package com.bw.jtools.examples.properties;
 
+import com.bw.jtools.Application;
 import com.bw.jtools.properties.PropertyGroup;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.properties.table.PropertyGroupNode;
@@ -37,9 +38,6 @@ import java.util.List;
  */
 public class PropertyTableWindow extends PropertyDemoWindowBase
 {
-    long changes_ = 0;
-    long updates_ = 0;
-    long propChanged_ = 0;
     NumberFormat nf_ = NumberFormat.getInstance();
 
     public PropertyTableWindow(List<PropertyGroup> groups)
@@ -58,34 +56,27 @@ public class PropertyTableWindow extends PropertyDemoWindowBase
         table.expandAll();
         // table.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
 
-        table.getModel().addTableModelListener(new TableModelListener()
-        {
-            @Override
-            public void tableChanged(TableModelEvent ev)
-            {
-                ++changes_;
-                if ( ev.getType() == TableModelEvent.UPDATE )
-                    ++updates_;
-                updateCounters();
-            }
-        });
-
         show(new JScrollPane(table));
 
     }
 
-    @Override
-    protected void propertyChanged(PropertyValue value)
+    protected void propertyChanged( PropertyValue v )
     {
-        ++propChanged_;
-        updateCounters();
+        super.propertyChanged(v);
+        frame_.repaint();
     }
 
-    protected void updateCounters() {
-        SwingUtilities.invokeLater( () ->
-            status_.setText(
-                    "#tableChanged "+ nf_.format(changes_)+" (Updates "+ nf_.format(updates_)+") / #propertyChanged "+propChanged_ )
-        );
+    public static void main(String[] args)
+    {
+        Application.initialize( PropertyTableWindow.class );
+        try
+        {
+            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e)
+        { e.printStackTrace();}
 
+        List<PropertyGroup> groups = createGroups();
+        PropertyTableWindow table = new PropertyTableWindow(groups);
     }
+
 }

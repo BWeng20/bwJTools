@@ -23,7 +23,7 @@ package com.bw.jtools.examples.applicationicons;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.graphic.IconTool;
 import com.bw.jtools.ui.SettingsUI;
 
 import java.awt.*;
@@ -70,7 +70,7 @@ public class ApplicationIconsDemo
 
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        frame.setIconImages( IconCache.getAppIconImages() );
+        frame.setIconImages( IconTool.getAppIconImages() );
 
         frame.setContentPane(panel);
         frame.pack();
