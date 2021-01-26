@@ -55,7 +55,7 @@ public class PropertyNode extends DefaultMutableTreeNode
      */
     public PropertyNode(PropertyValue property )
     {
-        this.property_ = property;
+    	this.property_ = property;
     }
 
     /**
