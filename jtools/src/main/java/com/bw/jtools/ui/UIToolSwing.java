@@ -22,6 +22,7 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
+import com.bw.jtools.ui.graphic.IconTool;
 
 import javax.swing.*;
 import java.awt.*;
@@ -102,13 +103,13 @@ public final class UIToolSwing
 
     /**
      * Creates an icon-button.
-     * @see IconCache#getIcon(java.lang.String)
+     * @see IconTool#getIcon(java.lang.String)
      * @param icon The name of the icon to use.
      * @return The created button.
      */
     public static JButton createIconButton( String icon )
     {
-        JButton b = new JButton(IconCache.getIcon(icon));
+        JButton b = new JButton(IconTool.getIcon(icon));
         b.setBorder(null);
         b.setFocusPainted(false);
         b.setBorderPainted(false);
@@ -121,7 +122,7 @@ public final class UIToolSwing
      * Creates an icon-button.<br>
      * The application has to provide icons "icons/&lt;prefix&gt;.png" and
      * "icons/&lt;prefix&gt;_ro.png".
-     * @see IconCache#getIcon(java.lang.String)
+     * @see IconTool#getIcon(java.lang.String)
      * @param iconPrefix The name-prefix for the icons to use.
      * @return The created button.
      */
@@ -130,7 +131,7 @@ public final class UIToolSwing
         JButton b = createIconButton( iconPrefix+".png" );
 
         b.setRolloverEnabled(true);
-        Icon roIcon = IconCache.getIcon( iconPrefix+"_ro.png");
+        Icon roIcon = IconTool.getIcon( iconPrefix+"_ro.png");
         b.setRolloverIcon(roIcon);
         b.setPressedIcon(roIcon);
         return b;

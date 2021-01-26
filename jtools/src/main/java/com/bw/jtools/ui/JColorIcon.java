@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,13 +40,6 @@ public final class JColorIcon implements Icon
     protected Color color_;
 
     /**
-     * The color of the drawn border.
-     * It calculated from the inner color.
-     * @see com.bw.jtools.ui.UITool#calculateContrastColor(java.awt.Color)
-     */
-    protected Color borderColor_;
-
-    /**
      * Border is drawn if true.
      */
     protected boolean borderPainted_ = true;
@@ -82,7 +75,6 @@ public final class JColorIcon implements Icon
     public JColorIcon()
     {
         this.color_ = Color.WHITE;
-        this.borderColor_ = Color.BLACK;
         this.width_  = 13;
         this.height_ = 13;
     }
@@ -97,7 +89,6 @@ public final class JColorIcon implements Icon
     public void setColor( Color color )
     {
         this.color_ = (color == null) ? Color.WHITE : color;
-        this.borderColor_ = UITool.calculateContrastColor(this.color_);
     }
 
     /**
@@ -124,7 +115,13 @@ public final class JColorIcon implements Icon
         if ( borderPainted_ )
         {
             g2D.setRenderingHint( RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON );
-            g2D.setColor(borderColor_);
+
+            Color borderColor = UITool.calculateContrastColor(this.color_);
+            if ( Math.abs(UITool.calculateLumiance(borderColor) - UITool.calculateLumiance(c.getBackground())) < 20 )
+            {
+                borderColor = color_;
+            }
+            g2D.setColor(borderColor);
             g2D.setStroke(stroke_);
             g2D.drawRect(x, y, width_, height_);
         }

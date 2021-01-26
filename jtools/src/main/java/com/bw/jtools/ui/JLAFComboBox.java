@@ -74,8 +74,12 @@ public class JLAFComboBox extends JComboBox<String>
                             try
                             {
                                 UIManager.setLookAndFeel(laf.getClassName());
-                                Component window = SwingUtilities.getWindowAncestor(JLAFComboBox.this);
-                                SwingUtilities.updateComponentTreeUI(window);
+
+                                Window ws[] = JFrame.getOwnerlessWindows();
+                                for ( Window w : ws )
+                                {
+                                    SwingUtilities.updateComponentTreeUI(w);
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -86,5 +90,20 @@ public class JLAFComboBox extends JComboBox<String>
                     }
             }
         });
+    }
+
+    @Override
+    public void updateUI()
+    {
+        super.updateUI();
+        String lafName = (String)getSelectedItem();
+        if ( lafName != null )
+        {
+            String name = UIManager.getLookAndFeel().getName();
+            if ( !name.equals(lafName ))
+            {
+                setSelectedItem(name);
+            }
+        }
     }
 }

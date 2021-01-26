@@ -25,12 +25,12 @@ package com.bw.jtools.ui.profiling;
 
 import com.bw.jtools.io.ServiceRunner;
 import com.bw.jtools.ui.*;
+import com.bw.jtools.ui.graphic.IconTool;
 import com.bw.jtools.ui.profiling.calltree.ProfilingCallTree;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.io.Tail;
-import com.bw.jtools.persistence.Store;
 import com.bw.jtools.profiling.callgraph.FreeMindGraphRenderer;
 import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
 import com.bw.jtools.profiling.callgraph.JSONCallGraphRenderer;
@@ -53,10 +53,8 @@ import java.util.*;
 import java.util.Timer;
 import java.util.regex.Pattern;
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.TableColumnModel;
 
 /**
  * Panel to scan logs for call graphs.
@@ -710,7 +708,7 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 
 		JFrame frame = new JFrame(I18N.getText("callgraph.frame.title"));
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setIconImages(IconCache.getAppIconImages());
+		frame.setIconImages(IconTool.getAppIconImages());
 
 		frame.setContentPane(logPanel);
 		logPanel.loadPreferences();

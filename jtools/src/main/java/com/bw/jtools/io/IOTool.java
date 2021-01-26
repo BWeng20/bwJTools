@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ package com.bw.jtools.io;
 import com.bw.jtools.Log;
 import com.bw.jtools.persistence.Store;
 import com.bw.jtools.ui.I18N;
-import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.graphic.IconTool;
 import com.bw.jtools.ui.WaitSplash;
 
 import javax.imageio.ImageIO;
@@ -325,7 +325,7 @@ public final class IOTool
             if (null == fileChooserFrame_)
             {
                 fileChooserFrame_ = new Frame();
-                fileChooserFrame_.setIconImage(IconCache.getAppSmallImage());
+                fileChooserFrame_.setIconImage(IconTool.getAppSmallImage());
             }
             comp = fileChooserFrame_;
         }
@@ -344,8 +344,8 @@ public final class IOTool
      * @param prefPrefix Preference-prefix to store the last used directory and
      * file. E.g. "MyApp.OpenFile". Can be null.
      * @param dialogTitle Title of the dialog.
-     * @param mode Mode of operation. Possible values are {@link OPEN} and
-     * {@link SAVE}.
+     * @param mode Mode of operation. Possible values are {@link #OPEN} and
+     * {@link #SAVE}.
      * @return Null or the selected directory.
      */
     public static File selectDirectory(Component comp, String prefPrefix, String dialogTitle, int mode)
@@ -379,8 +379,8 @@ public final class IOTool
      * @param prefPrefix Preference-prefix to store the last used directory and
      * file. E.g. "MyApp.OpenFile". Can be null.
      * @param dialogTitle Title of the dialog.
-     * @param mode Mode of operation. Possible values are {@link OPEN} and
-     * {@link SAVE}.
+     * @param mode Mode of operation. Possible values are {@link #OPEN} and
+     * {@link #SAVE}.
      * @param filter File filters to use. Null values force to add the "all" filter.
      * @return Null or the selected file.
      */
@@ -403,8 +403,8 @@ public final class IOTool
      * @param prefPrefix Preference-prefix to store the last used directory.
      * E.g. "MyApp.OpenFile". Can be null.
      * @param dialogTitle Title of the dialog.
-     * @param mode Mode of operation. Possible values are {@link OPEN} and
-     * {@link SAVE}.
+     * @param mode Mode of operation. Possible values are {@link #OPEN} and
+     * {@link #SAVE}.
      * @param filter File filters to use. Null values force to add a "all" filter.
      * @return Null or a none-empty array.
      */

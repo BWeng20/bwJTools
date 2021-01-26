@@ -3,7 +3,7 @@ package com.bw.jtools.ui.graph.impl;
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.graphic.IconTool;
 import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.Layout;
 import com.bw.jtools.ui.graph.Visual;
@@ -88,15 +88,15 @@ public class SimpleVisual implements Visual
 	{
 		try
 		{
-			defaultExpandImage = IconCache.getImage(SimpleVisual.class, "icons/expand.png");
-			defaultCollapseImage = IconCache.getImage(SimpleVisual.class, "icons/collapse.png");
+			defaultExpandImage = IconTool.getImage(SimpleVisual.class, "icons/expand.png");
+			defaultCollapseImage = IconTool.getImage(SimpleVisual.class, "icons/collapse.png");
 		} catch (IOException io)
 		{
 			Log.error("Failed to load images", io);
 		}
 		if (defaultExpandImage == null)
 		{
-			BufferedImage expandImage = IconCache.createImage(defaultExpandWidth, defaultExpandWidth, true);
+			BufferedImage expandImage = IconTool.createImage(defaultExpandWidth, defaultExpandWidth, true);
 			Graphics2D g = expandImage.createGraphics();
 			g.setColor(Color.WHITE);
 			g.fillOval(1, 1, defaultExpandWidth - 2, defaultExpandWidth - 2);
@@ -117,7 +117,7 @@ public class SimpleVisual implements Visual
 
 		if (defaultCollapseImage == null)
 		{
-			BufferedImage collapseImage = IconCache.createImage(defaultExpandWidth, defaultExpandWidth, true);
+			BufferedImage collapseImage = IconTool.createImage(defaultExpandWidth, defaultExpandWidth, true);
 			Graphics2D g = collapseImage.createGraphics();
 			g.setColor(Color.WHITE);
 			g.fillOval(1, 1, defaultExpandWidth - 2, defaultExpandWidth - 2);

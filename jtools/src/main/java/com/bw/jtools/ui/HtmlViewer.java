@@ -22,6 +22,7 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Application;
+import com.bw.jtools.ui.graphic.IconTool;
 
 import java.awt.*;
 
@@ -42,13 +43,13 @@ public class HtmlViewer extends javax.swing.JFrame {
     {
         initComponents(0,0);
 
-        setIconImages( IconCache.getAppIconImages());
+        setIconImages( IconTool.getAppIconImages());
     }
 
     public HtmlViewer(int width, int height)
     {
         initComponents(width,height);
-        setIconImages( IconCache.getAppIconImages());
+        setIconImages( IconTool.getAppIconImages());
     }
 
     /**

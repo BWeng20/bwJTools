@@ -21,6 +21,8 @@
  */
 package com.bw.jtools.ui;
 
+import com.bw.jtools.ui.graphic.IconTool;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -38,7 +40,7 @@ import java.awt.*;
  * This can't be configured or bypasses in some reliable way. <br>
  * <br>
  * See example com.bw.jtools.examples.tabcomponent.JTabComponentDemo.
- * @see IconCache#getIcon(java.lang.String)
+ * @see IconTool#getIcon(java.lang.String)
 
  */
 public class JTabComponent extends JPanel
@@ -71,8 +73,8 @@ public class JTabComponent extends JPanel
         {
             if (action_tab_icon_ == null)
             {
-                action_tab_icon_ = IconCache.getIcon("tab_action.png");
-                action_tab_icon_ro_ = IconCache.getIcon("tab_action_ro.png");
+                action_tab_icon_ = IconTool.getIcon("tab_action.png");
+                action_tab_icon_ro_ = IconTool.getIcon("tab_action_ro.png");
             }
             action_icon = action_tab_icon_;
             action_icon_ro = action_tab_icon_ro_;
