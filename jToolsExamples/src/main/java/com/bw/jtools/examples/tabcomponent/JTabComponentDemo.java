@@ -23,7 +23,7 @@ package com.bw.jtools.examples.tabcomponent;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.I18N;
-import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.graphic.IconTool;
 import com.bw.jtools.ui.JColorIcon;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.JTabComponent;
@@ -160,7 +160,7 @@ public class JTabComponentDemo
                 {
                     insertTab( 0 );
                 },
-                IconCache.getIcon("plus.png"), IconCache.getIcon("plus_ro.png")));
+                IconTool.getIcon("plus.png"), IconTool.getIcon("plus_ro.png")));
 
         // we have to ensure that this empty tab is never really
         // activated, so we add a change listener.
@@ -190,7 +190,7 @@ public class JTabComponentDemo
         mainPanel.add(lafCB, BorderLayout.SOUTH );
 
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setIconImages( IconCache.getAppIconImages() );
+        frame.setIconImages( IconTool.getAppIconImages() );
         frame.pack();
 
         // Restore window-position and dimension from prefences.

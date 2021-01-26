@@ -4,7 +4,7 @@ import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.Graph;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.graphic.IconTool;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.graph.*;
@@ -96,7 +96,7 @@ public class JGraphDemo
 		mainPanel.add(statusLine, BorderLayout.SOUTH );
 
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setIconImages( IconCache.getAppIconImages() );
+		frame.setIconImages( IconTool.getAppIconImages() );
 		frame.pack();
 
 		// Restore window-position and dimension from preferences.

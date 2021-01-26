@@ -22,7 +22,7 @@ package com.bw.jtools.examples.data;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.IconCache;
+import com.bw.jtools.ui.graphic.IconTool;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.data.LoggerDataModel;
@@ -82,7 +82,7 @@ public class DataDemo extends JFrame
         panel.add( new JLAFComboBox(), BorderLayout.SOUTH );
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setIconImages( IconCache.getAppIconImages() );
+        setIconImages( IconTool.getAppIconImages() );
 
         setContentPane(panel);
         logPanel.loadPreferences();
