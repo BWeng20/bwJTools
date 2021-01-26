@@ -1,6 +1,7 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
+import com.bw.jtools.ui.graphic.IconTool;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -72,7 +73,7 @@ public class JContextMenu extends JPopupMenu
                             String iconName = (String) iconObj;
                             if (!iconName.isEmpty())
                             {
-                                icon = IconCache.getIcon(iconName);
+                                icon = IconTool.getIcon(iconName);
                             }
                         }
                         else

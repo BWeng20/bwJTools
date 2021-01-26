@@ -21,6 +21,8 @@
  */
 package com.bw.jtools.ui;
 
+import com.bw.jtools.ui.graphic.IconTool;
+
 import java.awt.*;
 
 
@@ -86,7 +88,7 @@ final public class WaitSplash extends javax.swing.JFrame
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setEnabled(false);
         setFocusable(false);
-        setIconImages(IconCache.getAppIconImages());
+        setIconImages(IconTool.getAppIconImages());
         setModalExclusionType(java.awt.Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
         setName("WaitSplash"); // NOI18N
         setUndecorated(true);

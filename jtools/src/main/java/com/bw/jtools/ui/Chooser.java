@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 package com.bw.jtools.ui;
+
+import com.bw.jtools.ui.graphic.IconTool;
 
 import javax.swing.*;
 import java.awt.*;
@@ -103,7 +105,7 @@ public class Chooser extends JDialog {
         Answer_Three = new javax.swing.JButton();
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setIconImage(IconCache.getAppSmallImage());
+        setIconImage(IconTool.getAppSmallImage());
         setResizable(false);
         getContentPane().setLayout(new java.awt.BorderLayout(30, 30));
 

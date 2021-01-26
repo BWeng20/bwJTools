@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
+import com.bw.jtools.ui.graphic.IconTool;
 
 import javax.swing.*;
 import java.awt.*;
@@ -78,7 +79,7 @@ public class JExceptionDialog extends javax.swing.JDialog
       }
       setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-      setIconImages( IconCache.getAppIconImages());
+      setIconImages( IconTool.getAppIconImages());
 
       String msg = throwed.getMessage();
       if (msg == null || msg.isEmpty()) msg = throwed.getClass().getSimpleName();

@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,13 +21,15 @@
  */
 package com.bw.jtools.ui;
 
+import com.bw.jtools.ui.graphic.IconTool;
+
 import javax.swing.*;
 import java.awt.*;
 
 /**
  * A simple icon implementation to show a red cross as replacement for a real icon.
  * Not designed for real use. It is returned by
- * {@link com.bw.jtools.ui.IconCache#getIcon(java.lang.String) IconCache.getIcon}
+ * {@link IconTool#getIcon(java.lang.String) IconCache.getIcon}
  * and derived methods to indicate that the icon could not be created.
  */
 public class DummyIcon implements Icon

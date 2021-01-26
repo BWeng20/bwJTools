@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -107,9 +107,29 @@ public final class UITool
      */
     public static Color calculateContrastColor( Color col )
     {
-       // Calculate lumiance. See https://en.wikipedia.org/wiki/Relative_luminance
-       final float luminance = 0.2126f*col.getRed()+ 0.7152f*col.getGreen() + 0.0722f*col.getBlue();
-       return (luminance < 130) ? Color.WHITE : Color.BLACK;
+        return calculateContrastColor( col, Color.WHITE, Color.BLACK);
     }
+
+    /**
+     * Calculates a color with hight contrast.<br>
+     * Should be used to calculate e.g. a front-color based on a dynamic background-color.
+     *
+     * @param col Color to use as reference.
+     * @param light Light Color to use if reference color is dark.
+     * @param dark Dark Color to use if reference color is light.
+     * @return Block or White, depending on input.
+     */
+    public static Color calculateContrastColor( Color col, Color light, Color dark )
+    {
+        return (calculateLumiance(col) < 130) ? light : dark;
+    }
+
+    public static float calculateLumiance( Color col )
+    {
+        // Calculate lumiance. See https://en.wikipedia.org/wiki/Relative_luminance
+        return 0.2126f*col.getRed()+ 0.7152f*col.getGreen() + 0.0722f*col.getBlue();
+    }
+
+
 
 }
