@@ -37,7 +37,6 @@ import java.util.List;
  */
 public class PropertySheetWindow extends PropertyDemoWindowBase
 {
-
     public PropertySheetWindow(List<PropertyGroup> groups)
     {
         // Base class creates frame, adds propertychangelisterer etc.

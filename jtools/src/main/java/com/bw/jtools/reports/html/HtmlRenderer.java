@@ -28,7 +28,7 @@ public class HtmlRenderer extends ReportRenderer
 {
     StringBuilder sb = new StringBuilder(10000);
     int reloadTimeS = 0;
-    boolean collapsiblesLists = false;
+    boolean collapsableLists = false;
 
     /**
      * Sets the auto-reload option.
@@ -46,14 +46,14 @@ public class HtmlRenderer extends ReportRenderer
      */
     public void enableCollapsiblesLists( boolean collapsible )
     {
-        collapsiblesLists = collapsible;
+        collapsableLists = collapsible;
     	
     }
 
     public void addEscaped(String text)
     {
         // Only relevant codes, we don't want to be fully html compliant .
-        char data[] = text.toCharArray();
+        char[] data = text.toCharArray();
         for (char c : data )
         {
             switch ( c )
@@ -164,13 +164,13 @@ public class HtmlRenderer extends ReportRenderer
                   " table{width:100%;border:1px solid black;border-collapse:collapse;}\n"+ 
 	              " th,td{border:1px solid black;text-align:left;vertical-align:top;}\n"+
 	              " tr:hover{background-color:#f5f5f5;}\n");
-        if ( collapsiblesLists ) {
+        if (collapsableLists) {
         	sb.append(" .clp { cursor: pointer; padding: 10px; }\n"+
         	          " .active,.clp:hover {background-color: #555;}\n");
         }
 	    sb.append("</style>\n");
         
-        if ( collapsiblesLists ) {
+        if (collapsableLists) {
         	sb.append( "<script>\n" );
         	sb.append( 
         			"function initClpsl() {\n"+
@@ -229,7 +229,7 @@ public class HtmlRenderer extends ReportRenderer
 	@Override
 	public void startListHeader()
 	{
-		if ( collapsiblesLists) {
+		if (collapsableLists) {
 			sb.append("<div class='clpsl'><span width='10px'>+</span>");
 		} else {
 			sb.append("<div>");			
@@ -246,7 +246,7 @@ public class HtmlRenderer extends ReportRenderer
 	@Override
 	public void startListBody()
 	{
-		if ( collapsiblesLists) {
+		if (collapsableLists) {
 			sb.append("<ul class='clpslContent'>");
 		} else {
 			sb.append("<ul>");			

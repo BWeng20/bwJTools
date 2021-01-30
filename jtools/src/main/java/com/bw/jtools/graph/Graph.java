@@ -6,7 +6,7 @@ import java.util.List;
 public class Graph
 {
 	private Node root;
-	private List<GraphListener> listener = new ArrayList<GraphListener>();
+	private List<GraphListener> listener = new ArrayList<>();
 
 	public Graph() {
 	}
@@ -36,7 +36,7 @@ public class Graph
 	}
 
 	protected void fireEvent( GraphEvent ev ) {
-		GraphListener la[];
+		GraphListener[] la;
 		synchronized (listener)
 		{
 			la = listener.toArray(new GraphListener[listener.size()]);

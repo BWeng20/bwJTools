@@ -28,9 +28,9 @@ public class TreeLayout implements Layout
 	public void placeChildren(Node node)
 	{
 		if ( node != null) {
-			geo.beginUpdate();;
+			geo.beginUpdate();
 
-			Rectangle r = geo.getBounds(node);
+            Rectangle r = geo.getBounds(node);
 
 			Rectangle tr = recalculateSubTree( node );
 			int th = tr.height;

@@ -191,7 +191,7 @@ public final class PropertyTable extends Outline
         setCellSelectionEnabled(false);
         setRowSelectionAllowed(true);
         setSurrendersFocusOnKeystroke(true);
-        setFont(new java.awt.Font("Verdana", 0, 10));
+        setFont(new java.awt.Font("Verdana", Font.PLAIN, 10));
         setShowGrid(true);
         setGridColor(new Color(200, 200, 200));
         setIntercellSpacing(new Dimension(1, 1));

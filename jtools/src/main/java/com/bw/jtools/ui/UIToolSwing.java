@@ -22,7 +22,8 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.DummyIcon;
+import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.*;
 import java.awt.*;

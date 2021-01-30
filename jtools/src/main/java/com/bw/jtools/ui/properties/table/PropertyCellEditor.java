@@ -21,17 +21,10 @@
  */
 package com.bw.jtools.ui.properties.table;
 
-import com.bw.jtools.properties.PropertyColorValue;
-import com.bw.jtools.ui.I18N;
-import com.bw.jtools.ui.JColorIcon;
 import com.bw.jtools.ui.properties.PropertyEditorComponents;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 /**
  * Custom Cell Editor to support different value types in one column. Detection

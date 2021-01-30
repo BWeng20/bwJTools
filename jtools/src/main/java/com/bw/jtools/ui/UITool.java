@@ -130,6 +130,68 @@ public final class UITool
         return 0.2126f*col.getRed()+ 0.7152f*col.getGreen() + 0.0722f*col.getBlue();
     }
 
+    /**
+     * PLace a window at side of some other component.<br>
+     * If it fit the location is chosen in this order:
+     * <ol>
+     *     <li>right</li>
+     *     <li>left</li>
+     *     <li>top</li>
+     *     <li>bottom</li>
+     * </ol>
+     * @param component
+     * @param toPlace
+     */
+    public static void placeAtSide( Component component, Window toPlace)
+    {
+        // Place the dialog at the side of the drop cap
+        Point dcLocation = component.getLocationOnScreen();
+        Rectangle dcRect = component.getBounds();
+
+        Rectangle screenBounds = component.getGraphicsConfiguration().getBounds();
+        Dimension windowSize = toPlace.getSize();
+
+        Point target = new Point();
+
+        int freeLeft   = (dcLocation.x - screenBounds.x);
+        int freeRight  = (screenBounds.x+screenBounds.width) - (dcLocation.x + dcRect.width);
+        int freeTop    = (dcLocation.y - screenBounds.y);
+        int freeBottom = (screenBounds.y+screenBounds.height) - (dcLocation.y + dcRect.height);
+
+        if ( freeRight >= windowSize.width)
+        {
+            target.x = dcLocation.x + dcRect.width;
+            target.y = dcLocation.y;
+        }
+        else if ( freeLeft >= windowSize.width)
+        {
+            target.x = dcLocation.x - windowSize.width;
+            target.y = dcLocation.y;
+        }
+        else if ( freeTop >= windowSize.height)
+        {
+            target.x = dcLocation.x;
+            target.y = dcLocation.y-windowSize.height;
+        }
+        else if ( freeBottom >= windowSize.height)
+        {
+            target.x = dcLocation.x;
+            target.y = dcLocation.y+dcRect.height;
+        }
+        else
+        {
+            target.x = dcLocation.x + dcRect.width;
+            target.y = dcLocation.y;
+        }
+
+        if ( (target.y + windowSize.height) > (screenBounds.y+screenBounds.height) )
+            target.y =  screenBounds.y + +screenBounds.height - windowSize.height;
+
+        if ( (target.x + windowSize.width) > (screenBounds.x+screenBounds.width) )
+            target.x =  screenBounds.x + +screenBounds.width - windowSize.width;
+
+        toPlace.setLocation(target);
+    }
 
 
 }

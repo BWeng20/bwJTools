@@ -55,18 +55,18 @@ public class DirectoryMonitor
             this.path = path;
             this.kind = kind;
         }
-    };
+    }
 
     /**
      * Enum to indicate the type of a file-system change.
      */
-    public static enum ChangeMode
+    public enum ChangeMode
     {
         CREATED,
         REMOVED,
         CHANGED,
         INITIAL
-    };
+    }
 
 
     protected static final class PathData
@@ -95,9 +95,9 @@ public class DirectoryMonitor
 
             try
             {
-                long lmods[];
+                long[] lmods;
 
-                File files[] = path.toFile().listFiles();
+                File[] files = path.toFile().listFiles();
                 if ( files != null )
                 {
                     lmods = new long[files.length];
@@ -348,10 +348,7 @@ public class DirectoryMonitor
 
                 if ( pollThread == null )
                 {
-                    pollThread = new Thread(() ->
-                    {
-                        pollForChanges();
-                    }, "DmPoll");
+                    pollThread = new Thread(this::pollForChanges, "DmPoll");
                     pollThread.start();
 
                 }
@@ -381,10 +378,7 @@ public class DirectoryMonitor
 
                 if ( watchThread == null )
                 {
-                    watchThread = new Thread(() ->
-                    {
-                        handleWatchServiceEvents();
-                    }, "DmWatch");
+                    watchThread = new Thread(this::handleWatchServiceEvents, "DmWatch");
                     watchThread.start();
                 }
             }
@@ -441,9 +435,6 @@ public class DirectoryMonitor
                     if (pd.listener.isEmpty())
                     {
                         this.paths.remove(cannonialPath);
-                        if ( pd.poll )
-                        {
-                        }
                     }
                 
                 }

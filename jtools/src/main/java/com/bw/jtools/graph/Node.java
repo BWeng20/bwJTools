@@ -13,7 +13,7 @@ public class Node extends GraphElement
 {
 	public Data data;
 
-	public List<Edge> edges = new ArrayList<Edge>();
+	public List<Edge> edges = new ArrayList<>();
 
 	public Node( Data data ) {
 		this.data = data;

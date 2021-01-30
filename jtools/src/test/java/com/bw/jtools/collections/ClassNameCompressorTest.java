@@ -1,18 +1,18 @@
 package com.bw.jtools.collections;
-import jdk.vm.ci.meta.JavaKind;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 class ClassNameCompressorTest
 {
 	@Test
-	public void getComulativeCompressed()
+	public void getCumulativeCompressed()
 	{
-		String tests[] = {
+		String[] tests = {
 				"com.bw.jtools",
 				"com.bw.jtools.collections",
 				"jtools.collections.com.bw.jtools",
@@ -43,7 +43,7 @@ class ClassNameCompressorTest
 			{
 				char c = (char)( 0xff & testData[i][x] );
 				sb.append( Character.isAlphabetic(c) || c == '.' ? c : '_' );
-				System.out.print(String.format("%02X", 0xff & testData[i][x]));
+				System.out.printf("%02X", 0xff & testData[i][x]);
 
 			}
 			System.out.print( " "+sb.toString()+ " " );
@@ -70,6 +70,6 @@ class ClassNameCompressorTest
 			}
 		}
 
-		assertEquals(error, false);
+		assertFalse(error);
 	}
 }

@@ -102,8 +102,6 @@ public interface Geometry
 
 
 	public default void animateNode( Node node, Geometry source, Geometry target, double amount ) {
-		Shape s = source.getShape(node);
-		Shape t = target.getShape(node);
 
 		Rectangle ts = source.getTreeArea(node);
 		Rectangle tt = target.getTreeArea(node);

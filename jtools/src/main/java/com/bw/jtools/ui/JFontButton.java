@@ -21,58 +21,44 @@
  */
 package com.bw.jtools.ui;
 
-import com.bw.jtools.properties.PropertyFontValue;
+import com.bw.jtools.ui.fontchooser.JFontChooser;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.Rectangle2D;
 
-public class JFontButton extends JButton
+/**
+ * Button to show and change some font setting.
+ */
+public class JFontButton extends JChooserButtonBase<Font>
 {
+	protected static Font getDefaultFont()
+	{
+		return javax.swing.UIManager.getDefaults().getFont("TextField.font");
+	}
+
 	public JFontButton()
 	{
-		super();
+		this( getDefaultFont() );
+	}
+
+	public JFontButton(Font font)
+	{
+		this(font, I18N.getText("fontchooser.defaultDialogTitle"));
+	}
+
+	public JFontButton(Font font, String dialogTitle)
+	{
+		super(dialogTitle);
+		setValue(font);
+		setText(I18N.getText("fontchooser.button"));
+		setHorizontalAlignment(JButton.CENTER);
 		setOpaque(false);
 		setBorderPainted(true);
-
-		setMargin(new Insets(0, 0, 0, 0));
-		setHorizontalAlignment(JButton.LEFT);
-
-		addActionListener( (ae) ->
-			{
-			}
-		);
-
 	}
 
-	private Font selectedFont_;
-
-	public Font getSelectedFont()
+	protected Font showChooserDialog()
 	{
-		return selectedFont_;
+		return JFontChooser.showDialog(this,getDialogTitle(), getValue());
 	}
 
-	public void setSelectedFont(Font f)
-	{
-		selectedFont_ = f;
-		setText(PropertyFontValue.toString(selectedFont_));
-	}
-
-
-	@Override
-	public Dimension getPreferredSize()
-	{
-		Dimension d = super.getPreferredSize();
-
-		Font f = getFont();
-		Rectangle2D b = f.getMaxCharBounds(new FontRenderContext( null, false, false));
-		int minWidth = (int)(b.getWidth()*5);
-		int minHeigth = (int)(b.getHeight()+6);
-
-		if ( d.width < minWidth) d.width = minWidth;
-		if ( d.height < minHeigth) d.height = minHeigth;
-
-		return d;
-	}
 }

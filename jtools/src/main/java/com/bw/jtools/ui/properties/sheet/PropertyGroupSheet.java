@@ -21,24 +21,13 @@
  */
 package com.bw.jtools.ui.properties.sheet;
 
-import com.bw.jtools.properties.PropertyColorValue;
 import com.bw.jtools.properties.PropertyGroup;
 import com.bw.jtools.properties.PropertyValue;
-import com.bw.jtools.ui.I18N;
-import com.bw.jtools.ui.JColorIcon;
 import com.bw.jtools.ui.properties.PropertyEditorComponents;
-import com.bw.jtools.ui.properties.table.PropertyCellRenderer;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.text.NumberFormat;
 
 /**
  * A panel to show and edit properties of a group.<br>

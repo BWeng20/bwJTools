@@ -25,7 +25,8 @@ package com.bw.jtools.ui.profiling;
 
 import com.bw.jtools.io.ServiceRunner;
 import com.bw.jtools.ui.*;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.TextFieldSettingAdapter;
+import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.profiling.calltree.ProfilingCallTree;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;

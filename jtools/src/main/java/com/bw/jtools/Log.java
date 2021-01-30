@@ -62,7 +62,7 @@ public final class Log
         StringWriter sw = new StringWriter(1000);
         t.printStackTrace(new PrintWriter(sw));
 
-        String lines[] = sw.toString().split("[\\r\\n]+");
+        String[] lines = sw.toString().split("[\\r\\n]+");
 
 
         StringBuilder sb = new StringBuilder(2048);

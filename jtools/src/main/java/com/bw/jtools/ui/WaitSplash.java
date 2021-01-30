@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui;
 
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 
 import java.awt.*;
 
@@ -66,7 +66,7 @@ final public class WaitSplash extends javax.swing.JFrame
             if ( g != null )
                 instance_.paint( g );
         }
-    };
+    }
 
     protected WaitSplash()
     {

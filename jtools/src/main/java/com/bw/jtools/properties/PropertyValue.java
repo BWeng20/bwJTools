@@ -21,7 +21,6 @@
  */
 package com.bw.jtools.properties;
 
-import java.awt.*;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.*;
@@ -150,7 +149,7 @@ public class PropertyValue
             {
                 WeakReference<PropertyChangeListener> wl =  it.next();
                 PropertyChangeListener pl = wl.get();
-                if ( wl == null || wl  == l )
+                if ( pl == null || pl  == l )
                    it.remove();
             }
         }

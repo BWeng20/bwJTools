@@ -21,12 +21,10 @@
  */
 package com.bw.jtools.ui;
 
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * A generic dialog to prompt the user for some choice to make.
@@ -62,7 +60,7 @@ public class Chooser extends JDialog {
      * @param Title The title of the dialog.
      * @param Text The message to show. Check documentation about java.swing.JLabel for format options.
      * @param Options Up to <b>three</b> options to choose by user.
-     * @return Bitwise compination of
+     * @return Bitwise combination of
      *         <ul>
      *         <li>The 1-based index of the selected Option or 0.
      *         <li>DONT_ASK_AGAIN if user checked "don't ask again".
@@ -127,35 +125,23 @@ public class Chooser extends JDialog {
 
         Answer_One.setText("ONE");
         Answer_One.setToolTipText("");
-        Answer_One.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                choice = 3;
-                setVisible(false);
-            }
+        Answer_One.addActionListener(evt -> {
+            choice = 3;
+            setVisible(false);
         });
         Choices.add(Answer_One);
 
         Answer_Two.setText("TWO");
-        Answer_Two.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                choice = 2;
-                setVisible(false);
-            }
+        Answer_Two.addActionListener(evt -> {
+            choice = 2;
+            setVisible(false);
         });
         Choices.add(Answer_Two);
 
         Answer_Three.setText("THREE");
-        Answer_Three.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                choice = 1;
-                setVisible(false);
-            }
+        Answer_Three.addActionListener(evt -> {
+            choice = 1;
+            setVisible(false);
         });
         Choices.add(Answer_Three);
 

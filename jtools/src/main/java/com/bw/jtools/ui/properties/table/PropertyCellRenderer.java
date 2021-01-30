@@ -24,8 +24,8 @@ package com.bw.jtools.ui.properties.table;
 import com.bw.jtools.properties.PropertyColorValue;
 import com.bw.jtools.properties.PropertyFontValue;
 import com.bw.jtools.properties.PropertyValue;
-import com.bw.jtools.ui.graphic.IconTool;
-import com.bw.jtools.ui.JColorIcon;
+import com.bw.jtools.ui.icon.IconTool;
+import com.bw.jtools.ui.icon.JColorIcon;
 import org.netbeans.swing.outline.Outline;
 
 import javax.swing.*;
@@ -124,8 +124,8 @@ public class PropertyCellRenderer implements TableCellRenderer
            --column;
 
         JComponent comp = null;
-        Color cellForeground = null;
-        Color cellBackground = null;
+        Color cellForeground;
+        Color cellBackground;
 
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
         boolean group = (value instanceof PropertyGroupNode);
@@ -209,25 +209,21 @@ public class PropertyCellRenderer implements TableCellRenderer
 
         // Setting colors and border.
         // As this is look&feel depended, we have to use the UIManager to get the values.
-        if ( cellForeground == null )
+        if (isSelected)
         {
-
-            if (isSelected)
-            {
-                cellForeground = UIManager.getColor("Table.selectionForeground");
-                cellBackground = UIManager.getColor("Table.selectionBackground");
-            }
-            else
-            {
-                if (group)
-                    cellBackground = groupBackground_;
-                else
-                    cellBackground = UIManager.getColor("Table.background");
-
-                cellForeground = UIManager.getColor("Table.foreground");
-            }
-
+            cellForeground = UIManager.getColor("Table.selectionForeground");
+            cellBackground = UIManager.getColor("Table.selectionBackground");
         }
+        else
+        {
+            if (group)
+                cellBackground = groupBackground_;
+            else
+                cellBackground = UIManager.getColor("Table.background");
+
+            cellForeground = UIManager.getColor("Table.foreground");
+        }
+
         comp.setForeground(cellForeground);
         comp.setBackground(cellBackground);
 

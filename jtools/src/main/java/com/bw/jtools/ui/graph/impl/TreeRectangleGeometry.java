@@ -349,12 +349,7 @@ public class TreeRectangleGeometry implements Geometry
 			{
 				for (GeometryListenerEntry gle : ll)
 				{
-					List<GraphElement> gl = toUpdate.get(gle);
-					if (gl == null)
-					{
-						gl = new ArrayList<>();
-						toUpdate.put(gle, gl);
-					}
+					List<GraphElement> gl = toUpdate.computeIfAbsent(gle, k -> new ArrayList<>());
 					gl.add(e);
 				}
 			} else

@@ -24,7 +24,7 @@ package com.bw.jtools.io;
 import com.bw.jtools.Log;
 import com.bw.jtools.persistence.Store;
 import com.bw.jtools.ui.I18N;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.WaitSplash;
 
 import javax.imageio.ImageIO;
@@ -35,12 +35,18 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
-import java.util.HashMap;
+import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Stream;
 
 /**
  * Collection of tool methods for IO handling.
@@ -386,7 +392,7 @@ public final class IOTool
      */
     public static File selectFile(Component comp, String prefPrefix, String dialogTitle, int mode, FileFilter... filter)
     {
-        final File f[] = internal_selectFiles(comp, prefPrefix, dialogTitle, mode, filter, false);
+        final File[] f = internal_selectFiles(comp, prefPrefix, dialogTitle, mode, filter, false);
         if (f != null && f.length > 0)
         {
             return f[0];
@@ -482,7 +488,7 @@ public final class IOTool
         int response = (mode == OPEN) ? fileChooser_.showOpenDialog(comp) : fileChooser_.showSaveDialog(comp);
         if (response == JFileChooser.APPROVE_OPTION)
         {
-            File files[] = null;
+            File[] files = null;
 
             if (mode == SAVE)
             {
@@ -497,7 +503,7 @@ public final class IOTool
                     if (ff instanceof FileNameExtensionFilter)
                     {
                         FileNameExtensionFilter fnef = (FileNameExtensionFilter) ff;
-                        final String ext[] = fnef.getExtensions();
+                        final String[] ext = fnef.getExtensions();
                         if (ext != null && ext.length > 0)
                         {
                             files[0] = new File(files[0].getParent(), fileName + "." + ext[0]);
@@ -656,7 +662,7 @@ public final class IOTool
         StringWriter sw = new StringWriter(1000);
         t.printStackTrace(new PrintWriter(sw));
 
-        String lines[] = sw.toString().split("\\r\\n|\\n|\\r");
+        String[] lines = sw.toString().split("\\r\\n|\\n|\\r");
 
         StringBuilder sb = new StringBuilder(2048);
         int l = 0;
@@ -670,5 +676,72 @@ public final class IOTool
         }
         return sb.toString();
     }
+
+    /**
+     * Scans class path for files that matchs the given pattern.
+     * @param startPath The root path for the scan. In platform independent path syntax, e.g. "com/myapp".
+     * @param regex The java regular expression.
+     * @return the result.
+     */
+    public static List<URL> scanClasspath(ClassLoader loader, String startPath, String regex) throws PatternSyntaxException
+    {
+        final List<URL> resultList = new ArrayList<>();
+        final Pattern p = Pattern.compile(regex);
+
+        try
+        {
+            final Enumeration<URL> urls = loader.getResources(startPath);
+            while (urls.hasMoreElements())
+            {
+                final URL url = urls.nextElement();
+                final URI uri = url.toURI();
+
+                FileSystem fileSystem = null;
+                try
+                {
+                    Path path;
+                    if (uri.getScheme().equalsIgnoreCase("jar"))
+                    {
+                        fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
+                        if ( Log.isDebugEnabled() ) Log.debug("Scan Filesystem  '"+fileSystem+"' -> '"+startPath+"'. RegExp '"+regex+"'" );
+                        path = fileSystem.getPath(startPath);
+                    }
+                    else
+                    {
+                        path = Paths.get(uri);
+                        if ( Log.isDebugEnabled() ) Log.debug("Scan Path '"+path+"'. RegExp '"+regex+"'" );
+                    }
+                    Stream<Path> walk = Files.walk(path, 5);
+
+                    for (Iterator<Path> it = walk.iterator(); it.hasNext(); )
+                    {
+                        final Path itempath = it.next();
+                        final Path name = itempath.getFileName();
+                        if (name != null)
+                        {
+                            if (p.matcher(name.toString()).matches())
+                            {
+                                if (Log.isDebugEnabled())
+                                    Log.debug(" match -> " + itempath.toString());
+                                resultList.add(itempath.toUri().toURL());
+                            } else if (Log.isDebugEnabled())
+                                Log.debug(" doesn't match -> " + itempath.toString());
+                        }
+                    }
+                }
+                finally
+                {
+                    if ( fileSystem != null ) fileSystem.close();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Log.error("Failed to access resources", e);
+        }
+
+        return resultList;
+    }
+
 
 }

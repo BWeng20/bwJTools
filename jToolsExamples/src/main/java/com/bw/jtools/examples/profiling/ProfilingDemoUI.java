@@ -2,7 +2,7 @@ package com.bw.jtools.examples.profiling;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.examples.exceptiondialog.JExceptionDialogDemo;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 
