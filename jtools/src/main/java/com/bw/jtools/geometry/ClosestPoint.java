@@ -52,8 +52,6 @@ public class ClosestPoint
 			if ( p2.length > 1)
 			{
 				long bestD = Distance.squared(p1,best);
-				long bestDx = best.x - p1.x;
-				long bestDy = best.y - p1.y;
 
 				for (int i = 1; i < p2.length; ++i)
 				{
@@ -63,8 +61,6 @@ public class ClosestPoint
 					{
 						bestD = d;
 						best = candidate;
-						bestDx = best.x - p1.x;
-						bestDy = best.y - p1.y;
 					}
 				}
 			}

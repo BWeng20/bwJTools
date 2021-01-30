@@ -2,7 +2,7 @@ package com.bw.jtools.examples.properties;
 
 import com.bw.jtools.Log;
 import com.bw.jtools.properties.*;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 
@@ -12,6 +12,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Base class for table- and sheet-property windows in this demo.<br>
@@ -23,6 +24,7 @@ public abstract class PropertyDemoWindowBase
     protected Container contentPane_;
     protected JPanel statusPanel_;
     protected JTextField status_;
+    protected JTextField lang_;
 
     protected final List<PropertyGroup> groups_ ;
 
@@ -46,6 +48,11 @@ public abstract class PropertyDemoWindowBase
         status_ = new JTextField();
         status_.setEditable(false);
         statusPanel_.add(status_, BorderLayout.CENTER);
+
+        lang_= new JTextField();
+        lang_.setEditable(false);
+        lang_.setText(Locale.getDefault().toString());
+        statusPanel_.add(lang_, BorderLayout.EAST);
 
         contentPane_ = frame_.getContentPane();
         contentPane_.add(statusPanel_, BorderLayout.SOUTH);

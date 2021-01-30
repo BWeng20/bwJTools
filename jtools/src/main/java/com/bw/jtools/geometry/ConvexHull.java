@@ -37,10 +37,11 @@ public final class ConvexHull
 			} );
 
 			// lower hull
-			for (int i = 0; i < n; ++i) {
-				while (k >= 2 && cross(H[k - 2], H[k - 1], P[i]) <= 0)
+			for (T value : P)
+			{
+				while (k >= 2 && cross(H[k - 2], H[k - 1], value) <= 0)
 					k--;
-				H[k++] = P[i];
+				H[k++] = value;
 			}
 
 			// upper hull
@@ -52,11 +53,8 @@ public final class ConvexHull
 			if (k > 1) {
 				H = Arrays.copyOfRange(H, 0, k - 1);
 			}
-		} else if (P.length <= 1) {
+		} else
 			H = P;
-		} else {
-			H = new Point[0];
-		}
 
 		return H;
 	}
@@ -105,11 +103,8 @@ public final class ConvexHull
 			if (k > 1) {
 				H = Arrays.copyOfRange(H, 0, k - 1);
 			}
-		} else if (P.length <= 1) {
+		} else
 			H = P;
-		} else {
-			H = new Point[0];
-		}
 
 		return (List<T>) Arrays.asList(H);
 	}

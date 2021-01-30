@@ -3,7 +3,7 @@ package com.bw.jtools.ui.graph.impl;
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.Layout;
 import com.bw.jtools.ui.graph.Visual;
@@ -146,7 +146,7 @@ public class SimpleVisual implements Visual
 
 		this.borderStroke = new BasicStroke(1.5f);
 		this.edgeStroke = new BasicStroke(2f);
-		final float dashes[] = {5};
+		final float[] dashes = {5};
 		this.focusStroke = new BasicStroke(2.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, dashes, 0.0f);
 	}
 
@@ -291,7 +291,6 @@ public class SimpleVisual implements Visual
 			int i2 = text.indexOf('\n', i1);
 			if ( i2 < 0 ) i2 = n;
 			Rectangle rt = m.getStringBounds( text, i1, i2, g ).getBounds();
-			if ( i2 < 0 ) i2 = n;
 			int w = rt.width;
 			r.height += lineHeight;
 			if ( w > r.width ) r.width = w;

@@ -128,8 +128,9 @@ public class PropertyTableModel implements TableModel
             l = new TableModelListener[listeners_.size()];
             l = listeners_.toArray (l);
         }
-        for (int i=0; i < l.length; i++) {
-            l[i].tableChanged(e);
+        for (TableModelListener tableModelListener : l)
+        {
+            tableModelListener.tableChanged(e);
         }
     }
 

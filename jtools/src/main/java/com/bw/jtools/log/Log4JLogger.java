@@ -20,7 +20,7 @@ public class Log4JLogger extends Log.LoggerFacade
     protected int getCurrentLog4JLevel()
     {
         final Level lv = log4j.getLevel();
-        if ( lv == Level.FATAL || lv == Level.FATAL )
+        if ( lv == Level.FATAL )
             return Log.ERROR;
         if ( lv == Level.INFO )
             return Log.INFO;

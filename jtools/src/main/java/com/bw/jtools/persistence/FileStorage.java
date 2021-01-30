@@ -29,10 +29,7 @@ import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * A StorageBase implementation that stores all values in a property-file.
@@ -62,6 +59,7 @@ class FileStorage extends StorageBase
             loaded_ = true;
             try
             {
+                Log.debug("Loading "+path_);
                 try (BufferedReader reader = Files.newBufferedReader(path_))
                 {
                     reader.lines().forEach((line) ->
@@ -103,7 +101,7 @@ class FileStorage extends StorageBase
         if ( values_.containsKey(key))
         {
             String oldVal = values_.get(key);
-            if ( value == null ? (oldVal==null) : value.equals(oldVal) )
+            if (Objects.equals( value , oldVal) )
             {
                 return;
             }

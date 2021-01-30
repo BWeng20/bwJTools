@@ -21,7 +21,6 @@
  */
 package com.bw.jtools.ui.properties.table;
 
-import com.bw.jtools.properties.PropertyChangeListener;
 import com.bw.jtools.properties.PropertyValue;
 
 import javax.swing.tree.DefaultMutableTreeNode;

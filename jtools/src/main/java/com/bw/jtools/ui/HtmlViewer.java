@@ -22,7 +22,7 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Application;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 
 import java.awt.*;
 
@@ -75,13 +75,7 @@ public class HtmlViewer extends javax.swing.JFrame {
         text_scroller_.setViewportView(text_);
 
         close_.setText( I18N.getText("button.close"));// NOI18N
-        close_.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                close_ActionPerformed(evt);
-            }
-        });
+        close_.addActionListener(evt -> close_ActionPerformed(evt));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

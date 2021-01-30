@@ -1,7 +1,7 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -20,17 +20,14 @@ public class JContextMenu extends JPopupMenu
 	 */
 	private static final long serialVersionUID = -4608782575452517082L;
 	
-	Runnable actions_[];
+	Runnable[] actions_;
 
     private ActionListener createActionListener(final int i)
     {
-        return (ActionEvent e) ->
-        {
-            actions_[i].run();
-        };
+        return (ActionEvent e) -> actions_[i].run();
     }
 
-    public JContextMenu(String menu_name, JComponent parent, Object entries[][], Runnable actions[])
+    public JContextMenu(String menu_name, JComponent parent, Object[][] entries, Runnable[] actions)
     {
         super(menu_name);
 

@@ -60,35 +60,30 @@ public class JLAFComboBox extends JComboBox<String>
         String LAF = UIManager.getLookAndFeel().getName();
         setSelectedItem( LAF );
 
-        addItemListener(new ItemListener()
-        {
-            @Override
-            public void itemStateChanged(ItemEvent ie)
-            {
-                String lafName = (String)getSelectedItem();
-                for ( UIManager.LookAndFeelInfo laf : lafs_ )
-                    if ( laf.getName().equals(lafName) )
+        addItemListener(ie -> {
+            String lafName = (String)getSelectedItem();
+            for ( UIManager.LookAndFeelInfo laf : lafs_ )
+                if ( laf.getName().equals(lafName) )
+                {
+                    if ( !UIManager.getLookAndFeel().getName().equals(lafName) )
                     {
-                        if ( !UIManager.getLookAndFeel().getName().equals(lafName) )
+                        try
                         {
-                            try
-                            {
-                                UIManager.setLookAndFeel(laf.getClassName());
+                            UIManager.setLookAndFeel(laf.getClassName());
 
-                                Window ws[] = JFrame.getOwnerlessWindows();
-                                for ( Window w : ws )
-                                {
-                                    SwingUtilities.updateComponentTreeUI(w);
-                                }
-                            }
-                            catch (Exception ex)
+                            Window[] ws = JFrame.getOwnerlessWindows();
+                            for ( Window w : ws )
                             {
-                                Log.error("Faield to install "+lafName, ex);
+                                SwingUtilities.updateComponentTreeUI(w);
                             }
                         }
-                        break;
+                        catch (Exception ex)
+                        {
+                            Log.error("Faield to install "+lafName, ex);
+                        }
                     }
-            }
+                    break;
+                }
         });
     }
 

@@ -49,7 +49,10 @@ public final class ExampleList extends JFrame
         { "Application Icons", "com.bw.jtools.examples.applicationicons.ApplicationIconsDemo" }  ,
         { "Data Table", "com.bw.jtools.examples.data.DataDemo" }  ,
         { "Exception Dialog", "com.bw.jtools.examples.exceptiondialog.JExceptionDialogDemo" }  ,
-        { "Property Table", "com.bw.jtools.examples.propertytable.PropertyTableDemo" }  ,
+        { "Property Table", "com.bw.jtools.examples.propertytable.PropertyTableWindow" }  ,
+        { "Property Sheet", "com.bw.jtools.examples.propertytable.PropertySheetWindow" }  ,
+        { "Property Tile", "com.bw.jtools.examples.propertytable.PropertyTileWindow" }  ,
+        { "Property Multiple", "com.bw.jtools.examples.propertytable.PropertyDemoApplication" }  ,
         { "Tab Component", "com.bw.jtools.examples.tabcomponent.JTabComponentDemo" }
     };
 

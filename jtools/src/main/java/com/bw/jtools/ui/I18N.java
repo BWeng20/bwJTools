@@ -23,10 +23,7 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
 
-import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Simple wrapper to ease i18n stuff.<br>
@@ -64,8 +61,18 @@ public final class I18N
             currentLocale_ = newLocale;
             for( BundleInfo bi : resourceBundles_)
             {
-                bi.bundle_ = ResourceBundle.getBundle(bi.name_, currentLocale_, bi.clazz_.getClassLoader() );
+                bi.bundle_ = loadBundle( bi.name_, bi.clazz_ );
             }
+        }
+    }
+
+    private static ResourceBundle loadBundle(String name, Class<?> clazz) {
+        try{
+            return ResourceBundle.getBundle(name, currentLocale_, clazz.getClassLoader() );
+        }
+        catch (Exception e)
+        {
+            return null;
         }
     }
 
@@ -80,13 +87,7 @@ public final class I18N
         BundleInfo bi = new BundleInfo();
         bi.name_  = name;
         bi.clazz_ = clazz;
-        bi.bundle_ = null;
-        try{
-            bi.bundle_ = ResourceBundle.getBundle(name, currentLocale_, clazz.getClassLoader() );
-        }
-        catch (Exception e)
-        {
-        }
+        bi.bundle_ = loadBundle( name, clazz );
         if ( bi.bundle_ == null )
         {
             Log.warn("Failed to load bundle '"+name+"' by class-loader for "+clazz.getSimpleName() );
@@ -162,8 +163,7 @@ public final class I18N
 	        {
 	            formatter = new Formatter(currentLocale_);
 	            formatter.format(f, arguments);
-	            String r = formatter.out().toString();
-	            return r;
+	            return formatter.out().toString();
 	        }
         } finally {
 			if (formatter != null) {

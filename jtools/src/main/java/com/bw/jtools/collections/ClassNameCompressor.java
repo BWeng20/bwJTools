@@ -12,12 +12,12 @@ public class ClassNameCompressor extends StringPool
 	private ByteArrayOutputStream outBuffer = new ByteArrayOutputStream(100);
 	private StringBuilder outSb = new StringBuilder(100);
 	private final char compressSeparatorchar = '.';
-	private final int stringTag = 0xFE;
-	private final int intTag = 0xFF;
+	private final byte stringTag = (byte)0xFE;
+	private final byte intTag = (byte)0xFF;
 	private static final byte[] emptyData = new byte[0];
 
 	/**
-	 * Get the comulative compressed representation of the string.</br>
+	 * Get the cumulative compressed representation of the string.</br>
 	 *
 	 * @param str The string.
 	 * @return The Id.
@@ -55,7 +55,7 @@ public class ClassNameCompressor extends StringPool
 					}
 					if (prefix == null)
 					{
-						byte sbuff[] = str.getBytes(StandardCharsets.UTF_8);
+						byte[] sbuff= str.getBytes(StandardCharsets.UTF_8);
 						if ( sbuff[0] == stringTag || sbuff[0] == intTag )
 							outBuffer.write(stringTag);
 						outBuffer.write( sbuff );
@@ -86,10 +86,10 @@ public class ClassNameCompressor extends StringPool
 	}
 
 	/**
-	 * Get the string for a comulative compressed representation.</br>
+	 * Get the string for a cumulative compressed representation.</br>
 	 *
-	 * @param data Data Paclkage.
-	 * @return The re-constructred string.
+	 * @param data Data Package.
+	 * @return The re-constructed string.
 	 */
 	public String getUncompressed(byte[] data ) {
 		if (data == null) return null;
@@ -98,12 +98,12 @@ public class ClassNameCompressor extends StringPool
 
 
 	/**
-	 * Get the string for a comulative compressed representation.</br>
+	 * Get the string for a cumulative compressed representation.</br>
 	 *
-	 * @param data Data Paclkage.
+	 * @param data Data Package.
 	 * @param offset The offset to start with.
 	 * @param len The number of bytes to use.
-	 * @return The re-constructred string.
+	 * @return The re-constructed string.
 	 */
 	public String getUncompressed(byte[] data, int offset, int len )
 	{
@@ -119,7 +119,7 @@ public class ClassNameCompressor extends StringPool
 			len += offset;
 			String str = null;
 
-			int t = 0xFF & data[pos];
+			byte t = data[pos];
 			if (t != intTag)
 			{
 				if ( t == stringTag) ++pos;

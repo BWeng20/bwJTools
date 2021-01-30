@@ -23,7 +23,7 @@ package com.bw.jtools.examples.applicationicons;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.SettingsUI;
 
 import java.awt.*;

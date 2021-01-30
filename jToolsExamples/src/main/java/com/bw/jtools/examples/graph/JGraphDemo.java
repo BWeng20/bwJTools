@@ -4,7 +4,7 @@ import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.Graph;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.graph.*;

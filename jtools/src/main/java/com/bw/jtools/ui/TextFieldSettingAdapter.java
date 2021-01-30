@@ -28,7 +28,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 /**
- * Adapter to write changed from a text-field to some preference-setting.<br>
+ * Adapter to write changes from a text-field to some preference-setting.<br>
  * Can be used in custom setting panels to ease handling of update/store.<br>
  * The values are retrieved and stored via class {@link Store Store}.<br>
  * The value is updated each time the value of the text-field is changed by user.

@@ -135,7 +135,7 @@ public class SettingsUI
             // Most important: Make any change persistent:
             Store.flushStorage();
         }
-    };
+    }
 
     protected static WindowListener autoFlushWindowListerner_ = new WindowAdapter()
     {

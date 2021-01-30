@@ -22,7 +22,7 @@
 package com.bw.jtools.ui.dropcaps;
 
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.*;
 import java.awt.*;
@@ -140,12 +140,7 @@ public class JDropCapsLabel extends JComponent
 		{
 			synchronized (initialImage_GlobalCache)
 			{
-				images = initialImage_GlobalCache.get(initialImage_Key_);
-				if (images == null)
-				{
-					images = new HashMap<Character, BufferedImage>();
-					initialImage_GlobalCache.put(initialImage_Key_, images);
-				}
+				images = initialImage_GlobalCache.computeIfAbsent(initialImage_Key_, k -> new HashMap<Character, BufferedImage>());
 			}
 		}
 		else
@@ -171,7 +166,7 @@ public class JDropCapsLabel extends JComponent
 						}
 					}
 					Paint dcp = getDropCapPaint();
-					if ( dcp != null )
+					if ( dcp != null && image != null)
 					{
 						BufferedImage copy = IconTool.createImage(image.getWidth(),image.getHeight(),image.getTransparency());
 						Graphics2D g2 = copy.createGraphics();
@@ -217,10 +212,7 @@ public class JDropCapsLabel extends JComponent
 		if ( initialSet != null )
 		{
 			initialImage_colorize_ = colorize;
-			if ( initialSet.startsWith("/"))
-				initialImage_Set_ = initialSet +"/";
-			else
-				initialImage_Set_ = "dropcaps/"+ initialSet +"/";
+			initialImage_Set_ = initialSet +"/";
 		}
 		else
 		{
@@ -230,6 +222,7 @@ public class JDropCapsLabel extends JComponent
 		initialImage_Height_ = height;
 
 		calculateInitialImageCaching();
+		revalidate();
 		repaint();
 	}
 
@@ -273,9 +266,13 @@ public class JDropCapsLabel extends JComponent
 	 * Sets the drop cap color.
 	 */
 	public void setDropCapColor(Color color) {
-		dropCapColor_ = color;
+		if (! Objects.equals(color, dropCapColor_))
+		{
+			dropCapColor_ = color;
+			calculateInitialImageCaching();
+			repaint();
+		}
 	}
-
 
 	/**
 	 * Gets the current drop cap color that is in effect.

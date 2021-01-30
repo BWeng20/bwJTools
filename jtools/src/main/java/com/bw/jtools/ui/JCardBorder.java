@@ -25,9 +25,9 @@ import javax.swing.border.Border;
 import java.awt.*;
 
 /**
- * A border to display card/tile like panels.<br>
- * The border of the panel m,ust diff to the broder of it's parent, otherwise
- * usage of this border is meaningless and a line border should be used.
+ * A border to display card/tile-like panels.<br>
+ * The background color of the panel should diff from the background color of its parent, otherwise
+ * usage of this border is meaningless and a line border is a better solution.
  */
 public class JCardBorder implements Border
 {
@@ -39,7 +39,6 @@ public class JCardBorder implements Border
 	private final float colorFactor_;
 	private final Stroke stroke_;
 	private final Stroke borderStroke_;
-
 
 	public JCardBorder( float colorFactor )
 	{

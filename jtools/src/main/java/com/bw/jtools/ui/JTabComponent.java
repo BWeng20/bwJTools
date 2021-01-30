@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui;
 
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.*;
 import java.awt.*;
@@ -108,10 +108,7 @@ public class JTabComponent extends JPanel
 
         if (action != null)
         {
-            actionButton.addActionListener((actionEvent) ->
-            {
-                action.run();
-            });
+            actionButton.addActionListener((actionEvent) -> action.run());
         }
         else
         {

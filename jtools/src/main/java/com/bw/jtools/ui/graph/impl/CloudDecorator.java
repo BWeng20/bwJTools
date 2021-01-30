@@ -24,7 +24,7 @@ public class CloudDecorator implements Decorator, GeometryListener
 	@Override
 	public void install(Geometry g, Node node)
 	{
-		// All sub nodes affect the convix hull so we depend on them
+		// All sub nodes affect the convex hull so we depend on them
 		g.addDependency(this, node.getTreeNodes());
 		paths.put(node.id, new Path2D.Float());
 		geometryUpdated(g, node);

@@ -22,14 +22,7 @@ public class GraphPanel extends JPanel
 	private Point  graphOrigin = new Point(0,0);
 	private	GraphMouseHandler mouseHandler;
 
-	private GeometryListener sizeListener = new GeometryListener()
-	{
-		@Override
-		public void geometryUpdated(Geometry geo, List<GraphElement> e)
-		{
-			SwingUtilities.invokeLater(() -> updateSize());
-		}
-	};
+	private GeometryListener sizeListener = (geo, e) -> SwingUtilities.invokeLater(() -> updateSize());
 
 	protected final static Stroke clippingDebugStroke = new BasicStroke(1f);
 

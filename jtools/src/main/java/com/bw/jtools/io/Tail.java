@@ -174,8 +174,7 @@ public final class Tail
      */
     static public void addStream( InputStream inputstream, TailListener t, int minLimit, int maxLimit )
     {
-        /** As Channel-Selectors are currently not available for Files: We have to poll...
-         */
+        /* As Channel-Selectors are currently not available for Files: We have to poll...*/
 
         Objects.requireNonNull(inputstream, "InputStream must not be null");
         Objects.requireNonNull(t, "TailListener must not be null");

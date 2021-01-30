@@ -22,17 +22,15 @@
 package com.bw.jtools.ui.properties;
 
 import com.bw.jtools.properties.*;
-import com.bw.jtools.ui.*;
-import com.bw.jtools.ui.properties.table.PropertyNode;
-import com.bw.jtools.ui.properties.table.PropertyTable;
+import com.bw.jtools.ui.JColorButton;
+import com.bw.jtools.ui.JFontButton;
+import com.bw.jtools.ui.fontchooser.JFontChooser;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ItemListener;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.Rectangle2D;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Map;
@@ -62,8 +60,7 @@ public class PropertyEditorComponents
 	private ItemListener itemListener_;
 	private JTextField text_;
 	private JFontButton fontb_;
-	private JButton color_;
-	private JColorIcon colorIcon_;
+	private JColorButton color_;
 	private PropertyValue currentValue_;
 
 	static
@@ -84,10 +81,7 @@ public class PropertyEditorComponents
 		{
 			text_ = new JTextField();
 			text_.setFont(font_);
-			text_.addActionListener( (actionEvent) ->
-				{
-					updateCurrentValue();
-				}
+			text_.addActionListener( (actionEvent) -> updateCurrentValue()
 			);
 		}
 		return text_;
@@ -97,15 +91,12 @@ public class PropertyEditorComponents
 	private ItemListener getItemListener() {
 		if ( itemListener_ == null )
 		{
-			itemListener_ = (evt) ->
-			{
-				updateCurrentValue();
-			};
+			itemListener_ = (evt) -> updateCurrentValue();
 		}
 		return itemListener_;
-	};
+	}
 
-	private JComboBox getEnumCombo()
+	private JComboBox<Object> getEnumCombo()
 	{
 		if ( enums_ == null)
 		{
@@ -135,7 +126,7 @@ public class PropertyEditorComponents
 	}
 
 
-	private JComboBox getBooleanNullableCombo()
+	private JComboBox<Boolean> getBooleanNullableCombo()
 	{
 		if ( booleanNullable_ == null)
 		{
@@ -161,15 +152,6 @@ public class PropertyEditorComponents
 		return booleanCheckbox_;
 	}
 
-	private JColorIcon getColorIcon()
-	{
-		if ( colorIcon_ == null )
-		{
-			colorIcon_ = new JColorIcon(13, 13, null);
-		}
-		return colorIcon_;
-	}
-
 	private JFontButton getFontButton()
 	{
 		if ( fontb_ == null )
@@ -177,41 +159,28 @@ public class PropertyEditorComponents
 			fontb_ = new JFontButton();
 			fontb_.setFont(font_);
 			fontb_.addActionListener(ev -> {
-				Font f = JFontChooser.showDialog(fontb_, "Select Font", fontb_.getSelectedFont() );
+				Font f = JFontChooser.showDialog(fontb_, "Select Font", fontb_.getValue() );
 				if ( f != null )
 				{
-					fontb_.setSelectedFont(f);
+					fontb_.setValue(f);
 				}
 			});
 		}
 		return fontb_;
 	}
 
-	private JButton getColorButton()
+	private JColorButton getColorButton()
 	{
 		if ( color_ == null )
 		{
-			color_ = new JButton();
-			color_.setIcon(getColorIcon());
-			color_.setOpaque(false);
-			color_.setBorderPainted(false);
-			color_.setMargin(new Insets(0, 0, 0, 0));
-			color_.setHorizontalAlignment(JButton.LEFT);
+			color_ = new JColorButton();
 			color_.setFont(font_);
-
-			color_.addActionListener( (ae) ->
+			color_.addItemListener( (ie) ->
 				{
-					Color newColor = JColorChooser.showDialog(color_,
-							I18N.getText("propertytable.colorchooser.title"),
-							colorIcon_.getColor());
-					if (!Objects.equals(colorIcon_.getColor(), newColor))
+					Color newColor = (Color)ie.getItem();
+					if (currentValue_ != null && Color.class.isAssignableFrom(currentValue_.valueClazz_))
 					{
-						colorIcon_.setColor(newColor);
-						color_.setText(PropertyColorValue.toString(newColor));
-						if (currentValue_ != null && Color.class.isAssignableFrom(currentValue_.valueClazz_))
-						{
-							currentValue_.setPayload(newColor);
-						}
+						currentValue_.setPayload(newColor);
 					}
 				}
 			);
@@ -233,8 +202,7 @@ public class PropertyEditorComponents
 
 		if ( value.possibleValues_ != null )
 		{
-			JComboBox choice = getChoiceCombo();
-			ed = choice;
+			JComboBox<String> choice = getChoiceCombo();
 			choice.removeAllItems();
 
 			Object v = value.getPayload();
@@ -280,7 +248,7 @@ public class PropertyEditorComponents
 			Boolean val = (Boolean) value.getPayload();
 			if (value.nullable_)
 			{
-				JComboBox booleanNullable = getBooleanNullableCombo();
+				JComboBox<Boolean> booleanNullable = getBooleanNullableCombo();
 				booleanNullable.setSelectedItem(val);
 				ed = booleanNullable;
 			} else
@@ -298,7 +266,7 @@ public class PropertyEditorComponents
 			if (value.nullable_)
 				enums.addItem(null);
 
-			Object vals[] = value.valueClazz_.getEnumConstants();
+			Object[] vals = value.valueClazz_.getEnumConstants();
 			for (Object v : vals)
 				enums.addItem(v);
 			enums.setSelectedItem(value.getPayload());
@@ -309,15 +277,14 @@ public class PropertyEditorComponents
 			Color c = (Color) value.getPayload();
 			if (c == null) c = Color.BLACK;
 
-			JButton color = getColorButton();
-			color.setText(PropertyColorValue.toString(c));
-			getColorIcon().setColor(c);
+			JColorButton color = getColorButton();
+			color.setValue(c);
 			ed = color;
 		}
 		else if (Font.class.isAssignableFrom(value.valueClazz_))
 		{
 			JFontButton fontb = getFontButton();
-			fontb.setSelectedFont((Font) value.getPayload());
+			fontb.setValue((Font) value.getPayload());
 			ed = fontb;
 		}
 		else
@@ -402,11 +369,11 @@ public class PropertyEditorComponents
 		}
 		else if (Color.class.isAssignableFrom(currentValue_.valueClazz_))
 		{
-			newUserObject = getColorIcon().getColor();
+			newUserObject = getColorButton().getValue();
 		}
 		else if (Font.class.isAssignableFrom(currentValue_.valueClazz_))
 		{
-			newUserObject = getFontButton().getSelectedFont();
+			newUserObject = getFontButton().getValue();
 		}
 
 		boolean changed = false;

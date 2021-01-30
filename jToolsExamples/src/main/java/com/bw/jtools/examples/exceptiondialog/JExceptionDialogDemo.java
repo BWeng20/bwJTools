@@ -22,7 +22,7 @@ package com.bw.jtools.examples.exceptiondialog;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.JExceptionDialog;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
@@ -94,7 +94,7 @@ public class JExceptionDialogDemo
         frame.setIconImages( IconTool.getAppIconImages() );
         frame.pack();
 
-        // Restore window-position and dimension from prefences.
+        // Restore window-position and dimension from preferences.
         SettingsUI.loadWindowPosition(frame);
         SettingsUI.storePositionAndFlushOnClose( frame );
 

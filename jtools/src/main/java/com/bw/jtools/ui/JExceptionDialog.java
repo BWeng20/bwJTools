@@ -23,7 +23,7 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
-import com.bw.jtools.ui.graphic.IconTool;
+import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.*;
 import java.awt.*;
@@ -110,9 +110,8 @@ public class JExceptionDialog extends javax.swing.JDialog
     */
     private void initComponents()
     {
-
         label_title_ = new javax.swing.JLabel();
-        mail_link_ = new com.bw.jtools.ui.JLink();
+        mail_link_ = new JLink();
         button_close_ = new javax.swing.JButton();
         scroller_ = new javax.swing.JScrollPane();
         text_ = new javax.swing.JTextArea();
@@ -123,7 +122,7 @@ public class JExceptionDialog extends javax.swing.JDialog
         setModalExclusionType(java.awt.Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
         setPreferredSize(new java.awt.Dimension(600, 350));
 
-        label_title_.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        label_title_.setFont(new java.awt.Font("Dialog", Font.BOLD, 14)); // NOI18N
         label_title_.setText( I18N.getText("exception.info"));
         label_title_.setAlignmentY(0.0F);
 
@@ -134,22 +133,16 @@ public class JExceptionDialog extends javax.swing.JDialog
         button_close_.setText(I18N.getText("button.close") );
         button_close_.setToolTipText("");
         button_close_.setAlignmentY(0.0F);
-        button_close_.addActionListener((java.awt.event.ActionEvent evt)->
-        {
-            button_close_ActionPerformed(evt);
-        });
+        button_close_.addActionListener(this::button_close_ActionPerformed);
 
         text_.setEditable(false);
         text_.setColumns(20);
-        text_.setFont(new java.awt.Font(java.awt.Font.SANS_SERIF,java.awt.Font.PLAIN, 12));
+        text_.setFont(new java.awt.Font(Font.SANS_SERIF,Font.PLAIN, 12));
         text_.setRows(5);
         scroller_.setViewportView(text_);
 
         SwitchTrace.setText( I18N.getText("exception.fullTraces"));
-        SwitchTrace.addActionListener((java.awt.event.ActionEvent evt)->
-        {
-            SwitchTraceActionPerformed(evt);
-        });
+        SwitchTrace.addActionListener(this::SwitchTraceActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -203,7 +196,7 @@ public class JExceptionDialog extends javax.swing.JDialog
     private javax.swing.JButton SwitchTrace;
     private javax.swing.JButton button_close_;
     private javax.swing.JLabel label_title_;
-    private com.bw.jtools.ui.JLink mail_link_;
+    private JLink mail_link_;
     private javax.swing.JScrollPane scroller_;
     private javax.swing.JTextArea text_;
 

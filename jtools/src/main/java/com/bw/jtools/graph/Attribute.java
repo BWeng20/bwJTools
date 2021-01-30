@@ -4,9 +4,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Attribute
 {
-	private static final AtomicInteger ordinalGenetator = new AtomicInteger(0);
+	private static final AtomicInteger ordinalGenerator = new AtomicInteger(0);
 
-	public final int ordinal = ordinalGenetator.getAndIncrement();
+	public final int ordinal = ordinalGenerator.getAndIncrement();
 	public final String name;
 
 	public Attribute(String name) {
