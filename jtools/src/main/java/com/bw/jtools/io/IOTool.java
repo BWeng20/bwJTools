@@ -678,16 +678,40 @@ public final class IOTool
     }
 
     /**
-     * Scans class path for files that matchs the given pattern.
+     * Scans the all entries in the class-path for files that matches the given pattern.
      * @param startPath The root path for the scan. In platform independent path syntax, e.g. "com/myapp".
      * @param regex The java regular expression.
      * @return the result.
      */
-    public static List<URL> scanClasspath(ClassLoader loader, String startPath, String regex) throws PatternSyntaxException
+    public static List<URI> scanClasspath(  String startPath, String regex) throws IOException
     {
-        final List<URL> resultList = new ArrayList<>();
+        final long startMS = System.currentTimeMillis();
+        final Pattern pattern = Pattern.compile(regex);
+        final List<URI> list = new ArrayList<>();
+        final String classPath = System.getProperty("java.class.path", ".");
+        final String[] classPaths = classPath.split(File.pathSeparator);
+        for (String path : classPaths)
+            scanPath(Paths.get(path), pattern, list);
+        if ( Log.isDebugEnabled())
+        {
+            final long endMS = System.currentTimeMillis();
+            Log.debug("Scan of classpath starting with '" + startPath + "' took " + (endMS - startMS) + " ms");
+        }
+        return list;
+    }
+
+    /**
+     * Scans the class-path of a class-loader for files that matches the given pattern.
+     * @param startPath The start path for the scan. In platform independent path syntax, e.g. "com/myapp".
+     * @param regex The java regular expression.
+     * @return the result.
+     */
+    public static List<URI> scanClasspath(ClassLoader loader, String startPath, String regex) throws PatternSyntaxException
+    {
+        final List<URI> resultList = new ArrayList<>();
         final Pattern p = Pattern.compile(regex);
 
+        final long startMS = System.currentTimeMillis();
         try
         {
             final Enumeration<URL> urls = loader.getResources(startPath);
@@ -711,23 +735,7 @@ public final class IOTool
                         path = Paths.get(uri);
                         if ( Log.isDebugEnabled() ) Log.debug("Scan Path '"+path+"'. RegExp '"+regex+"'" );
                     }
-                    Stream<Path> walk = Files.walk(path, 5);
-
-                    for (Iterator<Path> it = walk.iterator(); it.hasNext(); )
-                    {
-                        final Path itempath = it.next();
-                        final Path name = itempath.getFileName();
-                        if (name != null)
-                        {
-                            if (p.matcher(name.toString()).matches())
-                            {
-                                if (Log.isDebugEnabled())
-                                    Log.debug(" match -> " + itempath.toString());
-                                resultList.add(itempath.toUri().toURL());
-                            } else if (Log.isDebugEnabled())
-                                Log.debug(" doesn't match -> " + itempath.toString());
-                        }
-                    }
+                    scanPath( path, p, resultList );
                 }
                 finally
                 {
@@ -740,8 +748,67 @@ public final class IOTool
             Log.error("Failed to access resources", e);
         }
 
+        if ( Log.isDebugEnabled() )
+        {
+            final long endMS = System.currentTimeMillis();
+            Log.debug("Scan of "+loader.getName()+" starting with '"+startPath+"' took "+(endMS-startMS)+" ms");
+        }
+
         return resultList;
     }
 
+    /**
+     * Scans a path for files that match the pattern.
+     * @param path The path to start scan.
+     * @param pattern The pattern to check.
+     * @param uris The resulting URIs.
+     * @throws IOException Thrown on IO-error.
+     */
+    private static void scanPath( final Path path, final Pattern pattern,  final List<URI> uris) throws IOException
+    {
+        Log.debug("Scanning "+path);
 
+        if( path != null && pattern != null  )
+        {
+            Path start;
+            if (Files.isDirectory(path))
+            {
+                start = path;
+            }
+            else if (path.toString().toLowerCase().endsWith(".jar"))
+            {
+                String pathName = path.toString();
+                if (File.separatorChar != '/')
+                {
+                    pathName = pathName.replace(File.separatorChar, '/');
+                }
+                URI zipUri = URI.create("jar:file:///" + pathName);
+                start = FileSystems.newFileSystem(zipUri, Collections.emptyMap()).getPath("");
+            } else
+            {
+                start = null;
+                URI uri = path.toUri();
+                if (pattern.matcher(uri.toString()).matches())
+                {
+                    uris.add(uri);
+                }
+            }
+            if (start != null)
+            {
+                Stream<Path> walk = Files.walk(start, 10);
+                for (Iterator<Path> it = walk.iterator(); it.hasNext(); )
+                {
+                    Path p = it.next();
+                    URI uri = p.toUri();
+                    final String name = uri.toString();
+                    if (pattern.matcher(name).matches())
+                    {
+                        if (Log.isDebugEnabled())
+                            Log.debug(" match -> " + name);
+                        uris.add(uri);
+                    }
+                }
+            }
+        }
+    }
 }
