@@ -129,9 +129,9 @@ public class JFontChooser extends JComponent
 			List<URI> fontURIs = IOTool.scanClasspath(loader, startPackage, "(?i).+\\.(ttf|otf)");
 			for ( URI uri : fontURIs )
 			{
-				URL url = uri.toURL();
 				try
 				{
+					URL url = uri.toURL();
 					Font f = null;
 					try (InputStream is = url.openStream())
 					{
@@ -148,7 +148,7 @@ public class JFontChooser extends JComponent
 				}
 				catch( Exception e)
 				{
-					Log.error( "Failed to load font "+url.toExternalForm(), e);
+					Log.error( "Failed to load font "+uri, e);
 				}
 			}
 		}
@@ -170,8 +170,10 @@ public class JFontChooser extends JComponent
 	{
 		setLayout(new GridBagLayout());
 
-		fontNames_ = new JInputList<Font>(getAvailableFonts(), 30,
+		fontNames_ = new JInputList<Font>(getAvailableFonts(), 30, 10,
 				(item) -> item == null ? "" : item.getFamily());
+		fontNames_.setFont(fontNames_.getFont().deriveFont(Font.PLAIN, DEFAULT_FONT_SIZE));
+
 
 		ListSelectionListener ll = e -> updateDemo();
 
@@ -180,10 +182,11 @@ public class JFontChooser extends JComponent
 
 		sizes_ = new JInputList<String>(
 				Arrays.asList(new String[] { "8", "9", "10", "11", "12", "14", "16","18", "20", "22", "24", "26", "28", "36", "48", "72" }),
-				5 );
+				5 ,10 );
 
 		sizes_.setSelected("12");
 		sizes_.addSelectionListener(ll);
+		sizes_.setFont(sizes_.getFont().deriveFont(Font.PLAIN, DEFAULT_FONT_SIZE));
 
 		boldCheck_ = new JCheckBox("Bold");
 		italicCheck_ = new JCheckBox("Italic");
@@ -242,7 +245,7 @@ public class JFontChooser extends JComponent
 		gc.gridwidth = 3;
 		gc.fill = GridBagConstraints.BOTH;
 
-		demo_.setPreferredSize(new Dimension(500,200));
+		demo_.setPreferredSize(new Dimension(500,150));
 		add( demo_, gc);
 
 	}

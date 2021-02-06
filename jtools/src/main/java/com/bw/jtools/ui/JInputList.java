@@ -44,14 +44,14 @@ public class JInputList<T> extends JPanel
 	/**
 	 * Creates a input list for items with a usable toString function.
 	 */
-	public JInputList(Collection<T> values, int numCols ) {
-		this(values, numCols,null );
+	public JInputList(Collection<T> values, int numCols, int numRows ) {
+		this(values, numCols,numRows,null );
 	}
 
 	/**
 	 * Creates an input list with a custom adapter that handles the string representation.
 	 */
-	public JInputList(Collection<T> values, int numCols, InputListAdapter<T> adapter) {
+	public JInputList(Collection<T> values, int numCols, int numRows, InputListAdapter<T> adapter) {
 		setLayout(new BorderLayout());
 
 		if ( adapter == null )
@@ -88,10 +88,24 @@ public class JInputList<T> extends JPanel
 			model.addElement( v );
 		list = new JList<T>(model);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.setVisibleRowCount(4);
+		list.setVisibleRowCount(numRows);
 		list.addListSelectionListener(e -> handleSelectionChange());
 
 		add(new JScrollPane(list),BorderLayout.CENTER);
+	}
+
+	/**
+	 * Sets font for inputfield and list.
+	 * @param f The font.
+	 */
+	public void setFont(Font f)
+	{
+		super.setFont(f);
+		if (textfield != null)
+		{
+			textfield.setFont(f);
+			list.setFont(f);
+		}
 	}
 
 	protected void handleSelectionChange()
