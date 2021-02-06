@@ -751,7 +751,7 @@ public final class IOTool
         if ( Log.isDebugEnabled() )
         {
             final long endMS = System.currentTimeMillis();
-            Log.debug("Scan of "+loader.getName()+" starting with '"+startPath+"' took "+(endMS-startMS)+" ms");
+            Log.debug("Scan starting with '"+startPath+"' took "+(endMS-startMS)+" ms");
         }
 
         return resultList;
