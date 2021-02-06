@@ -35,6 +35,7 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ItemListener;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
@@ -125,9 +126,10 @@ public class JFontChooser extends JComponent
 		{
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
-			List<URL> fontURLs = IOTool.scanClasspath(loader, startPackage, "(?i).+\\.(ttf|otf)");
-			for ( URL url : fontURLs )
+			List<URI> fontURIs = IOTool.scanClasspath(loader, startPackage, "(?i).+\\.(ttf|otf)");
+			for ( URI uri : fontURIs )
 			{
+				URL url = uri.toURL();
 				try
 				{
 					Font f = null;
@@ -153,6 +155,10 @@ public class JFontChooser extends JComponent
 		catch (PatternSyntaxException pe)
 		{
 			Log.error("Internal RegExp Error", pe);
+		}
+		catch (Exception e)
+		{
+			Log.error( "Failed to scan classpath", e);
 		}
 	}
 

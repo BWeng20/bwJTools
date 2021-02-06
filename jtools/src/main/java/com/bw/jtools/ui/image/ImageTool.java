@@ -80,6 +80,23 @@ public class ImageTool
     }
 
     /**
+     * Same as {@link #getImage(Class, String)} but exceptions are caught.
+     * @param name File name of the icon to load.
+     * @return The image or null.
+     */
+    public static BufferedImage getImageSafe(Class<?> clazz, String name)
+    {
+        try
+        {
+            return getImage(clazz, name);
+        }
+        catch ( Exception e)
+        {
+            return null;
+        }
+    }
+
+    /**
      * Load a (optionally) scaled and tined image from class resources and tries to create a compatible image from it.<br>
      * This method loads the image from the class-resources and caches it in memory.<br>
      *
