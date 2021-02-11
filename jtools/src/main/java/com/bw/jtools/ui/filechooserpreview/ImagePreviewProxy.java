@@ -22,6 +22,7 @@
 package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
+import com.bw.jtools.ui.I18N;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
@@ -55,15 +56,26 @@ class ImagePreviewProxy extends PreviewProxy implements ImageObserver
     {
         if (img == image)
         {
-            if (0 != (ImageObserver.HEIGHT & infoflags))
-                height_ = height;
-            if (0 != (ImageObserver.WIDTH & infoflags))
-                width_ = width;
+            boolean dimReady = height_ != -1 && width_ != -1;
+            if ( !dimReady )
+            {
+                if (0 != (ImageObserver.HEIGHT & infoflags))
+                    height_ = height;
+                if (0 != (ImageObserver.WIDTH & infoflags))
+                    width_ = width;
 
+                dimReady = height_ != -1 && width_ != -1;
+                if (dimReady)
+                {
+                    InfoEntry imageInfo = new InfoEntry();
+                    imageInfo.name = I18N.getText("filechooser.preview.dimension");
+                    imageInfo.value = String.valueOf(width_) + " x " + String.valueOf(height_);
+                    additionalInformation_.add(imageInfo);
+                }
+            }
             if (Log.isDebugEnabled() )
                 log("Original flags "+infoflags+": "+width_+"x"+height_);
-            return (ImageObserver.ALLBITS > infoflags) && (height_ == -1 || width_ == -1);
-
+            return (ImageObserver.ALLBITS > infoflags) && !dimReady;
         }
         else if (ImageObserver.ALLBITS <= infoflags)
         {

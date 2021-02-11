@@ -82,7 +82,7 @@ public abstract class PreviewHandler
                     proxy = null;
                 }
 
-                if (proxy == null)
+                if (proxy == null && file.exists())
                 {
                     Log.debug("Loading preview " + canonicalPath);
                     proxy = createPreviewProxy( file, canonicalPath );

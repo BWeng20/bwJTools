@@ -22,11 +22,21 @@
 package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
+import com.bw.jtools.io.IOTool;
 import com.bw.jtools.ui.I18N;
+import com.bw.jtools.ui.UITool;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.io.File;
+import java.text.NumberFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -40,23 +50,23 @@ import java.util.List;
  * <br>
  * Previews are loaded in background and weakly cached globally across all instances of this class.
  * Different preview-sizes may result in different versions in the case - mainly for images previews.<br>
- *
  * <br>
- * Will not work with Windows (c) LAF for "lnk" files as there is not platform independent way
- * (beside some libs out there) to simply follow these "links".<br>
+ * If running in Windows(c), "lnk"-files are handled via {@link IOTool#resolveWindowsLinkFile(File)} which work is not
+ * platform independent and may break with future java versions.<br>
  * <i>Example:</i>
  * <code>
  * JFileChooser fileChooser = new JFileChooser();
  * fileChooser.setFileHidingEnabled(true);
- * JFileChooserPreview preview = new JFileChooserPreview(300);
- * // you can also configure the default preview-handler:
+ * JFileChooserPreview preview = new JFileChooserPreview(300, JFileChooserPreview.defaultHandlers());
+ * // you can also configure the default preview-handlers:
  * preview.getPreviewHandler(TextPreviewHandler.class).setPreviewTextLength(2048);
- * // Hook the preview inside the chooser.
+ * // Or set some fancy border_
+ * preview.setBorder( BorderFactory.createTitledBorder("Preview") );
+ * // Then hook the preview inside the chooser.
  * preview.install(fileChooser);
+ * // Now show it.
  * File file = fileChooser.showDialog(null, "DEMO");
  * <p>
- * // If preview should be detached from the chooser...
- * preview.uninstall();
  * </code>
  *
  */
@@ -76,6 +86,37 @@ public class JFileChooserPreview extends JPanel
     protected ImageIcon previewIcon_;
     /** TextArea to show text based content previews. */
     protected JTextArea previewText_;
+
+    /** Attribute preview area. */
+    protected JPanel attributeArea_;
+    /** Layout for the attribute preview area. */
+    protected GridBagLayout attributeLayout_;
+
+    protected List<JLabel> additionalAttributesLabels_ = new ArrayList<>();
+    protected List<JTextComponent> additionalAttributesText_ = new ArrayList<>();
+    protected JLabel    attributeLabel_ModTime_;
+    protected JTextArea attribute_ModTime_;
+    protected JLabel    attributeLabel_Size_;
+    protected JTextArea attribute_Size_;
+
+    protected DateTimeFormatter df_ = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT);
+    protected NumberFormat nf_ = NumberFormat.getNumberInstance();
+
+    /** true if os is windows. */
+    protected static final boolean IS_WINDOWS;
+
+    static
+    {
+        boolean iswin;
+        try {
+
+            iswin = System.getProperty("os.name").toUpperCase().startsWith("WINDOWS");
+        }
+        catch (Exception ex) {
+            iswin = false;
+        }
+        IS_WINDOWS = iswin;
+    }
 
     /**
      * Used for delayed "loading" display.
@@ -126,11 +167,20 @@ public class JFileChooserPreview extends JPanel
     };
 
     /**
-     * Creates a new preview.<br>
+     * Create an array with all default  PreviewZHandlers.
+     */
+    public static PreviewHandler[] defaultHandlers()
+    {
+        return new PreviewHandler[] { new TextPreviewHandler(), new ImagePreviewHandler() };
+    }
+
+    /**
+     * Creates a new preview accessory.<br>
+     * After creation, use {@link #install(JFileChooser)} to connect it with a file-chooser.
      *
      * @param previewWidth The width of the image preview. Resulting area will be previewSize + 10 pixel border.
      */
-    public JFileChooserPreview(int previewWidth)
+    public JFileChooserPreview(int previewWidth, PreviewHandler... handlers)
     {
         super(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(0, LEFT_BORDER_WIDTH, 0, 0));
@@ -158,11 +208,23 @@ public class JFileChooserPreview extends JPanel
         contentAreaCardLayout_.show(contentArea_, CONTENT_PREVIEW_IMAGE);
         add(contentArea_, BorderLayout.CENTER);
 
-        addPreviewHandler(new ImagePreviewHandler());
-        addPreviewHandler(new TextPreviewHandler());
+        attributeLayout_ = new GridBagLayout();
+        attributeArea_ = new JPanel(attributeLayout_);
+
+        add(attributeArea_, BorderLayout.SOUTH);
+
+        attributeLabel_ModTime_ = new JLabel(I18N.getText("filechooser.preview.modtime"));
+        attribute_ModTime_ = createAttributeTextComponent();
+
+        attributeLabel_Size_ = new JLabel(I18N.getText("filechooser.preview.size"));
+        attribute_Size_ = createAttributeTextComponent();
+
+        for ( PreviewHandler h : handlers)
+            addPreviewHandler(h);
 
         setLoadingDisplayDelay(previewConfig_.loadingDisplayDelay_);
 
+        nf_.setMaximumFractionDigits(1);
     }
 
     /**
@@ -315,6 +377,53 @@ public class JFileChooserPreview extends JPanel
     }
 
     /**
+     * Worker to resolve windows lnk Files.
+     */
+    protected class ResolveSwingWorker extends SwingWorker<File, Object>
+    {
+        protected final PreviewProxy proxy_;
+
+        protected ResolveSwingWorker(PreviewProxy proxy)
+        {
+            proxy_ = proxy;
+        }
+
+
+        @Override
+        protected File doInBackground() throws Exception
+        {
+            return IOTool.resolveWindowsLinkFile( new File(proxy_.path_) );
+        }
+
+        @Override
+        protected void done()
+        {
+            if ( proxy_.activeAndPending )
+            {
+                try
+                {
+                    updatePreview(get());
+                } catch (Exception e)
+                {
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper to create a text component for an attribute.
+     */
+    protected JTextArea createAttributeTextComponent()
+    {
+        JTextArea t = new JTextArea();
+        UIDefaults defaults = UIManager.getDefaults();
+        t.setFont(defaults.getFont("Label.font"));
+        t.setBackground(defaults.getColor("Label.background"));
+        t.setEditable(false);
+        return t;
+    }
+
+    /**
      * Updates the preview for the selected file.<br>
      * For un-supported files the preview will be cleared.
      *
@@ -328,19 +437,31 @@ public class JFileChooserPreview extends JPanel
             if (file != null)
             {
                 final String canonicalPath = file.getCanonicalPath();
-
-                for ( PreviewHandler ph : previewHandler_)
+                // Try to resolve windows "lnk" files, mainly for the "recent"-view.
+                if (IS_WINDOWS && file.getName().toUpperCase().endsWith(".LNK"))
                 {
-                    proxy = ph.getPreviewProxy(file, canonicalPath);
-                    if ( null != proxy )
+                    proxy = new PreviewProxy();
+                    proxy.activeAndPending = true;
+                    proxy.name_ = file.getName();
+                    proxy.path_ = canonicalPath;
+                    new ResolveSwingWorker( proxy ).execute();
+                }
+                else
+                {
+                    for (PreviewHandler ph : previewHandler_)
                     {
-                        if ( pendingProxy_ != null && pendingProxy_ != proxy )
-                        {
-                            pendingProxy_.activeAndPending = false;
-                        }
-                        pendingProxy_ = proxy;
-                        break;
+                        proxy = ph.getPreviewProxy(file, canonicalPath);
+                        if ( proxy != null )
+                            break;
                     }
+                }
+                if (null != proxy)
+                {
+                    if (pendingProxy_ != null && pendingProxy_ != proxy)
+                    {
+                        pendingProxy_.activeAndPending = false;
+                    }
+                    pendingProxy_ = proxy;
                 }
             }
         }
@@ -367,6 +488,7 @@ public class JFileChooserPreview extends JPanel
                 previewLabel_.setIcon(null);
                 previewLabel_.setText(null);
                 contentAreaCardLayout_.show(contentArea_, CONTENT_PREVIEW_IMAGE);
+                attributeArea_.removeAll();
             }
             else
             {
@@ -425,6 +547,70 @@ public class JFileChooserPreview extends JPanel
                     previewLabel_.setIcon(null);
                     contentAreaCardLayout_.show(contentArea_, CONTENT_PREVIEW_IMAGE);
                 }
+
+                // Set-up attributes
+                List<JComponent> attributes = new ArrayList<>();
+                if ( proxy.lastMod_ != 0 )
+                {
+                    attribute_ModTime_.setText(df_.withZone(ZoneId.systemDefault())
+                            .format(LocalDateTime.ofInstant( Instant.ofEpochMilli(proxy.lastMod_), ZoneId.systemDefault())));
+                    attributes.add(attributeLabel_ModTime_);
+                    attributes.add(attribute_ModTime_);
+                }
+                if ( proxy.size_ > -1)
+                {
+                    attribute_Size_.setText(UITool.formatStorageSizeBinary(nf_, proxy.size_));
+                    attributes.add(attributeLabel_Size_);
+                    attributes.add(attribute_Size_);
+                }
+
+                // Set additional attribute values
+                for (int ai=0 ; ai<proxy.additionalInformation_.size(); ++ai)
+                {
+                    PreviewProxy.InfoEntry ie = proxy.additionalInformation_.get(ai);
+
+                    // Fill up component cache as needed.
+                    if ( ai <= additionalAttributesLabels_.size() )
+                        additionalAttributesLabels_.add( new JLabel());
+
+                    if ( ai <= additionalAttributesText_.size() )
+                        additionalAttributesText_.add( createAttributeTextComponent() );
+
+                    JLabel label = additionalAttributesLabels_.get(ai);
+                    JTextComponent text =additionalAttributesText_.get(ai);
+
+                    label.setText(ie.name);
+                    text.setText(ie.value);
+                    attributes.add(label);
+                    attributes.add(text);
+                }
+
+                // Remove components
+                final int attributesNeeded = attributes.size();
+                while( attributesNeeded < attributeArea_.getComponentCount() )
+                    attributeArea_.remove(attributeArea_.getComponentCount()-1);
+
+                // Add components
+                if( attributesNeeded > attributeArea_.getComponentCount() )
+                {
+                    GridBagConstraints gc = new GridBagConstraints();
+                    gc.gridy = attributeArea_.getComponentCount()/2;
+                    gc.insets = new Insets(0,0,0,5);
+                    while (attributesNeeded > attributeArea_.getComponentCount())
+                    {
+                        gc.anchor = GridBagConstraints.WEST;
+                        gc.gridx = 0;
+                        gc.weightx = 0;
+                        gc.insets.right = 5;
+                        attributeArea_.add(attributes.get(attributeArea_.getComponentCount()), gc);
+                        gc.anchor = GridBagConstraints.NORTHWEST;
+                        gc.gridx = 1;
+                        gc.weightx = 1;
+                        gc.insets.right = 0;
+                        attributeArea_.add(attributes.get(attributeArea_.getComponentCount()), gc);
+                        ++gc.gridy;
+                    }
+                }
             }
         };
         if ( SwingUtilities.isEventDispatchThread() )
@@ -441,7 +627,14 @@ public class JFileChooserPreview extends JPanel
     public Dimension getPreferredSize()
     {
         Dimension d = super.getPreferredSize();
-        d.width = previewConfig_.previewWidth_+ LEFT_BORDER_WIDTH;
+        int w = previewConfig_.previewWidth_;
+        Border b = getBorder();
+        if ( b != null )
+        {
+            Insets i = getBorder().getBorderInsets(this);
+            w += i.left+i.right;
+        }
+        d.width = w;
         return d;
     }
 
@@ -464,8 +657,10 @@ public class JFileChooserPreview extends JPanel
         ch.setFileHidingEnabled(true);
         ch.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-        JFileChooserPreview preview = new JFileChooserPreview(300);
-        // Suppress display of "loading"
+        JFileChooserPreview preview = new JFileChooserPreview(300, JFileChooserPreview.defaultHandlers());
+        preview.setBorder( BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(0,5,0,0),
+                BorderFactory.createTitledBorder("Preview")));
         preview.setLoadingDisplayDelay(200);
         preview.install(ch);
         ch.showDialog(null, "OK");
