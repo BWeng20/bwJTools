@@ -25,8 +25,6 @@ import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.persistence.Store;
 import com.bw.jtools.ui.*;
-import com.bw.jtools.ui.JLink;
-import com.bw.jtools.ui.JMenuButton;
 import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.*;

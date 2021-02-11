@@ -3,11 +3,11 @@ package com.bw.jtools.ui.graph.impl;
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.Layout;
 import com.bw.jtools.ui.graph.Visual;
 import com.bw.jtools.ui.graph.VisualState;
+import com.bw.jtools.ui.icon.IconTool;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

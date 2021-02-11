@@ -23,8 +23,8 @@ package com.bw.jtools.ui.fontchooser;
 
 import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
-import com.bw.jtools.properties.PropertyFontValue;
-import com.bw.jtools.ui.*;
+import com.bw.jtools.ui.CenterEditorKit;
+import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.JInputList;
 
 import javax.swing.*;
@@ -37,8 +37,8 @@ import java.awt.event.ItemListener;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.regex.PatternSyntaxException;
 
 /**
