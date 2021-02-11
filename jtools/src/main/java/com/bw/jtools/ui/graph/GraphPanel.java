@@ -2,7 +2,6 @@ package com.bw.jtools.ui.graph;
 
 import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.Graph;
-import com.bw.jtools.graph.GraphElement;
 import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.graph.impl.DefaultVisual;
 import com.bw.jtools.ui.graph.impl.TreeLayout;
@@ -11,7 +10,6 @@ import com.bw.jtools.ui.graph.impl.TreeRectangleGeometry;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Iterator;
-import java.util.List;
 
 public class GraphPanel extends JPanel
 {

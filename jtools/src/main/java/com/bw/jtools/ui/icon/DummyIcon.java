@@ -21,8 +21,6 @@
  */
 package com.bw.jtools.ui.icon;
 
-import com.bw.jtools.ui.icon.IconTool;
-
 import javax.swing.*;
 import java.awt.*;
 

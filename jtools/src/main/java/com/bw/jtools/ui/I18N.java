@@ -23,7 +23,10 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Formatter;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Simple wrapper to ease i18n stuff.<br>

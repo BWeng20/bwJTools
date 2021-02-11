@@ -21,7 +21,9 @@
  */
 package com.bw.jtools.ui.dropcaps;
 
-import com.bw.jtools.ui.*;
+import com.bw.jtools.ui.I18N;
+import com.bw.jtools.ui.JIconButton;
+import com.bw.jtools.ui.UITool;
 import com.bw.jtools.ui.fontchooser.JFontChooser;
 import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.icon.JColorIcon;

@@ -24,7 +24,6 @@ package com.bw.jtools.properties;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.List;
 
 /**
  * Base of all type specific properties.<br>
