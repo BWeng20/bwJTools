@@ -22,6 +22,7 @@
 package com.bw.jtools.ui;
 
 import java.awt.*;
+import java.text.NumberFormat;
 
 /**
  * Facade for creating Swing independent source-code and other
@@ -191,6 +192,48 @@ public final class UITool
             target.x =  screenBounds.x + +screenBounds.width - windowSize.width;
 
         toPlace.setLocation(target);
+    }
+
+    public static String formatStorageSizeBinary(NumberFormat nf, long size)
+    {
+        return formatStorageSize(nf, size, 1024, " B", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB" );
+    }
+
+    public static String formatStorageSizeDecimal(NumberFormat nf, long size)
+    {
+        return formatStorageSize(nf, size, 1000, " B", " kB", " MB", " GB", " TB", " PB", " EB" );
+    }
+
+    public static String formatStorageSize(NumberFormat nf, long size, int base, CharSequence... postfixe)
+    {
+        if ( nf == null )
+        {
+            nf = NumberFormat.getInstance();
+        }
+        // Remove sign
+        long sizeUnsigned;
+        StringBuilder sb = new StringBuilder();
+        if ( size < 0 )
+        {
+            sb.append('-');
+            // Avoid overflow for MIN_VALUE
+            if (Long.MIN_VALUE == size)
+                sizeUnsigned = Long.MAX_VALUE;
+            else
+                sizeUnsigned = -size;
+        }
+        else
+            sizeUnsigned = size;
+
+        int preIdx = 0;
+        double remaining = sizeUnsigned;
+
+        while ( remaining > base && (preIdx+1) < postfixe.length)
+        {
+            ++preIdx;
+            remaining /= base;
+        }
+        return nf.format(remaining)+postfixe[preIdx];
     }
 
 

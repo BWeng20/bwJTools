@@ -24,8 +24,8 @@ package com.bw.jtools.io;
 import com.bw.jtools.Log;
 import com.bw.jtools.persistence.Store;
 import com.bw.jtools.ui.I18N;
-import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.WaitSplash;
+import com.bw.jtools.ui.icon.IconTool;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -35,13 +35,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
@@ -811,4 +810,30 @@ public final class IOTool
             }
         }
     }
+
+    /**
+     * Resolve "*.lnk" Files under window.<br>
+     * This method is <b>not</b> suitable for SymLinks or Junktions.<br>
+     * This method use internal jdk classes it may break with future jdk releases.<br>
+     * It seems that the native call took several seconds from UI Thread if the target file
+     * doesn't exist sp calling this method should be done from some worker tread.
+     * @param link The link file to resolve
+     * @return the target file
+     */
+    public static File resolveWindowsLinkFile( File link )
+    {
+        if (link != null ) {
+            try {
+                sun.awt.shell.ShellFolder shellFolder = sun.awt.shell.ShellFolder.getShellFolder(link);
+                File linkedTo = shellFolder.getLinkLocation();
+                if (linkedTo != null) {
+                    link = linkedTo;
+                }
+            } catch (Exception ex) {
+                Log.error("Failed to resolve "+link, ex);
+            }
+        }
+        return link;
+    }
+
 }

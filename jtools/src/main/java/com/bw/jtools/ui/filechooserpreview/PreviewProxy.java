@@ -62,7 +62,7 @@ public class PreviewProxy
     /** The complete path  */
     public String path_;
 
-    public long size_;
+    public long size_ = -1;
     public long lastMod_;
 
     /** Image content. */
