@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Base class for "chooser" buttons that opens dialogs to edit some option.
  * @see JFontButton
- * @see JColorButton
+ * @see JColorChooserButton
  */
 public abstract class JChooserButtonBase<E> extends JButton
 {

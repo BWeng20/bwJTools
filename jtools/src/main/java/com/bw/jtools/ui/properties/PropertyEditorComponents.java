@@ -21,8 +21,8 @@
  */
 package com.bw.jtools.ui.properties;
 
-import com.bw.jtools.properties.*;
-import com.bw.jtools.ui.JColorButton;
+import com.bw.jtools.properties.PropertyValue;
+import com.bw.jtools.ui.JColorChooserButton;
 import com.bw.jtools.ui.JFontButton;
 import com.bw.jtools.ui.fontchooser.JFontChooser;
 
@@ -60,7 +60,7 @@ public class PropertyEditorComponents
 	private ItemListener itemListener_;
 	private JTextField text_;
 	private JFontButton fontb_;
-	private JColorButton color_;
+	private JColorChooserButton color_;
 	private PropertyValue currentValue_;
 
 	static
@@ -169,11 +169,11 @@ public class PropertyEditorComponents
 		return fontb_;
 	}
 
-	private JColorButton getColorButton()
+	private JColorChooserButton getColorButton()
 	{
 		if ( color_ == null )
 		{
-			color_ = new JColorButton();
+			color_ = new JColorChooserButton();
 			color_.setFont(font_);
 			color_.addItemListener( (ie) ->
 				{
@@ -277,7 +277,7 @@ public class PropertyEditorComponents
 			Color c = (Color) value.getPayload();
 			if (c == null) c = Color.BLACK;
 
-			JColorButton color = getColorButton();
+			JColorChooserButton color = getColorButton();
 			color.setValue(c);
 			ed = color;
 		}
