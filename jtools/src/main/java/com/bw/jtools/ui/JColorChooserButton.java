@@ -29,7 +29,7 @@ import java.awt.*;
 /**
  * Convenience button to show a color chooser.
  */
-public class JColorButton extends JChooserButtonBase<Color>
+public class JColorChooserButton extends JChooserButtonBase<Color>
 {
     private JColorIcon colorIcon_;
     private boolean showValue_ = true;
@@ -77,7 +77,7 @@ public class JColorButton extends JChooserButtonBase<Color>
     /**
      * Creates a new Color-Button
      */
-    public JColorButton()
+    public JColorChooserButton()
     {
         super( I18N.getText("colorchooser.defaultDialogTitle"));
         setIcon(getColorIcon());
