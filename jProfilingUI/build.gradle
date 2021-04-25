@@ -1,12 +1,11 @@
 plugins {
     id 'java'
-    id 'maven'
     id 'maven-publish'
     id 'signing'
 }
 
 apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 repositories {
     mavenCentral()
@@ -26,6 +25,10 @@ sourceSets {
 dependencies {
     implementation project(':jtools')
     implementation project(':jProfiling')
+}
+
+processResources {
+    duplicatesStrategy = 'exclude'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

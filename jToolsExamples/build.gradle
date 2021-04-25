@@ -4,7 +4,7 @@ plugins {
 }
 
 apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 description = 'jToolsExamples'
 
@@ -29,7 +29,12 @@ dependencies {
     implementation 'org.netbeans.api:org-netbeans-swing-outline:RELEASE110'
 }
 
+processResources {
+    duplicatesStrategy = 'exclude'
+}
+
 jar {
+    duplicatesStrategy = 'exclude'
     dependsOn ':jtools:jar'
     manifest {
         attributes 'Implementation-Title': 'Examples for usage of jtools',

@@ -10,7 +10,7 @@ allprojects {
 
     group = "io.github.bweng20"
     version="1.04"
-    
+
     task projects_say_hello {
         doLast { task ->
             println "I'm $task.project.name"
@@ -25,8 +25,8 @@ allprojects {
     }
 
     tasks.withType(JavaCompile) {
-        sourceCompatibility= JavaVersion.VERSION_1_8
-        targetCompatibility= JavaVersion.VERSION_1_8
+        sourceCompatibility= JavaVersion.VERSION_1_9
+        targetCompatibility= JavaVersion.VERSION_1_9
     }
 }
 
