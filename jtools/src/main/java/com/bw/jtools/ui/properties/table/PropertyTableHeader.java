@@ -30,21 +30,21 @@ import javax.swing.table.TableColumnModel;
  */
 public class PropertyTableHeader extends JTableHeader
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = -6150457632365752222L;
 
 	public PropertyTableHeader(TableColumnModel model)
-    {
-        super(model);
-        setUI(null);
-    }
+	{
+		super(model);
+		setUI(null);
+	}
 
-    @Override
-    public void updateUI()
-    {
-    }
+	@Override
+	public void updateUI()
+	{
+	}
 
 
 }

@@ -29,67 +29,68 @@ import java.awt.*;
  */
 public class FontCellRenderer implements ListCellRenderer<Font>
 {
-    private final JLabel label_;
+	private final JLabel label_;
 
-    public FontCellRenderer()
-    {
-        DefaultListCellRenderer d;
-        label_ = new JLabel();
-        label_.setOpaque(true);
-        label_.setBorder( BorderFactory.createEmptyBorder(2,3,3,0));
-    }
+	public FontCellRenderer()
+	{
+		DefaultListCellRenderer d;
+		label_ = new JLabel();
+		label_.setOpaque(true);
+		label_.setBorder(BorderFactory.createEmptyBorder(2, 3, 3, 0));
+	}
 
-    protected Font getDefaultFont()
-    {
-        return javax.swing.UIManager.getDefaults().getFont("Label.font");
-    }
+	protected Font getDefaultFont()
+	{
+		return javax.swing.UIManager.getDefaults()
+									.getFont("Label.font");
+	}
 
 
-    @Override
-    public Component getListCellRendererComponent(JList list, Font font, int index, boolean isSelected, boolean cellHasFocus)
-    {
-        Color cellForeground = null;
-        Color cellBackground = null;
+	@Override
+	public Component getListCellRendererComponent(JList list, Font font, int index, boolean isSelected, boolean cellHasFocus)
+	{
+		Color cellForeground = null;
+		Color cellBackground = null;
 
-        if ( font == null )
-        {
-            label_.setFont( getDefaultFont() );
-            label_.setText("");
-        }
-        else
-        {
-            String txt = font.getFamily();
+		if (font == null)
+		{
+			label_.setFont(getDefaultFont());
+			label_.setText("");
+		}
+		else
+		{
+			String txt = font.getFamily();
 
-            if ( font.canDisplayUpTo(txt) == -1)
-                label_.setFont(font);
-            else
-                label_.setFont(getDefaultFont());
-            label_.setText( txt );
-        }
+			if (font.canDisplayUpTo(txt) == -1)
+				label_.setFont(font);
+			else
+				label_.setFont(getDefaultFont());
+			label_.setText(txt);
+		}
 
-        if (isSelected)
-        {
-            cellForeground = list.getSelectionForeground();
-            cellBackground = list.getSelectionBackground();
+		if (isSelected)
+		{
+			cellForeground = list.getSelectionForeground();
+			cellBackground = list.getSelectionBackground();
 
-            if ( cellForeground == null ) cellForeground = Color.WHITE;
-            if ( cellBackground == null ) cellBackground = Color.BLACK;
-        }
-        else
-        {
-            cellBackground = list.getBackground();
-            cellForeground = list.getForeground();
+			if (cellForeground == null) cellForeground = Color.WHITE;
+			if (cellBackground == null) cellBackground = Color.BLACK;
+		}
+		else
+		{
+			cellBackground = list.getBackground();
+			cellForeground = list.getForeground();
 
-            if ( cellForeground == null ) cellForeground = Color.BLACK;
-            if ( cellBackground == null ) cellBackground = Color.WHITE;
-        }
+			if (cellForeground == null) cellForeground = Color.BLACK;
+			if (cellBackground == null) cellBackground = Color.WHITE;
+		}
 
-        // Specially for Nimbus the color-derivatives seems not to work if set as color directly.
-        // (hmmm, perhaps some over-engineering?)
-        // Copy them solves the issue.
-        label_.setForeground(new Color( cellForeground.getRGB() ));
-        label_.setBackground(new Color( cellBackground.getRGB() ));
+		// Specially for Nimbus the color-derivatives seems not to work if set as color directly.
+		// (hmmm, perhaps some over-engineering?)
+		// Copy them solves the issue.
+		label_.setForeground(new Color(cellForeground.getRGB()));
+		label_.setBackground(new Color(cellBackground.getRGB()));
 
-        return label_;
-    }
+		return label_;
+	}
 }

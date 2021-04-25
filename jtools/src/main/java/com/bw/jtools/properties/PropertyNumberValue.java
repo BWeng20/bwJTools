@@ -26,56 +26,60 @@ package com.bw.jtools.properties;
  * <br>
  * <i>Examples:</i><br>
  * <pre>
- *{@code
+ * {@code
  *  PropertyNumberValue int_node   = new PropertyNumberValue( "My Number", 10 );
  *  PropertyNumberValue float_node = new PropertyNumberValue( "My Number", 1.11f );
- *}
+ * }
  * </pre>
  */
 public class PropertyNumberValue extends PropertyValue
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = 4534112601144366653L;
 
 	/**
-     * Creates a numeric property with name and value.
-     * @param name Name of the property.
-     * @param nb   The number-value. Must not be null.
-     */
-    public PropertyNumberValue( String name, Number nb )
-    {
-        super( name, nb.getClass() );
-        setPayload(nb);
-    }
+	 * Creates a numeric property with name and value.
+	 *
+	 * @param name Name of the property.
+	 * @param nb   The number-value. Must not be null.
+	 */
+	public PropertyNumberValue(String name, Number nb)
+	{
+		super(name, nb.getClass());
+		setPayload(nb);
+	}
 
-    /**
-     * Creates a numeric property with name and class.
-     * @param name  Name of the property.
-     * @param clazz The number-class.
-     */
-    public PropertyNumberValue( String name, Class<? extends Number> clazz  )
-    {
-        super( name, clazz );
-    }
+	/**
+	 * Creates a numeric property with name and class.
+	 *
+	 * @param name  Name of the property.
+	 * @param clazz The number-class.
+	 */
+	public PropertyNumberValue(String name, Class<? extends Number> clazz)
+	{
+		super(name, clazz);
+	}
 
 
-    /**
-     * Convenience setter.Same as setUserObject().
-     * @param v The value to set. Can be null.
-     */
-    public void setValue( Number v )
-    {
-        setPayload(v);
-    }
+	/**
+	 * Convenience setter.Same as setUserObject().
+	 *
+	 * @param v The value to set. Can be null.
+	 */
+	public void setValue(Number v)
+	{
+		setPayload(v);
+	}
 
-    /**
-     * Convenience getter.Same as (Number)getUserObject.
-     * @return The numeric instance. Can be null.
-     */
-    public Number getValue()
-    {
-        return (Number)getPayload();
-    }
+	/**
+	 * Convenience getter.Same as (Number)getUserObject.
+	 *
+	 * @return The numeric instance. Can be null.
+	 */
+	public Number getValue()
+	{
+		return (Number) getPayload();
+	}
 }

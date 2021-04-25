@@ -26,46 +26,49 @@ package com.bw.jtools.properties;
  * <br>
  * <i>Examples:</i><br>
  * <pre>
- *{@code
+ * {@code
  *  PropertyStringValue propValue = new PropertyStringValue( "My Name", "Alf" );
- *}
+ * }
  * </pre>
  */
 public class PropertyStringValue extends PropertyValue
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = 5599878965239413140L;
 
 	/**
-     * Creates a string property with name and value.
-     * @param name   Name of the property.
-     * @param value  The number-value. Can be null.
-     */
-    public PropertyStringValue( String name, String value )
-    {
-        super( name, String.class );
-        setPayload(value);
-    }
+	 * Creates a string property with name and value.
+	 *
+	 * @param name  Name of the property.
+	 * @param value The number-value. Can be null.
+	 */
+	public PropertyStringValue(String name, String value)
+	{
+		super(name, String.class);
+		setPayload(value);
+	}
 
-    /**
-     * Convenience setter.
-     * Same as "setUserObject(v)".
-     * @param v The new value to use.
-     */
-    public void setValue( String v )
-    {
-        setPayload(v);
-    }
+	/**
+	 * Convenience setter.
+	 * Same as "setUserObject(v)".
+	 *
+	 * @param v The new value to use.
+	 */
+	public void setValue(String v)
+	{
+		setPayload(v);
+	}
 
-    /**
-     * Convenience getter.
-     * Same as "(String)getUserObject".
-     * @return The current value.
-     */
-    public String getValue()
-    {
-        return (String)getPayload();
-    }
+	/**
+	 * Convenience getter.
+	 * Same as "(String)getUserObject".
+	 *
+	 * @return The current value.
+	 */
+	public String getValue()
+	{
+		return (String) getPayload();
+	}
 }

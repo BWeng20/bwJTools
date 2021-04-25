@@ -26,7 +26,7 @@ package com.bw.jtools.properties;
  * <br>
  * <i>Examples:</i><br>
  * <pre>
- *{@code
+ * {@code
  *  enum MyEnum { ONE, TWO, THREE, FOUR }
  *
  *  PropertyEnumValue<MyEnum> myEnumByValue
@@ -35,56 +35,60 @@ package com.bw.jtools.properties;
  *  PropertyEnumValue<MyEnum> myEnumByClass
  *           = new PropertyEnumValue<>( "My Enum", MyEnum.class );
  *  myEnumByClass.setValue( MyEnum.ONE );
- *}
+ * }
  * </pre>
  */
 public class PropertyEnumValue<E extends Enum<?>> extends PropertyValue
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = 7637301669504922709L;
 
 	/**
-     * Constructs a property by declaring class. Value must not be null.
-     * @param name Name of the property that is displayed.
-     * @param clazz Value class, in this case an Enum.
-     */
-    public PropertyEnumValue( String name, Class<E> clazz )
-    {
-        super( name, clazz );
-    }
+	 * Constructs a property by declaring class. Value must not be null.
+	 *
+	 * @param name  Name of the property that is displayed.
+	 * @param clazz Value class, in this case an Enum.
+	 */
+	public PropertyEnumValue(String name, Class<E> clazz)
+	{
+		super(name, clazz);
+	}
 
-    /**
-     * Constructs a property by value.
-     * Value has to be not null.
-     * @param name Display name.
-     * @param value Initial value.
-     */
-    public PropertyEnumValue( String name, E value )
-    {
-        super( name, value.getDeclaringClass() );
-        setPayload(value);
-    }
+	/**
+	 * Constructs a property by value.
+	 * Value has to be not null.
+	 *
+	 * @param name  Display name.
+	 * @param value Initial value.
+	 */
+	public PropertyEnumValue(String name, E value)
+	{
+		super(name, value.getDeclaringClass());
+		setPayload(value);
+	}
 
-    /**
-     * Convenience setter. Same as setPayload(v).
-     * @param v The new value.
-     */
-    public void setValue( E v )
-    {
-        setPayload(v);
-    }
+	/**
+	 * Convenience setter. Same as setPayload(v).
+	 *
+	 * @param v The new value.
+	 */
+	public void setValue(E v)
+	{
+		setPayload(v);
+	}
 
-    /**
-     * Convenience getter.
-     * Same as "(E)getUserObject".
-     * @return the current value as E.
-     */
-    @SuppressWarnings("unchecked")
+	/**
+	 * Convenience getter.
+	 * Same as "(E)getUserObject".
+	 *
+	 * @return the current value as E.
+	 */
+	@SuppressWarnings("unchecked")
 	public E getValue()
-    {
-        return (E)getPayload();
-    }
+	{
+		return (E) getPayload();
+	}
 
 }

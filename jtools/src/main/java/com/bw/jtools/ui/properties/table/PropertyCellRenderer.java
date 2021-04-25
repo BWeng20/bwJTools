@@ -45,197 +45,195 @@ import java.util.Objects;
 public class PropertyCellRenderer implements TableCellRenderer
 {
 
-    protected final Border noBorder_;
-    protected final JLabel text_;
-    protected final JLabel fontLabel_;
-    protected final JLabel emptyLabel_;
-    protected final Font font_;
-    protected final Icon closed;
-    protected final Icon open;
-    protected final Icon empty;
-    protected final JLabel groupHandle_;
-    protected final Color groupBackground_;
-    protected final JCheckBox booleanBox_;
+	protected final Border noBorder_;
+	protected final JLabel text_;
+	protected final JLabel fontLabel_;
+	protected final JLabel emptyLabel_;
+	protected final Font font_;
+	protected final Icon closed;
+	protected final Icon open;
+	protected final Icon empty;
+	protected final JLabel groupHandle_;
+	protected final Color groupBackground_;
+	protected final JCheckBox booleanBox_;
 
-    protected final JLabel color_;
-    protected final JColorIcon colorIcon_;
-
-
-    protected final NumberFormat nf_;
-
-    public PropertyCellRenderer(PropertyTable table)
-    {
-        table_ = table;
-        font_ = new java.awt.Font("SansSerif", Font.PLAIN, 11);
-
-        noBorder_ = BorderFactory.createEmptyBorder(0, 5, 0, 0);
-
-        emptyLabel_ = new JLabel("");
-        emptyLabel_.setOpaque(true);
-
-        text_ = new JLabel();
-        text_.setOpaque(true);
-        text_.setFont(font_);
-
-        groupHandle_= new JLabel();
-        groupHandle_.setOpaque(true);
-        groupHandle_.setFont(font_);
-
-        booleanBox_= new JCheckBox();
-        booleanBox_.setOpaque(true);
-        booleanBox_.setFont(font_);
-
-        colorIcon_ = new JColorIcon(13, 13, null);
-
-        color_ = new JLabel();
-        color_.setIcon(colorIcon_);
-        color_.setOpaque(true);
-        color_.setFont(font_);
-
-        fontLabel_ = new JLabel();
-        fontLabel_.setOpaque(false);
-        fontLabel_.setFont(font_);
-
-        closed = IconTool.getIcon( PropertyTable.class, "group_closed.png" );
-        open   = IconTool.getIcon( PropertyTable.class, "group_open.png" );
-
-        // An empty icon for leafs, only to ensure all items are aligned.
-        empty  = IconTool.getIcon( PropertyTable.class, "group_empty.png" );
-
-        nf_ = NumberFormat.getInstance();
-
-        groupBackground_ = new Color( 200,200,200 );
-    }
-
-    private final PropertyTable table_;
+	protected final JLabel color_;
+	protected final JColorIcon colorIcon_;
 
 
+	protected final NumberFormat nf_;
+
+	public PropertyCellRenderer(PropertyTable table)
+	{
+		table_ = table;
+		font_ = new java.awt.Font("SansSerif", Font.PLAIN, 11);
+
+		noBorder_ = BorderFactory.createEmptyBorder(0, 5, 0, 0);
+
+		emptyLabel_ = new JLabel("");
+		emptyLabel_.setOpaque(true);
+
+		text_ = new JLabel();
+		text_.setOpaque(true);
+		text_.setFont(font_);
+
+		groupHandle_ = new JLabel();
+		groupHandle_.setOpaque(true);
+		groupHandle_.setFont(font_);
+
+		booleanBox_ = new JCheckBox();
+		booleanBox_.setOpaque(true);
+		booleanBox_.setFont(font_);
+
+		colorIcon_ = new JColorIcon(13, 13, null);
+
+		color_ = new JLabel();
+		color_.setIcon(colorIcon_);
+		color_.setOpaque(true);
+		color_.setFont(font_);
+
+		fontLabel_ = new JLabel();
+		fontLabel_.setOpaque(false);
+		fontLabel_.setFont(font_);
+
+		closed = IconTool.getIcon(PropertyTable.class, "group_closed.png");
+		open = IconTool.getIcon(PropertyTable.class, "group_open.png");
+
+		// An empty icon for leafs, only to ensure all items are aligned.
+		empty = IconTool.getIcon(PropertyTable.class, "group_empty.png");
+
+		nf_ = NumberFormat.getInstance();
+
+		groupBackground_ = new Color(200, 200, 200);
+	}
+
+	private final PropertyTable table_;
 
 
-    /**
-     * Gets different widgets to handle the different data-types.
-     * PropertyGroupNode are shown with an expand-icons and different background.
-     */
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-    {
-        column = table.convertColumnIndexToModel(column);
-        if ( table instanceof Outline )
-           --column;
+	/**
+	 * Gets different widgets to handle the different data-types.
+	 * PropertyGroupNode are shown with an expand-icons and different background.
+	 */
+	@Override
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+	{
+		column = table.convertColumnIndexToModel(column);
+		if (table instanceof Outline)
+			--column;
 
-        JComponent comp = null;
-        Color cellForeground;
-        Color cellBackground;
+		JComponent comp = null;
+		Color cellForeground;
+		Color cellBackground;
 
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
-        boolean group = (value instanceof PropertyGroupNode);
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+		boolean group = (value instanceof PropertyGroupNode);
 
-        if (value != null && column == -1)
-        {
-            AbstractLayoutCache lc = table_.getLayoutCache();
-            boolean expanded = lc.isExpanded(lc.getPathForRow(row));
+		if (value != null && column == -1)
+		{
+			AbstractLayoutCache lc = table_.getLayoutCache();
+			boolean expanded = lc.isExpanded(lc.getPathForRow(row));
 
-            if ( group )
-                groupHandle_.setIcon( expanded ? open : closed );
-            else
-                groupHandle_.setIcon( empty );
+			if (group)
+				groupHandle_.setIcon(expanded ? open : closed);
+			else
+				groupHandle_.setIcon(empty);
 
-            groupHandle_.setText( group
-                    ? ((PropertyGroupNode)node).group_.displayName_
-                    : ((PropertyNode)node).property_.displayName_ );
+			groupHandle_.setText(group
+					? ((PropertyGroupNode) node).group_.displayName_
+					: ((PropertyNode) node).property_.displayName_);
 
-            comp = groupHandle_;
+			comp = groupHandle_;
 
-        }
-        else if (column == PropertyTable.COLUMN_VALUE)
-        {
-            if ( !group && node != null)
-            {
-                PropertyValue propVal = ((PropertyNode)node).property_;
+		}
+		else if (column == PropertyTable.COLUMN_VALUE)
+		{
+			if (!group && node != null)
+			{
+				PropertyValue propVal = ((PropertyNode) node).property_;
 
-                final Object val = propVal.getPayload();
+				final Object val = propVal.getPayload();
 
-                if ( propVal.possibleValues_ != null )
-                {
-                    String key = null;
-                    for ( Map.Entry<String, Object> entry : propVal.possibleValues_.entrySet())
-                    {
-                        if (Objects.equals( entry.getValue(), val ))
-                        {
-                            key = entry.getKey();
-                        }
-                    }
-                    text_.setText( key == null ? "" : key);
-                    comp = text_;
-                }
-                else if ( val instanceof Number )
-                {
-                    text_.setText( (propVal.nf_ == null ? nf_: propVal.nf_).format(val) );
-                    comp = text_;
-                }
-                else if (Color.class.isAssignableFrom( propVal.valueClazz_))
-                {
-                    Color c = (Color)val;
-                    if ( c == null ) c = Color.BLACK;
-                    colorIcon_.setColor(c);
-                    color_.setText(PropertyColorValue.toString( c ));
-                    comp = color_;
-                }
-                else if (Font.class.isAssignableFrom( propVal.valueClazz_))
-                {
-                    Font f = (Font)val;
-                    fontLabel_.setText( PropertyFontValue.toString( f));
-                    fontLabel_.setFont( f == null ? font_ : f);
-                    comp = fontLabel_;
-                }
-                else if ((propVal.valueClazz_ == Boolean.class) && !propVal.nullable_)
-                {
-                    booleanBox_.setSelected(  val != null && ((Boolean)val).booleanValue() );
-                    comp = booleanBox_;
-                }
-                else
-                {
-                    final String sval = val != null ? String.valueOf(val): "";
-                    text_.setText(sval);
-                    comp = text_;
-                }
-            }
-        }
+				if (propVal.possibleValues_ != null)
+				{
+					String key = null;
+					for (Map.Entry<String, Object> entry : propVal.possibleValues_.entrySet())
+					{
+						if (Objects.equals(entry.getValue(), val))
+						{
+							key = entry.getKey();
+						}
+					}
+					text_.setText(key == null ? "" : key);
+					comp = text_;
+				}
+				else if (val instanceof Number)
+				{
+					text_.setText((propVal.nf_ == null ? nf_ : propVal.nf_).format(val));
+					comp = text_;
+				}
+				else if (Color.class.isAssignableFrom(propVal.valueClazz_))
+				{
+					Color c = (Color) val;
+					if (c == null) c = Color.BLACK;
+					colorIcon_.setColor(c);
+					color_.setText(PropertyColorValue.toString(c));
+					comp = color_;
+				}
+				else if (Font.class.isAssignableFrom(propVal.valueClazz_))
+				{
+					Font f = (Font) val;
+					fontLabel_.setText(PropertyFontValue.toString(f));
+					fontLabel_.setFont(f == null ? font_ : f);
+					comp = fontLabel_;
+				}
+				else if ((propVal.valueClazz_ == Boolean.class) && !propVal.nullable_)
+				{
+					booleanBox_.setSelected(val != null && ((Boolean) val).booleanValue());
+					comp = booleanBox_;
+				}
+				else
+				{
+					final String sval = val != null ? String.valueOf(val) : "";
+					text_.setText(sval);
+					comp = text_;
+				}
+			}
+		}
 
-        if (comp == null)
-        {
-            comp = emptyLabel_;
-        }
+		if (comp == null)
+		{
+			comp = emptyLabel_;
+		}
 
-        // Setting colors and border.
-        // As this is look&feel depended, we have to use the UIManager to get the values.
-        if (isSelected)
-        {
-            cellForeground = UIManager.getColor("Table.selectionForeground");
-            cellBackground = UIManager.getColor("Table.selectionBackground");
-        }
-        else
-        {
-            if (group)
-                cellBackground = groupBackground_;
-            else
-                cellBackground = UIManager.getColor("Table.background");
+		// Setting colors and border.
+		// As this is look&feel depended, we have to use the UIManager to get the values.
+		if (isSelected)
+		{
+			cellForeground = UIManager.getColor("Table.selectionForeground");
+			cellBackground = UIManager.getColor("Table.selectionBackground");
+		}
+		else
+		{
+			if (group)
+				cellBackground = groupBackground_;
+			else
+				cellBackground = UIManager.getColor("Table.background");
 
-            cellForeground = UIManager.getColor("Table.foreground");
-        }
+			cellForeground = UIManager.getColor("Table.foreground");
+		}
 
-        comp.setForeground(cellForeground);
-        comp.setBackground(cellBackground);
+		comp.setForeground(cellForeground);
+		comp.setBackground(cellBackground);
 
-        if (column == PropertyTable.COLUMN_VALUE)
-        {
-            comp.setBorder(noBorder_);
-        }
-        else
-        {
-            comp.setBorder(null);
-        }
-        return comp;
+		if (column == PropertyTable.COLUMN_VALUE)
+		{
+			comp.setBorder(noBorder_);
+		}
+		else
+		{
+			comp.setBorder(null);
+		}
+		return comp;
 
-    }
+	}
 }

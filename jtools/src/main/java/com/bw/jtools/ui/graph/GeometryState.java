@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class GeometryState
 {
-	public Shape     shape;
+	public Shape shape;
 	public Rectangle treeArea;
-	public boolean   visible;
+	public boolean visible;
 }

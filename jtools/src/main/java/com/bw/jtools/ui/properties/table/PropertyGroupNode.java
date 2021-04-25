@@ -35,72 +35,76 @@ import java.util.Iterator;
  */
 public class PropertyGroupNode extends DefaultMutableTreeNode implements Iterable<PropertyNode>
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = 1582128396793964999L;
 
 	protected PropertyGroup group_;
 
-    /**
-     * Creates a node from the groups.
-     * @param group The group.
-     */
-    public PropertyGroupNode(PropertyGroup group)
-    {
-        super( );
-        this.group_ = group;
-        if ( group != null )
-            for (PropertyValue value : group )
-                addProperty(value);
-    }
+	/**
+	 * Creates a node from the groups.
+	 *
+	 * @param group The group.
+	 */
+	public PropertyGroupNode(PropertyGroup group)
+	{
+		super();
+		this.group_ = group;
+		if (group != null)
+			for (PropertyValue value : group)
+				addProperty(value);
+	}
 
-    /**
-     * Adds a child property.
-     * @param value The new value to add.
-     */
-    public void addProperty( PropertyValue value )
-    {
-        add(new PropertyNode(value));
-    }
+	/**
+	 * Adds a child property.
+	 *
+	 * @param value The new value to add.
+	 */
+	public void addProperty(PropertyValue value)
+	{
+		add(new PropertyNode(value));
+	}
 
-    /**
-     * Gets a property by display name.
-     * Please avoid usage as it is possibly expensive.
-     * @param name  Display name of the property to search.
-     * @return The property or null.
-     */
-    public PropertyNode getProperty(String name )
-    {
-        for ( TreeNode node : children)
-        {
-            if ( ((PropertyNode)node).property_.displayName_.equals(name) )
-            {
-                return (PropertyNode)node;
-            }
-        }
-        return null;
-    }
+	/**
+	 * Gets a property by display name.
+	 * Please avoid usage as it is possibly expensive.
+	 *
+	 * @param name Display name of the property to search.
+	 * @return The property or null.
+	 */
+	public PropertyNode getProperty(String name)
+	{
+		for (TreeNode node : children)
+		{
+			if (((PropertyNode) node).property_.displayName_.equals(name))
+			{
+				return (PropertyNode) node;
+			}
+		}
+		return null;
+	}
 
-    /**
-     * Convenience getter.<br>
-     * Same as (PropertyValue)getChildAt(index).
-     * @param index Index of the child-property.
-     * @return The property value.
-     */
-    public PropertyNode getPropertyAt(int index)
-    {
-        return (PropertyNode)getChildAt(index);
-    }
+	/**
+	 * Convenience getter.<br>
+	 * Same as (PropertyValue)getChildAt(index).
+	 *
+	 * @param index Index of the child-property.
+	 * @return The property value.
+	 */
+	public PropertyNode getPropertyAt(int index)
+	{
+		return (PropertyNode) getChildAt(index);
+	}
 
-    @Override
-    public Iterator<PropertyNode> iterator()
-    {
-        return new TransformedIterator<TreeNode, PropertyNode>(children.iterator(), item -> (PropertyNode)item);
-    }
+	@Override
+	public Iterator<PropertyNode> iterator()
+	{
+		return new TransformedIterator<TreeNode, PropertyNode>(children.iterator(), item -> (PropertyNode) item);
+	}
 
-    public Iterator<PropertyValue> values()
-    {
-        return new TransformedIterator<TreeNode, PropertyValue>(children.iterator(), item -> ((PropertyNode)item).property_);
-    }
+	public Iterator<PropertyValue> values()
+	{
+		return new TransformedIterator<TreeNode, PropertyValue>(children.iterator(), item -> ((PropertyNode) item).property_);
+	}
 }

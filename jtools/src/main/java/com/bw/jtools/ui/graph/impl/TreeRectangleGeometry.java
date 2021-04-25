@@ -58,7 +58,8 @@ public class TreeRectangleGeometry implements Geometry
 	public GeometryState getGeometryState(GraphElement e)
 	{
 		GeometryState s = states.get(e.id);
-		if ( s == null ) {
+		if (s == null)
+		{
 			s = new GeometryState();
 			s.visible = true;
 			states.put(e.id, s);
@@ -104,7 +105,7 @@ public class TreeRectangleGeometry implements Geometry
 		for (Iterator<Node> c = node.children(); c.hasNext(); )
 		{
 			GeometryState state = getGeometryState(c.next());
-			if ( state.visible && state.treeArea != null )
+			if (state.visible && state.treeArea != null)
 				Geometry.union(r, state.treeArea);
 		}
 		setTreeArea(node, r);
@@ -122,10 +123,10 @@ public class TreeRectangleGeometry implements Geometry
 	protected void moveSubTreeRelative(Graph g, Node node, int dx, int dy)
 	{
 		Rectangle ot = getBounds(node);
-		Rectangle o = new Rectangle( ot );
+		Rectangle o = new Rectangle(ot);
 
-		final int ox2 = o.x + o.width -1;
-		final int oy2 = o.y + o.height -1;
+		final int ox2 = o.x + o.width - 1;
+		final int oy2 = o.y + o.height - 1;
 
 		Rectangle r = new Rectangle(o);
 		r.translate(dx, dy);
@@ -136,17 +137,17 @@ public class TreeRectangleGeometry implements Geometry
 		{
 			Rectangle inR = getBounds(in);
 
-			int inRx2 = inR.x + inR.width -1;
-			int inRy2 = inR.y + inR.height -1;
+			int inRx2 = inR.x + inR.width - 1;
+			int inRy2 = inR.y + inR.height - 1;
 
 			if (o.x > inRx2 && r.x <= inRx2)
-				r.x = inRx2+1;
-			else if (ox2 <= inR.x && (r.x+r.width) > inR.x)
+				r.x = inRx2 + 1;
+			else if (ox2 <= inR.x && (r.x + r.width) > inR.x)
 				r.x = inR.x - o.width;
 
 			if (o.y > inRy2 && r.y < inRy2)
-				r.y = inRy2+1;
-			else if (oy2 <= inR.y && (r.y+r.height) > inR.y)
+				r.y = inRy2 + 1;
+			else if (oy2 <= inR.y && (r.y + r.height) > inR.y)
 				r.y = inR.y - o.height;
 		}
 		ot.width = o.width;
@@ -168,7 +169,7 @@ public class TreeRectangleGeometry implements Geometry
 	@Override
 	public Rectangle getBounds(Node node)
 	{
-		return (Rectangle)getGeometryState(node).shape;
+		return (Rectangle) getGeometryState(node).shape;
 	}
 
 
@@ -181,7 +182,7 @@ public class TreeRectangleGeometry implements Geometry
 	public void setBounds(Node node, Rectangle r)
 	{
 		GeometryState s = getGeometryState(node);
-		Rectangle o = (Rectangle)s.shape;
+		Rectangle o = (Rectangle) s.shape;
 		s.shape = r;
 		if (o != null)
 			dirty(o);
@@ -222,11 +223,11 @@ public class TreeRectangleGeometry implements Geometry
 	private void addTreePoints(List<Point> points, Node node)
 	{
 		GeometryState s = getGeometryState(node);
-		if ( s.visible )
+		if (s.visible)
 		{
 			if (s.shape != null)
 			{
-				Rectangle r = (Rectangle)s.shape;
+				Rectangle r = (Rectangle) s.shape;
 				final int x0 = r.x;
 				final int y0 = r.y;
 				final int x1 = r.x + r.width - 1;
@@ -257,7 +258,8 @@ public class TreeRectangleGeometry implements Geometry
 			updateParentTreeArea(node);
 			notifyDependencies(node);
 			endUpdate();
-		} else if (!or.equals(r))
+		}
+		else if (!or.equals(r))
 		{
 			beginUpdate();
 			dirty(or);
@@ -310,7 +312,8 @@ public class TreeRectangleGeometry implements Geometry
 					ll = new ArrayList<>();
 					ll.add(le);
 					geoListener.put(e.id, ll);
-				} else
+				}
+				else
 				{
 					ll.remove(le);
 					ll.add(le);
@@ -352,7 +355,8 @@ public class TreeRectangleGeometry implements Geometry
 					List<GraphElement> gl = toUpdate.computeIfAbsent(gle, k -> new ArrayList<>());
 					gl.add(e);
 				}
-			} else
+			}
+			else
 			{
 				if (e instanceof Node)
 				{
@@ -392,7 +396,8 @@ public class TreeRectangleGeometry implements Geometry
 				toUpdate.clear();
 				//@TODO
 			}
-		} else if (update > 0) --update;
+		}
+		else if (update > 0) --update;
 
 	}
 
@@ -401,7 +406,7 @@ public class TreeRectangleGeometry implements Geometry
 	public void setVisibility(GraphElement e, boolean visible)
 	{
 		GeometryState s = getGeometryState(e);
-		if ( s.visible != visible )
+		if (s.visible != visible)
 		{
 			s.visible = visible;
 			notifyDependencies(e);
@@ -436,7 +441,7 @@ public class TreeRectangleGeometry implements Geometry
 		if (root != null)
 		{
 			GeometryState s = getGeometryState(root);
-			if (s.visible && s.treeArea!=null && s.treeArea.intersects(r))
+			if (s.visible && s.treeArea != null && s.treeArea.intersects(r))
 			{
 				return getIntersectingNode(root, r);
 			}

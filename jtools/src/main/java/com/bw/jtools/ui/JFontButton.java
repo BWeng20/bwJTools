@@ -33,12 +33,13 @@ public class JFontButton extends JChooserButtonBase<Font>
 {
 	protected static Font getDefaultFont()
 	{
-		return javax.swing.UIManager.getDefaults().getFont("TextField.font");
+		return javax.swing.UIManager.getDefaults()
+									.getFont("TextField.font");
 	}
 
 	public JFontButton()
 	{
-		this( getDefaultFont() );
+		this(getDefaultFont());
 	}
 
 	public JFontButton(Font font)
@@ -58,7 +59,7 @@ public class JFontButton extends JChooserButtonBase<Font>
 
 	protected Font showChooserDialog()
 	{
-		return JFontChooser.showDialog(this,getDialogTitle(), getValue());
+		return JFontChooser.showDialog(this, getDialogTitle(), getValue());
 	}
 
 }

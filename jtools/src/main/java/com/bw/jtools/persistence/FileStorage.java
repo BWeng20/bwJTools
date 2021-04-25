@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,160 +36,164 @@ import java.util.*;
  */
 class FileStorage extends StorageBase
 {
-    private final Path path_;
-    private final HashMap<String,String> values_ = new HashMap<>();
-    private boolean dirty_ = false;
-    private boolean loaded_ = false;
+	private final Path path_;
+	private final HashMap<String, String> values_ = new HashMap<>();
+	private boolean dirty_ = false;
+	private boolean loaded_ = false;
 
-    /**
-     * Creates a storage with file to use.
-     * @param storageFile The file to use.
-     * @param defaults Default settings or null.
-     */
-    public FileStorage( Path storageFile, Properties defaults )
-    {
-        super( defaults );
-        path_ = storageFile;
-    }
+	/**
+	 * Creates a storage with file to use.
+	 *
+	 * @param storageFile The file to use.
+	 * @param defaults    Default settings or null.
+	 */
+	public FileStorage(Path storageFile, Properties defaults)
+	{
+		super(defaults);
+		path_ = storageFile;
+	}
 
-    private void loadIfNeeded()
-    {
-        if ( loaded_ == false )
-        {
-            loaded_ = true;
-            try
-            {
-                Log.debug("Loading "+path_);
-                try (BufferedReader reader = Files.newBufferedReader(path_))
-                {
-                    reader.lines().forEach((line) ->
-                    {
-                        line = line.trim();
-                        if ( !line.startsWith("#") )
-                        {
-                            final int pos = line.indexOf('=');
-                            if ( pos > 0 )
-                            {
-                                final String key = line.substring(0,pos).trim();
-                                if ( !values_.containsKey(key) )
-                                {
-                                    values_.put( key, line.substring(pos+1).trim() );
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-            catch ( Exception e)
-            {
-                Log.error("Failed to read settings: "+e.getMessage());
-            }
-        }
-    }
-
-
-    @Override
-    protected synchronized String getString_impl(String key)
-    {
-        loadIfNeeded();
-        return values_.get(key);
-    }
-
-    @Override
-    public synchronized void setString(String key, String value)
-    {
-        if ( values_.containsKey(key))
-        {
-            String oldVal = values_.get(key);
-            if (Objects.equals( value , oldVal) )
-            {
-                return;
-            }
-        }
-        values_.put(key, value);
-        dirty_ = true;
-    }
-
-    @Override
-    public synchronized void deleteKey(String key)
-    {
-        if ( loaded_ )
-        {
-            if ( values_.containsKey(key))
-            {
-                if ( values_.get(key) != null )
-                {
-                    dirty_ = true;
-                    values_.put(key, null);
-                }
-            }
-        }
-        else
-        {
-            dirty_ = true;
-            values_.put(key, null);
-        }
-    }
-
-    @Override
-    public synchronized void clear()
-    {
-        dirty_ = false;
-        values_.clear();
-        try
-        {
-            if ( Files.exists(path_) )
-                Files.delete(path_);
-        }
-        catch ( Exception e)
-        {
-            Log.error(e.getMessage());
-        }
-    }
+	private void loadIfNeeded()
+	{
+		if (loaded_ == false)
+		{
+			loaded_ = true;
+			try
+			{
+				Log.debug("Loading " + path_);
+				try (BufferedReader reader = Files.newBufferedReader(path_))
+				{
+					reader.lines()
+						  .forEach((line) ->
+						  {
+							  line = line.trim();
+							  if (!line.startsWith("#"))
+							  {
+								  final int pos = line.indexOf('=');
+								  if (pos > 0)
+								  {
+									  final String key = line.substring(0, pos)
+															 .trim();
+									  if (!values_.containsKey(key))
+									  {
+										  values_.put(key, line.substring(pos + 1)
+															   .trim());
+									  }
+								  }
+							  }
+						  });
+				}
+			}
+			catch (Exception e)
+			{
+				Log.error("Failed to read settings: " + e.getMessage());
+			}
+		}
+	}
 
 
-    @Override
-    public synchronized void flush()
-    {
-        if ( dirty_ )
-        {
-            loadIfNeeded();
-            try
-            {
-                // For convenience of humans sort the keys.
-                ArrayList<String> keys = new ArrayList<>(values_.size());
-                keys.addAll( values_.keySet() );
-                java.util.Collections.sort(keys);
+	@Override
+	protected synchronized String getString_impl(String key)
+	{
+		loadIfNeeded();
+		return values_.get(key);
+	}
 
-                try (BufferedWriter writer = Files.newBufferedWriter(path_,StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE ))
-                {
-                    writer.write("# "+Application.AppName+" Settings\n");
-                    for ( String k : keys )
-                    {
-                        final String value = values_.get(k);
-                        if ( value != null )
-                        {
-                            writer.write(k);
-                            writer.write("=");
-                            writer.write(value);
-                            writer.write("\n");
-                        }
-                    }
-                }
-                dirty_ = false;
-            }
-            catch ( Exception e )
-            {
-                 Log.error(e.getMessage());
-            }
-        }
-    }
+	@Override
+	public synchronized void setString(String key, String value)
+	{
+		if (values_.containsKey(key))
+		{
+			String oldVal = values_.get(key);
+			if (Objects.equals(value, oldVal))
+			{
+				return;
+			}
+		}
+		values_.put(key, value);
+		dirty_ = true;
+	}
 
-    @Override
-    protected synchronized Collection<String> getAllKeys()
-    {
-        loadIfNeeded();
-        return values_.keySet();
-    }
+	@Override
+	public synchronized void deleteKey(String key)
+	{
+		if (loaded_)
+		{
+			if (values_.containsKey(key))
+			{
+				if (values_.get(key) != null)
+				{
+					dirty_ = true;
+					values_.put(key, null);
+				}
+			}
+		}
+		else
+		{
+			dirty_ = true;
+			values_.put(key, null);
+		}
+	}
+
+	@Override
+	public synchronized void clear()
+	{
+		dirty_ = false;
+		values_.clear();
+		try
+		{
+			if (Files.exists(path_))
+				Files.delete(path_);
+		}
+		catch (Exception e)
+		{
+			Log.error(e.getMessage());
+		}
+	}
+
+
+	@Override
+	public synchronized void flush()
+	{
+		if (dirty_)
+		{
+			loadIfNeeded();
+			try
+			{
+				// For convenience of humans sort the keys.
+				ArrayList<String> keys = new ArrayList<>(values_.size());
+				keys.addAll(values_.keySet());
+				java.util.Collections.sort(keys);
+
+				try (BufferedWriter writer = Files.newBufferedWriter(path_, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))
+				{
+					writer.write("# " + Application.AppName + " Settings\n");
+					for (String k : keys)
+					{
+						final String value = values_.get(k);
+						if (value != null)
+						{
+							writer.write(k);
+							writer.write("=");
+							writer.write(value);
+							writer.write("\n");
+						}
+					}
+				}
+				dirty_ = false;
+			}
+			catch (Exception e)
+			{
+				Log.error(e.getMessage());
+			}
+		}
+	}
+
+	@Override
+	protected synchronized Collection<String> getAllKeys()
+	{
+		loadIfNeeded();
+		return values_.keySet();
+	}
 
 }

@@ -34,82 +34,84 @@ import java.util.HashMap;
  */
 public class IconTool extends ImageTool
 {
-    private static Icon appSmallIcon = null;
-    private static Icon dummyIcon = new DummyIcon();
+	private static Icon appSmallIcon = null;
+	private static Icon dummyIcon = new DummyIcon();
 
-    private static HashMap<String, Icon> icons_ = new HashMap<>();
+	private static HashMap<String, Icon> icons_ = new HashMap<>();
 
 
-    /**
-     * Gets a icon by name.<br>
-     * If the icon is not in cache (key is the name) the icon is loaded
-     * from the sub-package "icons" of the specified class.<br>
-     *
-     * @param clazz The class to use as resource-base.
-     * @param name File name of the icon to load.
-     * @return The icon or null.
-     */
-    public static Icon getIcon(Class<?> clazz, String name)
-    {
-        Icon ic;
-        synchronized (icons_)
-        {
-            ic = icons_.get(name);
-            if (ic == null)
-            {
-                BufferedImage img;
-                try
-                {
-                    img = getImage(clazz, "icons/" + name);
-                }
-                catch ( Exception e)
-                {
-                    Log.error("Failed to load icon "+name+".", e);
-                    img = null;
-                }
-                ic = (img != null) ? new ImageIcon(img) : dummyIcon;
-                icons_.put(name, ic);
-            }
-        }
-        return ic;
-    }
+	/**
+	 * Gets a icon by name.<br>
+	 * If the icon is not in cache (key is the name) the icon is loaded
+	 * from the sub-package "icons" of the specified class.<br>
+	 *
+	 * @param clazz The class to use as resource-base.
+	 * @param name  File name of the icon to load.
+	 * @return The icon or null.
+	 */
+	public static Icon getIcon(Class<?> clazz, String name)
+	{
+		Icon ic;
+		synchronized (icons_)
+		{
+			ic = icons_.get(name);
+			if (ic == null)
+			{
+				BufferedImage img;
+				try
+				{
+					img = getImage(clazz, "icons/" + name);
+				}
+				catch (Exception e)
+				{
+					Log.error("Failed to load icon " + name + ".", e);
+					img = null;
+				}
+				ic = (img != null) ? new ImageIcon(img) : dummyIcon;
+				icons_.put(name, ic);
+			}
+		}
+		return ic;
+	}
 
-    /**
-     * Gets a icon by name.<br>
-     * The name has to be a file name of an image inside
-     * the sub-package "icons" of the application-class set via
-     * {@link com.bw.jtools.Application#initialize(java.lang.Class) Application.initialize()}.<br>
-     * <u>Example</u>:
-     * <pre>
-     *   // Somewhere earlier...
-     *   Store.initialize( org.myorg.app.MyClass.class );
-     *
-     *   ...
-     *   // Somewhere else...
-     *   // Will load from resources "/org/myorg/app/icons/MyIcon.png"
-     *   IconCache.getIcon("MyIcon.png");
-     * </pre>
-     * @param name File name of the icon to load.
-     * @return The icon or null.
-     */
-    public static Icon getIcon(String name)
-    {
-        return getIcon(Application.AppClass, name);
-    }
+	/**
+	 * Gets a icon by name.<br>
+	 * The name has to be a file name of an image inside
+	 * the sub-package "icons" of the application-class set via
+	 * {@link com.bw.jtools.Application#initialize(java.lang.Class) Application.initialize()}.<br>
+	 * <u>Example</u>:
+	 * <pre>
+	 *   // Somewhere earlier...
+	 *   Store.initialize( org.myorg.app.MyClass.class );
+	 *
+	 *   ...
+	 *   // Somewhere else...
+	 *   // Will load from resources "/org/myorg/app/icons/MyIcon.png"
+	 *   IconCache.getIcon("MyIcon.png");
+	 * </pre>
+	 *
+	 * @param name File name of the icon to load.
+	 * @return The icon or null.
+	 */
+	public static Icon getIcon(String name)
+	{
+		return getIcon(Application.AppClass, name);
+	}
 
-    /**
-     * Get a small application icon.<br>
-     * Uses the icon that fits best size 20x20 from the list of application icons.
-     * @return The best fitting icon of null if no application image exists.
-     */
-    public synchronized static Icon getAppSmallIcon()
-    {
-        if (appSmallIcon == null)
-        {
-            BufferedImage img = getAppSmallImage();
-            appSmallIcon = (img != null) ? new ImageIcon(img) : dummyIcon;
-        }
-        return appSmallIcon;
-    }
+	/**
+	 * Get a small application icon.<br>
+	 * Uses the icon that fits best size 20x20 from the list of application icons.
+	 *
+	 * @return The best fitting icon of null if no application image exists.
+	 */
+	public synchronized static Icon getAppSmallIcon()
+	{
+		if (appSmallIcon == null)
+		{
+			BufferedImage img = getAppSmallImage();
+			appSmallIcon = (img != null) ? new ImageIcon(img) : dummyIcon;
+		}
+		return appSmallIcon;
+	}
 
 }

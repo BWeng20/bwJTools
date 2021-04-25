@@ -33,55 +33,66 @@ import java.awt.*;
  */
 public class PropertyGroupCard extends JPanel
 {
-    /** Card Border */
-    protected static JCardBorder cardBorder_ = new JCardBorder(0.997f);
+	/**
+	 * Card Border
+	 */
+	protected static JCardBorder cardBorder_ = new JCardBorder(0.997f);
 
-    /** Border for content area in case a title is shown. */
-    protected static Border contentBorder_ = BorderFactory.createEmptyBorder(10,5,0,0);
+	/**
+	 * Border for content area in case a title is shown.
+	 */
+	protected static Border contentBorder_ = BorderFactory.createEmptyBorder(10, 5, 0, 0);
 
-    /** The label for the title if needed, otherwise null. */
-    protected JLabel title_;
+	/**
+	 * The label for the title if needed, otherwise null.
+	 */
+	protected JLabel title_;
 
-    /** The inner property sheet. */
-    protected PropertyGroupSheet sheet_;
+	/**
+	 * The inner property sheet.
+	 */
+	protected PropertyGroupSheet sheet_;
 
-    /**
-     * Creates a property card for a property-group.
-     * @param group The group of properties.
-     * @param addTitle If true the name of the group is shown as title.
-     */
-    public PropertyGroupCard(PropertyGroup group, boolean addTitle )
-    {
-        super( new BorderLayout() );
+	/**
+	 * Creates a property card for a property-group.
+	 *
+	 * @param group    The group of properties.
+	 * @param addTitle If true the name of the group is shown as title.
+	 */
+	public PropertyGroupCard(PropertyGroup group, boolean addTitle)
+	{
+		super(new BorderLayout());
 
-        sheet_ = new PropertyGroupSheet(group);
-        sheet_.setBackground(null);
+		sheet_ = new PropertyGroupSheet(group);
+		sheet_.setBackground(null);
 
-        Border outerBorder = BorderFactory.createCompoundBorder( cardBorder_, BorderFactory.createEmptyBorder(10,10,10,10) );
+		Border outerBorder = BorderFactory.createCompoundBorder(cardBorder_, BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        setBorder(outerBorder);
-        if (addTitle)
-        {
-            sheet_.setBorder(contentBorder_);
-            title_ = new JLabel(group.displayName_, JLabel.LEADING);
-            Font f = javax.swing.UIManager.getDefaults().getFont("Label.font");
-            f = f.deriveFont(f.getSize()*1.5f);
-            title_.setFont(f);
+		setBorder(outerBorder);
+		if (addTitle)
+		{
+			sheet_.setBorder(contentBorder_);
+			title_ = new JLabel(group.displayName_, JLabel.LEADING);
+			Font f = javax.swing.UIManager.getDefaults()
+										  .getFont("Label.font");
+			f = f.deriveFont(f.getSize() * 1.5f);
+			title_.setFont(f);
 
-            add(title_, BorderLayout.NORTH);
-        }
-        add(sheet_, BorderLayout.CENTER);
-    }
+			add(title_, BorderLayout.NORTH);
+		}
+		add(sheet_, BorderLayout.CENTER);
+	}
 
-    @Override
-    public void updateUI()
-    {
-        super.updateUI();
-        if ( title_ != null)
-        {
-            Font f = javax.swing.UIManager.getDefaults().getFont("Label.font");
-            f = f.deriveFont(f.getSize() * 1.5f);
-            title_.setFont(f);
-        }
-    }
+	@Override
+	public void updateUI()
+	{
+		super.updateUI();
+		if (title_ != null)
+		{
+			Font f = javax.swing.UIManager.getDefaults()
+										  .getFont("Label.font");
+			f = f.deriveFont(f.getSize() * 1.5f);
+			title_.setFont(f);
+		}
+	}
 }

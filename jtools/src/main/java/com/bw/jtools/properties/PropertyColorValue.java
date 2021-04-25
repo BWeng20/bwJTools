@@ -28,72 +28,78 @@ import java.awt.*;
  */
 public class PropertyColorValue extends PropertyValue
 {
-    /**
+	/**
 	 * Variable serialVersionUID of long
 	 */
 	private static final long serialVersionUID = 8880872805669539218L;
 
 	/**
-     * Creates a "color"-value with name and value.
-     * @param name   Name of the property.
-     * @param value  The value. Can be null.
-     */
-    public PropertyColorValue( String name, Color value )
-    {
-        super( name, Color.class );
-        setPayload(value);
-    }
+	 * Creates a "color"-value with name and value.
+	 *
+	 * @param name  Name of the property.
+	 * @param value The value. Can be null.
+	 */
+	public PropertyColorValue(String name, Color value)
+	{
+		super(name, Color.class);
+		setPayload(value);
+	}
 
-    /**
-     * Convenience getter.
-     * Same as (Color)getUserObject().
-     * @return The Color of null.
-     */
-    public Color getValue( )
-    {
-        return (Color)getPayload();
-    }
+	/**
+	 * Convenience getter.
+	 * Same as (Color)getUserObject().
+	 *
+	 * @return The Color of null.
+	 */
+	public Color getValue()
+	{
+		return (Color) getPayload();
+	}
 
-    /**
-     * Convenience setter.
-     * Same as "setUserObject(v)".
-     * @param v The value to set. Can be null.
-     */
-    public void setValue( Color v )
-    {
-        setPayload(v);
-    }
+	/**
+	 * Convenience setter.
+	 * Same as "setUserObject(v)".
+	 *
+	 * @param v The value to set. Can be null.
+	 */
+	public void setValue(Color v)
+	{
+		setPayload(v);
+	}
 
-    /**
-     * Convenience setter.
-     * Same as "setUserObject(new Color(v))".
-     * @param v The value to set.
-     */
-    public void setValue( int v )
-    {
-        setPayload(new Color(v));
-    }
+	/**
+	 * Convenience setter.
+	 * Same as "setUserObject(new Color(v))".
+	 *
+	 * @param v The value to set.
+	 */
+	public void setValue(int v)
+	{
+		setPayload(new Color(v));
+	}
 
-    /**
-     * Gets the color as RGB: "R,G,B"
-     */
-    public String toString()
-    {
-        return toString((Color)getPayload() );
-    }
+	/**
+	 * Gets the color as RGB: "R,G,B"
+	 */
+	public String toString()
+	{
+		return toString((Color) getPayload());
+	}
 
-    /**
-     * Gets the color as RGB: "R,G,B"
-     */
-    public static String toString( Color col )
-    {
-        if ( col == null )
-            return "";
+	/**
+	 * Gets the color as RGB: "R,G,B"
+	 */
+	public static String toString(Color col)
+	{
+		if (col == null)
+			return "";
 
-        StringBuilder sb = new StringBuilder(20);
-        sb.append(col.getRed()).append(",");
-        sb.append(col.getGreen()).append(",");
-        sb.append(col.getBlue());
-        return sb.toString();
-    }
+		StringBuilder sb = new StringBuilder(20);
+		sb.append(col.getRed())
+		  .append(",");
+		sb.append(col.getGreen())
+		  .append(",");
+		sb.append(col.getBlue());
+		return sb.toString();
+	}
 }

@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,11 @@ import java.nio.file.Path;
 
 public interface DirectoryMonitorListener
 {
-    public void fileAdded( DirectoryMonitor dm, Path added );
-    public void fileRemoved( DirectoryMonitor dm, Path removed );
-    public void fileChanged( DirectoryMonitor dm, Path changed );
-    public void fileInitialAdded( DirectoryMonitor dm, Path added );
+	public void fileAdded(DirectoryMonitor dm, Path added);
+
+	public void fileRemoved(DirectoryMonitor dm, Path removed);
+
+	public void fileChanged(DirectoryMonitor dm, Path changed);
+
+	public void fileInitialAdded(DirectoryMonitor dm, Path added);
 }

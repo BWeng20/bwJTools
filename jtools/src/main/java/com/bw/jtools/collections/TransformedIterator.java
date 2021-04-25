@@ -4,16 +4,18 @@ import java.util.Iterator;
 
 /**
  * Iterator that transforms the elements from some iterator by call to a transform function.
+ *
  * @param <S> The source type.
  * @param <T> The target type.
  */
-public class TransformedIterator<S,T>  implements Iterator<T>
+public class TransformedIterator<S, T> implements Iterator<T>
 {
 
 	private final Iterator<S> innerIt;
-	private final Transformer<S,T> trans;
+	private final Transformer<S, T> trans;
 
-	public TransformedIterator( Iterator<S> it, Transformer<S,T> tr ) {
+	public TransformedIterator(Iterator<S> it, Transformer<S, T> tr)
+	{
 		innerIt = it;
 		trans = tr;
 	}
@@ -27,7 +29,7 @@ public class TransformedIterator<S,T>  implements Iterator<T>
 	@Override
 	public T next()
 	{
-		return trans.transform( innerIt.next() );
+		return trans.transform(innerIt.next());
 	}
 
 	@Override

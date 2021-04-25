@@ -32,46 +32,46 @@ import java.awt.*;
  */
 public class DummyIcon implements Icon
 {
-    private final int width_  = 13;
-    private final int height_ = 13;
-    private final BasicStroke stroke_ = new BasicStroke(2f);
+	private final int width_ = 13;
+	private final int height_ = 13;
+	private final BasicStroke stroke_ = new BasicStroke(2f);
 
-    /**
-     * Create a new dummy icon.
-     */
-    public DummyIcon()
-    {
-    }
+	/**
+	 * Create a new dummy icon.
+	 */
+	public DummyIcon()
+	{
+	}
 
-    /**
-     * Paints a red cross.
-     */
-    @Override
-    public void paintIcon(Component c, Graphics g, int x, int y)
-    {
-        Graphics2D g2D = (Graphics2D)g.create();
+	/**
+	 * Paints a red cross.
+	 */
+	@Override
+	public void paintIcon(Component c, Graphics g, int x, int y)
+	{
+		Graphics2D g2D = (Graphics2D) g.create();
 
-        g2D.setColor(Color.WHITE);
-        g2D.fillRect(x ,y,width_ ,height_);
+		g2D.setColor(Color.WHITE);
+		g2D.fillRect(x, y, width_, height_);
 
-        g2D.setRenderingHint( RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON );
-        g2D.setColor(Color.RED);
-        g2D.setStroke(stroke_);
-        g2D.drawLine(x+1, y+1, x+width_-2, y+ height_-2 );
-        g2D.drawLine(x+1, y+height_-2, x+width_ -2, y+1 );
+		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2D.setColor(Color.RED);
+		g2D.setStroke(stroke_);
+		g2D.drawLine(x + 1, y + 1, x + width_ - 2, y + height_ - 2);
+		g2D.drawLine(x + 1, y + height_ - 2, x + width_ - 2, y + 1);
 
-        g2D.dispose();
-    }
+		g2D.dispose();
+	}
 
-    @Override
-    public int getIconWidth()
-    {
-        return width_;
-    }
+	@Override
+	public int getIconWidth()
+	{
+		return width_;
+	}
 
-    @Override
-    public int getIconHeight()
-    {
-        return height_;
-    }
+	@Override
+	public int getIconHeight()
+	{
+		return height_;
+	}
 }

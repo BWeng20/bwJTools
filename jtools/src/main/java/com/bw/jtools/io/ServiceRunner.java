@@ -1,3 +1,24 @@
+/*
+ * (c) copyright Bernd Wengenroth
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.bw.jtools.io;
 
 import com.bw.jtools.Log;
@@ -57,6 +78,7 @@ public class ServiceRunner
 
 	/**
 	 * Get the executed service.
+	 *
 	 * @return The service.
 	 */
 	public Service getService()
@@ -78,7 +100,8 @@ public class ServiceRunner
 				int priority = t.getPriority() + relPriority_;
 				t.setPriority(priority);
 				Log.debug("Set Thread-Priority of " + serviceName_ + " Service to " + priority);
-			} catch (Exception e)
+			}
+			catch (Exception e)
 			{
 				Log.warn("Can't modify Thread-Priority of " + serviceName_ + " Service " + e.getMessage());
 			}
@@ -92,11 +115,13 @@ public class ServiceRunner
 						try
 						{
 							Thread.sleep(delay_);
-						} catch (InterruptedException e)
+						}
+						catch (InterruptedException e)
 						{
 						}
 					}
-				} catch (Exception e)
+				}
+				catch (Exception e)
 				{
 					running_ = false;
 					Log.error(serviceName_ + " Service stopped because of exception", e);
@@ -113,16 +138,16 @@ public class ServiceRunner
 	 */
 	public synchronized void configureAndStart(StorageBase config)
 	{
-		configureAndStart ( config.getInt("relativePriority", relPriority_), config.getInt("delay", delay_));
+		configureAndStart(config.getInt("relativePriority", relPriority_), config.getInt("delay", delay_));
 	}
 
 	/**
 	 * Configures and starts if needed.
 	 *
 	 * @param relativePriority Priority offset for the thread
-	 * @param delay delay in milliseconds between executions.
+	 * @param delay            delay in milliseconds between executions.
 	 */
-	public synchronized void configureAndStart( int relativePriority, int delay )
+	public synchronized void configureAndStart(int relativePriority, int delay)
 	{
 		relPriority_ = relativePriority;
 		delay_ = delay;

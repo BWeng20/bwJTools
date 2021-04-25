@@ -8,11 +8,13 @@ public class TextData implements Data
 
 	public String text;
 
-	public TextData() {
+	public TextData()
+	{
 		text = EMPTY;
 	}
 
-	public TextData(String text) {
+	public TextData(String text)
+	{
 		this.text = text;
 	}
 }

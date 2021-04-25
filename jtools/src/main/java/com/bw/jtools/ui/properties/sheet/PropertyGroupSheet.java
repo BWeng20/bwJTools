@@ -32,58 +32,60 @@ import java.awt.*;
 /**
  * A panel to show and edit properties of a group.<br>
  * To be used inside a JTabbedPane or with a border in some editor.
+ *
  * @see PropertyGroupCard
  */
 public class PropertyGroupSheet extends JPanel
 {
-    protected static Insets labelInsets_ = new Insets(3,0,0,0);
-    protected static Insets fieldInsets_ = new Insets(3,5,0,5);
+	protected static Insets labelInsets_ = new Insets(3, 0, 0, 0);
+	protected static Insets fieldInsets_ = new Insets(3, 5, 0, 5);
 
-    /**
-     * Creates a property sheet for a property-group.
-     * @param group The group of properties.
-     */
-    public PropertyGroupSheet(PropertyGroup group )
-    {
-        super( new GridBagLayout());
+	/**
+	 * Creates a property sheet for a property-group.
+	 *
+	 * @param group The group of properties.
+	 */
+	public PropertyGroupSheet(PropertyGroup group)
+	{
+		super(new GridBagLayout());
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.weightx = 0;
-        gbc.weighty = 1;
-        gbc.gridx = 0;
-        gbc.gridy = GridBagConstraints.PAGE_END;
-        add( new JLabel(""), gbc);
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.weightx = 0;
+		gbc.weighty = 1;
+		gbc.gridx = 0;
+		gbc.gridy = GridBagConstraints.PAGE_END;
+		add(new JLabel(""), gbc);
 
 
-        int N = group.size();
-        for (int i=0 ; i<N ; ++i)
-        {
-            addProperty( group.getPropertyAt(i), i );
-        }
-    }
+		int N = group.size();
+		for (int i = 0; i < N; ++i)
+		{
+			addProperty(group.getPropertyAt(i), i);
+		}
+	}
 
-    private void addProperty(PropertyValue v, int idx )
-    {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.weightx = 0;
-        gbc.insets = labelInsets_;
-        gbc.gridx = 0;
-        gbc.gridy = idx;
-        JLabel label = new JLabel(v.displayName_);
-        add( label, gbc );
-        gbc.weightx = 1;
-        gbc.insets = fieldInsets_;
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.NORTHWEST;
+	private void addProperty(PropertyValue v, int idx)
+	{
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.weightx = 0;
+		gbc.insets = labelInsets_;
+		gbc.gridx = 0;
+		gbc.gridy = idx;
+		JLabel label = new JLabel(v.displayName_);
+		add(label, gbc);
+		gbc.weightx = 1;
+		gbc.insets = fieldInsets_;
+		gbc.gridx = 1;
+		gbc.anchor = GridBagConstraints.NORTHWEST;
 
-        Component component = new PropertyEditorComponents().getEditorComponent(v);
-        if ( component instanceof JTextComponent )
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-        else
-            gbc.fill = GridBagConstraints.NONE;
+		Component component = new PropertyEditorComponents().getEditorComponent(v);
+		if (component instanceof JTextComponent)
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+		else
+			gbc.fill = GridBagConstraints.NONE;
 
-        add( component, gbc );
-    }
+		add(component, gbc);
+	}
 }

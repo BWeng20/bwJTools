@@ -33,37 +33,39 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * <br>
  * <i>Example:</i><br>
  * <pre>
- *{@code
+ * {@code
  *  PropertyValue property = new PropertyValue( "My Number", Integer.class );
  *  property.setUserObject( 10 );
- *}
+ * }
  * </pre>
  */
 public class PropertyNode extends DefaultMutableTreeNode
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = -7565043274211746142L;
 
 	public PropertyValue property_;
 
-    /**
-     * Constructs a new node for a property.
-     * @param property  The property.
-     */
-    public PropertyNode(PropertyValue property )
-    {
-    	this.property_ = property;
-    }
+	/**
+	 * Constructs a new node for a property.
+	 *
+	 * @param property The property.
+	 */
+	public PropertyNode(PropertyValue property)
+	{
+		this.property_ = property;
+	}
 
-    /**
-     * Checks if the property has some content.
-     * Convenience replacement for "getUserObject() != null"
-     * @return True if some value exists.
-     */
-    public boolean hasContent()
-    {
-        return property_ != null && property_.hasContent();
-    }
+	/**
+	 * Checks if the property has some content.
+	 * Convenience replacement for "getUserObject() != null"
+	 *
+	 * @return True if some value exists.
+	 */
+	public boolean hasContent()
+	{
+		return property_ != null && property_.hasContent();
+	}
 }

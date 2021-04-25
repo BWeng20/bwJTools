@@ -40,23 +40,24 @@ public class JCardBorder implements Border
 	private final Stroke stroke_;
 	private final Stroke borderStroke_;
 
-	public JCardBorder( float colorFactor )
+	public JCardBorder(float colorFactor)
 	{
-		this( colorFactor, 5);
+		this(colorFactor, 5);
 	}
 
-	public JCardBorder( float colorFactor, int lineWidth) {
-		this( colorFactor, lineWidth, lineWidth, (int)(0.5+lineWidth*1.5), lineWidth );
+	public JCardBorder(float colorFactor, int lineWidth)
+	{
+		this(colorFactor, lineWidth, lineWidth, (int) (0.5 + lineWidth * 1.5), lineWidth);
 	}
 
-	public JCardBorder( float colorFactor, int lineWidthTop, int lineWidthLeft, int lineWidthBottom, int lineWidthRight )
+	public JCardBorder(float colorFactor, int lineWidthTop, int lineWidthLeft, int lineWidthBottom, int lineWidthRight)
 	{
-		cornerWidth_ =20;
+		cornerWidth_ = 20;
 		colorFactor_ = colorFactor;
 		stroke_ = new BasicStroke(1.5f);
-		borderStroke_= new BasicStroke(cornerWidth_/4);
+		borderStroke_ = new BasicStroke(cornerWidth_ / 4);
 
-		insets_ = new Insets(lineWidthTop,  lineWidthLeft,  lineWidthBottom,  lineWidthRight);
+		insets_ = new Insets(lineWidthTop, lineWidthLeft, lineWidthBottom, lineWidthRight);
 		hints_ = new RenderingHints(
 				RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
@@ -66,7 +67,7 @@ public class JCardBorder implements Border
 	@Override
 	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height)
 	{
-		Graphics2D g2 = (Graphics2D)((Graphics2D)g).create();
+		Graphics2D g2 = (Graphics2D) ((Graphics2D) g).create();
 		try
 		{
 			g2.setRenderingHints(hints_);
@@ -76,7 +77,8 @@ public class JCardBorder implements Border
 			if (p != null)
 			{
 				col = p.getBackground();
-			} else
+			}
+			else
 			{
 				col = c.getBackground();
 			}
@@ -100,7 +102,8 @@ public class JCardBorder implements Border
 				g2.drawRoundRect(x + i, y + i, width - i2, height - i2, cornerWidth_ - i2, cornerWidth_ - i2);
 				f = f * f;
 			}
-		} finally
+		}
+		finally
 		{
 			g2.dispose();
 		}

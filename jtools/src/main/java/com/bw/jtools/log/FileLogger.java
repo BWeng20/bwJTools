@@ -31,50 +31,59 @@ public class FileLogger extends Log.LoggerFacade
 {
 	Writer writer;
 
-	public FileLogger( String file) {
-		try {
-			writer = new BufferedWriter( new FileWriter( file ), 2048 );
-		} catch ( IOException e ) {
-    		writer = null;
-    		System.err.println("Error opening log '"+e.getMessage()+"'. Turning quite" );
+	public FileLogger(String file)
+	{
+		try
+		{
+			writer = new BufferedWriter(new FileWriter(file), 2048);
+		}
+		catch (IOException e)
+		{
+			writer = null;
+			System.err.println("Error opening log '" + e.getMessage() + "'. Turning quite");
 		}
 	}
-	
-	
-    @Override
-    public void error(CharSequence msg)
-    {
-    	write( Log.ERROR, msg);
-    }
 
-    @Override
-    public void warn(CharSequence msg)
-    {
-    	write( Log.WARN, msg);
-    }
 
-    @Override
-    public void info(CharSequence msg)
-    {
-    	write( Log.INFO, msg);
-    }
+	@Override
+	public void error(CharSequence msg)
+	{
+		write(Log.ERROR, msg);
+	}
 
-    @Override
-    public void debug(CharSequence msg)
-    {
-        write( Log.DEBUG ,msg);
-    }
-    
-    private void write( int level, CharSequence msg) {
-    	try {
-    		if ( writer != null ) {
-	    		writer.append( getLevelPrefix( level ) );
-	    		writer.append( msg );
-    		}    		
-    	} catch ( Exception e ) {
-    		System.err.println("Error writing log '"+e.getMessage()+"'. Turning quite" );
-    		writer = null;
-    	}
-    }
+	@Override
+	public void warn(CharSequence msg)
+	{
+		write(Log.WARN, msg);
+	}
+
+	@Override
+	public void info(CharSequence msg)
+	{
+		write(Log.INFO, msg);
+	}
+
+	@Override
+	public void debug(CharSequence msg)
+	{
+		write(Log.DEBUG, msg);
+	}
+
+	private void write(int level, CharSequence msg)
+	{
+		try
+		{
+			if (writer != null)
+			{
+				writer.append(getLevelPrefix(level));
+				writer.append(msg);
+			}
+		}
+		catch (Exception e)
+		{
+			System.err.println("Error writing log '" + e.getMessage() + "'. Turning quite");
+			writer = null;
+		}
+	}
 }
 

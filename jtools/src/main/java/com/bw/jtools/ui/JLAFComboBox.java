@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -35,68 +35,74 @@ import java.util.List;
  */
 public class JLAFComboBox extends JComboBox<String>
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = 6612891946735768684L;
-	
+
 	protected List<UIManager.LookAndFeelInfo> lafs_ = new ArrayList<>();
 
-    /**
-     * Creates a new LAF ComboBox.<br>
-     * The list is filled with all available LAFs.
-     */
-    public JLAFComboBox()
-    {
-        final UIManager.LookAndFeelInfo[] lafs = UIManager.getInstalledLookAndFeels();
-        for ( UIManager.LookAndFeelInfo laf : lafs )
-        {
-            lafs_.add( laf );
-            addItem( laf.getName() );
-        }
+	/**
+	 * Creates a new LAF ComboBox.<br>
+	 * The list is filled with all available LAFs.
+	 */
+	public JLAFComboBox()
+	{
+		final UIManager.LookAndFeelInfo[] lafs = UIManager.getInstalledLookAndFeels();
+		for (UIManager.LookAndFeelInfo laf : lafs)
+		{
+			lafs_.add(laf);
+			addItem(laf.getName());
+		}
 
-        String LAF = UIManager.getLookAndFeel().getName();
-        setSelectedItem( LAF );
+		String LAF = UIManager.getLookAndFeel()
+							  .getName();
+		setSelectedItem(LAF);
 
-        addItemListener(ie -> {
-            String lafName = (String)getSelectedItem();
-            for ( UIManager.LookAndFeelInfo laf : lafs_ )
-                if ( laf.getName().equals(lafName) )
-                {
-                    if ( !UIManager.getLookAndFeel().getName().equals(lafName) )
-                    {
-                        try
-                        {
-                            UIManager.setLookAndFeel(laf.getClassName());
+		addItemListener(ie ->
+		{
+			String lafName = (String) getSelectedItem();
+			for (UIManager.LookAndFeelInfo laf : lafs_)
+				if (laf.getName()
+					   .equals(lafName))
+				{
+					if (!UIManager.getLookAndFeel()
+								  .getName()
+								  .equals(lafName))
+					{
+						try
+						{
+							UIManager.setLookAndFeel(laf.getClassName());
 
-                            Window[] ws = JFrame.getOwnerlessWindows();
-                            for ( Window w : ws )
-                            {
-                                SwingUtilities.updateComponentTreeUI(w);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.error("Faield to install "+lafName, ex);
-                        }
-                    }
-                    break;
-                }
-        });
-    }
+							Window[] ws = JFrame.getOwnerlessWindows();
+							for (Window w : ws)
+							{
+								SwingUtilities.updateComponentTreeUI(w);
+							}
+						}
+						catch (Exception ex)
+						{
+							Log.error("Faield to install " + lafName, ex);
+						}
+					}
+					break;
+				}
+		});
+	}
 
-    @Override
-    public void updateUI()
-    {
-        super.updateUI();
-        String lafName = (String)getSelectedItem();
-        if ( lafName != null )
-        {
-            String name = UIManager.getLookAndFeel().getName();
-            if ( !name.equals(lafName ))
-            {
-                setSelectedItem(name);
-            }
-        }
-    }
+	@Override
+	public void updateUI()
+	{
+		super.updateUI();
+		String lafName = (String) getSelectedItem();
+		if (lafName != null)
+		{
+			String name = UIManager.getLookAndFeel()
+								   .getName();
+			if (!name.equals(lafName))
+			{
+				setSelectedItem(name);
+			}
+		}
+	}
 }

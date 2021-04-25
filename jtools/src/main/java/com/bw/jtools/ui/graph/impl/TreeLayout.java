@@ -14,7 +14,8 @@ public class TreeLayout implements Layout
 	int gap_y = 10;
 	Geometry geo;
 
-	public TreeLayout(Geometry m ) {
+	public TreeLayout(Geometry m)
+	{
 		geo = m;
 	}
 
@@ -27,12 +28,13 @@ public class TreeLayout implements Layout
 	@Override
 	public void placeChildren(Node node)
 	{
-		if ( node != null) {
+		if (node != null)
+		{
 			geo.beginUpdate();
 
-            Rectangle r = geo.getBounds(node);
+			Rectangle r = geo.getBounds(node);
 
-			Rectangle tr = recalculateSubTree( node );
+			Rectangle tr = recalculateSubTree(node);
 			int th = tr.height;
 
 			// Correct tree position to calculated offsets
@@ -41,26 +43,28 @@ public class TreeLayout implements Layout
 
 			int x = r.x + gap_x + r.width;
 			int y;
-			if ( th > r.height)
+			if (th > r.height)
 			{
-				y = r.y - (th-r.height)/2;
-			} else {
+				y = r.y - (th - r.height) / 2;
+			}
+			else
+			{
 				int sh = 0;
 				for (Iterator<Node> c = node.children(); c.hasNext(); )
 				{
 					Node cn = c.next();
 					GeometryState state = geo.getGeometryState(cn);
-					if ( state.visible && state.treeArea != null )
-						sh += state.treeArea.height+gap_y;
+					if (state.visible && state.treeArea != null)
+						sh += state.treeArea.height + gap_y;
 				}
-				y = r.y + ((th-sh+gap_y)/2);
+				y = r.y + ((th - sh + gap_y) / 2);
 			}
 
 			for (Iterator<Node> c = node.children(); c.hasNext(); )
 			{
 				Node cn = c.next();
 				GeometryState state = geo.getGeometryState(cn);
-				if ( state.visible )
+				if (state.visible)
 				{
 					Rectangle rt = state.shape.getBounds();
 					rt.x = x;
@@ -75,7 +79,7 @@ public class TreeLayout implements Layout
 		}
 	}
 
-	public Rectangle calculateSubTree( Node node )
+	public Rectangle calculateSubTree(Node node)
 	{
 		Rectangle r = geo.getTreeArea(node);
 		if (r == null)
@@ -85,8 +89,9 @@ public class TreeLayout implements Layout
 		return r;
 	}
 
-	public Rectangle recalculateSubTree( Node node ) {
-		Rectangle r = new Rectangle( geo.getBounds( node ) );
+	public Rectangle recalculateSubTree(Node node)
+	{
+		Rectangle r = new Rectangle(geo.getBounds(node));
 		int h = 0;
 		int w = 0;
 		for (Iterator<Node> c = node.children(); c.hasNext(); )
@@ -100,7 +105,7 @@ public class TreeLayout implements Layout
 				if (w < tr.width) w = tr.width;
 			}
 		}
-		if ( h > 0 ) h -= gap_y;
+		if (h > 0) h -= gap_y;
 
 		if (h > r.height) r.height = h;
 		if (w > 0)

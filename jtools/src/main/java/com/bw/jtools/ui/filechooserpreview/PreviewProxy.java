@@ -35,95 +35,119 @@ import java.util.List;
  */
 public class PreviewProxy
 {
-    protected static class InfoEntry
-    {
-        public String name;
-        public String value;
-    }
+	protected static class InfoEntry
+	{
+		public String name;
+		public String value;
+	}
 
-    private static final NumberFormat nf;
+	private static final NumberFormat nf;
 
-    static
-    {
-        nf = NumberFormat.getInstance();
-        nf.setMaximumFractionDigits(3);
-    }
-    /** True if loading is complete. */
-    public boolean complete = false;
+	static
+	{
+		nf = NumberFormat.getInstance();
+		nf.setMaximumFractionDigits(3);
+	}
 
-    /**
-     * True if file is currently the active preview and still working.
-     */
-    public boolean activeAndPending = false;
+	/**
+	 * True if loading is complete.
+	 */
+	public boolean complete = false;
 
-    /** The file name */
-    public String name_;
+	/**
+	 * True if file is currently the active preview and still working.
+	 */
+	public boolean activeAndPending = false;
 
-    /** The complete path  */
-    public String path_;
+	/**
+	 * The file name
+	 */
+	public String name_;
 
-    public long size_ = -1;
-    public long lastMod_;
+	/**
+	 * The file url
+	 */
+	public String uri_;
 
-    /** Image content. */
-    public Image imageContent_;
-    /** Text content. */
-    public String textContent_;
+	public long size_ = -1;
+	public long lastMod_;
 
-    /** Text to show if content is not available. */
-    public String message_;
+	/**
+	 * Image content.
+	 */
+	public Image imageContent_;
+	/**
+	 * Text content.
+	 */
+	public String textContent_;
 
-    public List<InfoEntry> additionalInformation_ = new ArrayList<>();
+	/**
+	 * Text to show if content is not available.
+	 */
+	public String message_;
 
-    protected PreviewConfig config_;
+	public List<InfoEntry> additionalInformation_ = new ArrayList<>();
 
-    public final long createTimeMS_ = System.currentTimeMillis();
+	protected PreviewConfig config_;
 
-    protected PreviewProxy()
-    {
-    }
+	public final long createTimeMS_ = System.currentTimeMillis();
 
-    /**
-     * Explicit Clean-Up.
-     * May be called to speed up gc.
-     */
-    protected void dispose()
-    {
-        additionalInformation_.clear();
-        imageContent_ = null;
-        config_ = null;
-    }
+	protected PreviewProxy()
+	{
+	}
 
-    /**
-     * Logs a message with file name and time since initialisation.<br>
-     * Example: Profile.jpg [13.23s] Loaded
-     */
-    protected void log(String msg)
-    {
-        if ( Log.isDebugEnabled())
-        {
-            final long t = System.currentTimeMillis();
-            Log.debug(name_+" ["+nf.format((t-createTimeMS_)/1000f)+"s] "+msg );
-        }
-    }
+	/**
+	 * Explicit Clean-Up.
+	 * May be called to speed up gc.
+	 */
+	protected void dispose()
+	{
+		additionalInformation_.clear();
+		imageContent_ = null;
+		config_ = null;
+	}
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(100);
-        sb.append( path_ == null ? name_ : path_ ).append(" complete:").append(complete).append(" active:").append(activeAndPending).append(" image:");
-        if ( imageContent_ ==null )
-            sb.append("none");
-        else
-        {
-            sb.append(imageContent_.getClass().getSimpleName()).append(' ');
-            sb.append(imageContent_.getWidth(null)).append('x').append(imageContent_.getHeight(null));
-        }
-        if ( textContent_ !=null )
-            sb.append(" Text:").append(textContent_, 0,Math.min(10, textContent_.length()));
-        if ( message_ !=null )
-            sb.append(" Message:").append(message_, 0,Math.min(10, message_.length()));
-        return sb.toString();
-    }
+	/**
+	 * Logs a message with file name and time since initialisation.<br>
+	 * Example: Profile.jpg [13.23s] Loaded
+	 */
+	protected void log(String msg)
+	{
+		if (Log.isDebugEnabled())
+		{
+			final long t = System.currentTimeMillis();
+			Log.debug(name_ + " [" + nf.format((t - createTimeMS_) / 1000f) + "s] " + msg);
+		}
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder(100);
+		sb.append(uri_ == null ? name_ : uri_)
+		  .append(" complete:")
+		  .append(complete)
+		  .append(" active:")
+		  .append(activeAndPending)
+		  .append(" image:");
+		if (imageContent_ == null)
+			sb.append("none");
+		else
+		{
+			sb.append(imageContent_.getClass()
+								   .getSimpleName())
+			  .append(' ');
+			sb.append(imageContent_.getWidth(null))
+			  .append('x')
+			  .append(imageContent_.getHeight(null));
+		}
+		if (textContent_ != null)
+			sb.append(" Text:")
+			  .append(textContent_, 0, Math.min(10, textContent_.length()));
+		if (message_ != null)
+			sb.append(" Message:")
+			  .append(message_, 0, Math.min(10, message_.length()));
+		return sb.toString();
+	}
 
 }

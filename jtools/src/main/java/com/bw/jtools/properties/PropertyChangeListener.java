@@ -27,6 +27,6 @@ package com.bw.jtools.properties;
  */
 public interface PropertyChangeListener
 {
-	public void propertyChanged( PropertyValue value );
+	public void propertyChanged(PropertyValue value);
 
 }

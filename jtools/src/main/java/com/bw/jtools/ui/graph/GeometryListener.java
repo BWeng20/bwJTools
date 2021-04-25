@@ -9,7 +9,8 @@ public interface GeometryListener
 {
 	public void geometryUpdated(Geometry geo, List<GraphElement> e);
 
-	public default void geometryUpdated(Geometry geo, GraphElement... e) {
+	public default void geometryUpdated(Geometry geo, GraphElement... e)
+	{
 		geometryUpdated(geo, Arrays.asList(e));
 	}
 }

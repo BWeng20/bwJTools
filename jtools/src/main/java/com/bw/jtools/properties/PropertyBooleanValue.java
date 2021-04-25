@@ -25,51 +25,53 @@ package com.bw.jtools.properties;
  * Convenience wrapper for a property with Boolean content.
  * Boolean values are shown as combo-box or as checkbox, depending
  * on "nullability".
- *
  */
 public class PropertyBooleanValue extends PropertyValue
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = 8337941711281436742L;
 
 	/**
-     * Creates a new Boolean value.
-     * @param name Name to display.
-     * @param value The initial value. Can be null.
-     */
-    public PropertyBooleanValue( String name, Boolean value )
-    {
-        super( name, Boolean.class );
-        setPayload(value);
-    }
+	 * Creates a new Boolean value.
+	 *
+	 * @param name  Name to display.
+	 * @param value The initial value. Can be null.
+	 */
+	public PropertyBooleanValue(String name, Boolean value)
+	{
+		super(name, Boolean.class);
+		setPayload(value);
+	}
 
-    /**
-     * Convenience setter. Same as setUserObject(v).
-     * @param v The new value.
-     */
-    public void setValue( Boolean v )
-    {
-        setPayload(v);
-    }
+	/**
+	 * Convenience setter. Same as setUserObject(v).
+	 *
+	 * @param v The new value.
+	 */
+	public void setValue(Boolean v)
+	{
+		setPayload(v);
+	}
 
-    /**
-     * Convenience getter.
-     * Same as "(Boolean)getUserObject".
-     * If node is not nullable, Boolean.FALSE is returned in case the
-     * internal value is still null.
-     * @return the current value as Boolean.
-     */
-    public Boolean getValue()
-    {
-        Boolean bv = (Boolean)getPayload();
-        if ( nullable_ || bv != null)
-            return bv;
-        else
-        {
-            return Boolean.FALSE;
-        }
-    }
+	/**
+	 * Convenience getter.
+	 * Same as "(Boolean)getUserObject".
+	 * If node is not nullable, Boolean.FALSE is returned in case the
+	 * internal value is still null.
+	 *
+	 * @return the current value as Boolean.
+	 */
+	public Boolean getValue()
+	{
+		Boolean bv = (Boolean) getPayload();
+		if (nullable_ || bv != null)
+			return bv;
+		else
+		{
+			return Boolean.FALSE;
+		}
+	}
 
 }

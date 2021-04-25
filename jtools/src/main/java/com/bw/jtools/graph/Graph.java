@@ -8,26 +8,29 @@ public class Graph
 	private Node root;
 	private List<GraphListener> listener = new ArrayList<>();
 
-	public Graph() {
+	public Graph()
+	{
 	}
 
-	public void setRoot(Node note ) {
+	public void setRoot(Node note)
+	{
 		root = note;
 	}
 
-	public Node getRoot() {
+	public Node getRoot()
+	{
 		return root;
 	}
 
-	public Edge addEdge(Node parent, Node child )
+	public Edge addEdge(Node parent, Node child)
 	{
-		Edge e = new Edge(parent,child);
+		Edge e = new Edge(parent, child);
 		parent.edges.add(e);
 		child.edges.add(e);
 		return e;
 	}
 
-	public void addGraphListener( GraphListener l )
+	public void addGraphListener(GraphListener l)
 	{
 		synchronized (listener)
 		{
@@ -35,14 +38,16 @@ public class Graph
 		}
 	}
 
-	protected void fireEvent( GraphEvent ev ) {
+	protected void fireEvent(GraphEvent ev)
+	{
 		GraphListener[] la;
 		synchronized (listener)
 		{
 			la = listener.toArray(new GraphListener[listener.size()]);
 		}
-		for ( GraphListener l : la) {
-			l.graphChanged( ev );
+		for (GraphListener l : la)
+		{
+			l.graphChanged(ev);
 		}
 	}
 

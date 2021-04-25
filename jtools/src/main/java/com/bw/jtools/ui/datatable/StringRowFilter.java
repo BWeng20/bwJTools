@@ -9,23 +9,24 @@ import javax.swing.*;
 class StringRowFilter extends RowFilter<DataTableModel, Integer>
 {
 
-    /**
-     * Creates a new filter.
-     */
-    StringRowFilter( String val )
-    {
-        value_ = val;
-    }
+	/**
+	 * Creates a new filter.
+	 */
+	StringRowFilter(String val)
+	{
+		value_ = val;
+	}
 
-    String value_;
+	String value_;
 
-    @Override
-    public boolean include(Entry<? extends DataTableModel, ? extends Integer> entry)
-    {
-        final int N = entry.getValueCount();
-        for ( int i = 0 ; i<N; ++i )
-            if ( entry.getStringValue(i).contains(value_) ) return true;
-        return false;
-    }
+	@Override
+	public boolean include(Entry<? extends DataTableModel, ? extends Integer> entry)
+	{
+		final int N = entry.getValueCount();
+		for (int i = 0; i < N; ++i)
+			if (entry.getStringValue(i)
+					 .contains(value_)) return true;
+		return false;
+	}
 
 }

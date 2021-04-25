@@ -40,119 +40,130 @@ import java.util.List;
  */
 public class PropertyTableModel implements TableModel
 {
-    private List<TableModelListener> listeners_ = new ArrayList<TableModelListener>();
-    private OutlineModel outlineModel_;
-    private boolean editable_ = true;
+	private List<TableModelListener> listeners_ = new ArrayList<TableModelListener>();
+	private OutlineModel outlineModel_;
+	private boolean editable_ = true;
 
-    /**
-     * Creates an new empty table model.
-     */
-    public PropertyTableModel()
-    {
-    }
+	/**
+	 * Creates an new empty table model.
+	 */
+	public PropertyTableModel()
+	{
+	}
 
-    /**
-     * Sets the model editable or read-only.
-     * @param enable True: Editable, False: Read-Only
-     */
-    public void setEditable( boolean enable )
-    {
-        editable_ = enable;
-    }
+	/**
+	 * Sets the model editable or read-only.
+	 *
+	 * @param enable True: Editable, False: Read-Only
+	 */
+	public void setEditable(boolean enable)
+	{
+		editable_ = enable;
+	}
 
-    /**
-     * Sets the outline model.
-     * @param outline The model.
-     */
-    public void setOutlineModel( OutlineModel outline)
-    {
-        this.outlineModel_ = outline;
-    }
+	/**
+	 * Sets the outline model.
+	 *
+	 * @param outline The model.
+	 */
+	public void setOutlineModel(OutlineModel outline)
+	{
+		this.outlineModel_ = outline;
+	}
 
 
-    @Override
-    public Class<?> getColumnClass(int columnIndex) {
-        return String.class;
-    }
+	@Override
+	public Class<?> getColumnClass(int columnIndex)
+	{
+		return String.class;
+	}
 
-    @Override
-    public int getColumnCount() {
-        return PropertyTable.COLUMN_COUNT;
-    }
+	@Override
+	public int getColumnCount()
+	{
+		return PropertyTable.COLUMN_COUNT;
+	}
 
-    @Override
-    public String getColumnName(int columnIndex) {
-        return "";
-    }
+	@Override
+	public String getColumnName(int columnIndex)
+	{
+		return "";
+	}
 
-    @Override
-    public int getRowCount() {
-        return -1;
-    }
+	@Override
+	public int getRowCount()
+	{
+		return -1;
+	}
 
-    @Override
-    public Object getValueAt(int rowIndex, int columnIndex)
-    {
-        // Always return the node, the cell-renderer/-editor
-        // access always through the node.
-        return getNodeForRow(rowIndex);
-    }
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex)
+	{
+		// Always return the node, the cell-renderer/-editor
+		// access always through the node.
+		return getNodeForRow(rowIndex);
+	}
 
-    @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex)
-    {
-        DefaultMutableTreeNode node = getNodeForRow(rowIndex);
-        if (node instanceof PropertyGroupNode)
-        {
-            return false;
-        }
-        else
-        {
-            return editable_;
-        }
-    }
+	@Override
+	public boolean isCellEditable(int rowIndex, int columnIndex)
+	{
+		DefaultMutableTreeNode node = getNodeForRow(rowIndex);
+		if (node instanceof PropertyGroupNode)
+		{
+			return false;
+		}
+		else
+		{
+			return editable_;
+		}
+	}
 
-    @Override
-    public synchronized void removeTableModelListener(TableModelListener l) {
-        listeners_.remove(l);
-    }
+	@Override
+	public synchronized void removeTableModelListener(TableModelListener l)
+	{
+		listeners_.remove(l);
+	}
 
-    @Override
-    public synchronized void addTableModelListener(TableModelListener l) {
-        listeners_.add(l);
-    }
+	@Override
+	public synchronized void addTableModelListener(TableModelListener l)
+	{
+		listeners_.add(l);
+	}
 
-    private void fire (TableModelEvent e) {
-        TableModelListener[] l;
-        synchronized (this) {
-            l = new TableModelListener[listeners_.size()];
-            l = listeners_.toArray (l);
-        }
-        for (TableModelListener tableModelListener : l)
-        {
-            tableModelListener.tableChanged(e);
-        }
-    }
+	private void fire(TableModelEvent e)
+	{
+		TableModelListener[] l;
+		synchronized (this)
+		{
+			l = new TableModelListener[listeners_.size()];
+			l = listeners_.toArray(l);
+		}
+		for (TableModelListener tableModelListener : l)
+		{
+			tableModelListener.tableChanged(e);
+		}
+	}
 
-    /**
-     * Used by CellEditor.
-     * @param rowIndex The model index of the row.
-     * @param columnIndex The model index of the column.
-     */
-    public void fireTableChanged( int rowIndex, int columnIndex )
-    {
-        TableModelEvent e = new TableModelEvent (this, rowIndex, rowIndex, columnIndex);
-        fire(e);
-    }
+	/**
+	 * Used by CellEditor.
+	 *
+	 * @param rowIndex    The model index of the row.
+	 * @param columnIndex The model index of the column.
+	 */
+	public void fireTableChanged(int rowIndex, int columnIndex)
+	{
+		TableModelEvent e = new TableModelEvent(this, rowIndex, rowIndex, columnIndex);
+		fire(e);
+	}
 
-    @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex)
-    {
-        // Not used, Data is maintained directly via Nodes.
-    }
+	@Override
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+	{
+		// Not used, Data is maintained directly via Nodes.
+	}
 
-    private DefaultMutableTreeNode getNodeForRow(int row)
-    {
-        return (DefaultMutableTreeNode) outlineModel_.getValueAt(row, 0);
-    }
+	private DefaultMutableTreeNode getNodeForRow(int row)
+	{
+		return (DefaultMutableTreeNode) outlineModel_.getValueAt(row, 0);
+	}
 }

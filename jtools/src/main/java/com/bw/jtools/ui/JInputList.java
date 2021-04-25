@@ -34,6 +34,7 @@ import java.util.Objects;
 
 /**
  * Combination of input field and list.
+ *
  * @param <T> The element type to select.
  */
 public class JInputList<T> extends JPanel
@@ -49,58 +50,62 @@ public class JInputList<T> extends JPanel
 	/**
 	 * Creates a input list for items with a usable toString function.
 	 */
-	public JInputList(Collection<T> values, int numCols, int numRows ) {
-		this(values, numCols,numRows,null );
+	public JInputList(Collection<T> values, int numCols, int numRows)
+	{
+		this(values, numCols, numRows, null);
 	}
 
 	/**
 	 * Creates an input list with a custom adapter that handles the string representation.
 	 */
-	public JInputList(Collection<T> values, int numCols, int numRows, InputListAdapter<T> adapter) {
+	public JInputList(Collection<T> values, int numCols, int numRows, InputListAdapter<T> adapter)
+	{
 		setLayout(new BorderLayout());
 
-		if ( adapter == null )
+		if (adapter == null)
 			adapter_ = defaultAdapter_;
 		else
 			adapter_ = adapter;
 
 		textfield = new JTextField(numCols);
 		textfield.addActionListener(e -> handleTextInput());
-		textfield.getDocument().addDocumentListener(new DocumentListener()
-		{
-			@Override
-			public void insertUpdate(DocumentEvent e)
-			{
-				handleTextInput();
-			}
+		textfield.getDocument()
+				 .addDocumentListener(new DocumentListener()
+				 {
+					 @Override
+					 public void insertUpdate(DocumentEvent e)
+					 {
+						 handleTextInput();
+					 }
 
-			@Override
-			public void removeUpdate(DocumentEvent e)
-			{
-				handleTextInput();
-			}
+					 @Override
+					 public void removeUpdate(DocumentEvent e)
+					 {
+						 handleTextInput();
+					 }
 
-			@Override
-			public void changedUpdate(DocumentEvent e)
-			{
-				handleTextInput();
-			}
-		});
-		add(textfield,BorderLayout.NORTH);
+					 @Override
+					 public void changedUpdate(DocumentEvent e)
+					 {
+						 handleTextInput();
+					 }
+				 });
+		add(textfield, BorderLayout.NORTH);
 
 		DefaultListModel<T> model = new DefaultListModel<>();
-		for ( T v : values )
-			model.addElement( v );
+		for (T v : values)
+			model.addElement(v);
 		list = new JList<T>(model);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setVisibleRowCount(numRows);
 		list.addListSelectionListener(e -> handleSelectionChange());
 
-		add(new JScrollPane(list),BorderLayout.CENTER);
+		add(new JScrollPane(list), BorderLayout.CENTER);
 	}
 
 	/**
 	 * Sets font for inputfield and list.
+	 *
 	 * @param f The font.
 	 */
 	public void setFont(Font f)
@@ -126,7 +131,8 @@ public class JInputList<T> extends JPanel
 					textfield.setText(l);
 				}
 				fireChange(list.getSelectedIndex());
-			} finally
+			}
+			finally
 			{
 				inUpdate = false;
 			}
@@ -135,7 +141,7 @@ public class JInputList<T> extends JPanel
 
 	protected void handleTextInput()
 	{
-		if ( !inUpdate)
+		if (!inUpdate)
 		{
 			inUpdate = true;
 			try
@@ -143,12 +149,14 @@ public class JInputList<T> extends JPanel
 				ListModel<T> model = list.getModel();
 				int oldIdx = list.getSelectedIndex();
 				int idx = -1;
-				String key = textfield.getText().toLowerCase();
+				String key = textfield.getText()
+									  .toLowerCase();
 				for (int k = 0; k < model.getSize(); k++)
 				{
 					T data = model.getElementAt(k);
 					String dataText = adapter_.text(data);
-					if (dataText.toLowerCase().startsWith(key))
+					if (dataText.toLowerCase()
+								.startsWith(key))
 					{
 						list.setSelectedValue(data, true);
 						idx = k;
@@ -157,21 +165,23 @@ public class JInputList<T> extends JPanel
 				}
 				if (idx != oldIdx)
 					fireChange(idx);
-			} finally
+			}
+			finally
 			{
 				inUpdate = false;
 			}
 		}
 	}
 
-	public void setSelected(T sel) {
+	public void setSelected(T sel)
+	{
 		ListModel<T> model = list.getModel();
 		int N = model.getSize();
 		final String selectedText = adapter_.text(sel);
-		for (int i = 0; i<N ; ++i)
+		for (int i = 0; i < N; ++i)
 		{
 			T item = model.getElementAt(i);
-			if ( Objects.equals( selectedText, adapter_.text( item  ) ))
+			if (Objects.equals(selectedText, adapter_.text(item)))
 			{
 				list.setSelectedIndex(i);
 				break;
@@ -180,26 +190,28 @@ public class JInputList<T> extends JPanel
 		textfield.setText(selectedText);
 	}
 
-	public String getEditedValue() {
+	public String getEditedValue()
+	{
 		return textfield.getText();
 	}
 
-	public T getSelectedItem() {
+	public T getSelectedItem()
+	{
 		return list.getSelectedValue();
 	}
 
-	public void addSelectionListener( ListSelectionListener l )
+	public void addSelectionListener(ListSelectionListener l)
 	{
-		if ( l != null )
+		if (l != null)
 		{
 			removeSelectionListener(l);
-			listener_.add( l );
+			listener_.add(l);
 		}
 	}
 
-	public void removeSelectionListener( ListSelectionListener l )
+	public void removeSelectionListener(ListSelectionListener l)
 	{
-		if ( l != null )
+		if (l != null)
 		{
 			listener_.remove(l);
 		}
@@ -208,14 +220,15 @@ public class JInputList<T> extends JPanel
 	protected void fireChange(int index)
 	{
 		List<ListSelectionListener> ls = new ArrayList<>(listener_);
-		for ( ListSelectionListener ll : ls)
+		for (ListSelectionListener ll : ls)
 		{
-			if ( ll != null ) ll.valueChanged( new ListSelectionEvent(list.getSelectionModel(),index,index, false));
+			if (ll != null) ll.valueChanged(new ListSelectionEvent(list.getSelectionModel(), index, index, false));
 		}
 	}
 
 	/**
 	 * Sets the list cell renderer used in the list-part.
+	 *
 	 * @param cellRenderer
 	 */
 	public void setListCellRenderer(ListCellRenderer cellRenderer)

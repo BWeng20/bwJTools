@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -32,38 +32,37 @@ import java.io.IOException;
  */
 public class DataCSVExporter implements IDataExporter
 {
-    public DataCSVExporter()
-    {
-        // Ensure that we can use CSV functionality.
-        @SuppressWarnings("unused")
+	public DataCSVExporter()
+	{
+		// Ensure that we can use CSV functionality.
+		@SuppressWarnings("unused")
 		CSVFormat f = CSVFormat.EXCEL;
-    }
+	}
 
-    @Override
-    public void export( File file, DataTableModel model ) throws IOException
-    {
-            FileWriter writer = new FileWriter(file, false);
+	@Override
+	public void export(File file, DataTableModel model) throws IOException
+	{
+		FileWriter writer = new FileWriter(file, false);
 
-            final int CN = model.getColumnCount();
-            String[] columns = new String[ CN ];
-            for ( int ci=0 ; ci<CN; ++ci )
-                columns[ci] = model.getColumnName(ci);
+		final int CN = model.getColumnCount();
+		String[] columns = new String[CN];
+		for (int ci = 0; ci < CN; ++ci)
+			columns[ci] = model.getColumnName(ci);
 
+		CSVFormat csvFormat = CSVFormat.RFC4180.withHeader(columns);
 
-            CSVFormat csvFormat = CSVFormat.RFC4180.withHeader( columns );
+		CSVPrinter printer = csvFormat.print(writer);
 
-            CSVPrinter printer = csvFormat.print(writer);
+		final int rowCount = model.getRowCount();
+		Object[] row = new Object[CN];
+		for (int rIdx = 0; rIdx < rowCount; ++rIdx)
+		{
+			for (int ci = 0; ci < CN; ++ci)
+				row[ci] = model.getValueAt(rIdx, ci);
 
-            final int rowCount = model.getRowCount();
-            Object[] row = new Object[ CN ];
-            for (int rIdx = 0; rIdx < rowCount; ++rIdx)
-            {
-                for ( int ci=0 ; ci<CN; ++ci )
-                    row[ci] = model.getValueAt(rIdx, ci);
-
-                printer.printRecord( row );
-            }
-            printer.flush();
-            printer.close();
-    }
+			printer.printRecord(row);
+		}
+		printer.flush();
+		printer.close();
+	}
 }

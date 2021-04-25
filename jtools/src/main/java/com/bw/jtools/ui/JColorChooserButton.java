@@ -31,108 +31,113 @@ import java.awt.*;
  */
 public class JColorChooserButton extends JChooserButtonBase<Color>
 {
-    private JColorIcon colorIcon_;
-    private boolean showValue_ = true;
+	private JColorIcon colorIcon_;
+	private boolean showValue_ = true;
 
-    /**
-     * Gets the color icon.
-     * @return The icon.
-     */
-    public JColorIcon getColorIcon()
-    {
-        if ( colorIcon_ == null )
-        {
-            colorIcon_ = new JColorIcon(13, 13, null);
-        }
-        return colorIcon_;
-    }
+	/**
+	 * Gets the color icon.
+	 *
+	 * @return The icon.
+	 */
+	public JColorIcon getColorIcon()
+	{
+		if (colorIcon_ == null)
+		{
+			colorIcon_ = new JColorIcon(13, 13, null);
+		}
+		return colorIcon_;
+	}
 
-    /**
-     * Sets the color.
-     * @param c The new color
-     */
-    @Override
-    public void setValue(Color c)
-    {
-        super.setValue(c);
-        updateText();
-        getColorIcon().setColor(c);
-    }
+	/**
+	 * Sets the color.
+	 *
+	 * @param c The new color
+	 */
+	@Override
+	public void setValue(Color c)
+	{
+		super.setValue(c);
+		updateText();
+		getColorIcon().setColor(c);
+	}
 
-    protected void updateText()
-    {
-        Color c = getValue();
-        if ( c != null && showValue_)
-        {
-            StringBuilder sb = new StringBuilder(20);
-            sb.append(c.getRed()).append(",");
-            sb.append(c.getGreen()).append(",");
-            sb.append(c.getBlue());
-            setText(sb.toString());
-        } else
-            setText(null);
+	protected void updateText()
+	{
+		Color c = getValue();
+		if (c != null && showValue_)
+		{
+			StringBuilder sb = new StringBuilder(20);
+			sb.append(c.getRed())
+			  .append(",");
+			sb.append(c.getGreen())
+			  .append(",");
+			sb.append(c.getBlue());
+			setText(sb.toString());
+		}
+		else
+			setText(null);
 
-    }
+	}
 
-    /**
-     * Creates a new Color-Button
-     */
-    public JColorChooserButton()
-    {
-        super( I18N.getText("colorchooser.defaultDialogTitle"));
-        setIcon(getColorIcon());
-        setIconTextGap(5);
-        setOpaque(false);
-        setBorderPainted(true);
-        setHorizontalAlignment(JButton.LEFT);
-    }
+	/**
+	 * Creates a new Color-Button
+	 */
+	public JColorChooserButton()
+	{
+		super(I18N.getText("colorchooser.defaultDialogTitle"));
+		setIcon(getColorIcon());
+		setIconTextGap(5);
+		setOpaque(false);
+		setBorderPainted(true);
+		setHorizontalAlignment(JButton.LEFT);
+	}
 
-    @Override
-    public void updateUI()
-    {
-        setMargin(null);
-        super.updateUI();
+	@Override
+	public void updateUI()
+	{
+		setMargin(null);
+		super.updateUI();
 
-        Insets i = getMargin();
-        setMargin(new Insets(i.top, 5, i.bottom, 5));
-    }
+		Insets i = getMargin();
+		setMargin(new Insets(i.top, 5, i.bottom, 5));
+	}
 
-    /**
-     * Controls display of the color RGB-value.
-     */
-    public void setShowValue( boolean enable )
-    {
-        if ( showValue_ != enable)
-        {
-            showValue_ = enable;
-            setBorderPainted(showValue_);
-            updateText();
-            invalidate();
-        }
-    }
+	/**
+	 * Controls display of the color RGB-value.
+	 */
+	public void setShowValue(boolean enable)
+	{
+		if (showValue_ != enable)
+		{
+			showValue_ = enable;
+			setBorderPainted(showValue_);
+			updateText();
+			invalidate();
+		}
+	}
 
-    @Override
-    public Dimension getPreferredSize()
-    {
-        if ( showValue_ )
-        {
-            Dimension d = super.getPreferredSize();
+	@Override
+	public Dimension getPreferredSize()
+	{
+		if (showValue_)
+		{
+			Dimension d = super.getPreferredSize();
 
-            Font font = getFont();
-            FontMetrics fm = getFontMetrics(font);
+			Font font = getFont();
+			FontMetrics fm = getFontMetrics(font);
 
-            return new Dimension(Math.max(d.width, fm.stringWidth("255,255,255") + 35), d.height);
-        }
-        else
-            return new Dimension(35,35);
-    }
+			return new Dimension(Math.max(d.width, fm.stringWidth("255,255,255") + 35), d.height);
+		}
+		else
+			return new Dimension(35, 35);
+	}
 
-    @Override
-    protected Color showChooserDialog()
-    {
-        return JColorChooser.showDialog(this,
-                getDialogTitle(),
-                getValue());
-    }
+	@Override
+	protected Color showChooserDialog()
+	{
+		return JColorChooser.showDialog(this,
+				getDialogTitle(),
+				getValue());
+	}
 
 }

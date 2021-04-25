@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,7 @@ public class JLink extends JLabel
 
 	/**
 	 * Sets the URI to link to.
-	 * 
+	 *
 	 * @param uri The URI call on click.
 	 */
 	public void setUri(String uri)
@@ -67,7 +67,8 @@ public class JLink extends JLabel
 			uri_ = new URI(uri);
 			setToolTipText(uri);
 			force_disable_ = !Desktop.isDesktopSupported();
-		} catch (Exception uriEx)
+		}
+		catch (Exception uriEx)
 		{
 			setToolTipText(null);
 			Log.error("Malformed URI " + uri, uriEx);
@@ -81,7 +82,7 @@ public class JLink extends JLabel
 
 	/**
 	 * Sets the shown Alias.
-	 * 
+	 *
 	 * @param name The alias to show instead of the full link.
 	 */
 	public void setAlias(String name)
@@ -93,12 +94,12 @@ public class JLink extends JLabel
 	private void update_text()
 	{
 		setText(mouse_entered_ ? "<HTML><FONT color='" + col_ + "'><u>" + alias_ + "</u></FONT></HTML>"
-		        : "<HTML><FONT color='" + col_ + "'>" + alias_ + "</FONT></HTML>");
+				: "<HTML><FONT color='" + col_ + "'>" + alias_ + "</FONT></HTML>");
 	}
 
 	/**
 	 * Create a link label with URI and alias text.
-	 * 
+	 *
 	 * @param uri  The URI to link to.
 	 * @param text The shown text.
 	 */
@@ -117,17 +118,20 @@ public class JLink extends JLabel
 		if (Desktop.isDesktopSupported())
 		{
 			force_disable_ = false;
-			addMouseListener(new MouseAdapter() {
+			addMouseListener(new MouseAdapter()
+			{
 				@Override
 				public void mouseClicked(MouseEvent e)
 				{
 					try
 					{
-						Desktop.getDesktop().browse(uri_);
+						Desktop.getDesktop()
+							   .browse(uri_);
 						col_ = "#660099";
 						update_text();
 
-					} catch (Exception exp)
+					}
+					catch (Exception exp)
 					{
 						Log.error("Failed to open " + uri_, exp);
 					}
@@ -146,7 +150,8 @@ public class JLink extends JLabel
 				}
 
 			});
-		} else
+		}
+		else
 		{
 			force_disable_ = true;
 			// Report this only once.

@@ -34,7 +34,7 @@ public class ClosestPoint
 		}
 		else
 		{
-			result = new Point((int) (0.5+lp1.x + param * C),(int) (0.5+lp1.y + param * D) );
+			result = new Point((int) (0.5 + lp1.x + param * C), (int) (0.5 + lp1.y + param * D));
 		}
 		return result;
 	}
@@ -43,15 +43,16 @@ public class ClosestPoint
 	 * Get closest point from p1 to path p2.
 	 * p2 have to contain at least one point.
 	 */
-	public static Point onPath(Point p1, Point... p2 ) {
+	public static Point onPath(Point p1, Point... p2)
+	{
 
 		Point best = null;
-		if ( p2.length > 0)
+		if (p2.length > 0)
 		{
 			best = p2[0];
-			if ( p2.length > 1)
+			if (p2.length > 1)
 			{
-				long bestD = Distance.squared(p1,best);
+				long bestD = Distance.squared(p1, best);
 
 				for (int i = 1; i < p2.length; ++i)
 				{

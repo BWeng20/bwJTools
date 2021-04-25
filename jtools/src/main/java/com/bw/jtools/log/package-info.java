@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
 
 /**
  * Implementation details for the {@link com.bw.jtools.Log Log} class.
+ *
  * @see com.bw.jtools.Log
  */
 package com.bw.jtools.log;

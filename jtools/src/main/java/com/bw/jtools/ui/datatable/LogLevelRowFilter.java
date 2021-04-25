@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -27,29 +27,29 @@ import javax.swing.*;
  */
 public class LogLevelRowFilter extends RowFilter<DataTableModel, Integer>
 {
-    boolean[] level_;
+	boolean[] level_;
 
-    public LogLevelRowFilter(boolean[] level)
-    {
-        level_ = level;
-    }
+	public LogLevelRowFilter(boolean[] level)
+	{
+		level_ = level;
+	}
 
 
-    @Override
-    public boolean include(Entry<? extends DataTableModel, ? extends Integer> entry)
-    {
-        final int N = entry.getValueCount();
-        if ( N >= 2 )
-        {
-            Object o = entry.getValue(1);
-            if ( o != null && o instanceof Number )
-            {
-                int i = ((Number)o).intValue();
-                if ( i>=0 && i<level_.length)
-                    return level_[i];
-            }
-        }
-        return false;
-    }
+	@Override
+	public boolean include(Entry<? extends DataTableModel, ? extends Integer> entry)
+	{
+		final int N = entry.getValueCount();
+		if (N >= 2)
+		{
+			Object o = entry.getValue(1);
+			if (o != null && o instanceof Number)
+			{
+				int i = ((Number) o).intValue();
+				if (i >= 0 && i < level_.length)
+					return level_[i];
+			}
+		}
+		return false;
+	}
 
 }

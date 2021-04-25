@@ -21,121 +21,131 @@
  */
 package com.bw.jtools.ui.filechooserpreview;
 
+import com.bw.jtools.io.IOTool;
+
 import javax.swing.*;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Handles preview of text files.
  */
 public class TextPreviewHandler extends PreviewHandler
 {
-    /**
-     * Creates a new handler.
-     */
-    protected TextPreviewHandler()
-    {
-        // File name pattern for supported text-files.
-        super("(?i).*\\.(txt|text|xml|html|htm|js|cmd|sh|sql)");
-    }
+	/**
+	 * Creates a new handler.
+	 */
+	protected TextPreviewHandler()
+	{
+		// File name pattern for supported text-files.
+		super("(?i).*\\.(txt|text|xml|html|htm|js|cmd|sh|sql)");
+	}
 
-    /**
-     * Sets the length of the preview text.
-     * Default is 1024.
-     */
-    public void setPreviewTextLength( int length )
-    {
-        previewTextLength_ = length;
-    }
+	/**
+	 * Sets the length of the preview text.
+	 * Default is 1024.
+	 */
+	public void setPreviewTextLength(int length)
+	{
+		previewTextLength_ = length;
+	}
 
-    /**
-     * Gets the length of the preview text.
-     */
-    public int getPreviewTextLength()
-    {
-        return previewTextLength_;
-    }
+	/**
+	 * Gets the length of the preview text.
+	 */
+	public int getPreviewTextLength()
+	{
+		return previewTextLength_;
+	}
 
-    /** Length of text to load for preview. */
-    protected int previewTextLength_ = 1024;
+	/**
+	 * Length of text to load for preview.
+	 */
+	protected int previewTextLength_ = 1024;
 
-    /**
-     * Swing worker to load the text.
-     */
-    protected class TextLoader extends SwingWorker<Boolean, Object>
-    {
-        PreviewProxy proxy_;
-        int length_;
+	/**
+	 * Swing worker to load the text.
+	 */
+	protected class TextLoader extends SwingWorker<Boolean, Object>
+	{
+		PreviewProxy proxy_;
+		int length_;
 
-        public TextLoader( PreviewProxy proxy, int length )
-        {
-            proxy_ = proxy;
-            length_ = length;
-        }
+		public TextLoader(PreviewProxy proxy, int length)
+		{
+			proxy_ = proxy;
+			length_ = length;
+		}
 
-        @Override
-        protected Boolean doInBackground() throws Exception
-        {
-            String text = null;
-            boolean ok = false;
-            try
-            {
-                try (FileInputStream fis = new FileInputStream(proxy_.path_))
-                {
-                    char[] buffer = new char[length_];
-                    InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-                    final int l = isr.read(buffer);
-                    if ( l > 0)
-                    {
-                        text = new String(buffer, 0, l);
-                        ok = true;
-                    }
-                }
-            } catch (Exception e)
-            {
-            }
-            synchronized (proxy_)
-            {
-                proxy_.imageContent_ = null;
-                if ( ok )
-                {
-                    proxy_.textContent_ = text;
-                    proxy_.message_ = null;
-                }
-                else
-                {
-                    proxy_.textContent_ = null;
-                    proxy_.message_ = config_.errorText_;
-                }
-                proxy_.complete = true;
-            }
+		@Override
+		protected Boolean doInBackground() throws Exception
+		{
+			String text = null;
+			boolean ok = false;
+			try
+			{
+				try (InputStream fis = Files.newInputStream(IOTool.getPath(proxy_.uri_)))
+				{
+					char[] buffer = new char[length_];
+					InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+					final int l = isr.read(buffer);
+					if (l > 0)
+					{
+						text = new String(buffer, 0, l);
+						ok = true;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+			}
+			synchronized (proxy_)
+			{
+				proxy_.imageContent_ = null;
+				if (ok)
+				{
+					proxy_.textContent_ = text;
+					proxy_.message_ = null;
+				}
+				else
+				{
+					proxy_.textContent_ = null;
+					proxy_.message_ = config_.errorText_;
+				}
+				proxy_.complete = true;
+			}
 
-            return ok;
-        }
+			return ok;
+		}
 
-        @Override
-        protected void done() {
-            if ( proxy_ != null && proxy_.activeAndPending)
-            {
-                proxy_.activeAndPending = false;
-                if (config_ != null)
-                    config_.update(proxy_);
-            }
-        }
-    }
+		@Override
+		protected void done()
+		{
+			if (proxy_ != null && proxy_.activeAndPending)
+			{
+				proxy_.activeAndPending = false;
+				if (config_ != null)
+					config_.update(proxy_);
+			}
+		}
+	}
 
-    @Override
-    protected PreviewProxy createPreviewProxy(File file, String canonicalPath)
-    {
-        final String fname = file.getName();
+	@Override
+	protected PreviewProxy createPreviewProxy(Path file, String canonicalPath)
+	{
+		final String fname = file.getFileName()
+								 .toString();
 
-        final PreviewProxy proxy = new PreviewProxy();
-        proxy.path_ = canonicalPath;
-        proxy.config_ = config_;
+		final PreviewProxy proxy = new PreviewProxy();
+		proxy.uri_ = file.normalize()
+						 .toUri()
+						 .toString();
+		proxy.config_ = config_;
 
-        new TextLoader(proxy, previewTextLength_).execute();
-        return proxy;
-    }
+		new TextLoader(proxy, previewTextLength_).execute();
+		return proxy;
+	}
 }

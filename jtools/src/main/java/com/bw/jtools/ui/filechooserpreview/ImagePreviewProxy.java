@@ -32,75 +32,77 @@ import java.awt.image.ImageObserver;
  */
 class ImagePreviewProxy extends PreviewProxy implements ImageObserver
 {
-    /**
-     * The original image.
-     */
-    protected Image image;
+	/**
+	 * The original image.
+	 */
+	protected Image image;
 
-    /**
-     * The original width of the image
-     */
-    protected int width_ = -1;
+	/**
+	 * The original width of the image
+	 */
+	protected int width_ = -1;
 
-    /**
-     * The original height of the image
-     */
-    protected int height_ = -1;
+	/**
+	 * The original height of the image
+	 */
+	protected int height_ = -1;
 
-    /**
-     * Is called if more of the image gets available.
-     * Used for the scaled and original image.
-     */
-    @Override
-    public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height)
-    {
-        if (img == image)
-        {
-            boolean dimReady = height_ != -1 && width_ != -1;
-            if ( !dimReady )
-            {
-                if (0 != (ImageObserver.HEIGHT & infoflags))
-                    height_ = height;
-                if (0 != (ImageObserver.WIDTH & infoflags))
-                    width_ = width;
+	/**
+	 * Is called if more of the image gets available.
+	 * Used for the scaled and original image.
+	 */
+	@Override
+	public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height)
+	{
+		if (img == image)
+		{
+			boolean dimReady = height_ != -1 && width_ != -1;
+			if (!dimReady)
+			{
+				if (0 != (ImageObserver.HEIGHT & infoflags))
+					height_ = height;
+				if (0 != (ImageObserver.WIDTH & infoflags))
+					width_ = width;
 
-                dimReady = height_ != -1 && width_ != -1;
-                if (dimReady)
-                {
-                    InfoEntry imageInfo = new InfoEntry();
-                    imageInfo.name = I18N.getText("filechooser.preview.dimension");
-                    imageInfo.value = String.valueOf(width_) + " x " + String.valueOf(height_);
-                    additionalInformation_.add(imageInfo);
-                }
-            }
-            if (Log.isDebugEnabled() )
-                log("Original flags "+infoflags+": "+width_+"x"+height_);
-            return (ImageObserver.ALLBITS > infoflags) && !dimReady;
-        }
-        else if (ImageObserver.ALLBITS <= infoflags)
-        {
-            synchronized (this)
-            {
-                complete = true;
-                if (activeAndPending)
-                {
-                    log("Finished (flags "+infoflags+")");
-                    activeAndPending = false;
-                    if (ImageObserver.ALLBITS == infoflags)
-                    {
-                        message_ = null;
-                    } else
-                    {
-                        image = null;
-                        imageContent_ = config_.errorImage_;
-                        message_ = config_.errorText_;
-                    }
-                    config_.update(this);
-                }
-            }
-            // Stop observing.
-            return false;
-        } else
-            return true;
-    }
+				dimReady = height_ != -1 && width_ != -1;
+				if (dimReady)
+				{
+					InfoEntry imageInfo = new InfoEntry();
+					imageInfo.name = I18N.getText("filechooser.preview.dimension");
+					imageInfo.value = String.valueOf(width_) + " x " + String.valueOf(height_);
+					additionalInformation_.add(imageInfo);
+				}
+			}
+			if (Log.isDebugEnabled())
+				log("Original flags " + infoflags + ": " + width_ + "x" + height_);
+			return (ImageObserver.ALLBITS > infoflags) && !dimReady;
+		}
+		else if (ImageObserver.ALLBITS <= infoflags)
+		{
+			synchronized (this)
+			{
+				complete = true;
+				if (activeAndPending)
+				{
+					log("Finished (flags " + infoflags + ")");
+					activeAndPending = false;
+					if (ImageObserver.ALLBITS == infoflags)
+					{
+						message_ = null;
+					}
+					else
+					{
+						image = null;
+						imageContent_ = config_.errorImage_;
+						message_ = config_.errorText_;
+					}
+					config_.update(this);
+				}
+			}
+			// Stop observing.
+			return false;
+		}
+		else
+			return true;
+	}
 }

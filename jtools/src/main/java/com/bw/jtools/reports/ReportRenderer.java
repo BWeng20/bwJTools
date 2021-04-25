@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,35 +23,55 @@ package com.bw.jtools.reports;
 
 public abstract class ReportRenderer
 {
-    public abstract void startDocument(String title);
-    public abstract void startParagraph();
-    public abstract void addText(String text, TextOptions options);
-    public abstract void endParagraph();
-    public abstract void startTable();
-    public abstract void startTableHead();
-    public abstract void startRow();
-    public abstract void startCell(int spans);
-    public abstract void endCell();
-    public abstract void endRow();
-    public abstract void endTableHead();
-    public abstract void endTable();
+	public abstract void startDocument(String title);
+
+	public abstract void startParagraph();
+
+	public abstract void addText(String text, TextOptions options);
+
+	public abstract void endParagraph();
+
+	public abstract void startTable();
+
+	public abstract void startTableHead();
+
+	public abstract void startRow();
+
+	public abstract void startCell(int spans);
+
+	public abstract void endCell();
+
+	public abstract void endRow();
+
+	public abstract void endTableHead();
+
+	public abstract void endTable();
+
 	public abstract void startList();
-	public abstract void startListHeader();	
-	public abstract void endListHeader();	
+
+	public abstract void startListHeader();
+
+	public abstract void endListHeader();
+
 	public abstract void startListBody();
+
 	public abstract void endListBody();
+
 	public abstract void startListElement();
+
 	public abstract void endListElement();
+
 	public abstract void endList();
-    public abstract void endDocument();
+
+	public abstract void endDocument();
 
 
-    public TextOptions defaultOptions = new TextOptions();
+	public TextOptions defaultOptions = new TextOptions();
 
-    public void addText(String text )
-    {
-        addText(text, defaultOptions );
-    }
+	public void addText(String text)
+	{
+		addText(text, defaultOptions);
+	}
 
 
 }

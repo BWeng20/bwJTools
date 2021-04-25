@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,52 +23,52 @@ package com.bw.jtools.reports;
 
 public final class ReportText extends ReportElement
 {
-    public String text;
-    public TextOptions options;
+	public String text;
+	public TextOptions options;
 
-    public ReportText(String text)
-    {
-        this.text = text;
-    }
+	public ReportText(String text)
+	{
+		this.text = text;
+	}
 
-    public ReportText setBold()
-    {
-        return setBold(true);
-    }
+	public ReportText setBold()
+	{
+		return setBold(true);
+	}
 
-    public ReportText setBold(boolean bold)
-    {
-        if ( options == null ) options = new TextOptions();
-        options.bold = bold;
-        return this;
-    }
+	public ReportText setBold(boolean bold)
+	{
+		if (options == null) options = new TextOptions();
+		options.bold = bold;
+		return this;
+	}
 
-    public ReportText setItalic()
-    {
-        return setItalic(true);
-    }
+	public ReportText setItalic()
+	{
+		return setItalic(true);
+	}
 
-    public ReportText setItalic(boolean italic)
-    {
-        if ( options == null ) options = new TextOptions();
-        options.italic = italic;
-        return this;
-    }
+	public ReportText setItalic(boolean italic)
+	{
+		if (options == null) options = new TextOptions();
+		options.italic = italic;
+		return this;
+	}
 
 
-    @Override
-    public ReportElement add(ReportElement e) throws IllegalArgumentException
-    {
-        throw new IllegalArgumentException("No sub-elements allowed for ReportText.");
-    }
+	@Override
+	public ReportElement add(ReportElement e) throws IllegalArgumentException
+	{
+		throw new IllegalArgumentException("No sub-elements allowed for ReportText.");
+	}
 
-    @Override
-    public void render(ReportRenderer renderer)
-    {
-        if ( options != null )
-            renderer.addText(text, options);
-        else
-            renderer.addText(text);
-    }
+	@Override
+	public void render(ReportRenderer renderer)
+	{
+		if (options != null)
+			renderer.addText(text, options);
+		else
+			renderer.addText(text);
+	}
 
 }

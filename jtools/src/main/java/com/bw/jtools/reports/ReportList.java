@@ -24,46 +24,47 @@ package com.bw.jtools.reports;
 public class ReportList extends ReportElement
 {
 	private ReportElement name;
-	
-    public ReportList(String name)
-    {
-    	this.name = new ReportText(name);
-    }
-    
-    public ReportList(ReportElement name)
-    {
-    	this.name = name;
-    }    
-	
-	
-	
-    @Override
-    public ReportElement add(ReportElement e) throws IllegalArgumentException
-    {
-        if ( e instanceof ReportListElement )
-        {
-            super.add(e);
-        }
-        else {
-            super.add( new ReportListElement().add( e ) );
-        	
-        }
-        return this;
-    }
-	
 
-    @Override
-    public void render(ReportRenderer renderer)
-    {
-        renderer.startList();
-        if ( name != null ) {
-        	renderer.startListHeader();
-            renderer.endListHeader();
-        }
-        renderer.startListBody();        
-        renderer.startList();
-        super.render(renderer);
-        renderer.endList();
-    }
+	public ReportList(String name)
+	{
+		this.name = new ReportText(name);
+	}
+
+	public ReportList(ReportElement name)
+	{
+		this.name = name;
+	}
+
+
+	@Override
+	public ReportElement add(ReportElement e) throws IllegalArgumentException
+	{
+		if (e instanceof ReportListElement)
+		{
+			super.add(e);
+		}
+		else
+		{
+			super.add(new ReportListElement().add(e));
+
+		}
+		return this;
+	}
+
+
+	@Override
+	public void render(ReportRenderer renderer)
+	{
+		renderer.startList();
+		if (name != null)
+		{
+			renderer.startListHeader();
+			renderer.endListHeader();
+		}
+		renderer.startListBody();
+		renderer.startList();
+		super.render(renderer);
+		renderer.endList();
+	}
 
 }

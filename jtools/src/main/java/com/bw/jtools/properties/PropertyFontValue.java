@@ -28,66 +28,74 @@ import java.awt.*;
  */
 public class PropertyFontValue extends PropertyValue
 {
-    /**
+	/**
 	 * Variable serialVersionUID of long
 	 */
 	private static final long serialVersionUID = 8880872805669539218L;
 
 	/**
-     * Creates a "font"-value with name and value.
-     * @param name   Name of the property.
-     * @param value  The value. Can be null.
-     */
-    public PropertyFontValue(String name, Font value )
-    {
-        super( name, Font.class );
-        setPayload(value);
-    }
+	 * Creates a "font"-value with name and value.
+	 *
+	 * @param name  Name of the property.
+	 * @param value The value. Can be null.
+	 */
+	public PropertyFontValue(String name, Font value)
+	{
+		super(name, Font.class);
+		setPayload(value);
+	}
 
-    /**
-     * Convenience getter.
-     * Same as (Font)getUserObject().
-     * @return The Color of null.
-     */
-    public Font getValue( )
-    {
-        return (Font)getPayload();
-    }
+	/**
+	 * Convenience getter.
+	 * Same as (Font)getUserObject().
+	 *
+	 * @return The Color of null.
+	 */
+	public Font getValue()
+	{
+		return (Font) getPayload();
+	}
 
-    /**
-     * Convenience setter.
-     * Same as "setUserObject(v)".
-     * @param v The value to set. Can be null.
-     */
-    public void setValue( Font v )
-    {
-        setPayload(v);
-    }
+	/**
+	 * Convenience setter.
+	 * Same as "setUserObject(v)".
+	 *
+	 * @param v The value to set. Can be null.
+	 */
+	public void setValue(Font v)
+	{
+		setPayload(v);
+	}
 
-    /**
-     * Gets the Font as String.
-     */
-    public String toString()
-    {
-        return toString((Font)getPayload() );
-    }
+	/**
+	 * Gets the Font as String.
+	 */
+	public String toString()
+	{
+		return toString((Font) getPayload());
+	}
 
-    /**
-     * Gets the Font as String.
-     */
-    public static String toString( Font font )
-    {
-        StringBuilder sb = new StringBuilder();
-        if ( font != null )
-        {
-            sb.append(font.getFontName()).append('-');
-            if (font.isBold()) {
-                sb.append( font.isItalic() ? "bolditalic" : "bold" );
-            } else {
-                sb.append( font.isItalic() ? "italic" : "plain" );
-            }
-            sb.append('-').append(font.getSize());
-        }
-        return sb.toString();
-    }
+	/**
+	 * Gets the Font as String.
+	 */
+	public static String toString(Font font)
+	{
+		StringBuilder sb = new StringBuilder();
+		if (font != null)
+		{
+			sb.append(font.getFontName())
+			  .append('-');
+			if (font.isBold())
+			{
+				sb.append(font.isItalic() ? "bolditalic" : "bold");
+			}
+			else
+			{
+				sb.append(font.isItalic() ? "italic" : "plain");
+			}
+			sb.append('-')
+			  .append(font.getSize());
+		}
+		return sb.toString();
+	}
 }

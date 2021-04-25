@@ -47,26 +47,40 @@ import java.util.regex.PatternSyntaxException;
  */
 public class JFontChooser extends JComponent
 {
-	/** The list of fonts. */
+	/**
+	 * The list of fonts.
+	 */
 	private JInputList<Font> fontNames_;
 
-	/** "bold" setting. */
+	/**
+	 * "bold" setting.
+	 */
 	private JCheckBox boldCheck_;
 
-	/** "italic" setting. */
+	/**
+	 * "italic" setting.
+	 */
 	private JCheckBox italicCheck_;
 
-	/** Selection of font size. Can be selected and manually set. */
+	/**
+	 * Selection of font size. Can be selected and manually set.
+	 */
 	private JInputList<String> sizes_;
 
-	/** Example text to show the resulting font. */
+	/**
+	 * Example text to show the resulting font.
+	 */
 	private JTextPane demo_;
 
-	/** List of available fonts from system. */
+	/**
+	 * List of available fonts from system.
+	 */
 	private static List<Font> systemFonts = new ArrayList<>();
 
-	/** List of available fonts from class path. */
-	private static Map<String,Font> resourceFonts_ = new HashMap<>();
+	/**
+	 * List of available fonts from class path.
+	 */
+	private static Map<String, Font> resourceFonts_ = new HashMap<>();
 
 	private static final String symbolDemoText_;
 	private static final String demoText_;
@@ -78,13 +92,16 @@ public class JFontChooser extends JComponent
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < 20; ++i)
 		{
-			sb.append((char) (0xF041 + i)).append(' ');
+			sb.append((char) (0xF041 + i))
+			  .append(' ');
 		}
 		symbolDemoText_ = sb.toString();
-		demoText_ = I18N.getText( "fontchooser.demotext" );
+		demoText_ = I18N.getText("fontchooser.demotext");
 	}
 
-	/** The selected font. */
+	/**
+	 * The selected font.
+	 */
 	protected Font chosenFont_;
 
 	/**
@@ -97,7 +114,8 @@ public class JFontChooser extends JComponent
 		{
 			if (systemFonts.isEmpty())
 			{
-				String[] fontNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+				String[] fontNames = GraphicsEnvironment.getLocalGraphicsEnvironment()
+														.getAvailableFontFamilyNames();
 				for (String name : fontNames)
 				{
 					systemFonts.add(new Font(name, Font.PLAIN, DEFAULT_FONT_SIZE));
@@ -110,24 +128,26 @@ public class JFontChooser extends JComponent
 		{
 			fonts.addAll(resourceFonts_.values());
 		}
-		fonts.sort((f1, f2) -> f1.getFontName().compareTo(f2.getFontName()));
+		fonts.sort((f1, f2) -> f1.getFontName()
+								 .compareTo(f2.getFontName()));
 		return fonts;
 	}
 
 	/**
 	 * Adds True-Type and Open-Type fonts from resources.<br>
 	 * Font integrated in jtools are added automatically.
-	 * @param loader The Classloader to scan.
+	 *
+	 * @param loader       The Classloader to scan.
 	 * @param startPackage A start prefix in resource-syntax, e.g. "com/myapp".
 	 */
-	public static void addFontsFromResources( ClassLoader loader, String startPackage )
+	public static void addFontsFromResources(ClassLoader loader, String startPackage)
 	{
 		try
 		{
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
 			List<URI> fontURIs = IOTool.scanClasspath(loader, startPackage, "(?i).+\\.(ttf|otf)");
-			for ( URI uri : fontURIs )
+			for (URI uri : fontURIs)
 			{
 				try
 				{
@@ -135,20 +155,21 @@ public class JFontChooser extends JComponent
 					Font f = null;
 					try (InputStream is = url.openStream())
 					{
-						f = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont( Font.PLAIN, DEFAULT_FONT_SIZE);
+						f = Font.createFont(Font.TRUETYPE_FONT, is)
+								.deriveFont(Font.PLAIN, DEFAULT_FONT_SIZE);
 					}
 					ge.registerFont(f);
 
 					synchronized (resourceFonts_)
 					{
-						resourceFonts_.put( f.getFontName(), f );
+						resourceFonts_.put(f.getFontName(), f);
 					}
-					if ( Log.isDebugEnabled() )
-						Log.debug( "Loaded font '"+f.getFontName()+"' from "+url.toExternalForm());
+					if (Log.isDebugEnabled())
+						Log.debug("Loaded font '" + f.getFontName() + "' from " + url.toExternalForm());
 				}
-				catch( Exception e)
+				catch (Exception e)
 				{
-					Log.error( "Failed to load font "+uri, e);
+					Log.error("Failed to load font " + uri, e);
 				}
 			}
 		}
@@ -158,7 +179,7 @@ public class JFontChooser extends JComponent
 		}
 		catch (Exception e)
 		{
-			Log.error( "Failed to scan classpath", e);
+			Log.error("Failed to scan classpath", e);
 		}
 	}
 
@@ -172,21 +193,23 @@ public class JFontChooser extends JComponent
 
 		fontNames_ = new JInputList<Font>(getAvailableFonts(), 30, 10,
 				(item) -> item == null ? "" : item.getFamily());
-		fontNames_.setFont(fontNames_.getFont().deriveFont(Font.PLAIN, DEFAULT_FONT_SIZE));
+		fontNames_.setFont(fontNames_.getFont()
+									 .deriveFont(Font.PLAIN, DEFAULT_FONT_SIZE));
 
 
 		ListSelectionListener ll = e -> updateDemo();
 
-		fontNames_.setListCellRenderer(new FontCellRenderer() );
+		fontNames_.setListCellRenderer(new FontCellRenderer());
 		fontNames_.addSelectionListener(ll);
 
 		sizes_ = new JInputList<String>(
-				Arrays.asList(new String[] { "8", "9", "10", "11", "12", "14", "16","18", "20", "22", "24", "26", "28", "36", "48", "72" }),
-				5 ,10 );
+				Arrays.asList(new String[]{"8", "9", "10", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72"}),
+				5, 10);
 
 		sizes_.setSelected("12");
 		sizes_.addSelectionListener(ll);
-		sizes_.setFont(sizes_.getFont().deriveFont(Font.PLAIN, DEFAULT_FONT_SIZE));
+		sizes_.setFont(sizes_.getFont()
+							 .deriveFont(Font.PLAIN, DEFAULT_FONT_SIZE));
 
 		boldCheck_ = new JCheckBox("Bold");
 		italicCheck_ = new JCheckBox("Italic");
@@ -202,16 +225,17 @@ public class JFontChooser extends JComponent
 		demo_.setDisabledTextColor(Color.BLACK);
 		demo_.setEditorKit(new CenterEditorKit());
 
-		demo_.setText( demoText_ );
+		demo_.setText(demoText_);
 
-		StyledDocument doc=(StyledDocument)demo_.getDocument();
-		SimpleAttributeSet attrs=new SimpleAttributeSet();
-		StyleConstants.setAlignment(attrs,StyleConstants.ALIGN_CENTER);
-		doc.setParagraphAttributes(0,doc.getLength()-1,attrs,false);
+		StyledDocument doc = (StyledDocument) demo_.getDocument();
+		SimpleAttributeSet attrs = new SimpleAttributeSet();
+		StyleConstants.setAlignment(attrs, StyleConstants.ALIGN_CENTER);
+		doc.setParagraphAttributes(0, doc.getLength() - 1, attrs, false);
 
-		demo_.setBackground( Color.WHITE);
+		demo_.setBackground(Color.WHITE);
 		demo_.setOpaque(true);
-		demo_.setBorder( BorderFactory.createLineBorder(UIManager.getLookAndFeelDefaults().getColor("Button.shadow"), 1));
+		demo_.setBorder(BorderFactory.createLineBorder(UIManager.getLookAndFeelDefaults()
+																.getColor("Button.shadow"), 1));
 
 		GridBagConstraints gc = new GridBagConstraints();
 		gc.anchor = GridBagConstraints.NORTHWEST;
@@ -220,14 +244,14 @@ public class JFontChooser extends JComponent
 		gc.weightx = 0.5;
 		gc.weighty = 1;
 		gc.gridwidth = 2;
-		gc.gridheight= 1;
-		gc.insets = new Insets(0,0,0,5);
+		gc.gridheight = 1;
+		gc.insets = new Insets(0, 0, 0, 5);
 		gc.fill = GridBagConstraints.BOTH;
-		add( fontNames_, gc);
+		add(fontNames_, gc);
 		gc.gridwidth = 1;
-		gc.insets = new Insets(0,0,0,0);
+		gc.insets = new Insets(0, 0, 0, 0);
 		gc.gridx = 2;
-		add( sizes_, gc);
+		add(sizes_, gc);
 
 		gc.gridx = 0;
 		gc.gridy = 2;
@@ -236,29 +260,30 @@ public class JFontChooser extends JComponent
 		gc.gridwidth = 1;
 		gc.weightx = 0;
 		gc.fill = GridBagConstraints.HORIZONTAL;
-		add( boldCheck_, gc);
+		add(boldCheck_, gc);
 		gc.gridx = 1;
-		add( italicCheck_, gc);
+		add(italicCheck_, gc);
 
 		gc.gridx = 0;
 		gc.gridy = 3;
 		gc.gridwidth = 3;
 		gc.fill = GridBagConstraints.BOTH;
 
-		demo_.setPreferredSize(new Dimension(500,150));
-		add( demo_, gc);
+		demo_.setPreferredSize(new Dimension(500, 150));
+		add(demo_, gc);
 
 	}
 
 	/**
 	 * Sets the font selection.
+	 *
 	 * @param f The Font to select.
 	 */
 	public void setSelectedFont(Font f)
 	{
 		chosenFont_ = null;
 		fontNames_.setSelected(f);
-		if ( f == null )
+		if (f == null)
 		{
 			sizes_.setSelected(null);
 			boldCheck_.setSelected(false);
@@ -275,14 +300,15 @@ public class JFontChooser extends JComponent
 
 	/**
 	 * Creates the font according to the current settings.
+	 *
 	 * @return The font or null if some settings are missing.
 	 */
 	public Font getSelectedFront()
 	{
- 		Font f = fontNames_.getSelectedItem();
+		Font f = fontNames_.getSelectedItem();
 		String sizeText = sizes_.getEditedValue();
 
-		if ( f != null && sizeText != null )
+		if (f != null && sizeText != null)
 		{
 			int style = 0;
 			if (boldCheck_.isSelected()) style |= Font.BOLD;
@@ -292,7 +318,7 @@ public class JFontChooser extends JComponent
 			{
 				f = new Font(f.getFamily(), style, Integer.parseInt(sizeText));
 			}
-			catch ( Exception e)
+			catch (Exception e)
 			{
 			}
 
@@ -306,18 +332,20 @@ public class JFontChooser extends JComponent
 	protected void updateDemo()
 	{
 		Font f = getSelectedFront();
-		if ( f != null )
+		if (f != null)
 		{
-			if ( f.canDisplayUpTo(demoText_) != -1)
+			if (f.canDisplayUpTo(demoText_) != -1)
 			{
-				if ( demo_.getText().equals(demoText_))
+				if (demo_.getText()
+						 .equals(demoText_))
 				{
 					demo_.setText(symbolDemoText_);
 				}
 			}
 			else
 			{
-				if ( demo_.getText().equals(symbolDemoText_))
+				if (demo_.getText()
+						 .equals(symbolDemoText_))
 					demo_.setText(demoText_);
 			}
 			demo_.setFont(f);
@@ -326,17 +354,18 @@ public class JFontChooser extends JComponent
 
 	/**
 	 * OPens a font chooser dialog.
-	 * @param component The component that triggers the chooser.
-	 * @param title The title to show.
+	 *
+	 * @param component   The component that triggers the chooser.
+	 * @param title       The title to show.
 	 * @param initialFont The initial font to select or null.
 	 * @return the selected font or <code>null</code> if the user opted out.
 	 */
 	public static Font showDialog(Component component,
-								   String title, Font initialFont)
+								  String title, Font initialFont)
 	{
 		// Initialization of font list may take several seconds.
 		// Show a wait-cursor.
-		Window w = component instanceof Window ? (Window)component : SwingUtilities.getWindowAncestor(component);
+		Window w = component instanceof Window ? (Window) component : SwingUtilities.getWindowAncestor(component);
 		Cursor cur = null;
 		Cursor waitCursor = null;
 		if (w != null)
@@ -349,11 +378,11 @@ public class JFontChooser extends JComponent
 		JFontChooser chooserPane = new JFontChooser();
 		JDialog chooserDialog = new JDialog(w, title, Dialog.ModalityType.APPLICATION_MODAL);
 
-		chooserDialog.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
+		chooserDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		JPanel c = new JPanel();
 		chooserDialog.setContentPane(c);
 		c.setLayout(new BorderLayout());
-		c.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+		c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		c.add(chooserPane, BorderLayout.CENTER);
 
 		JButton ok = new JButton(I18N.getText("button.ok"));
@@ -372,10 +401,10 @@ public class JFontChooser extends JComponent
 		c.add(buttons, BorderLayout.SOUTH);
 		chooserDialog.pack();
 
-		chooserPane.setSelectedFont( initialFont );
+		chooserPane.setSelectedFont(initialFont);
 		chooserDialog.setLocationRelativeTo(component);
 
-		if (cur != null && w.getCursor() == waitCursor )
+		if (cur != null && w.getCursor() == waitCursor)
 		{
 			w.setCursor(cur);
 		}

@@ -10,7 +10,7 @@ public class StringPool
 
 	protected int idGenerator = 0;
 	protected HashMap<String, StringId> stringpool = new HashMap<>(10069);
-	protected HashMap<Integer,StringId> stringIds = new HashMap<>(10069);
+	protected HashMap<Integer, StringId> stringIds = new HashMap<>(10069);
 
 	protected final static class StringId
 	{
@@ -72,7 +72,7 @@ public class StringPool
 	{
 		StringId sid = new StringId(str, ++idGenerator);
 		stringpool.put(str, sid);
-		stringIds.put( sid.id, sid);
+		stringIds.put(sid.id, sid);
 
 		return sid;
 	}

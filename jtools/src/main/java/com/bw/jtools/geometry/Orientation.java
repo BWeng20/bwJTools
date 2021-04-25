@@ -8,15 +8,18 @@ public enum Orientation
 	COUNTER_CLOCKWISE,
 	COLLINEAR;
 
-	public static boolean isCCW(Point a, Point b, Point r) {
+	public static boolean isCCW(Point a, Point b, Point r)
+	{
 		return ((b.y - a.y) * (r.x - a.x)) < ((b.x - a.x) * (r.y - a.y));
 	}
 
-	public static boolean isCW(Point a, Point b, Point r) {
+	public static boolean isCW(Point a, Point b, Point r)
+	{
 		return ((b.y - a.y) * (r.x - a.x)) > ((b.x - a.x) * (r.y - a.y));
 	}
 
-	public static boolean isCL(Point a, Point b, Point r) {
+	public static boolean isCL(Point a, Point b, Point r)
+	{
 		return ((b.y - a.y) * (r.x - a.x)) == ((b.x - a.x) * (r.y - a.y));
 	}
 

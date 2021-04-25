@@ -30,39 +30,47 @@ import java.awt.*;
  */
 public abstract class PreviewConfig
 {
-    /** The width of the preview area. */
-    public int previewWidth_;
-    /** I18N text to show on loading. */
-    public String loadingText_;
+	/**
+	 * The width of the preview area.
+	 */
+	public int previewWidth_;
+	/**
+	 * I18N text to show on loading.
+	 */
+	public String loadingText_;
 
-    /** 
-     * Image to show on error.
-     * @see JFileChooserPreview#setErrorImage(Image) 
-     */
-    public Image errorImage_;
+	/**
+	 * Image to show on error.
+	 *
+	 * @see JFileChooserPreview#setErrorImage(Image)
+	 */
+	public Image errorImage_;
 
-    /**
-     * Message to show on error.
-     * @see JFileChooserPreview#setErrorText(String)
-     */
-    public String errorText_;
+	/**
+	 * Message to show on error.
+	 *
+	 * @see JFileChooserPreview#setErrorText(String)
+	 */
+	public String errorText_;
 
-    /**
-     * Image to show on loading.
-     * @see JFileChooserPreview#setLoadingImage(Image) 
-     */
-    public Image loadingImage_;
+	/**
+	 * Image to show on loading.
+	 *
+	 * @see JFileChooserPreview#setLoadingImage(Image)
+	 */
+	public Image loadingImage_;
 
-    /**
-     * Delay until loading test/image is shown.
-     * @see JFileChooserPreview#setLoadingDisplayDelay(int)
-     */
-    public int loadingDisplayDelay_ = 200;
+	/**
+	 * Delay until loading test/image is shown.
+	 *
+	 * @see JFileChooserPreview#setLoadingDisplayDelay(int)
+	 */
+	public int loadingDisplayDelay_ = 200;
 
-    /**
-     * Called by preview proxies if the preview should be updated.<br>
-     * Can be called also from outside the UI-thread.<br>
-     * Implemented by JFileChooserPreview.
-     */
-    public abstract void update(PreviewProxy proxy);
+	/**
+	 * Called by preview proxies if the preview should be updated.<br>
+	 * Can be called also from outside the UI-thread.<br>
+	 * Implemented by JFileChooserPreview.
+	 */
+	public abstract void update(PreviewProxy proxy);
 }

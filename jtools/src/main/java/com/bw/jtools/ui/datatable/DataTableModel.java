@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -26,29 +26,31 @@ import javax.swing.table.TableCellRenderer;
 /**
  * Abstract base for all log-models.
  */
-public abstract class DataTableModel extends  DefaultTableModel
+public abstract class DataTableModel extends DefaultTableModel
 {
 
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = -4501330366939433299L;
 
 	/**
-     * Creates a model with specified columns and rows.
-     * @param columns Column Names
-     * @param rowCount Number of initial rows.
-     */
-    public DataTableModel( Object[] columns, int rowCount )
-    {
-        super( columns, rowCount );
-    }
+	 * Creates a model with specified columns and rows.
+	 *
+	 * @param columns  Column Names
+	 * @param rowCount Number of initial rows.
+	 */
+	public DataTableModel(Object[] columns, int rowCount)
+	{
+		super(columns, rowCount);
+	}
 
-    /**
-     * Gets the implementation specific cell renderer of the log type.
-     * @param colIndex Index of column.
-     * @return The cell renderer.
-     */
-    public abstract TableCellRenderer getCellRenderer( int colIndex );
+	/**
+	 * Gets the implementation specific cell renderer of the log type.
+	 *
+	 * @param colIndex Index of column.
+	 * @return The cell renderer.
+	 */
+	public abstract TableCellRenderer getCellRenderer(int colIndex);
 
 }

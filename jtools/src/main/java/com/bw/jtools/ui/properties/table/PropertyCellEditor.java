@@ -72,14 +72,15 @@ public class PropertyCellEditor extends AbstractCellEditor implements javax.swin
 			column = table_.convertColumnIndexToModel(column);
 			row = table_.convertRowIndexToModel(row);
 
-			PropertyNode pv = (PropertyNode) table_.getModel().getValueAt(row, -1);
+			PropertyNode pv = (PropertyNode) table_.getModel()
+												   .getValueAt(row, -1);
 
 			switch (column)
 			{
-			case PropertyTable.COLUMN_VALUE + 1:
-				comp = components_.getEditorComponent(pv.property_);
-			default:
-				break;
+				case PropertyTable.COLUMN_VALUE + 1:
+					comp = components_.getEditorComponent(pv.property_);
+				default:
+					break;
 			}
 
 		}

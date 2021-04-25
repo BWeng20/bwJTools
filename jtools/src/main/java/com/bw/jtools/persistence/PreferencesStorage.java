@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,86 +32,101 @@ import java.util.prefs.Preferences;
  */
 class PreferencesStorage extends StorageBase
 {
-    /**
-     * The root key.<br>
-     * The real root key will be set on initialization from
-     * "defaultsettings.properties".
-     */
-    public static String PREF_ROOT_KEY = "bweng";
+	/**
+	 * The root key.<br>
+	 * The real root key will be set on initialization from
+	 * "defaultsettings.properties".
+	 */
+	public static String PREF_ROOT_KEY = "bweng";
 
-    /**
-     * Creates a new PrewfewrenceStorage.
-     * @param defaults Default settings or null.
-     */
-    public PreferencesStorage( Properties defaults )
-    {
-        super( defaults );
-    }
+	/**
+	 * Creates a new PrewfewrenceStorage.
+	 *
+	 * @param defaults Default settings or null.
+	 */
+	public PreferencesStorage(Properties defaults)
+	{
+		super(defaults);
+	}
 
-    /**
-     * Get all keys.
-     */
-    public static String[] getAllKeysArray()
-    {
-       try
-       {
-          return Preferences.userRoot().node(PREF_ROOT_KEY).keys();
-       }
-       catch (BackingStoreException ex)
-       {
-          return new String[0];
-       }
-    }
+	/**
+	 * Get all keys.
+	 */
+	public static String[] getAllKeysArray()
+	{
+		try
+		{
+			return Preferences.userRoot()
+							  .node(PREF_ROOT_KEY)
+							  .keys();
+		}
+		catch (BackingStoreException ex)
+		{
+			return new String[0];
+		}
+	}
 
-    @Override
-    protected String getString_impl(String key)
-    {
-        return Preferences.userRoot().node(PREF_ROOT_KEY).get(key, null);
-    }
+	@Override
+	protected String getString_impl(String key)
+	{
+		return Preferences.userRoot()
+						  .node(PREF_ROOT_KEY)
+						  .get(key, null);
+	}
 
-    @Override
-    public void setString(String key, String value)
-    {
-        Preferences.userRoot().node(PREF_ROOT_KEY).put(key, value);
-    }
+	@Override
+	public void setString(String key, String value)
+	{
+		Preferences.userRoot()
+				   .node(PREF_ROOT_KEY)
+				   .put(key, value);
+	}
 
-    @Override
-    public void deleteKey(String key)
-    {
-        Preferences.userRoot().node(PREF_ROOT_KEY).remove(key);
-    }
+	@Override
+	public void deleteKey(String key)
+	{
+		Preferences.userRoot()
+				   .node(PREF_ROOT_KEY)
+				   .remove(key);
+	}
 
-    @Override
-    public void flush()
-    {
-       try
-       {
-         if ( Preferences.userRoot().nodeExists(PREF_ROOT_KEY) )
-         {
-             Preferences.userRoot().node(PREF_ROOT_KEY).flush();
-         }
-       }
-       catch (BackingStoreException ex)
-       {
-       }
-    }
+	@Override
+	public void flush()
+	{
+		try
+		{
+			if (Preferences.userRoot()
+						   .nodeExists(PREF_ROOT_KEY))
+			{
+				Preferences.userRoot()
+						   .node(PREF_ROOT_KEY)
+						   .flush();
+			}
+		}
+		catch (BackingStoreException ex)
+		{
+		}
+	}
 
-    @Override
-    public synchronized void clear()
-    {
-       try
-       {
-         Preferences.userRoot().node(PREF_ROOT_KEY).removeNode();
-         Preferences.userRoot().flush();
-       }
-       catch (BackingStoreException ex)
-       {
-       }
-    }
+	@Override
+	public synchronized void clear()
+	{
+		try
+		{
+			Preferences.userRoot()
+					   .node(PREF_ROOT_KEY)
+					   .removeNode();
+			Preferences.userRoot()
+					   .flush();
+		}
+		catch (BackingStoreException ex)
+		{
+		}
+	}
 
-    @Override
-    protected synchronized Collection<String> getAllKeys()
-    {
-       return Arrays.asList(getAllKeysArray() );
-    }
+	@Override
+	protected synchronized Collection<String> getAllKeys()
+	{
+		return Arrays.asList(getAllKeysArray());
+	}
 }

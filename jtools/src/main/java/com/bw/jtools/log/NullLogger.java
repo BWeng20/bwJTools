@@ -28,23 +28,23 @@ import com.bw.jtools.Log;
 public final class NullLogger extends Log.LoggerFacade
 {
 
-    @Override
-    public void error(CharSequence msg)
-    {
-    }
+	@Override
+	public void error(CharSequence msg)
+	{
+	}
 
-    @Override
-    public void warn(CharSequence msg)
-    {
-    }
+	@Override
+	public void warn(CharSequence msg)
+	{
+	}
 
-    @Override
-    public void info(CharSequence msg)
-    {
-    }
+	@Override
+	public void info(CharSequence msg)
+	{
+	}
 
-    @Override
-    public void debug(CharSequence msg)
-    {
-    }
+	@Override
+	public void debug(CharSequence msg)
+	{
+	}
 }

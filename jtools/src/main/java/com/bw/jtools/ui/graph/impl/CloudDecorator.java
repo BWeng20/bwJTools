@@ -53,10 +53,11 @@ public class CloudDecorator implements Decorator, GeometryListener
 	}
 
 	@Override
-	public Rectangle getBounds( Node node )
+	public Rectangle getBounds(Node node)
 	{
 		Path2D.Float p = paths.get(node.id);
-		if (p != null) {
+		if (p != null)
+		{
 			return p.getBounds();
 		}
 		return null;
@@ -90,10 +91,10 @@ public class CloudDecorator implements Decorator, GeometryListener
 			if (pts != null && pts.length > 1)
 			{
 				Path2D.Float oldPath = paths.get(node.id);
-				if ( oldPath != null )
+				if (oldPath != null)
 				{
 					Rectangle b = oldPath.getBounds();
-					if ( !b.isEmpty() )
+					if (!b.isEmpty())
 						geo.dirty(b);
 				}
 
@@ -105,11 +106,11 @@ public class CloudDecorator implements Decorator, GeometryListener
 
 
 				Point next = pts[0];
-				Point last = pts[N-1];
+				Point last = pts[N - 1];
 				Point tmp;
 
-				float x0 = last.x-offset;
-				float y0 = last.y+offset;
+				float x0 = last.x - offset;
+				float y0 = last.y + offset;
 				float x2 = x0;
 				float y2 = y0;
 
@@ -121,25 +122,27 @@ public class CloudDecorator implements Decorator, GeometryListener
 					x1 = next.x;
 					y1 = next.y;
 
-					if ( i < (N-1))
+					if (i < (N - 1))
 					{
 						tmp = next;
-						next = pts[i+1];
+						next = pts[i + 1];
 						// To get a pretty flow around the corners, we check the slops of the line thought the neighbor points.
 						dxx = next.x - last.x;
 						dyy = next.y - last.y;
 						last = tmp;
 
-						if ( dxx > 0 )
+						if (dxx > 0)
 							y1 -= offset;
-						else if ( dxx < 0 )
+						else if (dxx < 0)
 							y1 += offset;
-						if ( dyy < 0 )
+						if (dyy < 0)
 							x1 -= offset;
-						else if ( dyy > 0 )
+						else if (dyy > 0)
 							x1 += offset;
 
-					} else {
+					}
+					else
+					{
 						dxx = dyy = 0;
 						x1 -= offset;
 						y1 += offset;
@@ -151,7 +154,7 @@ public class CloudDecorator implements Decorator, GeometryListener
 					final float length = Math.abs(dx) + Math.abs(dy);
 					if (length > pointDistance)
 					{
-						final int jn = (int)(length / pointDistance);
+						final int jn = (int) (length / pointDistance);
 						final float xf = pointDistance * (dx / length);
 						final float yf = pointDistance * (dy / length);
 
@@ -171,7 +174,8 @@ public class CloudDecorator implements Decorator, GeometryListener
 							x2 = x3;
 							y2 = y3;
 						}
-					} else
+					}
+					else
 					{
 						addQuad(path, x2, y2, x1, y1);
 						x2 = x1;
@@ -194,7 +198,7 @@ public class CloudDecorator implements Decorator, GeometryListener
 		if (length > 1f)
 		{
 			path.quadTo(x0 + .5f * dx + pointDistance * (dy / length),
-						y0 + .5f * dy - pointDistance * (dx / length), x1, y1);
+					y0 + .5f * dy - pointDistance * (dx / length), x1, y1);
 		}
 	}
 }

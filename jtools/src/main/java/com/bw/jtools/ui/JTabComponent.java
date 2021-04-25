@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,120 +40,120 @@ import java.awt.*;
  * This can't be configured or bypasses in some reliable way. <br>
  * <br>
  * See example com.bw.jtools.examples.tabcomponent.JTabComponentDemo.
+ *
  * @see IconTool#getIcon(java.lang.String)
-
  */
 public class JTabComponent extends JPanel
 {
 
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = -7716113934005257056L;
 
 	/**
-     * Creates a new Tab-Component.
-     *
-     * @param name The name to show.
-     * @param icon The tab-icon or null.
-     * @param action Runnable to call if the close button is pressed.
-     *               If null, the button will select the tab if clicked.
-     * @param action_icon Icon for the button.
-     * @param action_icon_ro Rollover-Icon for the button or null.
-     */
-    public JTabComponent(String name, Icon icon, Runnable action,
-            Icon action_icon, Icon action_icon_ro)
-    {
-        super(new GridBagLayout());
+	 * Creates a new Tab-Component.
+	 *
+	 * @param name           The name to show.
+	 * @param icon           The tab-icon or null.
+	 * @param action         Runnable to call if the close button is pressed.
+	 *                       If null, the button will select the tab if clicked.
+	 * @param action_icon    Icon for the button.
+	 * @param action_icon_ro Rollover-Icon for the button or null.
+	 */
+	public JTabComponent(String name, Icon icon, Runnable action,
+						 Icon action_icon, Icon action_icon_ro)
+	{
+		super(new GridBagLayout());
 
-        // Create some gap to upper edge.
-        setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+		// Create some gap to upper edge.
+		setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
 
-        if ( action_icon == null )
-        {
-            if (action_tab_icon_ == null)
-            {
-                action_tab_icon_ = IconTool.getIcon("tab_action.png");
-                action_tab_icon_ro_ = IconTool.getIcon("tab_action_ro.png");
-            }
-            action_icon = action_tab_icon_;
-            action_icon_ro = action_tab_icon_ro_;
-        }
+		if (action_icon == null)
+		{
+			if (action_tab_icon_ == null)
+			{
+				action_tab_icon_ = IconTool.getIcon("tab_action.png");
+				action_tab_icon_ro_ = IconTool.getIcon("tab_action_ro.png");
+			}
+			action_icon = action_tab_icon_;
+			action_icon_ro = action_tab_icon_ro_;
+		}
 
-        setOpaque(false);
+		setOpaque(false);
 
-        JLabel label = new JLabel(name);
-        if (icon != null)
-        {
-            label.setIcon(icon);
-        }
+		JLabel label = new JLabel(name);
+		if (icon != null)
+		{
+			label.setIcon(icon);
+		}
 
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.anchor = GridBagConstraints.LINE_START;
-        gc.weightx = 1;
-        gc.gridy = 0;
-        gc.gridx = 0;
-        gc.gridwidth  = 1;
-        gc.gridheight = 1;
-        gc.fill = GridBagConstraints.HORIZONTAL;
-        add(label, gc);
+		GridBagConstraints gc = new GridBagConstraints();
+		gc.anchor = GridBagConstraints.LINE_START;
+		gc.weightx = 1;
+		gc.gridy = 0;
+		gc.gridx = 0;
+		gc.gridwidth = 1;
+		gc.gridheight = 1;
+		gc.fill = GridBagConstraints.HORIZONTAL;
+		add(label, gc);
 
-        JButton actionButton = new JButton(action_icon);
-        actionButton.setContentAreaFilled(false);
-        if ( action_icon_ro != null )
-            actionButton.setRolloverIcon(action_icon_ro);
+		JButton actionButton = new JButton(action_icon);
+		actionButton.setContentAreaFilled(false);
+		if (action_icon_ro != null)
+			actionButton.setRolloverIcon(action_icon_ro);
 
-        actionButton.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 0));
-        actionButton.setBorderPainted(false);
+		actionButton.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 0));
+		actionButton.setBorderPainted(false);
 
-        if (action != null)
-        {
-            actionButton.addActionListener((actionEvent) -> action.run());
-        }
-        else
-        {
-            actionButton.addActionListener((actionEvent) ->
-            {
-                 Container c = JTabComponent.this.getParent();
-                 while (c != null && !(c instanceof JTabbedPane))
-                 {
-                     c = c.getParent();
-                 }
-                 if ( c != null )
-                 {
-                     JTabbedPane tp = (JTabbedPane)c;
-                     int tabIdx = tp.indexOfTabComponent(JTabComponent.this);
-                     if ( tabIdx != -1)
-                         tp.setSelectedIndex(tabIdx);
-                 }
-            });
-        }
-        gc.anchor = GridBagConstraints.LINE_END;
-        gc.weightx = 0;
-        gc.gridx = 1;
-        gc.fill = GridBagConstraints.NONE;
-        add(actionButton, gc);
-    }
+		if (action != null)
+		{
+			actionButton.addActionListener((actionEvent) -> action.run());
+		}
+		else
+		{
+			actionButton.addActionListener((actionEvent) ->
+			{
+				Container c = JTabComponent.this.getParent();
+				while (c != null && !(c instanceof JTabbedPane))
+				{
+					c = c.getParent();
+				}
+				if (c != null)
+				{
+					JTabbedPane tp = (JTabbedPane) c;
+					int tabIdx = tp.indexOfTabComponent(JTabComponent.this);
+					if (tabIdx != -1)
+						tp.setSelectedIndex(tabIdx);
+				}
+			});
+		}
+		gc.anchor = GridBagConstraints.LINE_END;
+		gc.weightx = 0;
+		gc.gridx = 1;
+		gc.fill = GridBagConstraints.NONE;
+		add(actionButton, gc);
+	}
 
-    @Override
-    public void setBounds( int x, int y, int w, int h)
-    {
-        super.setBounds(x, y, w, h );
-    }
+	@Override
+	public void setBounds(int x, int y, int w, int h)
+	{
+		super.setBounds(x, y, w, h);
+	}
 
-    /**
-     * Creates a new Tab-Component.
-     *
-     * @param name The name to show.
-     * @param icon The tab-icon or null.
-     * @param action Runnable to call if the close button is pressed.
-     */
-    public JTabComponent(String name, Icon icon, Runnable action)
-    {
-        this(name,icon,action,null,null);
-    }
+	/**
+	 * Creates a new Tab-Component.
+	 *
+	 * @param name   The name to show.
+	 * @param icon   The tab-icon or null.
+	 * @param action Runnable to call if the close button is pressed.
+	 */
+	public JTabComponent(String name, Icon icon, Runnable action)
+	{
+		this(name, icon, action, null, null);
+	}
 
-    static Icon action_tab_icon_;
-    static Icon action_tab_icon_ro_;
+	static Icon action_tab_icon_;
+	static Icon action_tab_icon_ro_;
 
 }

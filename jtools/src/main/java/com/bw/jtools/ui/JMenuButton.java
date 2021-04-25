@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -30,52 +30,58 @@ import java.awt.event.ActionEvent;
  */
 public class JMenuButton extends JToggleButton
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = 8971737844940749760L;
-	
+
 	/**
-     * The menu to show.
-     */
-    public JPopupMenu menu_;
+	 * The menu to show.
+	 */
+	public JPopupMenu menu_;
 
-    /**
-     * Creates a new Menu Button with label and optional an icon.
-     * @param label The label for the button.
-     * @param icon  The optional icon. Can be null.
-     * @param menu  The pop-up menu to show.
-     */
-    public JMenuButton(String label, Icon icon, JPopupMenu menu)
-    {
-        super(label, icon, false);
-        this.menu_ = menu;
+	/**
+	 * Creates a new Menu Button with label and optional an icon.
+	 *
+	 * @param label The label for the button.
+	 * @param icon  The optional icon. Can be null.
+	 * @param menu  The pop-up menu to show.
+	 */
+	public JMenuButton(String label, Icon icon, JPopupMenu menu)
+	{
+		super(label, icon, false);
+		this.menu_ = menu;
 
-        addActionListener(
-                (ActionEvent ev) ->
-        {
-            if (isSelected()) {
-                menu_.show(JMenuButton.this, 0, getBounds().height);
-            } else {
-                menu_.setVisible(false);
-            }
-        });
+		addActionListener(
+				(ActionEvent ev) ->
+				{
+					if (isSelected())
+					{
+						menu_.show(JMenuButton.this, 0, getBounds().height);
+					}
+					else
+					{
+						menu_.setVisible(false);
+					}
+				});
 
-        menu.addPopupMenuListener(new PopupMenuListener()
-        {
-            @Override
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-            {
-                JMenuButton.this.setSelected(false);
-            }
+		menu.addPopupMenuListener(new PopupMenuListener()
+		{
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+			{
+				JMenuButton.this.setSelected(false);
+			}
 
-            @Override
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-            { }
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+			{
+			}
 
-            @Override
-            public void popupMenuCanceled(PopupMenuEvent e)
-            { }
-        });
-    }
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent e)
+			{
+			}
+		});
+	}
 }

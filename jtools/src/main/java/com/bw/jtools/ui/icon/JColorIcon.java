@@ -32,130 +32,141 @@ import java.awt.*;
  */
 public final class JColorIcon implements Icon
 {
-    /** The width of the icon area. */
-    protected final int width_;
+	/**
+	 * The width of the icon area.
+	 */
+	protected final int width_;
 
-    /** The height of the icon area. */
-    protected final int height_;
+	/**
+	 * The height of the icon area.
+	 */
+	protected final int height_;
 
-    /** The color of the inner area. */
-    protected Paint color_;
+	/**
+	 * The color of the inner area.
+	 */
+	protected Paint color_;
 
-    /**
-     * Border is drawn if true.
-     */
-    protected boolean borderPainted_ = true;
+	/**
+	 * Border is drawn if true.
+	 */
+	protected boolean borderPainted_ = true;
 
-    protected final BasicStroke stroke_ = new BasicStroke(1f);
+	protected final BasicStroke stroke_ = new BasicStroke(1f);
 
-    /**
-     * Creates an Icon with size and initial color.
-     * @param width  The width of the icon to show.
-     * @param height The height of the icon to show.
-     * @param color  The color to show. Can be null.
-     */
-    public JColorIcon(int width, int height, Paint color )
-    {
-        this.width_  = width;
-        this.height_ = height;
-        setColor(color);
-    }
+	/**
+	 * Creates an Icon with size and initial color.
+	 *
+	 * @param width  The width of the icon to show.
+	 * @param height The height of the icon to show.
+	 * @param color  The color to show. Can be null.
+	 */
+	public JColorIcon(int width, int height, Paint color)
+	{
+		this.width_ = width;
+		this.height_ = height;
+		setColor(color);
+	}
 
-    /**
-     * Enabled or disables the border around the icon.
-     * @param border True to enable the border, false to disable it.
-     */
-    public void setBorderPainted( boolean border )
-    {
-        if ( borderPainted_ != border )
-        {
-            borderPainted_ = border;
-        }
-    }
+	/**
+	 * Enabled or disables the border around the icon.
+	 *
+	 * @param border True to enable the border, false to disable it.
+	 */
+	public void setBorderPainted(boolean border)
+	{
+		if (borderPainted_ != border)
+		{
+			borderPainted_ = border;
+		}
+	}
 
-    /**
-     * Creates a new (and empty) icon with size 13x13.
-     */
-    public JColorIcon()
-    {
-        this.color_ = Color.WHITE;
-        this.width_  = 13;
-        this.height_ = 13;
-    }
+	/**
+	 * Creates a new (and empty) icon with size 13x13.
+	 */
+	public JColorIcon()
+	{
+		this.color_ = Color.WHITE;
+		this.width_ = 13;
+		this.height_ = 13;
+	}
 
-    /**
-     * Sets the shown color.The icon will not automatically be redrawn.
-     * Called needs to redraw the containing component if needed.<br>
-     * The border color is calculated via
-     * {@link com.bw.jtools.ui.UITool#calculateContrastColor(java.awt.Color) UITool.calculateContrastColor}.
-     * @param color The color to show.
-     */
-    public void setColor( Paint color )
-    {
-        this.color_ = (color == null) ? Color.WHITE : color;
-    }
+	/**
+	 * Sets the shown color.The icon will not automatically be redrawn.
+	 * Called needs to redraw the containing component if needed.<br>
+	 * The border color is calculated via
+	 * {@link com.bw.jtools.ui.UITool#calculateContrastColor(java.awt.Color) UITool.calculateContrastColor}.
+	 *
+	 * @param color The color to show.
+	 */
+	public void setColor(Paint color)
+	{
+		this.color_ = (color == null) ? Color.WHITE : color;
+	}
 
-    /**
-     * Gets the currently shown color.
-     *
-     * @return The currently set color.
-     */
-    public Paint getColor( )
-    {
-        return color_;
-    }
+	/**
+	 * Gets the currently shown color.
+	 *
+	 * @return The currently set color.
+	 */
+	public Paint getColor()
+	{
+		return color_;
+	}
 
-    /**
-     * Paints the icon by drawing two rectangles.
-     */
-    @Override
-    public void paintIcon(Component c, Graphics g, int x, int y)
-    {
-        Graphics2D g2D = (Graphics2D)g.create();
+	/**
+	 * Paints the icon by drawing two rectangles.
+	 */
+	@Override
+	public void paintIcon(Component c, Graphics g, int x, int y)
+	{
+		Graphics2D g2D = (Graphics2D) g.create();
 
-        g2D.setPaint(color_);
-        g2D.fillRect(x ,y,width_ ,height_);
+		g2D.setPaint(color_);
+		g2D.fillRect(x, y, width_, height_);
 
-        if ( borderPainted_ )
-        {
-            g2D.setRenderingHint( RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON );
+		if (borderPainted_)
+		{
+			g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            Paint borderColor;
-            if ( this.color_ instanceof Color)
-            {
-                Color bc = UITool.calculateContrastColor((Color) this.color_);
-                if (Math.abs(UITool.calculateLumiance(bc) - UITool.calculateLumiance(c.getBackground())) < 20)
-                {
-                    bc = (Color) this.color_;
-                }
-                borderColor = bc;
-            }
-            else
-                borderColor = this.color_;
-            g2D.setPaint(borderColor);
-            g2D.setStroke(stroke_);
-            g2D.drawRect(x, y, width_, height_);
-        }
-        g2D.dispose();
-    }
+			Paint borderColor;
+			if (this.color_ instanceof Color)
+			{
+				Color bc = UITool.calculateContrastColor((Color) this.color_);
+				if (Math.abs(UITool.calculateLumiance(bc) - UITool.calculateLumiance(c.getBackground())) < 20)
+				{
+					bc = (Color) this.color_;
+				}
+				borderColor = bc;
+			}
+			else
+				borderColor = this.color_;
+			g2D.setPaint(borderColor);
+			g2D.setStroke(stroke_);
+			g2D.drawRect(x, y, width_, height_);
+		}
+		g2D.dispose();
+	}
 
-    /**
-     * Get the currently set width of the icon.
-     * @return The current width.
-     */
-    @Override
-    public int getIconWidth()
-    {
-        return width_;
-    }
+	/**
+	 * Get the currently set width of the icon.
+	 *
+	 * @return The current width.
+	 */
+	@Override
+	public int getIconWidth()
+	{
+		return width_;
+	}
 
-    /**
-     * Get the currently set height of the icon.
-     * @return The current height .
-     */
-    @Override
-    public int getIconHeight()
-    {
-        return height_;
-    }
+	/**
+	 * Get the currently set height of the icon.
+	 *
+	 * @return The current height .
+	 */
+	@Override
+	public int getIconHeight()
+	{
+		return height_;
+	}
 }

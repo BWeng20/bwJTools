@@ -12,16 +12,18 @@ public class DefaultVisual extends SimpleVisual
 {
 	protected Map<Integer, JNodeRenderer> renderer = new HashMap<>();
 
-	public DefaultVisual( Layout layout ) {
+	public DefaultVisual(Layout layout)
+	{
 		super(layout);
 	}
 
 	@Override
 	public void paint(Graphics2D g, Node node)
 	{
-		Rectangle r = geo.getShape(node).getBounds();
+		Rectangle r = geo.getShape(node)
+						 .getBounds();
 
-		if ( debug )
+		if (debug)
 		{
 			g.setColor(Color.RED);
 			g.setStroke(debugStroke);
@@ -29,27 +31,30 @@ public class DefaultVisual extends SimpleVisual
 			g.drawRect(tr.x, tr.y, tr.width, tr.height);
 		}
 
-		paintBorder( g, node, r );
+		paintBorder(g, node, r);
 
 		JLabel l = renderer.get(node.id);
-		if ( l != null) {
-			String text = ((TextData)node.data).text;
-			if ( !text.equals(l.getText()) )
+		if (l != null)
+		{
+			String text = ((TextData) node.data).text;
+			if (!text.equals(l.getText()))
 			{
 				l.setText(text);
 			}
-			l.setForeground( Color.BLACK );
+			l.setForeground(Color.BLACK);
 			r.x += margin_x2;
 			r.y += margin_y2;
-			r.width -= margin_x<<2;
-			r.height -= margin_y<<2;
+			r.width -= margin_x << 2;
+			r.height -= margin_y << 2;
 			l.setBounds(r);
 
 			Graphics cg = g.create(r.x, r.y, r.width, r.height);
-			try {
+			try
+			{
 				l.paint(cg);
 			}
-			finally {
+			finally
+			{
 				cg.dispose();
 			}
 
@@ -58,22 +63,24 @@ public class DefaultVisual extends SimpleVisual
 	}
 
 	@Override
-	public void updateGeometry( Graphics2D g, Node node ) {
+	public void updateGeometry(Graphics2D g, Node node)
+	{
 
 		geo.beginUpdate();
 
-		String text = ((TextData)node.data).text;
+		String text = ((TextData) node.data).text;
 
 		JNodeRenderer l = renderer.get(node.id);
-		if ( l == null){
+		if (l == null)
+		{
 			l = new JNodeRenderer();
 			renderer.put(node.id, l);
 		}
 		l.setText(text);
 		l.setFont(g.getFont());
 		Dimension ps = l.getPreferredSize();
-		l.setSize( ps );
-		geo.setShape(node, new Rectangle(0,0,ps.width+(margin_x<<2), ps.height+(margin_y<<2)));
+		l.setSize(ps);
+		geo.setShape(node, new Rectangle(0, 0, ps.width + (margin_x << 2), ps.height + (margin_y << 2)));
 		updateVisibility(node);
 		geo.endUpdate();
 	}

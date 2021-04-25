@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,35 +28,38 @@ import javax.swing.*;
 
 /**
  * Collection of methods to store or load settings for Swing elements.
+ *
  * @see SettingsUI
  */
 public class SettingsSwing extends SettingsUI
 {
-    /**
-     * Restores a JSplitPane splitter position from preferences.<br>
-     * Splitter position is restricted to 50 pixel. Values less will be ignored.
-     * See {@link #storeSplitPosition(javax.swing.JSplitPane, java.lang.String) storeSplitPosition}.
-     * @param splitter  The Splitter.
-     * @param pref_prefix The preferences-prefix to use.
-     */
-    public static void loadSplitPosition(JSplitPane splitter, String pref_prefix )
-    {
-        int pos = Store.getInt( pref_prefix+".divider" , -1 );
-        if ( pos > 50 )
-        {
-            splitter.setDividerLocation(pos);
-        }
-    }
+	/**
+	 * Restores a JSplitPane splitter position from preferences.<br>
+	 * Splitter position is restricted to 50 pixel. Values less will be ignored.
+	 * See {@link #storeSplitPosition(javax.swing.JSplitPane, java.lang.String) storeSplitPosition}.
+	 *
+	 * @param splitter    The Splitter.
+	 * @param pref_prefix The preferences-prefix to use.
+	 */
+	public static void loadSplitPosition(JSplitPane splitter, String pref_prefix)
+	{
+		int pos = Store.getInt(pref_prefix + ".divider", -1);
+		if (pos > 50)
+		{
+			splitter.setDividerLocation(pos);
+		}
+	}
 
-    /**
-     * Stores a JSplitPane splitter position to preferences.<br>
-     * See {@link #loadSplitPosition(javax.swing.JSplitPane, java.lang.String) loadSplitPosition}.
-     * @param splitter  The Splitter.
-     * @param pref_prefix The preferences-prefix to use.
-     */
-    public static void storeSplitPosition(JSplitPane splitter, String pref_prefix )
-    {
-        int pos = splitter.getDividerLocation();
-        Store.setInt( pref_prefix+".divider" , pos );
-    }
+	/**
+	 * Stores a JSplitPane splitter position to preferences.<br>
+	 * See {@link #loadSplitPosition(javax.swing.JSplitPane, java.lang.String) loadSplitPosition}.
+	 *
+	 * @param splitter    The Splitter.
+	 * @param pref_prefix The preferences-prefix to use.
+	 */
+	public static void storeSplitPosition(JSplitPane splitter, String pref_prefix)
+	{
+		int pos = splitter.getDividerLocation();
+		Store.setInt(pref_prefix + ".divider", pos);
+	}
 }

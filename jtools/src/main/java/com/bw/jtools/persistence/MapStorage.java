@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,84 +30,94 @@ import java.util.Map;
  */
 public class MapStorage extends StorageBase
 {
-    /** The values- */
-    private final Map<String,String> values_;
-    /** The prefix. */
-    private String prefix_;
+	/**
+	 * The values-
+	 */
+	private final Map<String, String> values_;
+	/**
+	 * The prefix.
+	 */
+	private String prefix_;
 
-    /**
-     * Creates a new Map-based Storage.
-     * @param values The settings.
-     */
-    public MapStorage(Map<String,String> values )
-    {
-        super(null );
-        if ( values == null ) {
-            values = new HashMap<String,String>();
-        }
-        values_ = values;
-        prefix_ = null;
-    }
+	/**
+	 * Creates a new Map-based Storage.
+	 *
+	 * @param values The settings.
+	 */
+	public MapStorage(Map<String, String> values)
+	{
+		super(null);
+		if (values == null)
+		{
+			values = new HashMap<String, String>();
+		}
+		values_ = values;
+		prefix_ = null;
+	}
 
-    /**
-     * Get the value map.
-     * @return The values.
-     */
-    public Map<String,String> getMap()
-    {
-        return values_;
-    }
+	/**
+	 * Get the value map.
+	 *
+	 * @return The values.
+	 */
+	public Map<String, String> getMap()
+	{
+		return values_;
+	}
 
-    /**
-     * Sets a prefix internally added to all getter calls
-     * @param prefix Prefix or null.
-     */
-    public void setPrefix( String prefix )
-    {
-        prefix_ = prefix;
-    }
+	/**
+	 * Sets a prefix internally added to all getter calls
+	 *
+	 * @param prefix Prefix or null.
+	 */
+	public void setPrefix(String prefix)
+	{
+		prefix_ = prefix;
+	}
 
-    /**
-     * Translate the key to current scope.
-     * @param key The key to translate.
-     * @return Scoped key
-     */
-    protected String translateKey( String key ) {
-        return key == null ? null : (prefix_ == null ?  key : (prefix_+key));
-    }
+	/**
+	 * Translate the key to current scope.
+	 *
+	 * @param key The key to translate.
+	 * @return Scoped key
+	 */
+	protected String translateKey(String key)
+	{
+		return key == null ? null : (prefix_ == null ? key : (prefix_ + key));
+	}
 
-    @Override
-    protected String getString_impl(String key)
-    {
-        return values_.get( translateKey(key) );
-    }
+	@Override
+	protected String getString_impl(String key)
+	{
+		return values_.get(translateKey(key));
+	}
 
-    @Override
-    public void setString(String key, String value)
-    {
-        values_.put(translateKey(key), value);
-    }
+	@Override
+	public void setString(String key, String value)
+	{
+		values_.put(translateKey(key), value);
+	}
 
-    @Override
-    public void deleteKey(String key)
-    {
-        values_.remove(translateKey(key));
-    }
+	@Override
+	public void deleteKey(String key)
+	{
+		values_.remove(translateKey(key));
+	}
 
-    @Override
-    public void flush()
-    {
-    }
+	@Override
+	public void flush()
+	{
+	}
 
-    @Override
-    public synchronized void clear()
-    {
-        values_.clear();
-    }
+	@Override
+	public synchronized void clear()
+	{
+		values_.clear();
+	}
 
-    @Override
-    protected Collection<String> getAllKeys()
-    {
-       return values_.keySet();
-    }
+	@Override
+	protected Collection<String> getAllKeys()
+	{
+		return values_.keySet();
+	}
 }

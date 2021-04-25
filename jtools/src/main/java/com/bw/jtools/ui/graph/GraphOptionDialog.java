@@ -26,46 +26,54 @@ public class GraphOptionDialog extends JDialog
 		add(table, BorderLayout.CENTER);
 		this.graphPanel = graphPanel;
 
-		table.getModel().addTableModelListener(new TableModelListener()
-		{
-			NumberFormat nf = NumberFormat.getInstance();
+		table.getModel()
+			 .addTableModelListener(new TableModelListener()
+			 {
+				 NumberFormat nf = NumberFormat.getInstance();
 
-			@Override
-			public void tableChanged(TableModelEvent ev)
-			{
+				 @Override
+				 public void tableChanged(TableModelEvent ev)
+				 {
 
-			}
-		});
+				 }
+			 });
 
 	}
 
-	protected void addProperty(PropertyGroup group, PropertyValue value, PropertyChangeListener pcl) {
+	protected void addProperty(PropertyGroup group, PropertyValue value, PropertyChangeListener pcl)
+	{
 		value.addPropertyChangeListener(pcl);
 		value.nullable_ = false;
 		group.addProperty(value);
 	}
 
-	protected void addProperty(PropertyGroup group, String displayName, int value, PropertyChangeListener pcl) {
-		addProperty( group, new PropertyNumberValue(displayName, value), pcl );
+	protected void addProperty(PropertyGroup group, String displayName, int value, PropertyChangeListener pcl)
+	{
+		addProperty(group, new PropertyNumberValue(displayName, value), pcl);
 	}
 
-	protected int getInt(PropertyValue value, int defaultValue ) {
-		if ( value instanceof PropertyNumberValue) {
-			Number nb = ((PropertyNumberValue)value).getValue();
-			if ( nb != null )
+	protected int getInt(PropertyValue value, int defaultValue)
+	{
+		if (value instanceof PropertyNumberValue)
+		{
+			Number nb = ((PropertyNumberValue) value).getValue();
+			if (nb != null)
 				return nb.intValue();
 		}
 		return defaultValue;
 	}
 
-	protected void addProperty(PropertyGroup group, String displayName, boolean value, PropertyChangeListener pcl) {
-		addProperty( group, new PropertyBooleanValue(displayName, value), pcl );
+	protected void addProperty(PropertyGroup group, String displayName, boolean value, PropertyChangeListener pcl)
+	{
+		addProperty(group, new PropertyBooleanValue(displayName, value), pcl);
 	}
 
-	protected boolean getBoolean(PropertyValue value, boolean defaultValue ) {
-		if ( value instanceof PropertyBooleanValue) {
-			Boolean nb = ((PropertyBooleanValue)value).getValue();
-			if ( nb != null )
+	protected boolean getBoolean(PropertyValue value, boolean defaultValue)
+	{
+		if (value instanceof PropertyBooleanValue)
+		{
+			Boolean nb = ((PropertyBooleanValue) value).getValue();
+			if (nb != null)
 				return nb;
 		}
 		return defaultValue;
@@ -76,13 +84,16 @@ public class GraphOptionDialog extends JDialog
 	{
 		Dimension d = super.getPreferredSize();
 
-		int h = table.getTableModel().getRowCount() * table.getRowHeight();
-		int w = table.getFontMetrics( table.getFont() ).charWidth('A')*50;
+		int h = table.getTableModel()
+					 .getRowCount() * table.getRowHeight();
+		int w = table.getFontMetrics(table.getFont())
+					 .charWidth('A') * 50;
 
-		return new Dimension( Math.max( w, d.width), Math.max(h,d.height));
+		return new Dimension(Math.max(w, d.width), Math.max(h, d.height));
 	}
 
-	public void init() {
+	public void init()
+	{
 
 		Graph g = graphPanel.getGraph();
 		Visual v = graphPanel.getVisual();
@@ -90,9 +101,21 @@ public class GraphOptionDialog extends JDialog
 		DefaultTreeModel model = table.getTreeModel();
 
 		PropertyGroup p = new PropertyGroup("Visual Settings");
-		addProperty( p, "Vertical Margin", v.getVerticalMargin(), value -> { v.setVerticalMargin( getInt( value, v.getVerticalMargin() ) ); graphPanel.repaint();});
-		addProperty( p,  "Horizontal Margin", v.getHorizontalMargin(), value -> { v.setHorizontalMargin( getInt( value, v.getHorizontalMargin() ) ); graphPanel.repaint();});
-		addProperty( p,  "Debug", v.isDebug(), value -> { v.setDebug( getBoolean( value, v.isDebug() ) ); graphPanel.repaint();});
+		addProperty(p, "Vertical Margin", v.getVerticalMargin(), value ->
+		{
+			v.setVerticalMargin(getInt(value, v.getVerticalMargin()));
+			graphPanel.repaint();
+		});
+		addProperty(p, "Horizontal Margin", v.getHorizontalMargin(), value ->
+		{
+			v.setHorizontalMargin(getInt(value, v.getHorizontalMargin()));
+			graphPanel.repaint();
+		});
+		addProperty(p, "Debug", v.isDebug(), value ->
+		{
+			v.setDebug(getBoolean(value, v.isDebug()));
+			graphPanel.repaint();
+		});
 
 		PropertyGroupNode root = new PropertyGroupNode(null);
 		root.add(new PropertyGroupNode(p));

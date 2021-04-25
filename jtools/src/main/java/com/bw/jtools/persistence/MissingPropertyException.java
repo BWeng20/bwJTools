@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -27,43 +27,45 @@ import com.bw.jtools.ui.I18N;
  */
 public final class MissingPropertyException extends Exception
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = -3988126060036005140L;
-	
+
 	protected String missingKey_;
 
-    /**
-     * Creates a new Exception for the specified key.
-     * @param keyMissing The missing key.
-     */
-    public MissingPropertyException( String keyMissing )
-    {
-        super( I18N.format("missingpropertyexception.message", keyMissing ));
-        this.missingKey_ = keyMissing;
-    }
+	/**
+	 * Creates a new Exception for the specified key.
+	 *
+	 * @param keyMissing The missing key.
+	 */
+	public MissingPropertyException(String keyMissing)
+	{
+		super(I18N.format("missingpropertyexception.message", keyMissing));
+		this.missingKey_ = keyMissing;
+	}
 
-    /**
-     * Creates a new Exception for the specified key.
-     * @param keyMissing The missing key.
-     * @param cause The cause in case it was some exception.
-     */
-    public MissingPropertyException( String keyMissing, Throwable cause )
-    {
-        super( I18N.format("missingpropertyexception.message", keyMissing ), cause);
-        this.missingKey_ = keyMissing;
-    }
+	/**
+	 * Creates a new Exception for the specified key.
+	 *
+	 * @param keyMissing The missing key.
+	 * @param cause      The cause in case it was some exception.
+	 */
+	public MissingPropertyException(String keyMissing, Throwable cause)
+	{
+		super(I18N.format("missingpropertyexception.message", keyMissing), cause);
+		this.missingKey_ = keyMissing;
+	}
 
-    /**
-     * Gets the property key that was the reason for the exception.
-     * @return They name of the missing key.
-     */
-    public String getKey( )
-    {
-        return missingKey_;
-    }
-
+	/**
+	 * Gets the property key that was the reason for the exception.
+	 *
+	 * @return They name of the missing key.
+	 */
+	public String getKey()
+	{
+		return missingKey_;
+	}
 
 
 }

@@ -29,12 +29,13 @@ public class GraphMouseHandler extends MouseAdapter
 		org = e.getPoint();
 		if (nodeDragged != null)
 		{
-			if ( Log.isDebugEnabled()) Log.debug("Click on Node " + nodeDragged.id + " " + org.x + "," + org.y);
+			if (Log.isDebugEnabled()) Log.debug("Click on Node " + nodeDragged.id + " " + org.x + "," + org.y);
 
 			Point p = gpanel.getNodeLocation(nodeDragged);
-			p.x =  e.getX() - p.x;
-			p.y =  e.getY() - p.y;
-			gpanel.getVisual().pressed( nodeDragged, p );
+			p.x = e.getX() - p.x;
+			p.y = e.getY() - p.y;
+			gpanel.getVisual()
+				  .pressed(nodeDragged, p);
 		}
 
 	}
@@ -54,7 +55,8 @@ public class GraphMouseHandler extends MouseAdapter
 			cursor = null;
 		}
 
-		gpanel.getVisual().released();
+		gpanel.getVisual()
+			  .released();
 
 	}
 
@@ -81,7 +83,7 @@ public class GraphMouseHandler extends MouseAdapter
 
 		if (nodeDragged == null)
 		{
-			gpanel.moveOrigin( dx, dy );
+			gpanel.moveOrigin(dx, dy);
 		}
 		else
 		{
@@ -100,11 +102,12 @@ public class GraphMouseHandler extends MouseAdapter
 			Log.debug("Click @ Node " + node.id);
 
 			Point p = gpanel.getNodeLocation(node);
-			if ( p != null )
+			if (p != null)
 			{
-				p.x =  e.getX() - p.x;
-				p.y =  e.getY() - p.y;
-				gpanel.getVisual().click(node, p);
+				p.x = e.getX() - p.x;
+				p.y = e.getY() - p.y;
+				gpanel.getVisual()
+					  .click(node, p);
 				gpanel.repaintIfNeeded();
 			}
 		}

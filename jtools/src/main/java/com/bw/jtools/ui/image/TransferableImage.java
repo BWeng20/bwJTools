@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,66 +39,70 @@ import java.io.IOException;
  */
 public final class TransferableImage implements Transferable
 {
-    final Image image_;
+	final Image image_;
 
-    /**
-     * Creates a transferable with the given image.
-     * @param image The image to copy.
-     */
-    public TransferableImage( Image image )
-    {
-        image_ = image;
-    }
+	/**
+	 * Creates a transferable with the given image.
+	 *
+	 * @param image The image to copy.
+	 */
+	public TransferableImage(Image image)
+	{
+		image_ = image;
+	}
 
-    /**
-     * Creates a transferable with the given image, but redraws the image
-     * with opaque background if it has an alpha-channel.
-     * @param toClipboard The image to copy.
-     * @param backgroundIfAlpha The background-color for redraw. Can be null, in this case WHITE is used.
-     */
-    public TransferableImage( BufferedImage toClipboard, Color backgroundIfAlpha )
-    {
-        if (toClipboard != null)
-        {
-            if ( backgroundIfAlpha == null ) backgroundIfAlpha = Color.WHITE;
-            // Java doesn't support transparency in clipboard operations.
-            // To avoid a black background, repaint with white.
-            if (toClipboard.getColorModel().hasAlpha())
-            {
-                BufferedImage copy = new BufferedImage(toClipboard.getWidth(), toClipboard.getHeight(), BufferedImage.TYPE_INT_RGB);
-                copy.createGraphics().drawImage(toClipboard, 0, 0, backgroundIfAlpha, null);
-                image_ = copy;
-            }
-            else
-            {
-                image_ = toClipboard;
-            }
-        }
-        else
-            image_ = null;
-    }
+	/**
+	 * Creates a transferable with the given image, but redraws the image
+	 * with opaque background if it has an alpha-channel.
+	 *
+	 * @param toClipboard       The image to copy.
+	 * @param backgroundIfAlpha The background-color for redraw. Can be null, in this case WHITE is used.
+	 */
+	public TransferableImage(BufferedImage toClipboard, Color backgroundIfAlpha)
+	{
+		if (toClipboard != null)
+		{
+			if (backgroundIfAlpha == null) backgroundIfAlpha = Color.WHITE;
+			// Java doesn't support transparency in clipboard operations.
+			// To avoid a black background, repaint with white.
+			if (toClipboard.getColorModel()
+						   .hasAlpha())
+			{
+				BufferedImage copy = new BufferedImage(toClipboard.getWidth(), toClipboard.getHeight(), BufferedImage.TYPE_INT_RGB);
+				copy.createGraphics()
+					.drawImage(toClipboard, 0, 0, backgroundIfAlpha, null);
+				image_ = copy;
+			}
+			else
+			{
+				image_ = toClipboard;
+			}
+		}
+		else
+			image_ = null;
+	}
 
-    @Override
-    public Object getTransferData( DataFlavor flavor )
-        throws UnsupportedFlavorException, IOException
-    {
-        if ( flavor.equals( DataFlavor.imageFlavor ) && image_ != null )
-            return image_;
-        else
-           throw new UnsupportedFlavorException( flavor );
-    }
+	@Override
+	public Object getTransferData(DataFlavor flavor)
+			throws UnsupportedFlavorException, IOException
+	{
+		if (flavor.equals(DataFlavor.imageFlavor) && image_ != null)
+			return image_;
+		else
+			throw new UnsupportedFlavorException(flavor);
+	}
 
-    @Override
-    public DataFlavor[] getTransferDataFlavors()
-    {
-        DataFlavor[] flavors = new DataFlavor[ 1 ];
-        flavors[ 0 ] = DataFlavor.imageFlavor;
-        return flavors;
-    }
+	@Override
+	public DataFlavor[] getTransferDataFlavors()
+	{
+		DataFlavor[] flavors = new DataFlavor[1];
+		flavors[0] = DataFlavor.imageFlavor;
+		return flavors;
+	}
 
-    @Override
-    public boolean isDataFlavorSupported( DataFlavor flavor )
-    {
-        return flavor == DataFlavor.imageFlavor;
-    }
+	@Override
+	public boolean isDataFlavorSupported(DataFlavor flavor)
+	{
+		return flavor == DataFlavor.imageFlavor;
+	}
 }

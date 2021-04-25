@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,31 +23,31 @@ package com.bw.jtools.reports;
 
 public class ReportTableCell extends ReportElement
 {
-    protected int spansCols = 1;
+	protected int spansCols = 1;
 
-    public ReportTableCell()
-    {
-    }
+	public ReportTableCell()
+	{
+	}
 
-    @Override
-    public ReportElement add(ReportElement e)
-    {
-        super.add(e);
-        return this;
-    }
+	@Override
+	public ReportElement add(ReportElement e)
+	{
+		super.add(e);
+		return this;
+	}
 
-    public ReportTableCell spans(int c)
-    {
-        spansCols = c;
-        return this;
-    }
+	public ReportTableCell spans(int c)
+	{
+		spansCols = c;
+		return this;
+	}
 
-    @Override
-    public void render(ReportRenderer renderer)
-    {
-        renderer.startCell(spansCols);
-        super.render(renderer);
-        renderer.endCell();
-    }
+	@Override
+	public void render(ReportRenderer renderer)
+	{
+		renderer.startCell(spansCols);
+		super.render(renderer);
+		renderer.endCell();
+	}
 
 }

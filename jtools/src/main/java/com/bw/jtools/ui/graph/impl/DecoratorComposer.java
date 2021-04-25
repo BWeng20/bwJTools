@@ -17,22 +17,22 @@ public class DecoratorComposer implements Decorator
 	@Override
 	public void decorate(Graphics g, Node node)
 	{
-		for ( Decorator d : decorators)
-			d.decorate( g, node );
+		for (Decorator d : decorators)
+			d.decorate(g, node);
 	}
 
 	@Override
-	public Rectangle getBounds( Node node)
+	public Rectangle getBounds(Node node)
 	{
 		Rectangle r = null;
-		for ( Decorator d : decorators)
+		for (Decorator d : decorators)
 		{
-			if ( r == null )
+			if (r == null)
 				r = d.getBounds(node);
 			else
 			{
 				Rectangle r2 = d.getBounds(node);
-				if ( r2 != null )
+				if (r2 != null)
 					Geometry.union(r, r2);
 			}
 		}
@@ -43,22 +43,24 @@ public class DecoratorComposer implements Decorator
 	@Override
 	public void install(Geometry g, Node node)
 	{
-		for ( Decorator d : decorators)
-			d.install( g, node );
+		for (Decorator d : decorators)
+			d.install(g, node);
 	}
 
 	@Override
 	public void uninstall(Geometry g, Node node)
 	{
-		for ( Decorator d : decorators)
-			d.uninstall( g, node );
+		for (Decorator d : decorators)
+			d.uninstall(g, node);
 	}
 
-	public DecoratorComposer( Decorator... d) {
+	public DecoratorComposer(Decorator... d)
+	{
 		decorators.addAll(Arrays.asList(d));
 	}
 
-	public void addDecorator( Decorator d ) {
+	public void addDecorator(Decorator d)
+	{
 		decorators.remove(d);
 		decorators.add(d);
 	}
@@ -68,7 +70,8 @@ public class DecoratorComposer implements Decorator
 		decorators.remove(d);
 	}
 
-	public int size() {
-		return  decorators.size();
+	public int size()
+	{
+		return decorators.size();
 	}
 }

@@ -33,166 +33,175 @@ import java.util.*;
  * <br>
  * <i>Example:</i><br>
  * <pre>
- *{@code
+ * {@code
  *  PropertyValue property = new PropertyValue( "My Number", Integer.class );
  *  property.setUserObject( 10 );
- *}
+ * }
  * </pre>
  */
 public class PropertyValue
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = -7565043274211746142L;
 
-    /**
-     * The payload.
-     */
+	/**
+	 * The payload.
+	 */
 	private Object payload_;
 
 	/**
-     * The name of the property.
-     */
-    public String displayName_;
+	 * The name of the property.
+	 */
+	public String displayName_;
 
-    /**
-     * Values restrictions.
-     */
-    public Map<String,Object> possibleValues_;
-
-
-    /**
-     * The value-class of this property.
-     */
-    public Class<?>  valueClazz_;
-
-    /**
-     * The format to display numbers.
-     * Can be set to support other formats, eg. more fractions digits.
-     */
-    public NumberFormat nf_ = null;
-
-    /**
-     * True if value is nullable.
-     */
-    public boolean nullable_ = true;
-
-    /**
-     * List of change listeners that listen for this property.<br>
-     */
-    private List<WeakReference<PropertyChangeListener>> propertyChangeListener_;
+	/**
+	 * Values restrictions.
+	 */
+	public Map<String, Object> possibleValues_;
 
 
-    /**
-     * Constructs a new property by name and value-clazz.
-     * The value will initially be null.
-     * @param name        The name of the property to show.
-     * @param valueClazz  The value-class of the property.
-     */
-    public PropertyValue( String name, Class<?> valueClazz )
-    {
-        this.displayName_=name;
-        this.valueClazz_ = valueClazz;
-    }
+	/**
+	 * The value-class of this property.
+	 */
+	public Class<?> valueClazz_;
 
-    /**
-     * Gets the payload.
-     */
-    public final Object getPayload() {
-        return payload_;
-    }
+	/**
+	 * The format to display numbers.
+	 * Can be set to support other formats, eg. more fractions digits.
+	 */
+	public NumberFormat nf_ = null;
 
-    /**
-     * Sets the payload.
-     */
-    public final void setPayload(Object payload)
-    {
-        if (!Objects.equals(payload, payload_))
-        {
-            payload_ = payload;
-            firePropertyChange();
-        }
-    }
+	/**
+	 * True if value is nullable.
+	 */
+	public boolean nullable_ = true;
 
-    /**
-     * Checks if the property has some content.
-     * Convenience replacement for "getPayload() != null"
-     * @return True if some value exists.
-     */
-    public boolean hasContent()
-    {
-        return payload_ != null;
-    }
+	/**
+	 * List of change listeners that listen for this property.<br>
+	 */
+	private List<WeakReference<PropertyChangeListener>> propertyChangeListener_;
 
-    /**
-     * Adds a change listener.
-     * @param l The listener.
-     */
-    public void addPropertyChangeListener( PropertyChangeListener l ) {
-        removePropertyChangeListener(l);
-        if ( propertyChangeListener_ == null )
-            propertyChangeListener_ = new ArrayList<>();
-        propertyChangeListener_.add( new WeakReference<PropertyChangeListener>(l) );
-    }
 
-    /**
-     * Removes a change listener.
-     * @param l The listener.
-     */
-    public void removePropertyChangeListener( PropertyChangeListener l ) {
-        if ( propertyChangeListener_ != null )
-        {
-            Iterator<WeakReference<PropertyChangeListener>> it =propertyChangeListener_.iterator();
-            while ( it.hasNext())
-            {
-                WeakReference<PropertyChangeListener> wl =  it.next();
-                PropertyChangeListener pl = wl.get();
-                if ( pl == null || pl  == l )
-                   it.remove();
-            }
-        }
-    }
+	/**
+	 * Constructs a new property by name and value-clazz.
+	 * The value will initially be null.
+	 *
+	 * @param name       The name of the property to show.
+	 * @param valueClazz The value-class of the property.
+	 */
+	public PropertyValue(String name, Class<?> valueClazz)
+	{
+		this.displayName_ = name;
+		this.valueClazz_ = valueClazz;
+	}
 
-    /**
-     * Calls all change listener.
-     */
-    public void firePropertyChange( ) {
-        if ( propertyChangeListener_ != null )
-        {
-            List<WeakReference<PropertyChangeListener>> l = new ArrayList<>(propertyChangeListener_);
-            for (WeakReference<PropertyChangeListener> wp : l)
-            {
-                PropertyChangeListener pl = wp.get();
-                if ( pl != null )
-                    pl.propertyChanged(this);
-            }
-        }
-    }
+	/**
+	 * Gets the payload.
+	 */
+	public final Object getPayload()
+	{
+		return payload_;
+	}
 
-    /**
-     * Force scale of the number to the value-class of this property<br>
-     * E.g. is value-class is byte, the returned number is nb.byteValue().
-     * @return The scaled number of the unchanged nb if the value-class is not numeric.
-     */
-    public Number scaleNumber(Number nb)
-    {
-        if (nb != null)
-        {
-            if (valueClazz_ == Integer.class)
-                return nb.intValue();
-            else if (valueClazz_ == Double.class)
-                return nb.doubleValue();
-            else if (valueClazz_ == Long.class)
-                return nb.longValue();
-            else if (valueClazz_ == Short.class)
-                return nb.shortValue();
-            else if (valueClazz_ == Byte.class)
-                return nb.byteValue();
-            else if (valueClazz_ == Float.class)
-                return nb.floatValue();
-        }
-        return nb;
-    }
+	/**
+	 * Sets the payload.
+	 */
+	public final void setPayload(Object payload)
+	{
+		if (!Objects.equals(payload, payload_))
+		{
+			payload_ = payload;
+			firePropertyChange();
+		}
+	}
+
+	/**
+	 * Checks if the property has some content.
+	 * Convenience replacement for "getPayload() != null"
+	 *
+	 * @return True if some value exists.
+	 */
+	public boolean hasContent()
+	{
+		return payload_ != null;
+	}
+
+	/**
+	 * Adds a change listener.
+	 *
+	 * @param l The listener.
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener l)
+	{
+		removePropertyChangeListener(l);
+		if (propertyChangeListener_ == null)
+			propertyChangeListener_ = new ArrayList<>();
+		propertyChangeListener_.add(new WeakReference<PropertyChangeListener>(l));
+	}
+
+	/**
+	 * Removes a change listener.
+	 *
+	 * @param l The listener.
+	 */
+	public void removePropertyChangeListener(PropertyChangeListener l)
+	{
+		if (propertyChangeListener_ != null)
+		{
+			Iterator<WeakReference<PropertyChangeListener>> it = propertyChangeListener_.iterator();
+			while (it.hasNext())
+			{
+				WeakReference<PropertyChangeListener> wl = it.next();
+				PropertyChangeListener pl = wl.get();
+				if (pl == null || pl == l)
+					it.remove();
+			}
+		}
+	}
+
+	/**
+	 * Calls all change listener.
+	 */
+	public void firePropertyChange()
+	{
+		if (propertyChangeListener_ != null)
+		{
+			List<WeakReference<PropertyChangeListener>> l = new ArrayList<>(propertyChangeListener_);
+			for (WeakReference<PropertyChangeListener> wp : l)
+			{
+				PropertyChangeListener pl = wp.get();
+				if (pl != null)
+					pl.propertyChanged(this);
+			}
+		}
+	}
+
+	/**
+	 * Force scale of the number to the value-class of this property<br>
+	 * E.g. is value-class is byte, the returned number is nb.byteValue().
+	 *
+	 * @return The scaled number of the unchanged nb if the value-class is not numeric.
+	 */
+	public Number scaleNumber(Number nb)
+	{
+		if (nb != null)
+		{
+			if (valueClazz_ == Integer.class)
+				return nb.intValue();
+			else if (valueClazz_ == Double.class)
+				return nb.doubleValue();
+			else if (valueClazz_ == Long.class)
+				return nb.longValue();
+			else if (valueClazz_ == Short.class)
+				return nb.shortValue();
+			else if (valueClazz_ == Byte.class)
+				return nb.byteValue();
+			else if (valueClazz_ == Float.class)
+				return nb.floatValue();
+		}
+		return nb;
+	}
 
 }

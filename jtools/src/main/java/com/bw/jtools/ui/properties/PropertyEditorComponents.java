@@ -50,7 +50,7 @@ import java.util.Objects;
 public class PropertyEditorComponents
 {
 	private static NumberFormat nf_;
-	private static Border empty_border_ =  BorderFactory.createEmptyBorder();
+	private static Border empty_border_ = BorderFactory.createEmptyBorder();
 	private static Font font_ = new Font("SansSerif", Font.PLAIN, 11);
 
 	private JComboBox<String> choice_;
@@ -77,19 +77,20 @@ public class PropertyEditorComponents
 
 	private JTextField getTextField()
 	{
-		if ( text_ == null )
+		if (text_ == null)
 		{
 			text_ = new JTextField();
 			text_.setFont(font_);
-			text_.addActionListener( (actionEvent) -> updateCurrentValue()
+			text_.addActionListener((actionEvent) -> updateCurrentValue()
 			);
 		}
 		return text_;
 	}
 
 
-	private ItemListener getItemListener() {
-		if ( itemListener_ == null )
+	private ItemListener getItemListener()
+	{
+		if (itemListener_ == null)
 		{
 			itemListener_ = (evt) -> updateCurrentValue();
 		}
@@ -98,7 +99,7 @@ public class PropertyEditorComponents
 
 	private JComboBox<Object> getEnumCombo()
 	{
-		if ( enums_ == null)
+		if (enums_ == null)
 		{
 			enums_ = new JComboBox<>();
 			enums_.setFont(font_);
@@ -113,7 +114,7 @@ public class PropertyEditorComponents
 
 	private JComboBox<String> getChoiceCombo()
 	{
-		if ( choice_ == null)
+		if (choice_ == null)
 		{
 			choice_ = new JComboBox<>();
 			choice_.setFont(font_);
@@ -128,7 +129,7 @@ public class PropertyEditorComponents
 
 	private JComboBox<Boolean> getBooleanNullableCombo()
 	{
-		if ( booleanNullable_ == null)
+		if (booleanNullable_ == null)
 		{
 			booleanNullable_ = new JComboBox<>();
 			booleanNullable_.addItem(null);
@@ -142,7 +143,7 @@ public class PropertyEditorComponents
 
 	private JCheckBox getBooleanCheckbox()
 	{
-		if ( booleanCheckbox_ == null )
+		if (booleanCheckbox_ == null)
 		{
 			booleanCheckbox_ = new JCheckBox();
 			booleanCheckbox_.setFont(font_);
@@ -154,13 +155,14 @@ public class PropertyEditorComponents
 
 	private JFontButton getFontButton()
 	{
-		if ( fontb_ == null )
+		if (fontb_ == null)
 		{
 			fontb_ = new JFontButton();
 			fontb_.setFont(font_);
-			fontb_.addActionListener(ev -> {
-				Font f = JFontChooser.showDialog(fontb_, "Select Font", fontb_.getValue() );
-				if ( f != null )
+			fontb_.addActionListener(ev ->
+			{
+				Font f = JFontChooser.showDialog(fontb_, "Select Font", fontb_.getValue());
+				if (f != null)
 				{
 					fontb_.setValue(f);
 				}
@@ -171,18 +173,18 @@ public class PropertyEditorComponents
 
 	private JColorChooserButton getColorButton()
 	{
-		if ( color_ == null )
+		if (color_ == null)
 		{
 			color_ = new JColorChooserButton();
 			color_.setFont(font_);
-			color_.addItemListener( (ie) ->
-				{
-					Color newColor = (Color)ie.getItem();
-					if (currentValue_ != null && Color.class.isAssignableFrom(currentValue_.valueClazz_))
+			color_.addItemListener((ie) ->
 					{
-						currentValue_.setPayload(newColor);
+						Color newColor = (Color) ie.getItem();
+						if (currentValue_ != null && Color.class.isAssignableFrom(currentValue_.valueClazz_))
+						{
+							currentValue_.setPayload(newColor);
+						}
 					}
-				}
 			);
 		}
 		return color_;
@@ -190,6 +192,7 @@ public class PropertyEditorComponents
 
 	/**
 	 * Returns a configured component for the value type.<br>
+	 *
 	 * @param value The property value.
 	 * @return The configured component.
 	 */
@@ -200,7 +203,7 @@ public class PropertyEditorComponents
 		boolean useGenericText = false;
 		JComponent ed = null;
 
-		if ( value.possibleValues_ != null )
+		if (value.possibleValues_ != null)
 		{
 			JComboBox<String> choice = getChoiceCombo();
 			choice.removeAllItems();
@@ -209,16 +212,16 @@ public class PropertyEditorComponents
 			if (value.nullable_)
 			{
 				choice.addItem(null);
-				if ( v == null )
+				if (v == null)
 					choice.setSelectedIndex(0);
 			}
 
 			for (Map.Entry<String, Object> entry : value.possibleValues_.entrySet())
 			{
 				choice.addItem(entry.getKey());
-				if ( Objects.equals( entry.getValue(), v))
+				if (Objects.equals(entry.getValue(), v))
 				{
-					choice.setSelectedIndex( choice.getItemCount()-1 );
+					choice.setSelectedIndex(choice.getItemCount() - 1);
 				}
 			}
 			ed = choice;
@@ -236,9 +239,9 @@ public class PropertyEditorComponents
 			{
 				NumberFormat nf = (value.nf_ == null ? nf_ : value.nf_);
 				boolean gu = nf.isGroupingUsed();
-				if ( gu ) nf.setGroupingUsed(false);
+				if (gu) nf.setGroupingUsed(false);
 				text.setText(nf.format(i));
-				if ( gu ) nf.setGroupingUsed(true);
+				if (gu) nf.setGroupingUsed(true);
 			}
 			else
 				text.setText("");
@@ -251,7 +254,8 @@ public class PropertyEditorComponents
 				JComboBox<Boolean> booleanNullable = getBooleanNullableCombo();
 				booleanNullable.setSelectedItem(val);
 				ed = booleanNullable;
-			} else
+			}
+			else
 			{
 				JCheckBox booleanCheckbox = getBooleanCheckbox();
 				booleanCheckbox.setSelected(val != null && val.booleanValue());
@@ -314,7 +318,8 @@ public class PropertyEditorComponents
 			Number nb = nf.parse(getTextField().getText());
 			return nb;
 
-		} catch (ParseException e)
+		}
+		catch (ParseException e)
 		{
 		}
 		return null;
@@ -322,20 +327,20 @@ public class PropertyEditorComponents
 
 	public boolean updateCurrentValue()
 	{
-		if ( currentValue_ == null )
+		if (currentValue_ == null)
 			return false;
 
 		Object newUserObject = currentValue_.getPayload();
 
 		if (currentValue_.possibleValues_ != null)
 		{
-			String v = (String)getChoiceCombo().getSelectedItem();
+			String v = (String) getChoiceCombo().getSelectedItem();
 			newUserObject = v == null ? null : currentValue_.possibleValues_.get(v);
 		}
 		else if (currentValue_.valueClazz_ == String.class)
 		{
 			String text = getTextField().getText();
-			if ( text.isEmpty() && currentValue_.nullable_)
+			if (text.isEmpty() && currentValue_.nullable_)
 				newUserObject = null;
 			else
 				newUserObject = text;
@@ -346,7 +351,8 @@ public class PropertyEditorComponents
 			if (nb != null)
 			{
 				newUserObject = currentValue_.scaleNumber(nb);
-			} else if (currentValue_.nullable_)
+			}
+			else if (currentValue_.nullable_)
 			{
 				newUserObject = null;
 			}
@@ -357,7 +363,8 @@ public class PropertyEditorComponents
 			if (currentValue_.nullable_)
 			{
 				newBool = (Boolean) getBooleanNullableCombo().getSelectedItem();
-			} else
+			}
+			else
 			{
 				newBool = getBooleanCheckbox().isSelected();
 			}
@@ -380,7 +387,8 @@ public class PropertyEditorComponents
 		if (newUserObject == null)
 		{
 			changed = currentValue_.getPayload() != null;
-		} else
+		}
+		else
 		{
 			changed = !newUserObject.equals(currentValue_.getPayload());
 		}

@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -29,31 +29,31 @@ import com.bw.jtools.Log;
 public class ConsoleLogger extends Log.LoggerFacade
 {
 
-    @Override
-    public void error(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.ERROR));
-        System.err.println(msg);
-    }
+	@Override
+	public void error(CharSequence msg)
+	{
+		System.err.print(getLevelPrefix(Log.ERROR));
+		System.err.println(msg);
+	}
 
-    @Override
-    public void warn(CharSequence msg)
-    {
-        System.err.print(getLevelPrefix(Log.WARN));
-        System.err.println(msg);
-    }
+	@Override
+	public void warn(CharSequence msg)
+	{
+		System.err.print(getLevelPrefix(Log.WARN));
+		System.err.println(msg);
+	}
 
-    @Override
-    public void info(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.INFO));
-        System.out.println(msg);
-    }
+	@Override
+	public void info(CharSequence msg)
+	{
+		System.out.print(getLevelPrefix(Log.INFO));
+		System.out.println(msg);
+	}
 
-    @Override
-    public void debug(CharSequence msg)
-    {
-        System.out.print(getLevelPrefix(Log.DEBUG));
-        System.out.println(msg);
-    }
+	@Override
+	public void debug(CharSequence msg)
+	{
+		System.out.print(getLevelPrefix(Log.DEBUG));
+		System.out.println(msg);
+	}
 }

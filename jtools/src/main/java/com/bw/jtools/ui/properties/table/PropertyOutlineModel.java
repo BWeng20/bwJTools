@@ -27,46 +27,52 @@ import javax.swing.tree.DefaultTreeModel;
 
 public class PropertyOutlineModel extends DefaultOutlineModel
 {
-      /** For unknown reasons this member is package-protected in DefaultOutlineModel. */
-      protected DefaultTreeModel treeModel_;
+	/**
+	 * For unknown reasons this member is package-protected in DefaultOutlineModel.
+	 */
+	protected DefaultTreeModel treeModel_;
 
-      /** For unknown reasons this member is package-protected in DefaultOutlineModel. */
-      protected PropertyTableModel tableModel_;
+	/**
+	 * For unknown reasons this member is package-protected in DefaultOutlineModel.
+	 */
+	protected PropertyTableModel tableModel_;
 
-      protected PropertyOutlineModel(DefaultTreeModel treeModel, PropertyTableModel tableModel)
-      {
-          super(treeModel, tableModel, true, "Properties");
-          this.tableModel_ = tableModel;
-          this.treeModel_ = treeModel;
-          tableModel.setOutlineModel(this);
-      }
+	protected PropertyOutlineModel(DefaultTreeModel treeModel, PropertyTableModel tableModel)
+	{
+		super(treeModel, tableModel, true, "Properties");
+		this.tableModel_ = tableModel;
+		this.treeModel_ = treeModel;
+		tableModel.setOutlineModel(this);
+	}
 
-      /**
-       * Getter for Tree Model.<br>
-       * For unknown reasons getTreeModel member function and the member is package-protected
-       * in DefaultOutlineModel.
-       * @return The current tree model.
-       */
-      public DefaultTreeModel getDefaultTreeModel()
-      {
-          return treeModel_;
-      }
+	/**
+	 * Getter for Tree Model.<br>
+	 * For unknown reasons getTreeModel member function and the member is package-protected
+	 * in DefaultOutlineModel.
+	 *
+	 * @return The current tree model.
+	 */
+	public DefaultTreeModel getDefaultTreeModel()
+	{
+		return treeModel_;
+	}
 
-      /**
-       * Getter for Tree Model.<br>
-       * For unknown reasons getTableModel member function and the member is package-protected
-       * in DefaultOutlineModel.
-       * @return The current table model.
-       */
-      public PropertyTableModel getDefaultTableModel()
-      {
-          return tableModel_;
-      }
+	/**
+	 * Getter for Tree Model.<br>
+	 * For unknown reasons getTableModel member function and the member is package-protected
+	 * in DefaultOutlineModel.
+	 *
+	 * @return The current table model.
+	 */
+	public PropertyTableModel getDefaultTableModel()
+	{
+		return tableModel_;
+	}
 
-      public static PropertyOutlineModel createOutlineModel()
-      {
-            DefaultTreeModel treeModel = new DefaultTreeModel(null);
-            PropertyTableModel tableModel = new PropertyTableModel();
-            return new PropertyOutlineModel(treeModel, tableModel );
-      }
+	public static PropertyOutlineModel createOutlineModel()
+	{
+		DefaultTreeModel treeModel = new DefaultTreeModel(null);
+		PropertyTableModel tableModel = new PropertyTableModel();
+		return new PropertyOutlineModel(treeModel, tableModel);
+	}
 }

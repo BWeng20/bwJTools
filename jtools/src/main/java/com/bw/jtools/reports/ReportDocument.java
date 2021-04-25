@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,19 +23,19 @@ package com.bw.jtools.reports;
 
 public class ReportDocument extends ReportElement
 {
-    public final String title;
+	public final String title;
 
-    public ReportDocument( String title )
-    {
-        this.title = title;
-    }
+	public ReportDocument(String title)
+	{
+		this.title = title;
+	}
 
-    @Override
-    public void render( ReportRenderer renderer )
-    {
-        renderer.startDocument(title);
-        super.render(renderer);
-        renderer.endDocument();
-    }
+	@Override
+	public void render(ReportRenderer renderer)
+	{
+		renderer.startDocument(title);
+		super.render(renderer);
+		renderer.endDocument();
+	}
 
 }

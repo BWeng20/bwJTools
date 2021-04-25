@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,69 +46,72 @@ import javax.swing.event.DocumentListener;
  * The code above will initialize the text-fields
  * from the current values for preference-keys "Age" and "ZIP".<br>
  * If the user change one of these values, the value in preferences
- * will automatically be updated. 
+ * will automatically be updated.
  */
 public class TextFieldSettingAdapter implements DocumentListener
 {
-    protected boolean value_set_ = false;
-    protected final String pref_;
-    protected String last_value_;
-    protected JTextField text_;
+	protected boolean value_set_ = false;
+	protected final String pref_;
+	protected String last_value_;
+	protected JTextField text_;
 
-    /**
-     * Creates an adapter to load and store preference "pref" into/from the given text-field.
-     * @param f The text field to connect to.
-     * @param pref The Preference key to load and store the value.
-     * @param defaultValue The default to use if Store doesn't have a value yet.
-     */
-    public TextFieldSettingAdapter(JTextField f, String pref, String defaultValue )
-    {
-        text_ = f;
-        pref_ = pref;
-        last_value_ = Store.getString(pref_, (null != defaultValue) ? defaultValue : "");
-        text_.setText(last_value_);
-        value_set_ = true;
-        text_.getDocument().addDocumentListener(this);
-    }
+	/**
+	 * Creates an adapter to load and store preference "pref" into/from the given text-field.
+	 *
+	 * @param f            The text field to connect to.
+	 * @param pref         The Preference key to load and store the value.
+	 * @param defaultValue The default to use if Store doesn't have a value yet.
+	 */
+	public TextFieldSettingAdapter(JTextField f, String pref, String defaultValue)
+	{
+		text_ = f;
+		pref_ = pref;
+		last_value_ = Store.getString(pref_, (null != defaultValue) ? defaultValue : "");
+		text_.setText(last_value_);
+		value_set_ = true;
+		text_.getDocument()
+			 .addDocumentListener(this);
+	}
 
-    /**
-     * Creates an adapter to load and store preference "pref" into/from the given text-field.
-     * @param f The text field to connect to.
-     * @param pref The Preference key to load and store the value.
-     */
-    public TextFieldSettingAdapter(JTextField f, String pref)
-    {
-    	this(f,pref, null );
-    }
+	/**
+	 * Creates an adapter to load and store preference "pref" into/from the given text-field.
+	 *
+	 * @param f    The text field to connect to.
+	 * @param pref The Preference key to load and store the value.
+	 */
+	public TextFieldSettingAdapter(JTextField f, String pref)
+	{
+		this(f, pref, null);
+	}
 
-    @Override
-    public void insertUpdate(DocumentEvent e)
-    {
-        textChanged_();
-    }
+	@Override
+	public void insertUpdate(DocumentEvent e)
+	{
+		textChanged_();
+	}
 
-    @Override
-    public void removeUpdate(DocumentEvent e)
-    {
-        textChanged_();
-    }
+	@Override
+	public void removeUpdate(DocumentEvent e)
+	{
+		textChanged_();
+	}
 
-    @Override
-    public void changedUpdate(DocumentEvent e)
-    {
-        textChanged_();
-    }
+	@Override
+	public void changedUpdate(DocumentEvent e)
+	{
+		textChanged_();
+	}
 
-    protected void textChanged_()
-    {
-        if (value_set_)
-        {
-            final String nv = text_.getText();
-            if (nv != null && false == nv.equals(last_value_))
-            {
-                last_value_ = nv;
-                Store.setString(pref_, nv);
-            }
-        }
-    }
+	protected void textChanged_()
+	{
+		if (value_set_)
+		{
+			final String nv = text_.getText();
+			if (nv != null && false == nv.equals(last_value_))
+			{
+				last_value_ = nv;
+				Store.setString(pref_, nv);
+			}
+		}
+	}
 }

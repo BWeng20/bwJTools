@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -26,28 +26,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Logger back-end that collects messages in memory.<br>
-* Purpose is to collect errors and warnings during some operation
-* to enable the software to give hints about the reason of failure.
-* E.g by providing an detailed error-report about the operation.<br>
-* It is used by {@link Log#startCollectMessages(int, boolean) }.
-*/
+ * Logger back-end that collects messages in memory.<br>
+ * Purpose is to collect errors and warnings during some operation
+ * to enable the software to give hints about the reason of failure.
+ * E.g by providing an detailed error-report about the operation.<br>
+ * It is used by {@link Log#startCollectMessages(int, boolean) }.
+ */
 public class CollectorThreadLogger
 {
-    public List<String> messages = new ArrayList<>(1000);
+	public List<String> messages = new ArrayList<>(1000);
 
-    public final int level;
-    public final int maxTraceLines;
+	public final int level;
+	public final int maxTraceLines;
 
-    /**
-     * Creates a new CollectorLogger.
-     * @param level Level to restrict the collected messages to.
-     * @param maxTraceLines Maximum number of lines in stack-traces.
-     */
-    public CollectorThreadLogger( int level, int maxTraceLines )
-    {
-        this.level = level;
-        this.maxTraceLines= maxTraceLines;
-    }
+	/**
+	 * Creates a new CollectorLogger.
+	 *
+	 * @param level         Level to restrict the collected messages to.
+	 * @param maxTraceLines Maximum number of lines in stack-traces.
+	 */
+	public CollectorThreadLogger(int level, int maxTraceLines)
+	{
+		this.level = level;
+		this.maxTraceLines = maxTraceLines;
+	}
 
 }

@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 /**
  * Iterator that filters the elements from some iterator by a predicate.<br>
  * Null object from the base iterator are skipped.
+ *
  * @param <T> The element type
  */
 public class FilteredIterator<T> implements Iterator<T>
@@ -15,15 +16,18 @@ public class FilteredIterator<T> implements Iterator<T>
 	private final Predicate<T> pred;
 	private T next;
 
-	private boolean checkForNext() {
-		while ( next == null && innerIt.hasNext()) {
+	private boolean checkForNext()
+	{
+		while (next == null && innerIt.hasNext())
+		{
 			next = innerIt.next();
-			if ( !pred.test(next) ) next = null;
+			if (!pred.test(next)) next = null;
 		}
 		return next != null;
 	}
 
-	public FilteredIterator( Iterator<T> it, Predicate<T> pred) {
+	public FilteredIterator(Iterator<T> it, Predicate<T> pred)
+	{
 		this.innerIt = it;
 		this.pred = pred;
 	}
@@ -37,7 +41,8 @@ public class FilteredIterator<T> implements Iterator<T>
 	@Override
 	public T next()
 	{
-		if (!checkForNext()) {
+		if (!checkForNext())
+		{
 			throw new NoSuchElementException();
 		}
 		T r = next;

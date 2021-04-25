@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,37 +23,37 @@ package com.bw.jtools.reports;
 
 public class ReportTableRow extends ReportElement
 {
-    public ReportTableRow()
-    {
-    }
+	public ReportTableRow()
+	{
+	}
 
-    @Override
-    public ReportElement add(ReportElement e) throws IllegalArgumentException
-    {
-        if ( e instanceof ReportTableCell )
-        {
-            super.add(e);
-        }
-        else
-        {
-            super.add(new ReportTableCell().add(e));
-        }
-        return this;
-    }
+	@Override
+	public ReportElement add(ReportElement e) throws IllegalArgumentException
+	{
+		if (e instanceof ReportTableCell)
+		{
+			super.add(e);
+		}
+		else
+		{
+			super.add(new ReportTableCell().add(e));
+		}
+		return this;
+	}
 
-    @Override
-    public ReportElement add(String text)
-    {
-        return add( new ReportTableCell().add(text) );
-    }
+	@Override
+	public ReportElement add(String text)
+	{
+		return add(new ReportTableCell().add(text));
+	}
 
 
-    @Override
-    public void render(ReportRenderer renderer)
-    {
-        renderer.startRow();
-        super.render(renderer);
-        renderer.endRow();
-    }
+	@Override
+	public void render(ReportRenderer renderer)
+	{
+		renderer.startRow();
+		super.render(renderer);
+		renderer.endRow();
+	}
 
 }

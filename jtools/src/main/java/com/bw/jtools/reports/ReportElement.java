@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,42 +29,44 @@ import java.util.ArrayList;
  */
 public class ReportElement
 {
-    protected final ArrayList<ReportElement> elements = new ArrayList<>();
+	protected final ArrayList<ReportElement> elements = new ArrayList<>();
 
-    /**
-     * Adds a sub-element to this element.
-     * @param e The element to add.
-     * @return  Returns this for chaining.
-     */
-    public ReportElement add(ReportElement e) throws IllegalArgumentException
-    {
-        elements.add(e);
-        return this;
-    }
+	/**
+	 * Adds a sub-element to this element.
+	 *
+	 * @param e The element to add.
+	 * @return Returns this for chaining.
+	 */
+	public ReportElement add(ReportElement e) throws IllegalArgumentException
+	{
+		elements.add(e);
+		return this;
+	}
 
-    /**
-     * Convenience replacement for "add( new ReportText(text) )".
-     * Can be used if no formatting options needs to be applied on the text.
-     *
-     * @param text Text that should be added.
-     * @return this (for chaining).
-     */
-    public ReportElement add(String text) throws IllegalArgumentException
-    {
-        return add(new ReportText(text));
-    }
+	/**
+	 * Convenience replacement for "add( new ReportText(text) )".
+	 * Can be used if no formatting options needs to be applied on the text.
+	 *
+	 * @param text Text that should be added.
+	 * @return this (for chaining).
+	 */
+	public ReportElement add(String text) throws IllegalArgumentException
+	{
+		return add(new ReportText(text));
+	}
 
-    /**
-     * Renders the element via a renderer.<br>
-     * In this case simply iterate through all elements and calls "render" on it.
-     * @param renderer The renderer to use.
-     */
-    public void render( ReportRenderer renderer )
-    {
-        for (ReportElement re : elements )
-        {
-            re.render(renderer);
-        }
-    }
+	/**
+	 * Renders the element via a renderer.<br>
+	 * In this case simply iterate through all elements and calls "render" on it.
+	 *
+	 * @param renderer The renderer to use.
+	 */
+	public void render(ReportRenderer renderer)
+	{
+		for (ReportElement re : elements)
+		{
+			re.render(renderer);
+		}
+	}
 
 }

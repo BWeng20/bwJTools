@@ -11,17 +11,20 @@ public abstract class GraphElement
 
 	private Object[] attributes = new Object[0];
 
-	public Object getAttribute( Attribute a ) {
+	public Object getAttribute(Attribute a)
+	{
 
-		return ( a.ordinal < attributes.length ) ? attributes[a.ordinal] : null;
+		return (a.ordinal < attributes.length) ? attributes[a.ordinal] : null;
 	}
 
-	public void setAttribute( Attribute a, Object value ) {
+	public void setAttribute(Attribute a, Object value)
+	{
 
-		if  ( a.ordinal >= attributes.length )  {
+		if (a.ordinal >= attributes.length)
+		{
 			final int newLength = a.ordinal + 10;
 			Object[] newAttributes = new Object[newLength];
-			System.arraycopy(attributes, 0, newAttributes, 0,attributes.length);
+			System.arraycopy(attributes, 0, newAttributes, 0, attributes.length);
 			attributes = newAttributes;
 		}
 		attributes[a.ordinal] = value;
@@ -30,7 +33,7 @@ public abstract class GraphElement
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName()+":"+id;
+		return getClass().getSimpleName() + ":" + id;
 	}
 
 	@Override

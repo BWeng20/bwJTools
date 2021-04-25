@@ -77,198 +77,206 @@ import java.awt.event.KeyEvent;
  */
 public final class PropertyTable extends Outline
 {
-    /**
+	/**
 	 * Generated Serial Version
 	 */
 	private static final long serialVersionUID = 2469783456629141389L;
 
 	/**
-     * In an "Outline" the columns starts left of the tree column.
-     * So for some API calls you need to add "+1" to the values below.
-     */
-    public static final int COLUMN_VALUE = 0;
-    public static final int COLUMN_COUNT = 1;
+	 * In an "Outline" the columns starts left of the tree column.
+	 * So for some API calls you need to add "+1" to the values below.
+	 */
+	public static final int COLUMN_VALUE = 0;
+	public static final int COLUMN_COUNT = 1;
 
-    /**
-     * True if the table is basically editable, what means that
-     * there may cells that can be edited.
-     * @return True if the table is editable.
-     */
-    public boolean isEditable()
-    {
-        return editable_;
-    }
+	/**
+	 * True if the table is basically editable, what means that
+	 * there may cells that can be edited.
+	 *
+	 * @return True if the table is editable.
+	 */
+	public boolean isEditable()
+	{
+		return editable_;
+	}
 
-    /**
-     * Sets editable mode.
-     * @param editable True to make the table basically editable.
-     */
-    public void setEditable(boolean editable)
-    {
-        editable_ = editable;
-    }
+	/**
+	 * Sets editable mode.
+	 *
+	 * @param editable True to make the table basically editable.
+	 */
+	public void setEditable(boolean editable)
+	{
+		editable_ = editable;
+	}
 
-    /**
-     * Gets the currently selected node.
-     * @return The currently selected node or null.
-     */
-    public PropertyNode getSelectedNode()
-    {
-        int row = getSelectedRow();
-        if (row >= 0)
-        {
-            Object nodeValue = getValueAt(row, 0);
-            if (nodeValue instanceof PropertyNode)
-            {
-                return (PropertyNode) nodeValue;
-            }
-        }
-        return null;
-    }
+	/**
+	 * Gets the currently selected node.
+	 *
+	 * @return The currently selected node or null.
+	 */
+	public PropertyNode getSelectedNode()
+	{
+		int row = getSelectedRow();
+		if (row >= 0)
+		{
+			Object nodeValue = getValueAt(row, 0);
+			if (nodeValue instanceof PropertyNode)
+			{
+				return (PropertyNode) nodeValue;
+			}
+		}
+		return null;
+	}
 
-    /**
-     * Gets the Tree Model
-     * @return The Tree-Model.
-     */
-    public DefaultTreeModel getTreeModel()
-    {
-        return ((PropertyOutlineModel)getOutlineModel()).getDefaultTreeModel();
-    }
+	/**
+	 * Gets the Tree Model
+	 *
+	 * @return The Tree-Model.
+	 */
+	public DefaultTreeModel getTreeModel()
+	{
+		return ((PropertyOutlineModel) getOutlineModel()).getDefaultTreeModel();
+	}
 
-    /**
-     * Gets the Table Model
-     * @return The Table-Model.
-     */
-    public PropertyTableModel getTableModel()
-    {
-        return ((PropertyOutlineModel)getOutlineModel()).getDefaultTableModel();
-    }
+	/**
+	 * Gets the Table Model
+	 *
+	 * @return The Table-Model.
+	 */
+	public PropertyTableModel getTableModel()
+	{
+		return ((PropertyOutlineModel) getOutlineModel()).getDefaultTableModel();
+	}
 
-    /**
-     * Expands all groups on first level.
-     */
-    public void expandAll()
-    {
-        PropertyGroupNode root =  (PropertyGroupNode)getTreeModel().getRoot();
-        if ( root != null )
-        {
-            final int N = root.getChildCount();
-            for (int i=0 ; i<N ; ++i)
-            {
-                DefaultMutableTreeNode node  = (DefaultMutableTreeNode)root.getChildAt(i);
-                if ( node instanceof PropertyGroupNode)
-                {
-                    expandPath(new TreePath( node.getPath()));
-                }
-            }
-        }
-    }
+	/**
+	 * Expands all groups on first level.
+	 */
+	public void expandAll()
+	{
+		PropertyGroupNode root = (PropertyGroupNode) getTreeModel().getRoot();
+		if (root != null)
+		{
+			final int N = root.getChildCount();
+			for (int i = 0; i < N; ++i)
+			{
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) root.getChildAt(i);
+				if (node instanceof PropertyGroupNode)
+				{
+					expandPath(new TreePath(node.getPath()));
+				}
+			}
+		}
+	}
 
-    @Override
-    protected JTableHeader createDefaultTableHeader() {
-        return new PropertyTableHeader(columnModel);
-    }
+	@Override
+	protected JTableHeader createDefaultTableHeader()
+	{
+		return new PropertyTableHeader(columnModel);
+	}
 
-    /**
-     * Constructs a new Table.
-     */
-    public PropertyTable()
-    {
+	/**
+	 * Constructs a new Table.
+	 */
+	public PropertyTable()
+	{
 
-        // To solve all inconsistences accross all LookAndFeels, set the background to a fixed value:
-        UIDefaults defaults = UIManager.getLookAndFeelDefaults();
-        // defaults.put("Table.alternateRowColor", new Color(240, 240, 240));
-        defaults.put("Table.background", Color.WHITE);
+		// To solve all inconsistences accross all LookAndFeels, set the background to a fixed value:
+		UIDefaults defaults = UIManager.getLookAndFeelDefaults();
+		// defaults.put("Table.alternateRowColor", new Color(240, 240, 240));
+		defaults.put("Table.background", Color.WHITE);
 
-        // setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+		// setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 
-        editable_ = true;
+		editable_ = true;
 
-        new PropertyColumnResizeAdapter( this );
+		new PropertyColumnResizeAdapter(this);
 
-        setRootVisible(false);
-        setRenderDataProvider(new PropertyTableDataProvider());
-        setCellSelectionEnabled(false);
-        setRowSelectionAllowed(true);
-        setSurrendersFocusOnKeystroke(true);
-        setFont(new java.awt.Font("Verdana", Font.PLAIN, 10));
-        setShowGrid(true);
-        setGridColor(new Color(200, 200, 200));
-        setIntercellSpacing(new Dimension(1, 1));
-        setFillsViewportHeight(true);
-        setAutoscrolls(true);
+		setRootVisible(false);
+		setRenderDataProvider(new PropertyTableDataProvider());
+		setCellSelectionEnabled(false);
+		setRowSelectionAllowed(true);
+		setSurrendersFocusOnKeystroke(true);
+		setFont(new java.awt.Font("Verdana", Font.PLAIN, 10));
+		setShowGrid(true);
+		setGridColor(new Color(200, 200, 200));
+		setIntercellSpacing(new Dimension(1, 1));
+		setFillsViewportHeight(true);
+		setAutoscrolls(true);
 
-        PropertyOutlineModel mdl = PropertyOutlineModel.createOutlineModel();
-        mdl.getDefaultTableModel().setEditable(editable_);
+		PropertyOutlineModel mdl = PropertyOutlineModel.createOutlineModel();
+		mdl.getDefaultTableModel()
+		   .setEditable(editable_);
 
-        setModel(mdl);
-        getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		setModel(mdl);
+		getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        final TableColumnModel colModel = getColumnModel();
+		final TableColumnModel colModel = getColumnModel();
 
-        PropertyCellRenderer renderer = new PropertyCellRenderer(this);
-        PropertyCellEditor editor = new PropertyCellEditor(this);
+		PropertyCellRenderer renderer = new PropertyCellRenderer(this);
+		PropertyCellEditor editor = new PropertyCellEditor(this);
 
-        TableColumn column = colModel.getColumn(0);
-        column.setCellRenderer(renderer);
-        column.setCellEditor(editor);
+		TableColumn column = colModel.getColumn(0);
+		column.setCellRenderer(renderer);
+		column.setCellEditor(editor);
 
-        column = colModel.getColumn(PropertyTable.COLUMN_VALUE + 1);
-        column.setCellRenderer(renderer);
-        column.setCellEditor(editor);
+		column = colModel.getColumn(PropertyTable.COLUMN_VALUE + 1);
+		column.setCellRenderer(renderer);
+		column.setCellEditor(editor);
 
-        // Setup copy & paste support
-        InputMap imap = this.getInputMap(JComponent.WHEN_FOCUSED);
+		// Setup copy & paste support
+		InputMap imap = this.getInputMap(JComponent.WHEN_FOCUSED);
 
-        imap.put(KeyStroke.getKeyStroke("ctrl C"), TransferHandler.getCopyAction().getValue(Action.NAME));
-        imap.put(KeyStroke.getKeyStroke("ctrl V"), TransferHandler.getPasteAction().getValue(Action.NAME));
+		imap.put(KeyStroke.getKeyStroke("ctrl C"), TransferHandler.getCopyAction()
+																  .getValue(Action.NAME));
+		imap.put(KeyStroke.getKeyStroke("ctrl V"), TransferHandler.getPasteAction()
+																  .getValue(Action.NAME));
 
-        // Enable "edit" on space key.
-        // Because Buttons will only fire if "edit" is execute twice, a newaction is used instead of "startEditing".
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "editMe");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "editMe");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "editMe");
+		// Enable "edit" on space key.
+		// Because Buttons will only fire if "edit" is execute twice, a newaction is used instead of "startEditing".
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "editMe");
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "editMe");
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "editMe");
 
-        ActionMap am = this.getActionMap();
-        Action editAction = new AbstractAction()
-        {
-            /**
+		ActionMap am = this.getActionMap();
+		Action editAction = new AbstractAction()
+		{
+			/**
 			 * Generated Serial Version
 			 */
 			private static final long serialVersionUID = 2889693532750609569L;
 
 			@Override
-            public void actionPerformed(ActionEvent e)
-            {
-                final int row = getSelectedRow();
-                final int col = getSelectedColumn();
+			public void actionPerformed(ActionEvent e)
+			{
+				final int row = getSelectedRow();
+				final int col = getSelectedColumn();
 
-                if (!PropertyTable.this.isEditing())
-                {
-                    if (PropertyTable.this.editCellAt(row, col))
-                    {
-                        Component c = PropertyTable.this.getEditorComponent();
-                        if (c instanceof JButton)
-                        {
-                            ((JButton) c).doClick(100);
-                        }
-                    }
-                }
-            }
+				if (!PropertyTable.this.isEditing())
+				{
+					if (PropertyTable.this.editCellAt(row, col))
+					{
+						Component c = PropertyTable.this.getEditorComponent();
+						if (c instanceof JButton)
+						{
+							((JButton) c).doClick(100);
+						}
+					}
+				}
+			}
 
-        };
-        am.put("editMe", editAction);
-    }
+		};
+		am.put("editMe", editAction);
+	}
 
-    @Override
-    public void updateUI()
-    {
-        super.updateUI();
-    }
+	@Override
+	public void updateUI()
+	{
+		super.updateUI();
+	}
 
 
-
-    private boolean editable_;
+	private boolean editable_;
 
 
 }
