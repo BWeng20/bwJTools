@@ -23,6 +23,8 @@ package com.bw.jtools.ui;
 
 import java.awt.*;
 import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Facade for creating Swing independent source-code and other
@@ -250,5 +252,28 @@ public final class UITool
 		}
 		return nf.format(remaining) + postfixe[preIdx];
 	}
+
+	private static Map fontRenderHints_;
+
+	/**
+	 * Adds the font render hints from guest desktop.
+	 */
+	public static void addDesktopFontHints( Graphics2D g2 )
+	{
+		Toolkit tk = Toolkit.getDefaultToolkit();
+
+		if ( fontRenderHints_ == null )
+		{
+			fontRenderHints_ = (Map) (tk.getDesktopProperty("awt.font.desktophints"));
+			if ( fontRenderHints_ == null )
+			{
+				fontRenderHints_ = new HashMap();
+				fontRenderHints_.put( RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.	VALUE_TEXT_ANTIALIAS_GASP );
+
+			}
+		}
+		g2.addRenderingHints(fontRenderHints_);
+	}
+
 
 }

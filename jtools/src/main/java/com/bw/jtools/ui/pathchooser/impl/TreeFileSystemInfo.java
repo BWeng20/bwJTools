@@ -21,6 +21,8 @@
  */
 package com.bw.jtools.ui.pathchooser.impl;
 
+import com.bw.jtools.ui.pathchooser.FileSystemInfo;
+
 import javax.swing.*;
 import java.nio.file.FileSystem;
 import java.util.ArrayList;
@@ -29,19 +31,14 @@ import java.util.List;
 /**
  * Hold information about a file-system.
  */
-public class FileSystemInfo
+public class TreeFileSystemInfo extends FileSystemInfo
 {
-	public final FileSystem fsys_;
-	public final Icon icon_;
-	public final String name_;
 	public final List<PathInfoFolderNode> roots_ = new ArrayList<>();
 	public final FileSystemNode baseNode_;
 
-	public FileSystemInfo(FileSystem fsys, String name, Icon icon, FileSystemNode baseNode)
+	public TreeFileSystemInfo(FileSystem fsys, String name, Icon icon, FileSystemNode baseNode)
 	{
-		this.fsys_ = fsys;
-		this.icon_ = icon;
-		this.name_ = name;
+		super( fsys, name, icon );
 		this.baseNode_ = baseNode;
 		if (baseNode != null)
 		{

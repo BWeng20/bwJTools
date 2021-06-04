@@ -35,7 +35,7 @@ import java.io.FileNotFoundException;
  */
 public class ShellIconProvider extends AbstractIconProvider
 {
-	protected boolean useLargeIcons_ = true;
+	protected boolean useLargeIcons_ = false;
 
 	@Override
 	public Icon getIcon(PathInfo path)
@@ -133,7 +133,6 @@ public class ShellIconProvider extends AbstractIconProvider
 		if (useLargeIcons_ != large)
 		{
 			useLargeIcons_ = large;
-			updateFont();
 			increaseIconGeneration();
 		}
 	}

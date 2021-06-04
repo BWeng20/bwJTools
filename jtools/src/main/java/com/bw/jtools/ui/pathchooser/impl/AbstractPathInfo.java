@@ -19,49 +19,63 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.ui.pathchooser;
+package com.bw.jtools.ui.pathchooser.impl;
+
+import com.bw.jtools.ui.pathchooser.PathInfo;
 
 import javax.swing.*;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
- * Provider for path icons.<br>
- * Implementations should cache icon as calls to this interface is done
- * with high frequency during screen-rendering.
+ * Path Info that handles zip/jar archives and caches children.
  */
-public interface PathIconProvider
+public abstract class AbstractPathInfo extends PathInfo
 {
-	/**
-	 * Updates any the UI dependent icons.<br>
-	 * Have to be called if LAF is changed (e.g. from "updateUI" the controlling component of the instance).
-	 */
-	public void updateUIIcons();
+	protected List<AbstractPathInfo> children_;
 
 	/**
-	 * Get the default folder icon.
+	 * Optional cached icon for this path-info.<br>
 	 */
-	public Icon getFolderIcon();
+	protected Icon icon_;
 
 	/**
-	 * Gets the file dependent icon for a file.
+	 * Generation index for {@link #icon_}.
 	 */
-	public Icon getIcon(PathInfo path);
+	protected int iconGeneration_ = 0;
+
+	public AbstractPathInfo(PathInfo parent, Path path)
+	{
+		super(parent, path);
+	}
+
+
 
 	/**
-	 * Get number of current icon generation.<br>
-	 * The icon generation will be increased relevent arguments for icon generation are changed.
-	 * The value can be used to detect of icon needs to be recreated via {@link #getIcon(PathInfo)}
+	 * Gets children or null if not yet scanned.
 	 */
-	public int getIconGeneration();
+	public List<AbstractPathInfo> getChildren()
+	{
+		return children_;
+	}
 
 	/**
-	 * Controls if large icons shall be used if the icon provider supports it.<br>
-	 * Support for large icons is optional.
+	 * Sets children.
+	 * @param children children or null.
 	 */
-	public void setUseLargeIcons(boolean large);
+	public void setChildren( List<AbstractPathInfo> children)
+	{
+		children_ = children;
+	}
 
-	/**
-	 * Get if large icons are used.
-	 */
-	public boolean isUseLargeIcons();
+	public boolean isWatched()
+	{
+		return isWatched_;
+	}
+
+	public void setWatched(boolean watched)
+	{
+		isWatched_ = watched;
+	}
 
 }

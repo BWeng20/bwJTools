@@ -23,21 +23,36 @@ package com.bw.jtools.ui.pathchooser;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * The central interface to provide all the paths information.
  */
 public interface PathInfoProvider
 {
-	public default PathInfo createPathInfo(Path path)
-	{
-		if (path == null)
-			return null;
-		else
-			return createPathInfo(createPathInfo(path.getParent()), path);
-	}
+	/**
+	 * Creates a new path info object from path.
+	 */
+	public PathInfo createPathInfo(Path path);
+
+	/**
+	 * Gets a list of all additional file-systems.
+	 */
+	public Collection<FileSystemInfo> getFileSystemInfos();
+
+	/**
+	 * Gets info about an additional file-system.<br>
+	 * If the filesystem is not "additional" null is returned.
+	 */
+	public FileSystemInfo getFileSystemInfo(FileSystem fsys);
+
+	/**
+	 * Adds an additional file-system.
+	 */
+	public void addFileSystem(FileSystemInfo fs);
 
 	public PathInfo createPathInfo(PathInfo parent, Path path);
 
@@ -45,6 +60,9 @@ public interface PathInfoProvider
 
 	public Icon getFolderIcon();
 
-	public DirectoryStream<Path> getDirectoryStream(PathInfo info) throws IOException;
+	public List<PathInfo> getChildren(PathInfo info) throws IOException;
+
+	public void addFileSystemListener( FileSystemListener l );
+	public void removeFileSystemListener( FileSystemListener l );
 
 }

@@ -4,133 +4,203 @@ import com.bw.jtools.ui.I18N;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class JPaintChooser extends JPanel
 {
-    protected Paint chosenPaint_;
+	protected Paint chosenPaint_;
 
-    protected JColorChooser colorChooser_;
-    protected JPanel textureChooser_;
+	protected JColorChooser colorChooser_;
+	protected JPanel textureChooser_;
+	protected JPanel gradientChooser_;
 
-    public JPaintChooser()
-    {
-        setLayout(new GridBagLayout());
+	protected String textureName_ = I18N.getText("paintchooser.mode.texture");
+	protected String gradientName_ = I18N.getText("paintchooser.mode.gradient");
+	protected String colorName_ = I18N.getText("paintchooser.mode.color");
 
-        JLabel modeLabel = new JLabel("Type");
-        JComboBox<String> mode = new JComboBox<>();
-        colorChooser_ = new JColorChooser();
-        textureChooser_ = new JPanel();
-        textureChooser_.setVisible(false);
+	protected CardLayout cardLayout_;
+	protected JPanel modepane_;
 
-        mode.addItem("Color");
-        mode.addItem("Texture");
-        modeLabel.setLabelFor(mode);
+	protected HashMap<String, JComponent> mode2Panels = new LinkedHashMap<>();
+	protected JComboBox<String> mode;
 
-        GridBagConstraints gc = new GridBagConstraints();
+	public JPaintChooser()
+	{
+		setLayout(new GridBagLayout());
 
-        gc.gridx =0;
-        gc.gridy =0;
-        add( modeLabel, gc );
-        gc.gridx =1;
-        add( mode, gc );
+		JLabel modeLabel = new JLabel(I18N.getText("paintchooser.type"));
+		mode = new JComboBox<>();
+		modeLabel.setLabelFor(mode);
 
-        gc.gridx =0;
-        ++gc.gridy;
+		colorChooser_ = new JColorChooser();
+		colorChooser_.setPreviewPanel(new JPanel());
+		textureChooser_ = new JTextureChooser();
+		gradientChooser_ = new JPanel();
 
-        add( colorChooser_);
-        add( textureChooser_);
+		GridBagConstraints gc = new GridBagConstraints();
 
-    }
+		gc.anchor = GridBagConstraints.WEST;
+		gc.gridx = 0;
+		gc.gridy = 0;
+		gc.fill = GridBagConstraints.NONE;
 
-    public Paint getSelectedPaint()
-    {
-        return null;
-    }
+		JPanel modePanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		modePanel.add(modeLabel);
+		modePanel.add(mode);
+		add(modePanel, gc);
 
-    public void setSelectedPaint(Paint p)
-    {
-        chosenPaint_ = null;
+		gc.gridx = 0;
+		++gc.gridy;
+		gc.weightx = 1;
+		gc.weighty = 1;
+		gc.fill = GridBagConstraints.BOTH;
 
-        if ( p == null )
-        {
+		cardLayout_ = new CardLayout();
+		modepane_ = new JPanel(cardLayout_);
 
-        }
-        else if ( p instanceof Color )
-        {
-            colorChooser_.setColor((Color)p);
-        }
-        else if ( p instanceof TexturePaint)
-        {
-            ImageIcon ic = new ImageIcon(((TexturePaint)p).getImage());
-        }
-        else
-            throw new IllegalArgumentException("Paint of type "+p.getClass().getSimpleName()+" is not supported.");
-    }
+		add(modepane_, gc);
+
+		mode2Panels.put(colorName_, colorChooser_);
+		mode2Panels.put(gradientName_, gradientChooser_);
+		mode2Panels.put(textureName_, textureChooser_);
+
+		for (Map.Entry<String, JComponent> entry : mode2Panels.entrySet())
+		{
+			mode.addItem(entry.getKey());
+			modepane_.add(entry.getValue(), entry.getKey());
+		}
+
+		mode.addItemListener(e ->
+		{
+			updateMode();
+		});
+
+		mode.setSelectedIndex(0);
+		updateMode();
 
 
+	}
 
-    /**
-     * Opens a paint chooser dialog.
-     * @param component The component that triggers the chooser.
-     * @param title The title to show.
-     * @param initialPaint The initial paint to select or null.
-     * @return the selected paint or <code>null</code> if the user opted out.
-     */
-    public static Paint showDialog(Component component,
-                                  String title, Paint initialPaint)
-    {
-        // Initialization of font list may take several seconds.
-        // Show a wait-cursor.
-        Window w = component == null ? null : component instanceof Window ? (Window)component : SwingUtilities.getWindowAncestor(component);
-        Cursor cur = null;
-        Cursor waitCursor = null;
-        if (w != null)
-        {
-            waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
-            cur = w.getCursor();
-            w.setCursor(waitCursor);
-        }
+	protected void updateMode()
+	{
+		JTabbedPane p;
+		SwingUtilities.invokeLater(() ->
+		{
+			String name = (String) mode.getSelectedItem();
+			if (name != null)
+			{
+				cardLayout_.show(modepane_, name);
+			}
+		});
+	}
 
-        JPaintChooser chooserPane = new JPaintChooser();
-        JDialog chooserDialog = new JDialog(w, title, Dialog.ModalityType.APPLICATION_MODAL);
+	public Paint getSelectedPaint()
+	{
+		final String activeMode = (String) mode.getSelectedItem();
+		if (activeMode == colorName_)
+			return colorChooser_.getColor();
+		else if (activeMode == gradientName_)
+			return colorChooser_.getColor();
+		else if (activeMode == textureName_)
+			return colorChooser_.getColor();
+		return null;
+	}
 
-        chooserDialog.setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
-        JPanel c = new JPanel();
-        chooserDialog.setContentPane(c);
-        c.setLayout(new BorderLayout());
-        c.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-        c.add(chooserPane, BorderLayout.CENTER);
+	public void setSelectedPaint(Paint p)
+	{
+		chosenPaint_ = null;
 
-        JButton ok = new JButton(I18N.getText("button.ok"));
-        ok.addActionListener(e ->
-        {
-            chooserPane.chosenPaint_ = chooserPane.getSelectedPaint();
-            chooserDialog.setVisible(false);
-        });
+		if (p == null)
+		{
+			mode.setSelectedItem(colorName_);
+			colorChooser_.setColor(Color.BLACK);
+		}
+		else if (p instanceof Color)
+		{
+			mode.setSelectedItem(colorName_);
+			colorChooser_.setColor((Color) p);
+		}
+		else if (p instanceof TexturePaint)
+		{
+			mode.setSelectedItem(textureName_);
+			ImageIcon ic = new ImageIcon(((TexturePaint) p).getImage());
+		}
+		else
+			throw new IllegalArgumentException("Paint of type " + p.getClass()
+																   .getSimpleName() + " is not supported.");
 
-        JButton cancel = new JButton(I18N.getText("button.cancel"));
-        cancel.addActionListener(e -> chooserDialog.setVisible(false));
+		updateMode();
+	}
 
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttons.add(ok);
-        buttons.add(cancel);
-        c.add(buttons, BorderLayout.SOUTH);
-        chooserDialog.pack();
 
-        chooserPane.setSelectedPaint( initialPaint );
-        chooserDialog.setLocationRelativeTo(component);
+	/**
+	 * Opens a paint chooser dialog.
+	 *
+	 * @param component    The component that triggers the chooser.
+	 * @param title        The title to show.
+	 * @param initialPaint The initial paint to select or null.
+	 * @return the selected paint or <code>null</code> if the user opted out.
+	 */
+	public static Paint showDialog(Component component,
+								   String title, Paint initialPaint)
+	{
+		// Initialization of font list may take several seconds.
+		// Show a wait-cursor.
+		Window w = component == null ? null : component instanceof Window ? (Window) component : SwingUtilities.getWindowAncestor(component);
+		Cursor cur = null;
+		Cursor waitCursor = null;
+		if (w != null)
+		{
+			waitCursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
+			cur = w.getCursor();
+			w.setCursor(waitCursor);
+		}
 
-        if (cur != null && w.getCursor() == waitCursor )
-        {
-            w.setCursor(cur);
-        }
-        chooserDialog.setVisible(true);
-        return chooserPane.chosenPaint_;
-    }
+		JPaintChooser chooserPane = new JPaintChooser();
+		JDialog chooserDialog = new JDialog(w, title, Dialog.ModalityType.APPLICATION_MODAL);
 
-    public static void main(String[] args)
-    {
-        showDialog(null, "Text", Color.BLACK);
-    }
+		chooserDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		JPanel c = new JPanel();
+		chooserDialog.setContentPane(c);
+		c.setLayout(new BorderLayout());
+		c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		c.add(chooserPane, BorderLayout.CENTER);
+
+		JButton ok = new JButton(I18N.getText("button.ok"));
+		ok.addActionListener(e ->
+		{
+			chooserPane.chosenPaint_ = chooserPane.getSelectedPaint();
+			chooserDialog.setVisible(false);
+		});
+
+		JButton cancel = new JButton(I18N.getText("button.cancel"));
+		cancel.addActionListener(e -> chooserDialog.setVisible(false));
+
+		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		buttons.add(ok);
+		buttons.add(cancel);
+		c.add(buttons, BorderLayout.SOUTH);
+		chooserDialog.pack();
+
+		chooserPane.setSelectedPaint(initialPaint);
+		chooserDialog.setLocationRelativeTo(component);
+
+		if (cur != null && w.getCursor() == waitCursor)
+		{
+			w.setCursor(cur);
+		}
+		chooserDialog.setVisible(true);
+		return chooserPane.chosenPaint_;
+	}
+
+	public static void main(String[] args)
+	{
+		System.out.println("Locale " + Locale.getDefault());
+		System.out.println("Selected paint " + showDialog(null, "Text", Color.BLACK));
+		System.exit(0);
+	}
 
 }

@@ -30,8 +30,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -141,11 +139,10 @@ public class JPathList extends JComponent
 			{
 				try
 				{
-					DirectoryStream<Path> dir = pathInfoProvider_.getDirectoryStream(currentDirectory_);
-					List<PathInfo> l = new ArrayList<>();
-					for (Path file : dir)
+					List<PathInfo> dir = pathInfoProvider_.getChildren(currentDirectory_);
+					List<PathInfo> l = new ArrayList<>(dir.size());
+					for (PathInfo pi : dir)
 					{
-						PathInfo pi = pathInfoProvider_.createPathInfo(currentDirectory_, file);
 						if (pi.isReadable())
 							l.add(pi);
 					}
@@ -179,4 +176,8 @@ public class JPathList extends JComponent
 		list_.clearSelection();
 	}
 
+	public void setPath(PathInfo newPath)
+	{
+		list_.setSelectedValue( newPath, true );
+	}
 }

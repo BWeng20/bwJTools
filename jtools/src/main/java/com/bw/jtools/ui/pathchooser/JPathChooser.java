@@ -24,6 +24,7 @@ package com.bw.jtools.ui.pathchooser;
 import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.ui.JLAFComboBox;
+import com.bw.jtools.ui.filechooserpreview.JFileChooserPreview;
 import com.bw.jtools.ui.pathchooser.impl.ShellIconProvider;
 import com.bw.jtools.ui.pathchooser.impl.SystemIconProvider;
 import com.bw.jtools.ui.pathchooser.impl.ZipAwarePathProvider;
@@ -60,9 +61,12 @@ public class JPathChooser extends JComponent
 
 	protected JPathFolderTree systemTree_;
 	protected JPathList fileList_;
+	protected JPathInput input_;
 	protected JPanel accessories_;
 
 	protected PathInfo selectedPath_;
+
+	protected Color forcedBackground_;
 
 	private PathChooserMode fileSelectionMode_ = PathChooserMode.FILES_ONLY;
 
@@ -85,6 +89,7 @@ public class JPathChooser extends JComponent
 
 		systemTree_ = new JPathFolderTree(handler_);
 		fileList_ = new JPathList(handler_);
+		input_ = new JPathInput(handler_);
 	}
 
 
@@ -115,9 +120,16 @@ public class JPathChooser extends JComponent
 		buttons_.add(okButton_);
 		buttons_.add(cancelButton_);
 
+		forcedBackground_ = new Color(UIManager.getColor("List.background").getRGB());
+		buttons_.setBackground(forcedBackground_);
+
 		JSplitPane splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-		splitter.setRightComponent(fileList_);
+		JPanel left = new JPanel(new BorderLayout());
+		left.add(fileList_, BorderLayout.CENTER );
+		left.add(input_,BorderLayout.SOUTH);
+
+		splitter.setRightComponent(left);
 		splitter.setLeftComponent(systemTree_);
 		add(splitter, BorderLayout.CENTER);
 		add(buttons_, BorderLayout.SOUTH);
@@ -135,10 +147,11 @@ public class JPathChooser extends JComponent
 			fireSelectionChanged(newPath, ev.isFinalSelection());
 			if (newPath != null)
 			{
-				if (ev.isFinalSelection())
-					doSelection(newPath);
-				else
+				if ( ! ( ev.isFinalSelection() && doSelection(newPath)) )
+				{
 					fileList_.setDirectory(newPath);
+					input_.setPath(newPath);
+				}
 			}
 		});
 
@@ -148,15 +161,42 @@ public class JPathChooser extends JComponent
 			fireSelectionChanged(newPath, ev.isFinalSelection());
 			if (newPath != null)
 			{
-				if (ev.isFinalSelection())
-					doSelection(newPath);
-				else if (newPath.isTraversable())
-					systemTree_.setDirectory(newPath);
+				if ( ev.isFinalSelection() )
+				{
+					if ( !doSelection(newPath))
+					{
+						if (newPath.isTraversable())
+						{
+							systemTree_.setDirectory(newPath);
+							fileList_.setDirectory(newPath);
+						}
+					}
+				}
+				input_.setPath(newPath);
+			}
+		});
+
+		input_.addPathSelectionListener(ev ->
+		{
+			PathInfo newPath = ev.getSelectedPath();
+			fireSelectionChanged(newPath, ev.isFinalSelection());
+			if (newPath != null)
+			{
+				if (!( ev.isFinalSelection() && doSelection(newPath)) )
+				{
+					if (newPath.isTraversable())
+					{
+						systemTree_.setDirectory(newPath);
+						fileList_.setDirectory(newPath);
+					}
+					else
+						fileList_.setPath( newPath );
+				}
 			}
 		});
 	}
 
-	protected void doSelection(PathInfo p)
+	protected boolean doSelection(PathInfo p)
 	{
 		selectedPath_ = p;
 		if (p != null)
@@ -167,20 +207,20 @@ public class JPathChooser extends JComponent
 					if ((!p.isTraversable()) || Files.isRegularFile(selectedPath_.getPath()))
 						closeDialog();
 					else
-					{
-						systemTree_.setDirectory(p);
-						fileList_.setDirectory(p);
-					}
+						return false;
 					break;
 				case FOLDERS:
 					if (p.isTraversable())
 						closeDialog();
+					else
+						return false;
 					break;
 				case FILES_AND_FOLDERS:
 					closeDialog();
 					break;
 			}
 		}
+		return true;
 	}
 
 	protected void fireSelectionChanged(PathInfo selectedPath, boolean finalSelection)
@@ -248,11 +288,33 @@ public class JPathChooser extends JComponent
 		}
 	}
 
+	/**
+	 * Returns if icon provider is using large icons.
+	 */
+	public boolean isUseLargeIcons()
+	{
+		return icons_.isUseLargeIcons();
+	}
+
+
 	@Override
 	public void updateUI()
 	{
 		super.updateUI();
 		icons_.updateUIIcons();
+
+		forcedBackground_ = new Color(UIManager.getColor("List.background").getRGB());
+
+		buttons_.setBackground(forcedBackground_);
+		systemTree_.setBackground(forcedBackground_);
+		if (accessories_ != null)
+		{
+			accessories_.setBackground(forcedBackground_);
+			int N = accessories_.getComponentCount();
+			for ( int ci = 0 ; ci < N; ++ci )
+				accessories_.getComponent(ci).setBackground(forcedBackground_);
+
+		}
 	}
 
 	/**
@@ -377,9 +439,11 @@ public class JPathChooser extends JComponent
 	{
 		if (accessories_ == null)
 		{
-			accessories_ = new JPanel(new FlowLayout(FlowLayout.CENTER));
+			accessories_ = new JPanel(new GridLayout(0,1));
+			accessories_.setBackground(forcedBackground_);
 			add(accessories_, BorderLayout.EAST);
 		}
+		accessory.setBackground(forcedBackground_);
 		accessories_.add(accessory);
 	}
 
@@ -433,8 +497,8 @@ public class JPathChooser extends JComponent
 		JPathChooser d = new JPathChooser();
 
 		JCheckBox large = new JCheckBox("Large Icons");
-		large.setSelected(true);
-		large.addChangeListener(e -> d.setUseLargeIcons(large.isSelected()));
+		large.setSelected(d.isUseLargeIcons());
+		large.addItemListener(e -> d.setUseLargeIcons(large.isSelected()));
 
 		// Adding some additional buttons, usefull for tests.
 		d.addButton(large);
@@ -454,31 +518,69 @@ public class JPathChooser extends JComponent
 			d.addFileSystem(swingFS, "Jdk", null);
 		}
 
+		d.setFileSelectionMode(PathChooserMode.FILES_ONLY);
+		final JCheckBox files = new JCheckBox("Files");
+		final JCheckBox folders = new JCheckBox("Folders");
+
+		files.setSelected( true );
+		folders.setSelected( true );
+
+		files.addItemListener(e ->
+		{
+			boolean filesChecked = files.isSelected();
+			boolean foldersChecked = folders.isSelected();
+			if ( !(filesChecked || foldersChecked ) )
+			{
+				SwingUtilities.invokeLater( () -> { folders.setSelected(true); } );
+			}
+			else
+			{
+				d.setFileSelectionMode(
+						filesChecked
+								? foldersChecked ? PathChooserMode.FILES_AND_FOLDERS : PathChooserMode.FILES_ONLY
+								: PathChooserMode.FOLDERS );
+			}
+		});
+
+		folders.addItemListener(e ->
+		{
+			boolean filesChecked = files.isSelected();
+			boolean foldersChecked = folders.isSelected();
+			if ( !(filesChecked || foldersChecked ) )
+			{
+				SwingUtilities.invokeLater( () -> { files.setSelected(true); } );
+			}
+			else
+			{
+				d.setFileSelectionMode(
+						filesChecked
+								? foldersChecked ? PathChooserMode.FILES_AND_FOLDERS : PathChooserMode.FILES_ONLY
+								: PathChooserMode.FOLDERS );
+			}
+		});
+
+		d.addButton(files);
+		d.addButton(folders);
+
+		JFileChooserPreview preview = new JFileChooserPreview(300, "Preview", 5, 5, JFileChooserPreview.defaultHandlers());
+		preview.install(d);
+
 		d.setDirectory(IOTool.getPath(System.getProperty("user.home")));
-		//d.setFileSelectionMode(PathChooserMode.FILES_AND_FOLDERS);
+		d.setFileSelectionMode(PathChooserMode.FILES_AND_FOLDERS);
 		d.showDialog(null, "Select Some Folder or File", "Select");
+
 
 		Path p = d.getSelectedPath();
 
 		if (p != null)
 		{
-			System.out.println("-> " + p.toUri());
-			try
-			{
-				System.out.println(" size " + Files.size(p));
-				System.out.println(" directory " + Files.isDirectory(p));
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
+			System.out.println(p.toUri());
+			System.exit(0);
 		}
 		else
-			System.out.println("-> none");
-
-
-		System.exit(0);
+		{
+			System.exit(1);
+		}
 	}
-
 
 }

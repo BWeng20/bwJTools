@@ -23,7 +23,6 @@ package com.bw.jtools.ui.pathchooser.impl;
 
 import com.bw.jtools.ui.pathchooser.PathInfo;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -34,42 +33,16 @@ import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
 
-class ZipAwarePathInfo extends PathInfo
+/**
+ * Path Info that handles zip/jar archives and caches children.
+ */
+class ZipAwarePathInfo extends AbstractPathInfo
 {
-	private Boolean isTraversable_;
 	private Boolean isZip_;
-	private Boolean isReadable_;
-
-	/**
-	 * Optional cached icon for this path-info.<br>
-	 */
-	Icon icon_;
-
-	/**
-	 * Generation index for {@link #icon_}.
-	 */
-	int iconGeneration_ = 0;
-
 
 	public ZipAwarePathInfo(PathInfo parent, Path path)
 	{
 		super(parent, path);
-	}
-
-	@Override
-	public boolean isTraversable()
-	{
-		if (isTraversable_ == null)
-			isZip();
-		return isTraversable_.booleanValue();
-	}
-
-	@Override
-	public boolean isReadable()
-	{
-		if (isReadable_ == null)
-			isZip();
-		return isReadable_.booleanValue();
 	}
 
 	/**
@@ -80,70 +53,74 @@ class ZipAwarePathInfo extends PathInfo
 	public boolean isZip()
 	{
 		if (isZip_ == null)
-		{
-			try
-			{
-				final Set<String> supportedViews = path_.getFileSystem()
-														.supportedFileAttributeViews();
-
-				BasicFileAttributes basic = null;
-
-				if (supportedViews.contains("dos"))
-				{
-					DosFileAttributes attr = Files.readAttributes(path_, DosFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-					basic = attr;
-					isReadable_ = (attr.isHidden() || attr.isSystem()) ? Boolean.FALSE : Boolean.TRUE;
-				}
-				else if (supportedViews.contains("posix"))
-				{
-					PosixFileAttributes attr = Files.readAttributes(path_, PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-					basic = attr;
-					isReadable_ = attr.permissions()
-									  .contains(PosixFilePermission.OWNER_READ);
-				}
-				else
-				{
-					basic = Files.readAttributes(path_, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-					isReadable_ = true;
-				}
-				link_ = basic.isSymbolicLink();
-
-				if (link_)
-				{
-					basic = Files.readAttributes(path_, BasicFileAttributes.class);
-				}
-
-				lastModifiedTime_ = basic.lastModifiedTime();
-				size_ = basic.size();
-
-				if (basic.isDirectory())
-				{
-					isZip_ = Boolean.FALSE;
-					isTraversable_ = Boolean.TRUE;
-				}
-				else if (isZip_ == null)
-				{
-					// Traversal only possible from system filesystems.
-					if (path_.toUri()
-							 .getScheme()
-							 .equalsIgnoreCase("file"))
-					{
-						String lfn = fileName_.toLowerCase();
-						isZip_ = (lfn.endsWith(".zip") || lfn.endsWith(".jar")) ? Boolean.TRUE : Boolean.FALSE;
-					}
-					else
-						isZip_ = Boolean.FALSE;
-					isTraversable_ = isZip_;
-				}
-
-			}
-			catch (IOException e)
-			{
-				isReadable_ = Boolean.FALSE;
-				isZip_ = Boolean.FALSE;
-				isTraversable_ = Boolean.FALSE;
-			}
-		}
+			initializeMetaInfo();
 		return isZip_.booleanValue();
 	}
+
+	protected void initializeMetaInfo()
+	{
+		try
+		{
+			final Set<String> supportedViews = path_.getFileSystem()
+													.supportedFileAttributeViews();
+
+			BasicFileAttributes basic = null;
+
+			if (supportedViews.contains("dos"))
+			{
+				DosFileAttributes attr = Files.readAttributes(path_, DosFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+				basic = attr;
+				isReadable_ = (attr.isHidden() || attr.isSystem()) ? Boolean.FALSE : Boolean.TRUE;
+			}
+			else if (supportedViews.contains("posix"))
+			{
+				PosixFileAttributes attr = Files.readAttributes(path_, PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+				basic = attr;
+				isReadable_ = attr.permissions()
+								  .contains(PosixFilePermission.OWNER_READ);
+			}
+			else
+			{
+				basic = Files.readAttributes(path_, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+				isReadable_ = true;
+			}
+			link_ = basic.isSymbolicLink();
+
+			if (link_)
+			{
+				basic = Files.readAttributes(path_, BasicFileAttributes.class);
+			}
+
+			lastModifiedTime_ = basic.lastModifiedTime();
+			size_ = basic.size();
+
+			if (basic.isDirectory())
+			{
+				isZip_ = Boolean.FALSE;
+				isTraversable_ = Boolean.TRUE;
+			}
+			else if (isZip_ == null)
+			{
+				// Traversal only possible from system filesystems.
+				if (path_.toUri()
+						 .getScheme()
+						 .equalsIgnoreCase("file"))
+				{
+					String lfn = fileName_.toLowerCase();
+					isZip_ = (lfn.endsWith(".zip") || lfn.endsWith(".jar")) ? Boolean.TRUE : Boolean.FALSE;
+				}
+				else
+					isZip_ = Boolean.FALSE;
+				isTraversable_ = isZip_;
+			}
+
+		}
+		catch (IOException e)
+		{
+			isReadable_ = Boolean.FALSE;
+			isZip_ = Boolean.FALSE;
+			isTraversable_ = Boolean.FALSE;
+		}
+	}
+
 }

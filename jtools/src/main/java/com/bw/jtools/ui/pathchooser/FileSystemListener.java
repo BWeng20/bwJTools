@@ -21,47 +21,7 @@
  */
 package com.bw.jtools.ui.pathchooser;
 
-import javax.swing.*;
-
-/**
- * Provider for path icons.<br>
- * Implementations should cache icon as calls to this interface is done
- * with high frequency during screen-rendering.
- */
-public interface PathIconProvider
+public interface FileSystemListener
 {
-	/**
-	 * Updates any the UI dependent icons.<br>
-	 * Have to be called if LAF is changed (e.g. from "updateUI" the controlling component of the instance).
-	 */
-	public void updateUIIcons();
-
-	/**
-	 * Get the default folder icon.
-	 */
-	public Icon getFolderIcon();
-
-	/**
-	 * Gets the file dependent icon for a file.
-	 */
-	public Icon getIcon(PathInfo path);
-
-	/**
-	 * Get number of current icon generation.<br>
-	 * The icon generation will be increased relevent arguments for icon generation are changed.
-	 * The value can be used to detect of icon needs to be recreated via {@link #getIcon(PathInfo)}
-	 */
-	public int getIconGeneration();
-
-	/**
-	 * Controls if large icons shall be used if the icon provider supports it.<br>
-	 * Support for large icons is optional.
-	 */
-	public void setUseLargeIcons(boolean large);
-
-	/**
-	 * Get if large icons are used.
-	 */
-	public boolean isUseLargeIcons();
-
+	public void fileSystemAdded(FileSystemInfo fsys);
 }

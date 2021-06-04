@@ -1,11 +1,15 @@
 module com.bw.jtools {
-	requires static transitive java.json;
-	requires static transitive java.desktop;
+	// static: compile time but optional during runtime.
+	// (only needed if the related functionality is used).
 	requires static org.apache.logging.log4j;
 	requires static org.apache.logging.log4j.core;
 	requires static jdk.management;
+	requires static java.sql; // Needed by commons.csv
+	// transitive: using modules are also allowed to read.
+	requires static transitive java.json;
+	requires static transitive java.desktop;
+
 	requires java.prefs;
 	requires commons.csv;
-	requires static java.sql; // Needed by commons.csv
 	exports com.bw.jtools;
 }

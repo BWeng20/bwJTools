@@ -39,6 +39,10 @@ public abstract class PathInfo
 	protected Boolean fileApiSupported_;
 	protected FileTime lastModifiedTime_;
 	protected Long size_;
+	protected boolean isWatched_ = false;
+	protected Boolean isReadable_;
+	protected Boolean isTraversable_;
+
 
 	/**
 	 * Get the path.
@@ -68,12 +72,22 @@ public abstract class PathInfo
 	 * If the item is traversable.<br>
 	 * This property reflects the logical view. E.g. supported archives can also be traversed.
 	 */
-	public abstract boolean isTraversable();
+	public boolean isTraversable()
+	{
+		if (isTraversable_ == null)
+			initializeMetaInfo();
+		return isTraversable_.booleanValue();
+	}
 
 	/**
 	 * If the item is readable.<br>
 	 */
-	public abstract boolean isReadable();
+	public boolean isReadable()
+	{
+		if (isReadable_ == null)
+			initializeMetaInfo();
+		return isReadable_.booleanValue();
+	}
 
 	/**
 	 * If the path may support "toFile".
@@ -152,5 +166,7 @@ public abstract class PathInfo
 		Path fn = path_.getFileName();
 		fileName_ = (fn == null ? path_ : fn).toString();
 	}
+
+	protected abstract void initializeMetaInfo();
 
 }

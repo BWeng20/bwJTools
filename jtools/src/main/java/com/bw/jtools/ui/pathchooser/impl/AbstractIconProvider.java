@@ -21,14 +21,12 @@
  */
 package com.bw.jtools.ui.pathchooser.impl;
 
-import com.bw.jtools.ui.image.ImageTool;
+import com.bw.jtools.ui.icon.IconTool;
+import com.bw.jtools.ui.pathchooser.JPathChooser;
 import com.bw.jtools.ui.pathchooser.PathIconProvider;
 import com.bw.jtools.ui.pathchooser.PathInfo;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 /**
  * Abstract base of the Icon-Cache for path icons.<br>
@@ -40,11 +38,10 @@ public abstract class AbstractIconProvider implements PathIconProvider
 	/**
 	 * The folder icon.
 	 */
-	private Icon dirIcon = UIManager.getIcon("FileView.directoryIcon");
-	private Icon fileIcon = UIManager.getIcon("FileView.fileIcon");
-
-	private Font specialIconFont_;
-	private HashMap<String, Icon> specialIcons_ = new HashMap<>();
+	private Icon dirIcon16_;
+	private Icon dirIcon24_;
+	private Icon fileIcon16_;
+	private Icon fileIcon24_;
 
 	private int iconGeneration_ = 0;
 
@@ -55,51 +52,37 @@ public abstract class AbstractIconProvider implements PathIconProvider
 	@Override
 	public void updateUIIcons()
 	{
-		dirIcon = UIManager.getIcon("FileView.directoryIcon");
-		fileIcon = UIManager.getIcon("FileView.fileIcon");
-		updateFont();
-		// Don't increased iconGeneration_ here, as general icons are npt affected.
-	}
+		dirIcon16_ = IconTool.getIcon(JPathChooser.class, "folder16.png");
+		if ( dirIcon16_ == null )
+			dirIcon16_ = UIManager.getIcon("FileView.directoryIcon");
+		dirIcon24_ = IconTool.getIcon(JPathChooser.class, "folder24.png");
+		if ( dirIcon24_ == null )
+			dirIcon24_ = dirIcon16_;
 
-	protected void updateFont()
-	{
-		Font newFont = UIManager.getFont("Label.font")
-								.deriveFont(12f);
-		if (!newFont.equals(specialIconFont_))
-		{
-			specialIconFont_ = newFont;
-			specialIcons_.clear();
-		}
+		fileIcon16_ = IconTool.getIcon(JPathChooser.class, "file16.png");
+		if ( fileIcon16_ == null )
+			fileIcon16_ = UIManager.getIcon("FileView.fileIcon");
+		fileIcon24_ = IconTool.getIcon(JPathChooser.class, "file24.png");
+		if ( fileIcon24_ == null )
+			fileIcon24_ = fileIcon16_;
+
+		// Don't increased iconGeneration_ here, as general icons are not affected.
 	}
 
 	@Override
 	public Icon getFolderIcon()
 	{
-		return dirIcon;
+		return isUseLargeIcons() ? dirIcon24_ : dirIcon16_;
 	}
 
-	@Override
-	public Icon getTextIcon(boolean isFolder, String text)
+	public Icon getFileIcon()
 	{
-		final String key = "spec:" + isFolder + "-" + text;
-		Icon ic = specialIcons_.get(key);
-		if (ic == null)
-		{
-			Icon base = isFolder ? dirIcon : fileIcon;
-			BufferedImage img = ImageTool.createImage(base.getIconWidth(), base.getIconHeight(), true);
-			Graphics2D g2 = img.createGraphics();
-			base.paintIcon(null, g2, 0, 0);
-			g2.dispose();
-			ImageTool.drawText(img, specialIconFont_, Color.BLACK, text);
-			ic = new ImageIcon(img);
-			specialIcons_.put(key, ic);
-		}
-		return ic;
+		return isUseLargeIcons() ? fileIcon24_ : fileIcon16_;
 	}
 
 	protected Icon getDefaultIcon(PathInfo pathInfo)
 	{
-		return pathInfo.isTraversable() ? dirIcon : fileIcon;
+		return pathInfo.isTraversable() ? getFolderIcon() : getFileIcon() ;
 	}
 
 	/**

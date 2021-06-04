@@ -52,4 +52,10 @@ public class PlaceholderPathInfo extends PathInfo
 		return readable_;
 	}
 
+	@Override
+	protected void initializeMetaInfo()
+	{
+		// Nothing to do here
+	}
+
 }

@@ -21,28 +21,34 @@
  */
 package com.bw.jtools.ui.pathchooser.impl;
 
+import com.bw.jtools.ui.icon.IconTool;
+import com.bw.jtools.ui.pathchooser.JPathChooser;
 import com.bw.jtools.ui.pathchooser.PathIconProvider;
 import com.bw.jtools.ui.pathchooser.PathInfo;
-import com.bw.jtools.ui.pathchooser.PathInfoProvider;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Implementation of PathInfoProvider that handles Zip-Archives as folders.
  */
-public class ZipAwarePathProvider implements PathInfoProvider
+public class ZipAwarePathProvider extends AbstractPathProvider
 {
-	private PathIconProvider icons_;
-
 	public ZipAwarePathProvider(PathIconProvider icons)
 	{
-		icons_ = icons;
+		super(icons);
 	}
+
+	private static Icon zipIcon16_ = IconTool.getIcon(JPathChooser.class, "zip16.png");
+	private static Icon zipIcon24_ = IconTool.getIcon(JPathChooser.class, "zip24.png");
 
 	@Override
 	public PathInfo createPathInfo(PathInfo parent, Path path)
@@ -51,63 +57,52 @@ public class ZipAwarePathProvider implements PathInfoProvider
 	}
 
 	@Override
-	public Icon getIcon(PathInfo info)
+	protected Icon createIcon(AbstractPathInfo info)
 	{
 		if (info instanceof ZipAwarePathInfo)
 		{
 			ZipAwarePathInfo zi = (ZipAwarePathInfo) info;
 			if (zi.isZip())
-				return icons_.getTextIcon(true, "ZIP");
+				return icons_.isUseLargeIcons() ? zipIcon24_ : zipIcon16_;
+		}
+		return super.createIcon(info);
+	}
+
+	@Override
+	protected List<AbstractPathInfo> scanChildren( AbstractPathInfo info ) throws IOException
+	{
+		ZipAwarePathInfo zi = (ZipAwarePathInfo)info;
+
+		List<AbstractPathInfo> result;
+		if (zi.isZip())
+		{
+			URI uri = URI.create("jar:" + zi.getPath()
+											.toUri());
+			FileSystem fileSystem = null;
+			synchronized (ZipAwarePathProvider.class)
+			{
+				try
+				{
+					fileSystem = FileSystems.getFileSystem(uri);
+				}
+				catch (FileSystemNotFoundException e)
+				{
+					fileSystem = FileSystems.newFileSystem(uri, Collections.EMPTY_MAP);
+				}
+			}
+
+			Iterable<Path> roots = fileSystem.getRootDirectories();
+			Iterator<Path> r = roots.iterator();
+			if (r.hasNext())
+				result = scanPath(zi,r.next());
 			else
-			{
-				final int igen = icons_.getIconGeneration();
-				if (zi.icon_ == null || zi.iconGeneration_ != igen)
-				{
-					zi.icon_ = icons_.getIcon(info);
-					zi.iconGeneration_ = igen;
-				}
-			}
-			return zi.icon_;
+				result = Collections.EMPTY_LIST;
 		}
-		return null;
-	}
-
-	@Override
-	public Icon getFolderIcon()
-	{
-		return icons_.getFolderIcon();
-	}
-
-	@Override
-	public DirectoryStream<Path> getDirectoryStream(PathInfo info) throws IOException
-	{
-		if (info instanceof ZipAwarePathInfo)
-		{
-			ZipAwarePathInfo zi = (ZipAwarePathInfo) info;
-			if (zi.isZip())
-			{
-				URI uri = URI.create("jar:" + info.getPath()
-												  .toUri());
-				FileSystem fileSystem = null;
-				synchronized (ZipAwarePathProvider.class)
-				{
-					try
-					{
-						fileSystem = FileSystems.getFileSystem(uri);
-					}
-					catch (FileSystemNotFoundException e)
-					{
-						fileSystem = FileSystems.newFileSystem(uri, Collections.EMPTY_MAP);
-					}
-				}
-
-				Iterable<Path> roots = fileSystem.getRootDirectories();
-				Iterator<Path> r = roots.iterator();
-				if (r.hasNext()) return Files.newDirectoryStream(r.next());
-			}
-		}
-		return Files.newDirectoryStream(info.isLink() ? info.getPath()
-															.toRealPath() : info.getPath());
+		else if ( zi.isTraversable() )
+			result = scanPath(zi, zi.getPath());
+		else
+			result = Collections.EMPTY_LIST;
+		return result;
 	}
 
 }

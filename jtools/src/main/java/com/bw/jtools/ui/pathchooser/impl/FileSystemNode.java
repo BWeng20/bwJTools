@@ -21,6 +21,8 @@
  */
 package com.bw.jtools.ui.pathchooser.impl;
 
+import com.bw.jtools.ui.pathchooser.FileSystemInfo;
+
 /**
  * Tree base-node for a file-system.
  */

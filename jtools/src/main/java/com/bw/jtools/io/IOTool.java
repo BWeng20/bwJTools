@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
@@ -560,72 +561,101 @@ public final class IOTool
 	}
 
 	/**
+	 * RegExp to split a url (with scheme) in to its parts.
+	 * Example: http://www.server.com/s/request?x=123#abc
+	 * <ol>
+	 *     <li>Group: Scheme. Here 'http'</li>
+	 *     <li>Group: Authority. Here '//www.server.com'</li>
+	 *     <li>Group: Path. Here '/s/request'</li>
+	 *     <li>Group: Query. Here 'x=123'</li>
+	 *     <li>Group: Fragement. Here 'abc'</li>
+	 * </ol>
+	 */
+	static private Pattern urlPattern = Pattern.compile("^([^:/?#]+):(//[^/?#]*)?([^?#]*)(?:\\?([^#]*))?(#.*)?");
+
+	/**
+	 * Try to guess from the value if it is a uri or a simple path.
+	 * @param value
+	 * @return true if the string is possibly a uri
+	 */
+	public static boolean isUri( String value )
+	{
+		Matcher m = urlPattern.matcher(value);
+		// Reject any schema < 1 character, it's most likely a window path.
+		return m.matches() && (m.group(1).length()>1);
+	}
+
+	/**
 	 * Guess a path for some file/uri.<br>
 	 * Main reason for this method is to enable access to JARs via Path-API.<br>
 	 * A URI inside a Jar looks as follows:<br>
 	 * jar:file:/app.jar!/com/mycompany/myapp/import.txt
+	 * <br>
+	 * To successfully access it, a zip-filesystem-instance needs to exits for the jar archive.
+	 * The method creates one if needed.
 	 *
 	 * @param file The path or uri.
 	 * @return Matching path
 	 */
 	public static Path getPath(String file)
 	{
-		try
+		if ( file != null && false == file.isEmpty())
 		{
-			if (file != null && false == file.isEmpty())
+			if ( isUri( file ) )
 			{
-				URI uri = URI.create(file);
-				final String scheme = uri.getScheme();
-				if (scheme != null)
+				try
 				{
-					if (scheme.equalsIgnoreCase("file"))
+					URI uri = URI.create(file);
+					final String scheme = uri.getScheme();
+					if (scheme != null)
 					{
-						return java.nio.file.Paths.get(uri);
-					}
-
-					if (scheme.equalsIgnoreCase("jar"))
-					{
-						FileSystem fs = null;
-						int si = file.indexOf("!/");
-						String arc = file.substring(0, si);
-						try
+						if (scheme.equalsIgnoreCase("jar"))
 						{
-							URI fsuri = new URI(arc);
+							FileSystem fs = null;
+							int si = file.indexOf("!/");
+							String arc = file.substring(0, si);
 							try
 							{
-								fs = FileSystems.getFileSystem(fsuri);
+								URI fsuri = new URI(arc);
+								try
+								{
+									fs = FileSystems.getFileSystem(fsuri);
+								}
+								catch (FileSystemNotFoundException fsnf)
+								{
+									fs = FileSystems.newFileSystem(fsuri, Collections.emptyMap());
+								}
+								return fs.getPath(file.substring(si + 1));
 							}
-							catch (FileSystemNotFoundException fsnf)
+							catch (Exception ex2)
 							{
-								fs = FileSystems.newFileSystem(fsuri, Collections.emptyMap());
+								Log.error("Can't decode Jar URI: " + ex2.getMessage(), ex2);
 							}
-							return fs.getPath(file.substring(si + 1));
 						}
-						catch (Exception ex2)
-						{
-							Log.error("Can't decode Jar URI: " + ex2.getMessage(), ex2);
-						}
+						else
+							return java.nio.file.Paths.get(uri);
 					}
 				}
+				catch (Throwable e)
+				{
+					if (Log.isDebugEnabled())
+						Log.debug("Tried to handle '" + file + "' as uri", e);
+				}
 			}
-			else
-			{
-				return null;
-			}
+			return FileSystems.getDefault()
+							  .getPath(file);
 		}
-		catch (Throwable e)
+		else
 		{
-			//Log.log_error("URI Error:" + e.getMessage());
+			return null;
 		}
-		return FileSystems.getDefault()
-						  .getPath(file);
 	}
 
 	/**
-	 * Get the jar file-system of a class or null if the class is not loaded from a jar.<br>
+	 * Get the jar or jrt file-system of a class or null if possible.<br>
 	 *
 	 * @param clazz The class.
-	 * @return The File-systemor null of not loaded from jar or inaccessible.
+	 * @return The File-system or null if not possible.
 	 */
 	public static FileSystem getFileSystemForClass(Class clazz)
 	{
@@ -661,7 +691,8 @@ public final class IOTool
 		}
 		catch (Exception e)
 		{
-			//Log.log_error("Error:" + e.getMessage());
+			if ( Log.isDebugEnabled() )
+				Log.debug("Failed to get FS for class", e);
 		}
 		return null;
 	}

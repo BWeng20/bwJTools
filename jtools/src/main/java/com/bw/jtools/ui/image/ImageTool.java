@@ -23,6 +23,7 @@ package com.bw.jtools.ui.image;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
+import com.bw.jtools.ui.UITool;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -373,11 +374,11 @@ public class ImageTool
 		final Graphics2D g2 = image.createGraphics();
 
 		g2.setPaint(paint);
-		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g2.setFont(font);
+		UITool.addDesktopFontHints( g2 );
 		final Rectangle2D bounds = font.getStringBounds(text, g2.getFontRenderContext());
-		g2.drawString(text, (int) ((width - bounds.getWidth()) / 2), (int) ((height - bounds.getHeight()) / 2) + g2.getFontMetrics()
-																												   .getAscent());
+		g2.drawString(text, (int) (((width - bounds.getWidth()) / 2 )+0.5),
+				(int) (((height - bounds.getHeight()) / 2) + g2.getFontMetrics().getAscent()+0.5));
 		g2.dispose();
 	}
 

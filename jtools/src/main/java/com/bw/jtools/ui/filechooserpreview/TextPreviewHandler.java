@@ -41,7 +41,7 @@ public class TextPreviewHandler extends PreviewHandler
 	protected TextPreviewHandler()
 	{
 		// File name pattern for supported text-files.
-		super("(?i).*\\.(txt|text|xml|html|htm|js|cmd|sh|sql)");
+		super("(?i).*\\.(txt|text|xml|html|htm|js|cmd|sh|sql|java)");
 	}
 
 	/**

@@ -31,11 +31,12 @@ import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Panel to show a file system folder tree.
@@ -67,8 +68,6 @@ public class JPathFolderTree extends JPanel
 	 * The currently selected path.
 	 */
 	private PathInfo selectedPath_;
-
-	private List<FileSystemInfo> fileSystems_ = new ArrayList<>();
 
 	private boolean debug = Log.isDebugEnabled();
 	private int updatesRunning_ = 0;
@@ -148,6 +147,8 @@ public class JPathFolderTree extends JPanel
 				}
 			}
 		}, "ENTER");
+
+		checkFileSystem(FileSystems.getDefault());
 	}
 
 	protected void fireSelectionChanged(boolean finalSelection)
@@ -177,7 +178,10 @@ public class JPathFolderTree extends JPanel
 	{
 		if (cellRenderer_ != null)
 		{
+			// Create a new Cell Renderer as some LAFs doesn't restore all properties correctly.
+			cellRenderer_ = new PathInfoTreeCellRenderer(handler_);
 			cellRenderer_.setFont(getFont());
+			tree_.setCellRenderer(cellRenderer_);
 			tree_.setRowHeight(0);
 		}
 		setPreferredSize(new Dimension(300, 800));
@@ -190,17 +194,24 @@ public class JPathFolderTree extends JPanel
 		installDefaults();
 	}
 
+	@Override
+	public void setBackground(Color bg)
+	{
+		super.setBackground(bg);
+		if ( tree_ != null)
+		{
+			// tree_.setBackground(bg);
+		}
+	}
+
 	/**
 	 * Sets the file system to show.
 	 */
 	public void checkFileSystem(FileSystem fsys)
 	{
-		if (getFileSystemInfo(fsys) == null)
+		if (handler_.getFileSystemInfo(fsys) == null)
 		{
-			Log.debug("New file system: " + fsys);
-			FileSystemInfo fsysInfo = new FileSystemInfo(fsys, null, null, null);
-			fileSystems_.add(fsysInfo);
-
+			handler_.addFileSystem(new TreeFileSystemInfo(fsys, null, null, null));
 			update(root_);
 		}
 	}
@@ -291,21 +302,6 @@ public class JPathFolderTree extends JPanel
 		return fn;
 	}
 
-	/**
-	 * Gets info about an additional file-system.<br>
-	 * If the filesystem is not "additional" null is returned.
-	 */
-	protected FileSystemInfo getFileSystemInfo(FileSystem fsys)
-	{
-		for (FileSystemInfo fsysi : fileSystems_)
-		{
-			if (fsysi.fsys_ == fsys)
-			{
-				return fsysi;
-			}
-		}
-		return null;
-	}
 
 	/**
 	 * Gets a root node for a file-system.<br>
@@ -313,16 +309,16 @@ public class JPathFolderTree extends JPanel
 	 */
 	protected DefaultMutableTreeNode getFileSystemRoot(Path path)
 	{
-		FileSystemInfo fsysi = getFileSystemInfo(path.getFileSystem());
-		if (fsysi == null)
+		TreeFileSystemInfo tfsysi = (TreeFileSystemInfo)handler_.getFileSystemInfo(path.getFileSystem());
+		if (tfsysi == null)
 			return root_;
-		else if (fsysi.baseNode_ != null)
+		else if (tfsysi.baseNode_ != null)
 		{
-			return fsysi.baseNode_;
+			return tfsysi.baseNode_;
 		}
 		else
 		{
-			for (PathInfoFolderNode node : fsysi.roots_)
+			for (PathInfoFolderNode node : tfsysi.roots_)
 			{
 				if (node.getPathInfo()
 						.getPath()
@@ -348,14 +344,24 @@ public class JPathFolderTree extends JPanel
 			@Override
 			protected List<PathInfo> doInBackground()
 			{
+				try
+				{
+					Thread.sleep(500);
+				}
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+
 				List<PathInfo> result = new ArrayList<>();
 
 				if (node == root_)
 				{
-					for (FileSystemInfo fsysi : fileSystems_)
+					for (FileSystemInfo fsysi : handler_.getFileSystemInfos())
 					{
+						TreeFileSystemInfo tfsysi = (TreeFileSystemInfo)fsysi;
 						// Add root-directories for all implicit file-systems.
-						if (fsysi.baseNode_ == null && fsysi.roots_.isEmpty())
+						if (tfsysi.baseNode_ == null && tfsysi.roots_.isEmpty())
 						{
 							scanRootDirectories(result, fsysi.fsys_, null);
 						}
@@ -389,15 +395,6 @@ public class JPathFolderTree extends JPanel
 			@Override
 			protected void done()
 			{
-				try
-				{
-					Thread.sleep(1000);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-
 				List<PathInfo> files;
 				try
 				{
@@ -411,12 +408,13 @@ public class JPathFolderTree extends JPanel
 				if (node == root_)
 				{
 					int index = 0;
-					for (FileSystemInfo fsysi : fileSystems_)
+					for (FileSystemInfo fsysi : handler_.getFileSystemInfos())
 					{
+						TreeFileSystemInfo tfsysi = (TreeFileSystemInfo)fsysi;
 						// Add base-nodes of all explicitly named file-systems at the top.
-						if (fsysi.baseNode_ != null && !node.isNodeChild(fsysi.baseNode_))
+						if (tfsysi.baseNode_ != null && !node.isNodeChild(tfsysi.baseNode_))
 						{
-							node.insert(fsysi.baseNode_, index++);
+							node.insert(tfsysi.baseNode_, index++);
 						}
 					}
 				}
@@ -500,17 +498,10 @@ public class JPathFolderTree extends JPanel
 		{
 			if (debug)
 				Log.debug("Scanning " + pi);
-			try (DirectoryStream<Path> dir = handler_.getDirectoryStream(pi))
-			{
-				for (Path d : dir)
-				{
-					PathInfo pf = handler_.createPathInfo(pi, d);
-					if (pf.isTraversable() && pf.isReadable())
-					{
-						result.add(pf);
-					}
-				}
-			}
+			result.addAll( handler_.getChildren(pi)
+								   .stream()
+								   .filter(pathInfo -> pathInfo.isTraversable())
+								   .collect(Collectors.toList()));
 			if (debug)
 				Log.debug("Done scanning " + pi);
 		}
@@ -555,14 +546,14 @@ public class JPathFolderTree extends JPanel
 	 */
 	public void addFileSystem(FileSystem fs, String name, Icon icon)
 	{
-		for (FileSystemInfo fi : fileSystems_)
+		for (FileSystemInfo fi : handler_.getFileSystemInfos())
 		{
 			if (fi.fsys_ == fs)
 			{
 				return;
 			}
 		}
-		fileSystems_.add(new FileSystemInfo(fs, name, icon, name == null ? null : new FileSystemNode()));
+		handler_.addFileSystem(new TreeFileSystemInfo(fs, name, icon, name == null ? null : new FileSystemNode()));
 		if (isShowing())
 			update(root_);
 

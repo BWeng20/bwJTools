@@ -123,6 +123,7 @@ public class JFileChooserPreview extends JPanel
 
 	protected DateTimeFormatter df_ = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT);
 	protected NumberFormat nf_ = NumberFormat.getNumberInstance();
+	protected Color defaultBackgroundColor_;
 
 	/**
 	 * true if os is windows.
@@ -224,11 +225,27 @@ public class JFileChooserPreview extends JPanel
 	 * After creation, use {@link #install(JFileChooser)} to connect it with a file-chooser.
 	 *
 	 * @param previewWidth The width of the image preview. Resulting area will be previewSize + 10 pixel border.
+	 * @param handlers The handlers to use.
 	 */
 	public JFileChooserPreview(int previewWidth, PreviewHandler... handlers)
 	{
+		this( previewWidth, null, LEFT_BORDER_WIDTH, 0, handlers);
+	}
+
+	/**
+	 * Creates a new preview accessory.<br>
+	 * After creation, use {@link #install(JFileChooser)} to connect it with a file-chooser.
+	 *
+	 * @param previewWidth The width of the image preview. Resulting area will be previewSize + 10 pixel border.
+	 */
+	public JFileChooserPreview(int previewWidth, String title, int leftBorder, int rightBorder, PreviewHandler... handlers)
+	{
 		super(new BorderLayout());
-		setBorder(BorderFactory.createEmptyBorder(0, LEFT_BORDER_WIDTH, 0, 0));
+		if (leftBorder > 0)
+			setBorder(BorderFactory.createEmptyBorder(0, leftBorder, 0, rightBorder));
+
+		defaultBackgroundColor_ = UIManager.getDefaults().getColor("Label.background");
+		super.setBackground(defaultBackgroundColor_);
 
 		previewConfig_.previewWidth_ = previewWidth;
 		setErrorImage(null);
@@ -263,6 +280,13 @@ public class JFileChooserPreview extends JPanel
 
 		attributeLabel_Size_ = new JLabel(I18N.getText("filechooser.preview.size"));
 		attribute_Size_ = createAttributeTextComponent();
+
+		if ( title != null )
+		{
+			JLabel titleLabel = new JLabel(title);
+			titleLabel.setFont( f.deriveFont(Font.PLAIN, f.getSize()*2));
+			add( titleLabel, BorderLayout.NORTH);
+		}
 
 		for (PreviewHandler h : handlers)
 			addPreviewHandler(h);
@@ -495,9 +519,39 @@ public class JFileChooserPreview extends JPanel
 		JTextArea t = new JTextArea();
 		UIDefaults defaults = UIManager.getDefaults();
 		t.setFont(defaults.getFont("Label.font"));
-		t.setBackground(defaults.getColor("Label.background"));
+		t.setBackground(defaultBackgroundColor_);
 		t.setEditable(false);
 		return t;
+	}
+
+    @Override
+	public void setBackground(Color col )
+	{
+		// Ignored calls from super-ctor.
+		if ( defaultBackgroundColor_ != null )
+		{
+			if (col == null)
+			{
+				Container ct = getParent();
+				if (ct != null)
+					col = ct.getBackground();
+			}
+			if (col != null && !col.equals(defaultBackgroundColor_))
+			{
+				defaultBackgroundColor_ = col;
+				super.setBackground(col);
+				attributeArea_.setBackground(col);
+				attribute_Size_.setBackground(col);
+				attribute_ModTime_.setBackground(col);
+				for (JLabel t : additionalAttributesLabels_)
+					t.setBackground(col);
+				for (JTextComponent t : additionalAttributesText_)
+					t.setBackground(col);
+				contentArea_.setBackground(col);
+			}
+		}
+		else
+			super.setBackground(col);
 	}
 
 	/**
@@ -731,48 +785,6 @@ public class JFileChooserPreview extends JPanel
 		}
 		d.width = w;
 		return d;
-	}
-
-	/**
-	 * With this main method, the class can be used to select a file from a batch script
-	 * (ok, there are better options out there, so please take this as an example).
-	 */
-	public static void main(String[] args)
-	{
-		try
-		{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (Exception e)
-		{
-		}
-
-		// Be very quite
-		Log.setLevel(Log.DEBUG);
-
-		JPathChooser ch = new JPathChooser();
-		// ch.setFileHidingEnabled(true);
-		ch.setFileSelectionMode(PathChooserMode.FILES_ONLY);
-
-		JFileChooserPreview preview = new JFileChooserPreview(300, JFileChooserPreview.defaultHandlers());
-		preview.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createEmptyBorder(0, 5, 0, 0),
-				BorderFactory.createTitledBorder("Preview")));
-		preview.setLoadingDisplayDelay(200);
-		preview.install(ch);
-		ch.setDirectory(IOTool.getPath(System.getProperty("user.home")));
-		ch.showDialog(null, "Test", "OK");
-		preview.uninstall();
-		Path f = ch.getSelectedPath();
-		if (f == null)
-		{
-			System.exit(1);
-		}
-		else
-		{
-			System.out.println(f.toUri());
-			System.exit(0);
-		}
 	}
 
 }
