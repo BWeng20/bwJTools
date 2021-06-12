@@ -1,7 +1,5 @@
 /*
- * The MIT License
- *
- * Copyright 2020 Bernd Wengenroth.
+ * Copyright Bernd Wengenroth.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,16 +21,18 @@
  */
 package com.bw.jtools.examples.starter;
 
+import com.bw.jtools.Application;
+import com.bw.jtools.examples.graph.JGraphDemo;
+import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.JExceptionDialog;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.lang.reflect.Method;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.util.Locale;
+import javax.swing.*;
 
 /**
  * Main for Example Jar with Demo-selection.
@@ -47,18 +47,53 @@ public final class ExampleList extends JFrame
 	static String[][] examples =
     {
         { "Application Icons", "com.bw.jtools.examples.applicationicons.ApplicationIconsDemo" }  ,
-        { "Data Table", "com.bw.jtools.examples.data.DataDemo" }  ,
+        { "Data Table", "com.bw.jtools.examples.datatable.DataDemo" }  ,
         { "Exception Dialog", "com.bw.jtools.examples.exceptiondialog.JExceptionDialogDemo" }  ,
-        { "Property Table", "com.bw.jtools.examples.propertytable.PropertyTableWindow" }  ,
-        { "Property Sheet", "com.bw.jtools.examples.propertytable.PropertySheetWindow" }  ,
-        { "Property Tile", "com.bw.jtools.examples.propertytable.PropertyTileWindow" }  ,
-        { "Property Multiple", "com.bw.jtools.examples.propertytable.PropertyDemoApplication" }  ,
-        { "Tab Component", "com.bw.jtools.examples.tabcomponent.JTabComponentDemo" }
+        { "Property Table", "com.bw.jtools.examples.properties.PropertyTableWindow" }  ,
+        { "Property Sheet", "com.bw.jtools.examples.properties.PropertySheetWindow" }  ,
+        { "Property Tile", "com.bw.jtools.examples.properties.PropertyTileWindow" }  ,
+        { "Property Multiple", "com.bw.jtools.examples.properties.PropertyDemoApplication" }  ,
+        { "Tab Component", "com.bw.jtools.examples.tabcomponent.JTabComponentDemo" },
+        { "Path Chooser", "com.bw.jtools.examples.pathchooser.JPathChooserDemo" },
+        { "Swing UI-Default", "com.bw.jtools.examples.uidefaults.UIDefaults" }
     };
+
+	private class ExampleWindowWatcher extends WindowAdapter
+    {
+        int count = 0;
+        @Override
+        public void windowClosed(WindowEvent e)
+        {
+            if (--count == 0)
+            {
+                setVisible(true);
+            }
+            e.getWindow().removeWindowListener(this);
+        }
+
+        ExampleWindowWatcher()
+        {
+            Window[] ws = Window.getOwnerlessWindows();
+            if (ws != null)
+            {
+                Window myWindow = SwingUtilities.getWindowAncestor(ExampleList.this);
+                for (Window w : ws)
+                {
+                    if (w != myWindow && w.isShowing())
+                    {
+                        ++count;
+                        w.addWindowListener(this);
+                    }
+                }
+            }
+            if ( count == 0 )
+                setVisible(true);
+        }
+    }
 
     public ExampleList()
     {
-        super("Examples");
+        super(I18N.getText( "Demo.Title" ));
 
         JPanel panel = new JPanel(new GridBagLayout());
 
@@ -69,43 +104,72 @@ public final class ExampleList extends JFrame
         iC.weightx = 1;
         iC.weighty = 1;
         iC.insets = new Insets(10, 5, 10, 5);
-
-        GridBagConstraints bC = new GridBagConstraints();
-        bC.gridx = 1;
-        bC.gridy = GridBagConstraints.RELATIVE;
-        bC.anchor= GridBagConstraints.LINE_START;
-        bC.insets = new Insets(0, 0, 0, 10);
+        iC.fill = GridBagConstraints.HORIZONTAL;
 
         for (String[] r : examples)
         {
             final String name =  r[0];
             final String clazz = r[1];
+            final String lang = Locale.getDefault().getLanguage();
 
-            panel.add( new JLabel( "<html><h3>"+name+"</h3></html>" ), iC );
-            JButton start = new JButton("Start");
-            start.addActionListener((evt) ->
+            try
             {
+                Class c = Class.forName(clazz);
+
+                String description = null;
                 try
                 {
-                    setVisible(false);
-                    dispose();
-                    Method main = Class.forName(clazz).getMethod("main", String[].class );
-                    main.invoke(null, new Object[] { new String[0] });
+                    // try to get additional descrption from some static field "DESCRIPTION"
+                    String[][] desc = (String[][])c.getField("DESCRIPTION").get(null);
+
+                    for ( String[] d : desc )
+                        if ( new Locale(d[0]).getLanguage().equals(lang) ) {
+                            description = d[1];
+                            break;
+                        }
+                    if ( description == null && desc.length>0)
+                        description = desc[0][1];
+
                 }
-                catch ( Exception e)
+                catch (Exception fc)
+                {}
+                if ( description == null )
+                    description = "";
+
+                JButton start = new JButton("<html><h3>"+name+"</h3><p style='color:#505050;'>"+description+"</p><p>&nbsp;</p></html>");
+                start.setHorizontalAlignment( SwingConstants.LEFT );
+                start.addActionListener((evt) ->
                 {
-                    e.printStackTrace();;
-                    JExceptionDialog ed = new JExceptionDialog(this, "Example", "Failed to start '"+name+"'", e);
-                    ed.setLocationByPlatform(true);
-                    ed.setVisible(true);                }
-            });
-            panel.add( start, bC );
+                    try
+                    {
+                        setVisible(false);
+                        Method main = Class.forName(clazz).getMethod("main", String[].class );
+                        main.invoke(null, new Object[] { new String[0] });
+
+                        new ExampleWindowWatcher();
+
+                    }
+                    catch ( Exception e)
+                    {
+                        e.printStackTrace();;
+                        JExceptionDialog ed = new JExceptionDialog(this, "Example", "Failed to start '"+name+"'", e);
+                        ed.setLocationByPlatform(true);
+                        ed.setVisible(true);
+                        setVisible(true);
+                    }
+                });
+                panel.add( start, iC );
+            }
+            catch ( Exception e)
+            {
+
+            }
         }
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setContentPane(panel);
 
-        setPreferredSize(new Dimension(400, 400));
+        setPreferredSize(new Dimension(500, 850));
         pack();
         setLocationByPlatform(true);
         setVisible(true);
@@ -114,7 +178,17 @@ public final class ExampleList extends JFrame
 
     public static void main(String[] args)
     {
+        try
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        I18N.addBundle("com.bw.jtools.examples.starter.i18n", ExampleList.class);
         new ExampleList();
+
     }
 
 }

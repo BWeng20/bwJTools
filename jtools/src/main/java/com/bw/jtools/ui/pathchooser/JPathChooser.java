@@ -1,5 +1,5 @@
 /*
- * (c) copyright Bernd Wengenroth
+ * Copyright Bernd Wengenroth.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -8,16 +8,16 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package com.bw.jtools.ui.pathchooser;
 
@@ -475,112 +475,6 @@ public class JPathChooser extends JComponent
 	public void addFileSystem(FileSystem fs, String name, Icon icon)
 	{
 		systemTree_.addFileSystem(fs, name, icon);
-	}
-
-	/**
-	 * To run this class from IDE, configure the run configuration to use the module root class path,
-	 * otherwise the module imports are not recognized and some "IllegalAccess" Exception may occur.
-	 */
-	public static void main(String[] args)
-	{
-		try
-		{
-			// UIManager.setLookAndFeel(  UIManager.getCrossPlatformLookAndFeelClassName() );
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-
-		Log.setLevel(Log.DEBUG);
-		JPathChooser d = new JPathChooser();
-
-		JCheckBox large = new JCheckBox("Large Icons");
-		large.setSelected(d.isUseLargeIcons());
-		large.addItemListener(e -> d.setUseLargeIcons(large.isSelected()));
-
-		// Adding some additional buttons, usefull for tests.
-		d.addButton(large);
-		d.addButton(new JLAFComboBox());
-
-		// Try to locate the jar we are running from and add it as file-system.
-		FileSystem jarFS = IOTool.getFileSystemForClass(JPathChooser.class);
-		if (jarFS != null)
-		{
-			d.addFileSystem(jarFS, "Application", null);
-		}
-
-		// Add jdk file-system. Since java 9 jrt file system should be used here.
-		FileSystem swingFS = IOTool.getFileSystemForClass(JComponent.class);
-		if (swingFS != null)
-		{
-			d.addFileSystem(swingFS, "Jdk", null);
-		}
-
-		d.setFileSelectionMode(PathChooserMode.FILES_ONLY);
-		final JCheckBox files = new JCheckBox("Files");
-		final JCheckBox folders = new JCheckBox("Folders");
-
-		files.setSelected( true );
-		folders.setSelected( true );
-
-		files.addItemListener(e ->
-		{
-			boolean filesChecked = files.isSelected();
-			boolean foldersChecked = folders.isSelected();
-			if ( !(filesChecked || foldersChecked ) )
-			{
-				SwingUtilities.invokeLater( () -> { folders.setSelected(true); } );
-			}
-			else
-			{
-				d.setFileSelectionMode(
-						filesChecked
-								? foldersChecked ? PathChooserMode.FILES_AND_FOLDERS : PathChooserMode.FILES_ONLY
-								: PathChooserMode.FOLDERS );
-			}
-		});
-
-		folders.addItemListener(e ->
-		{
-			boolean filesChecked = files.isSelected();
-			boolean foldersChecked = folders.isSelected();
-			if ( !(filesChecked || foldersChecked ) )
-			{
-				SwingUtilities.invokeLater( () -> { files.setSelected(true); } );
-			}
-			else
-			{
-				d.setFileSelectionMode(
-						filesChecked
-								? foldersChecked ? PathChooserMode.FILES_AND_FOLDERS : PathChooserMode.FILES_ONLY
-								: PathChooserMode.FOLDERS );
-			}
-		});
-
-		d.addButton(files);
-		d.addButton(folders);
-
-		JFileChooserPreview preview = new JFileChooserPreview(300, "Preview", 5, 5, JFileChooserPreview.defaultHandlers());
-		preview.install(d);
-
-		d.setDirectory(IOTool.getPath(System.getProperty("user.home")));
-		d.setFileSelectionMode(PathChooserMode.FILES_AND_FOLDERS);
-		d.showDialog(null, "Select Some Folder or File", "Select");
-
-
-		Path p = d.getSelectedPath();
-
-		if (p != null)
-		{
-			System.out.println(p.toUri());
-			System.exit(0);
-		}
-		else
-		{
-			System.exit(1);
-		}
 	}
 
 }

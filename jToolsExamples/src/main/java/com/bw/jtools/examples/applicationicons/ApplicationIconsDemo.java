@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * Copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.SettingsUI;
 
 import java.awt.*;
+import java.lang.annotation.Documented;
 import javax.swing.*;
 
 /**
@@ -35,6 +36,12 @@ import javax.swing.*;
 public class ApplicationIconsDemo
 {
     static JFrame frame;
+
+    public static final String[][] DESCRIPTION =
+    {
+        { "en", "Demonstrates usage of <b>com.bw.jtools.getAppIconImages</b>." },
+        { "de", "Demonstriert die Verwendung von <b>com.bw.jtools.getAppIconImages</b>." },
+    };
 
     static public void main( String args[] )
     {

@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2019 Bernd Wengenroth
+ * Copyright Bernd Wengenroth
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -36,6 +36,13 @@ import javax.swing.UIManager;
 
 public class DataDemo extends JFrame
 {
+
+    public static final String[][] DESCRIPTION =
+    {
+            { "en", "Demonstrates usage of <b>com.bw.jtools.ui.datatable.DataTable</b>." },
+            { "de", "Demonstriert die Verwendung von <b>com.bw.jtools.ui.datatable.DataTable</b>." }
+    };
+
     /**
 	 * Generated Serial Version
 	 */

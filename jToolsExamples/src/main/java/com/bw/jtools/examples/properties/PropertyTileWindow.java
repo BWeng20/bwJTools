@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2015-2019 Bernd Wengenroth
+ * Copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,11 @@ import java.util.List;
  */
 public class PropertyTileWindow extends PropertyDemoWindowBase
 {
+    public static final String[][] DESCRIPTION =
+    {
+            { "en", "Demonstrates usage of <b>com.bw.jtools.ui.properties.sheet.PropertyGroupCard</b>." },
+            { "de", "Demonstriert die Verwendung von <b>com.bw.jtools.ui.properties.sheet.PropertyGroupCard</b>." }
+    };
 
     JPanel tiles;
     boolean addTitle_;

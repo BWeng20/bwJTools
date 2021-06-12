@@ -1,7 +1,8 @@
-package com.bw.jtools.examples.applicationicons;
+package com.bw.jtools.examples.uidefaults;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
+import com.bw.jtools.examples.applicationicons.ApplicationIconsDemo;
 import com.bw.jtools.ui.icon.DummyIcon;
 import com.bw.jtools.ui.icon.JColorIcon;
 import com.bw.jtools.ui.SettingsUI;
@@ -13,6 +14,13 @@ import java.util.List;
 
 public class UIDefaults
 {
+
+	public static final String[][] DESCRIPTION =
+	{
+		{ "en", "Shows Swing Default Icons and Color" },
+		{ "de", "Zeigt Swings Standard-Icons und -Farben an" }
+	};
+
 	static JFrame frame;
 	static Icon dummy_ = new DummyIcon();
 
@@ -148,7 +156,7 @@ public class UIDefaults
 
 		JLabel label = new JLabel(
 				"<html><body><b>"+
-						"The list contain all UIDefaults Icons. Some may not work outside their component!"+
+						"The list contain all UIDefaults Icons. Some may not work outside their component! In this case a red X is shown."+
 						"</b></body></html>" );
 		label.setBorder(BorderFactory.createEmptyBorder(20,5,20,20));
 		iconTab.add( label, BorderLayout.NORTH );
