@@ -27,7 +27,7 @@ import com.bw.jtools.ui.UITool;
 import com.bw.jtools.ui.fontchooser.JFontChooser;
 import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.icon.JColorIcon;
-import com.bw.jtools.ui.image.MaskComposite;
+import com.bw.jtools.ui.image.BlendComposite;
 
 import javax.swing.*;
 import java.awt.*;
@@ -103,7 +103,8 @@ public class JDropCharConfig extends JPanel
 		dropCapModes.setOpaque(true);
 		LinkedHashMap<String, Composite> map = new LinkedHashMap<>();
 		map.put("None", null);
-		map.put("MaskAlpha", new MaskComposite());
+		for ( BlendComposite.Mode m : BlendComposite.Mode.values())
+			map.put( m.toString(), new BlendComposite(m));
 		map.put("Clear", AlphaComposite.Clear);
 		map.put("Xor", AlphaComposite.Xor);
 		map.put("Dst", AlphaComposite.Dst);
@@ -112,6 +113,7 @@ public class JDropCharConfig extends JPanel
 		map.put("DstOut", AlphaComposite.DstOut);
 		map.put("SrcAtop", AlphaComposite.SrcAtop);
 		map.put("DstOver", AlphaComposite.DstOver);
+		map.put("SrcOver", AlphaComposite.SrcOver);
 		map.put("Src", AlphaComposite.Src);
 		map.put("SrcIn", AlphaComposite.SrcIn);
 		map.put("SrcOut", AlphaComposite.SrcOut);

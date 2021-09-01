@@ -4,7 +4,7 @@ import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.image.MaskComposite;
+import com.bw.jtools.ui.image.BlendComposite;
 
 import javax.swing.*;
 import java.awt.*;
@@ -71,7 +71,7 @@ public class DropCapDemo
 		dropCap.getDropCap().setDropCapColor(new Color( 100, 5, 5));
 		// The same texture as for the normal text will be used to mask the image and
 		// give the image the same structure.
-		dropCap.getDropCap().setDropCapPaint(dcp,new MaskComposite());
+		dropCap.getDropCap().setDropCapPaint(dcp,new BlendComposite(BlendComposite.Mode.MASK_GRAY));
 		// dropCap.getDropCap().setOpaque(true);
 
 		mainPanel.add( dropCap);
