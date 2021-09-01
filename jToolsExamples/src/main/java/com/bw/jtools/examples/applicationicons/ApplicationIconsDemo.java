@@ -82,7 +82,7 @@ public class ApplicationIconsDemo
         frame.setContentPane(panel);
         frame.pack();
 
-        // Restore window-position and dimension from prefences.
+        // Restore window-position and dimension from preferences.
         SettingsUI.loadWindowPosition(frame);
         SettingsUI.storePositionAndFlushOnClose( frame );
         frame.setVisible(true);
