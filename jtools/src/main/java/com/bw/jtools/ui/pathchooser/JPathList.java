@@ -47,6 +47,8 @@ public class JPathList extends JComponent
 
 	protected PathInfoListCellRenderer cellRenderer_;
 
+	protected PathInfo selectedFile_;
+
 	@Override
 	public void updateUI()
 	{
@@ -104,14 +106,17 @@ public class JPathList extends JComponent
 	protected void fireSelectionChanged(boolean finalSelection)
 	{
 		PathInfo selectedValue = list_.getSelectedValue();
-
-		Object[] listeners = listenerList.getListenerList();
-		PathSelectionEvent ev = new PathSelectionEvent(selectedValue, finalSelection);
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
+		if ( selectedFile_ != selectedValue )
 		{
-			if (listeners[i] == PathSelectionListener.class)
+			selectedFile_ = selectedValue;
+			Object[] listeners = listenerList.getListenerList();
+			PathSelectionEvent ev = new PathSelectionEvent(selectedValue, finalSelection);
+			for (int i = listeners.length - 2; i >= 0; i -= 2)
 			{
-				((PathSelectionListener) listeners[i + 1]).selectedPathChanged(ev);
+				if (listeners[i] == PathSelectionListener.class)
+				{
+					((PathSelectionListener) listeners[i + 1]).selectedPathChanged(ev);
+				}
 			}
 		}
 	}
@@ -168,16 +173,18 @@ public class JPathList extends JComponent
 
 	public PathInfo getSelectedPath()
 	{
-		return list_.getSelectedValue();
+		return selectedFile_;
 	}
 
 	public void clearSelection()
 	{
+		selectedFile_ = null;
 		list_.clearSelection();
 	}
 
 	public void setPath(PathInfo newPath)
 	{
+		selectedFile_ = newPath;
 		list_.setSelectedValue( newPath, true );
 	}
 }
