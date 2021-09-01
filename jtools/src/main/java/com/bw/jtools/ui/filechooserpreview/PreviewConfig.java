@@ -22,6 +22,7 @@
 package com.bw.jtools.ui.filechooserpreview;
 
 import java.awt.*;
+import java.io.File;
 
 /**
  * Holds configuration data for the preview-handlers.<br>
@@ -65,12 +66,20 @@ public abstract class PreviewConfig
 	 *
 	 * @see JFileChooserPreview#setLoadingDisplayDelay(int)
 	 */
-	public int loadingDisplayDelay_ = 200;
+	public int loadingDisplayDelay_ = 1; // 200
 
 	/**
 	 * Called by preview proxies if the preview should be updated.<br>
 	 * Can be called also from outside the UI-thread.<br>
 	 * Implemented by JFileChooserPreview.
 	 */
-	public abstract void update(PreviewProxy proxy);
+	public abstract void update(PreviewProxy proxy, PreviewHandler handler);
+
+	/**
+	 * Called by preview proxies if some other file should be shown.<br>
+	 * Can be called also from outside the UI-thread.<br>
+	 * Implemented by JFileChooserPreview.
+	 */
+	public abstract void setFile(File file);
+
 }

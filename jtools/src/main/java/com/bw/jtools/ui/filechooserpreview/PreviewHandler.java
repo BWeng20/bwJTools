@@ -23,6 +23,7 @@ package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
 
+import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.WeakHashMap;
@@ -53,7 +54,7 @@ public abstract class PreviewHandler
 	 */
 	protected PreviewHandler(String pattern)
 	{
-		fileNamePattern_ = Pattern.compile(pattern);
+		fileNamePattern_ = (pattern == null) ? null : Pattern.compile(pattern);
 	}
 
 	/**
@@ -68,8 +69,8 @@ public abstract class PreviewHandler
 		PreviewProxy proxy;
 		try
 		{
-			if (config_ == null || !fileNamePattern_.matcher(uri)
-													.matches())
+			if (config_ == null || fileNamePattern_ == null ||
+					!fileNamePattern_.matcher(uri).matches())
 				return null;
 
 			final String cachekey = getCacheKey(file, uri);
@@ -93,7 +94,7 @@ public abstract class PreviewHandler
 					proxy = createPreviewProxy(file, uri);
 					proxy.name_ = file.getFileName()
 									  .toString();
-					proxy.uri_ = uri;
+					proxy.file_ = file;
 					proxy.lastMod_ = lastMod;
 					proxy.size_ = Files.size(file);
 					cache_.put(cachekey, proxy);
@@ -134,7 +135,6 @@ public abstract class PreviewHandler
 	 * Create a new proxy. <br>
 	 * This method doesn't need to care about
 	 * {@link PreviewProxy#name_},
-	 * {@link PreviewProxy#uri_},
 	 * {@link PreviewProxy#lastMod_} and
 	 * {@link PreviewProxy#size_} as these fields will be set by the caller.
 	 *
@@ -142,6 +142,16 @@ public abstract class PreviewHandler
 	 * @param canonicalPath The canonical path of the file as the preview use to identify the file uniquely.
 	 */
 	protected abstract PreviewProxy createPreviewProxy(Path file, String canonicalPath);
+
+	/**
+	 * Updates a proxy.
+	 */
+	protected abstract void updatePreviewProxy(PreviewProxy proxy);
+
+	/**
+	 * Get the handler unique component.
+	 */
+	public abstract Component getPreviewComponent(PreviewProxy proxy);
 
 	/**
 	 * Get the global cache key.<br>

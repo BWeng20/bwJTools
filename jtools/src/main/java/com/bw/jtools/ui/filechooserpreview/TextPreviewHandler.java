@@ -24,8 +24,8 @@ package com.bw.jtools.ui.filechooserpreview;
 import com.bw.jtools.io.IOTool;
 
 import javax.swing.*;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.awt.*;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +35,12 @@ import java.nio.file.Path;
  */
 public class TextPreviewHandler extends PreviewHandler
 {
+
+	/**
+	 * TextArea to show text based content previews.
+	 */
+	protected TextPreview previewText_;
+
 	/**
 	 * Creates a new handler.
 	 */
@@ -45,58 +51,71 @@ public class TextPreviewHandler extends PreviewHandler
 	}
 
 	/**
-	 * Sets the length of the preview text.
-	 * Default is 1024.
+	 * Maximum length of text to load for preview.
 	 */
-	public void setPreviewTextLength(int length)
-	{
-		previewTextLength_ = length;
-	}
+	protected int previewTextLength_ = 5*1024;
 
 	/**
-	 * Gets the length of the preview text.
+	 * Maximum lines of text to load for preview.
 	 */
-	public int getPreviewTextLength()
-	{
-		return previewTextLength_;
-	}
-
-	/**
-	 * Length of text to load for preview.
-	 */
-	protected int previewTextLength_ = 1024;
+	protected int previewLines_ = 20;
 
 	/**
 	 * Swing worker to load the text.
 	 */
 	protected class TextLoader extends SwingWorker<Boolean, Object>
 	{
-		PreviewProxy proxy_;
-		int length_;
+		TextPreviewProxy proxy_;
 
-		public TextLoader(PreviewProxy proxy, int length)
+		public TextLoader(TextPreviewProxy proxy)
 		{
 			proxy_ = proxy;
-			length_ = length;
 		}
 
 		@Override
 		protected Boolean doInBackground() throws Exception
 		{
-			String text = null;
+			int lines;
+			int maxlength;
+			long lastReadPos;
+			Path file;
+			synchronized (proxy_)
+			{
+				lines = proxy_.textMaxLines_;
+				maxlength = proxy_.textMaxLength_;
+				proxy_.orgTextMaxLength_ = proxy_.textMaxLength_;
+				proxy_.orgTextMaxLines_=  proxy_.textMaxLines_;
+				lastReadPos = proxy_.lastReadPos_;
+				file = proxy_.file_;
+			}
+			if ( maxlength < 1024 ) maxlength = 1024;
+			if ( lines < 5 ) lines = 5;
+			StringBuilder text = new StringBuilder(maxlength);
 			boolean ok = false;
 			try
 			{
-				try (InputStream fis = Files.newInputStream(IOTool.getPath(proxy_.uri_)))
+				try (InputStream fis = Files.newInputStream(IOTool.getPath(file.toUri().toString())))
 				{
-					char[] buffer = new char[length_];
-					InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-					final int l = isr.read(buffer);
-					if (l > 0)
+					BufferedReader reader = new BufferedReader( new InputStreamReader(fis,StandardCharsets.UTF_8), 2048 );
+
+					if ( lastReadPos > 0 )
+						reader.skip(lastReadPos);
+
+					int lineCounter = 0;
+					int c;
+					while ((c = reader.read()) >= 0 && lineCounter<lines && text.length() < maxlength)
 					{
-						text = new String(buffer, 0, l);
-						ok = true;
+						++lastReadPos;
+						if ((c == '\n') || (c == '\r'))
+						{
+							text.append('\n');
+							++lineCounter;
+						} else
+						{
+							text.append((char)c);
+						}
 					}
+					ok = true;
 				}
 			}
 			catch (Exception e)
@@ -104,10 +123,9 @@ public class TextPreviewHandler extends PreviewHandler
 			}
 			synchronized (proxy_)
 			{
-				proxy_.imageContent_ = null;
 				if (ok)
 				{
-					proxy_.textContent_ = text;
+					proxy_.textContent_ = text.toString();
 					proxy_.message_ = null;
 				}
 				else
@@ -115,6 +133,7 @@ public class TextPreviewHandler extends PreviewHandler
 					proxy_.textContent_ = null;
 					proxy_.message_ = config_.errorText_;
 				}
+				proxy_.lastReadPos_ = lastReadPos;
 				proxy_.complete = true;
 			}
 
@@ -128,9 +147,38 @@ public class TextPreviewHandler extends PreviewHandler
 			{
 				proxy_.activeAndPending = false;
 				if (config_ != null)
-					config_.update(proxy_);
+					config_.update(proxy_, TextPreviewHandler.this);
 			}
 		}
+	}
+
+	@Override
+	protected void updatePreviewProxy(PreviewProxy proxy)
+	{
+		proxy.complete = false;
+		new TextLoader((TextPreviewProxy)proxy).execute();
+	}
+
+	@Override
+	public Component getPreviewComponent(PreviewProxy proxy)
+	{
+		if ( previewText_ == null )
+		{
+			previewText_ = new TextPreview();
+			previewText_.setEditable(false);
+			previewText_.setDisabledTextColor(previewText_.getForeground());
+		}
+		synchronized (proxy)
+		{
+			TextPreviewProxy txtProxy = (TextPreviewProxy) proxy;
+			if (txtProxy.complete)
+				previewText_.setText(txtProxy.textContent_);
+			else
+				// MessageText....
+				previewText_.setText("");
+		}
+
+		return previewText_;
 	}
 
 	@Override
@@ -139,13 +187,11 @@ public class TextPreviewHandler extends PreviewHandler
 		final String fname = file.getFileName()
 								 .toString();
 
-		final PreviewProxy proxy = new PreviewProxy();
-		proxy.uri_ = file.normalize()
-						 .toUri()
-						 .toString();
+		final TextPreviewProxy proxy = new TextPreviewProxy(this);
+		proxy.file_ = file;
 		proxy.config_ = config_;
 
-		new TextLoader(proxy, previewTextLength_).execute();
+		new TextLoader(proxy).execute();
 		return proxy;
 	}
 }

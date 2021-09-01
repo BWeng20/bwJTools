@@ -26,7 +26,6 @@ import com.bw.jtools.io.IOTool;
 import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.UITool;
 import com.bw.jtools.ui.pathchooser.JPathChooser;
-import com.bw.jtools.ui.pathchooser.PathChooserMode;
 import com.bw.jtools.ui.pathchooser.PathInfo;
 import com.bw.jtools.ui.pathchooser.PathSelectionListener;
 
@@ -35,9 +34,7 @@ import javax.swing.border.Border;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.io.File;
-import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -83,27 +80,18 @@ public class JFileChooserPreview extends JPanel
 	protected JPathChooser pathChooser_;
 
 	/**
+	 * List of preview-handlers.
+	 */
+	protected final List<PreviewHandler> previewHandler_ = new ArrayList<>();
+	protected final InfoPreviewHandler infoPreviewHandler_ = new InfoPreviewHandler();
+	protected final InfoPreviewProxy infoPreviewProxy_ ;
+	protected final PreviewHandler resolvePreviewHandler = new  ResolvePreviewHandler();
+
+
+	/**
 	 * Content preview area.
 	 */
 	protected JPanel contentArea_;
-
-	/**
-	 * Card layout for the content preview area to switch between text and image based previews.
-	 */
-	protected CardLayout contentAreaCardLayout_;
-
-	/**
-	 * Label inside the content-area to show images and alternative messages.
-	 */
-	protected JLabel previewLabel_;
-	/**
-	 * Icon used inside {@link #previewLabel_} to images.
-	 */
-	protected ImageIcon previewIcon_;
-	/**
-	 * TextArea to show text based content previews.
-	 */
-	protected JTextArea previewText_;
 
 	/**
 	 * Attribute preview area.
@@ -114,6 +102,7 @@ public class JFileChooserPreview extends JPanel
 	 */
 	protected GridBagLayout attributeLayout_;
 
+	protected JLabel emptyPreview_;
 	protected List<JLabel> additionalAttributesLabels_ = new ArrayList<>();
 	protected List<JTextComponent> additionalAttributesText_ = new ArrayList<>();
 	protected JLabel attributeLabel_ModTime_;
@@ -158,17 +147,6 @@ public class JFileChooserPreview extends JPanel
 	protected PreviewProxy pendingProxy_;
 
 	/**
-	 * Component name for the text based preview inside the content area.
-	 * Used together with {@link #contentAreaCardLayout_}.
-	 */
-	protected static final String CONTENT_PREVIEW_TEXT = "TEXT";
-	/**
-	 * Component name for the image based preview inside the content area.
-	 * Used together with {@link #contentAreaCardLayout_}.
-	 */
-	protected static final String CONTENT_PREVIEW_IMAGE = "IMAGE";
-
-	/**
 	 * Space to the file-chooser.
 	 */
 	protected static final int LEFT_BORDER_WIDTH = 10;
@@ -180,9 +158,15 @@ public class JFileChooserPreview extends JPanel
 	{
 
 		@Override
-		public void update(PreviewProxy proxy)
+		public void update(PreviewProxy proxy, PreviewHandler handler)
 		{
-			setPreview(proxy);
+			JFileChooserPreview.this.setPreview(proxy, handler);
+		}
+
+		@Override
+		public void setFile(File file)
+		{
+			JFileChooserPreview.this.setFile(file);
 		}
 	};
 
@@ -197,7 +181,7 @@ public class JFileChooserPreview extends JPanel
 		if (changeName.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY))
 		{
 			File file = (File) changeEvent.getNewValue();
-			updatePreview(file);
+			setFile(file);
 		}
 	};
 
@@ -209,7 +193,7 @@ public class JFileChooserPreview extends JPanel
 	protected PathSelectionListener pathListener_ = changeEvent ->
 	{
 		PathInfo pi = changeEvent.getSelectedPath();
-		updatePreview(pi == null ? null : pi.getPath());
+		setFile(pi == null ? null : pi.getPath());
 	};
 
 	/**
@@ -236,7 +220,7 @@ public class JFileChooserPreview extends JPanel
 	 * Creates a new preview accessory.<br>
 	 * After creation, use {@link #install(JFileChooser)} to connect it with a file-chooser.
 	 *
-	 * @param previewWidth The width of the image preview. Resulting area will be previewSize + 10 pixel border.
+	 * @param previewWidth The width of the preview. Resulting area will be previewSize + 10 pixel border.
 	 */
 	public JFileChooserPreview(int previewWidth, String title, int leftBorder, int rightBorder, PreviewHandler... handlers)
 	{
@@ -247,27 +231,16 @@ public class JFileChooserPreview extends JPanel
 		defaultBackgroundColor_ = UIManager.getDefaults().getColor("Label.background");
 		super.setBackground(defaultBackgroundColor_);
 
+		Font f = getFont();
+
 		previewConfig_.previewWidth_ = previewWidth;
 		setErrorImage(null);
 		setErrorText(null);
 		setLoadingText(null);
 
-		previewLabel_ = new JLabel();
-		previewLabel_.setHorizontalAlignment(JLabel.CENTER);
-		previewLabel_.setVerticalAlignment(JLabel.CENTER);
-		previewLabel_.setPreferredSize(new Dimension(previewWidth, previewWidth));
-		Font f = previewLabel_.getFont();
-		previewLabel_.setFont(f.deriveFont(Font.PLAIN, f.getSize() * 2));
+		emptyPreview_ = new JLabel("");
 
-		previewText_ = new JTextArea();
-		previewText_.setEditable(false);
-		previewText_.setDisabledTextColor(previewText_.getForeground());
-
-		contentArea_ = new JPanel(contentAreaCardLayout_ = new CardLayout());
-		contentArea_.add(previewLabel_, CONTENT_PREVIEW_IMAGE);
-		contentArea_.add(previewText_, CONTENT_PREVIEW_TEXT);
-
-		contentAreaCardLayout_.show(contentArea_, CONTENT_PREVIEW_IMAGE);
+		contentArea_ = new JPanel(new BorderLayout());
 		add(contentArea_, BorderLayout.CENTER);
 
 		attributeLayout_ = new GridBagLayout();
@@ -290,6 +263,11 @@ public class JFileChooserPreview extends JPanel
 
 		for (PreviewHandler h : handlers)
 			addPreviewHandler(h);
+
+		infoPreviewHandler_.setConfiguration(previewConfig_);
+		infoPreviewProxy_ = infoPreviewHandler_.createPreviewProxy(null,null);
+
+		resolvePreviewHandler.setConfiguration(previewConfig_);
 
 		setLoadingDisplayDelay(previewConfig_.loadingDisplayDelay_);
 
@@ -344,13 +322,9 @@ public class JFileChooserPreview extends JPanel
 			pathChooser_.removeAccessory(this);
 		}
 		pathChooser_ = null;
-		setPreview(null);
+		setPreview(null, null );
 	}
 
-	/**
-	 * List of preview-handlers.
-	 */
-	protected List<PreviewHandler> previewHandler_ = new ArrayList<>();
 
 	/**
 	 * Adds a new preview handler.
@@ -456,12 +430,8 @@ public class JFileChooserPreview extends JPanel
 				{
 					loading_ = new Timer(previewConfig_.loadingDisplayDelay_, e ->
 					{
-						PreviewProxy proxy = new PreviewProxy();
-						proxy.name_ = "Loading";
-						proxy.complete = true;
-						proxy.imageContent_ = previewConfig_.loadingImage_;
-						proxy.message_ = previewConfig_.loadingText_;
-						setPreview(proxy);
+						PreviewProxy proxy = infoPreviewHandler_.createPreviewProxy(null, previewConfig_.loadingText_);
+						setPreview(proxy, infoPreviewHandler_);
 					});
 					loading_.setRepeats(false);
 				}
@@ -470,42 +440,6 @@ public class JFileChooserPreview extends JPanel
 					if (loading_.isRunning())
 						loading_.stop();
 					loading_.setInitialDelay(milliSeconds);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Worker to resolve windows lnk Files.
-	 */
-	protected class ResolveSwingWorker extends SwingWorker<File, Object>
-	{
-		protected final PreviewProxy proxy_;
-
-		protected ResolveSwingWorker(PreviewProxy proxy)
-		{
-			proxy_ = proxy;
-		}
-
-
-		@Override
-		protected File doInBackground() throws Exception
-		{
-			return IOTool.resolveWindowsLinkFile(Paths.get(URI.create(proxy_.uri_))
-													  .toFile());
-		}
-
-		@Override
-		protected void done()
-		{
-			if (proxy_.activeAndPending)
-			{
-				try
-				{
-					updatePreview(get());
-				}
-				catch (Exception e)
-				{
 				}
 			}
 		}
@@ -560,27 +494,27 @@ public class JFileChooserPreview extends JPanel
 	 *
 	 * @param file The currently selected file.
 	 */
-	protected void updatePreview(File file)
+	protected void setFile(File file)
 	{
-		updatePreview(file.toPath());
+		setFile(file.toPath());
 	}
 
 	/**
-	 * Updates the preview for the selected path.<br>
+	 * Updates the previews for the selected path.<br>
 	 * For un-supported files the preview will be cleared.
 	 *
 	 * @param path The currently selected path.
 	 */
-	protected void updatePreview(Path path)
+	protected void setFile(Path path)
 	{
 		PreviewProxy proxy = null;
+		PreviewHandler handler = null;
 		try
 		{
 			if (path != null)
 			{
+				PreviewHandler ph = null;
 				final Path normalizedFile = path.normalize();
-				final String uri = normalizedFile.toUri()
-												 .toString();
 
 				final String filename = normalizedFile.getFileName()
 													  .toString();
@@ -588,23 +522,32 @@ public class JFileChooserPreview extends JPanel
 				if (IS_WINDOWS && filename.toUpperCase()
 										  .endsWith(".LNK"))
 				{
-					proxy = new PreviewProxy();
-					proxy.activeAndPending = true;
-					proxy.name_ = filename;
-					proxy.uri_ = uri;
-					new ResolveSwingWorker(proxy).execute();
+					handler = resolvePreviewHandler;
+					proxy = resolvePreviewHandler.createPreviewProxy(normalizedFile, filename);
+
 				}
 				else
 				{
-					for (PreviewHandler ph : previewHandler_)
+					for ( int i=0 ; i<previewHandler_.size(); ++i)
 					{
-						proxy = ph.getPreviewProxy(path, uri);
+						ph = previewHandler_.get(i);
+						proxy = ph.getPreviewProxy(path, normalizedFile.toUri().toString());
 						if (proxy != null)
+						{
+							handler = ph;
 							break;
+						}
 					}
 				}
 				if (null != proxy)
 				{
+					if ( proxy.needsUpdate())
+					{
+						if (Log.isDebugEnabled())
+							Log.debug("updatePreview " + proxy);
+						ph.updatePreviewProxy(proxy);
+					}
+
 					if (pendingProxy_ != null && pendingProxy_ != proxy)
 					{
 						pendingProxy_.activeAndPending = false;
@@ -616,7 +559,7 @@ public class JFileChooserPreview extends JPanel
 		catch (Exception e)
 		{
 		}
-		setPreview(proxy);
+		setPreview(proxy, handler);
 	}
 
 	/**
@@ -624,7 +567,7 @@ public class JFileChooserPreview extends JPanel
 	 *
 	 * @param proxy The proxy to show or null.
 	 */
-	protected void setPreview(final PreviewProxy proxy)
+	protected void setPreview(final PreviewProxy proxy, final PreviewHandler handler)
 	{
 		if (loading_ != null && loading_.isRunning()) loading_.stop();
 
@@ -634,23 +577,17 @@ public class JFileChooserPreview extends JPanel
 				Log.debug("setPreview " + proxy);
 			if (proxy == null)
 			{
-				previewLabel_.setIcon(null);
-				previewLabel_.setText(null);
-				contentAreaCardLayout_.show(contentArea_, CONTENT_PREVIEW_IMAGE);
+				contentArea_.removeAll();
 				attributeArea_.removeAll();
 			}
 			else
 			{
-				Image image2Show = null;
 				String message2Show = null;
-				String text2Show = null;
 
 				synchronized (proxy)
 				{
 					if (proxy.complete)
 					{
-						image2Show = proxy.imageContent_;
-						text2Show = proxy.textContent_;
 						message2Show = proxy.message_;
 					}
 					else
@@ -662,40 +599,24 @@ public class JFileChooserPreview extends JPanel
 						}
 						else
 						{
-							image2Show = previewConfig_.loadingImage_;
-							text2Show = null;
 							message2Show = previewConfig_.loadingText_;
 						}
 					}
 				}
 
-				if (image2Show != null)
+				Component c;
+				if (message2Show != null)
 				{
-					previewLabel_.setText(null);
-					if (previewIcon_ == null)
-						previewIcon_ = new ImageIcon(image2Show);
-					else
-						previewIcon_.setImage(image2Show);
-					previewLabel_.setIcon(previewIcon_);
-					contentAreaCardLayout_.show(contentArea_, CONTENT_PREVIEW_IMAGE);
-				}
-				else if (text2Show != null)
-				{
-					previewText_.setText(text2Show);
-					contentAreaCardLayout_.show(contentArea_, CONTENT_PREVIEW_TEXT);
-				}
-				else if (message2Show != null)
-				{
-					previewLabel_.setText(message2Show);
-					previewLabel_.setIcon(null);
-					contentAreaCardLayout_.show(contentArea_, CONTENT_PREVIEW_IMAGE);
+					infoPreviewProxy_.message_ = message2Show;
+					c = infoPreviewHandler_.getPreviewComponent(infoPreviewProxy_);
 				}
 				else
 				{
-					previewLabel_.setText(null);
-					previewLabel_.setIcon(null);
-					contentAreaCardLayout_.show(contentArea_, CONTENT_PREVIEW_IMAGE);
+					infoPreviewProxy_.message_ = null;
+					c = handler.getPreviewComponent(proxy);
 				}
+				contentArea_.removeAll();
+				contentArea_.add(BorderLayout.CENTER, c);
 
 				// Set-up attributes
 				List<JComponent> attributes = new ArrayList<>();

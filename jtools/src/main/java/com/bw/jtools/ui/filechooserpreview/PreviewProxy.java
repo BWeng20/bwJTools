@@ -23,7 +23,9 @@ package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
 
+import javax.swing.*;
 import java.awt.*;
+import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +35,9 @@ import java.util.List;
  * Instances of this class are weakly cached.<br>
  * Preview-handlers-implementations which need addition data may create sub-classes of this class.
  */
-public class PreviewProxy
+public abstract class PreviewProxy
 {
+
 	protected static class InfoEntry
 	{
 		public String name;
@@ -60,41 +63,44 @@ public class PreviewProxy
 	public boolean activeAndPending = false;
 
 	/**
-	 * The file name
+	 * The file.
+	 */
+	public Path file_;
+
+	/**
+	 * The file name (for display)
 	 */
 	public String name_;
 
 	/**
-	 * The file url
+	 * Size of file in bytes.
 	 */
-	public String uri_;
-
 	public long size_ = -1;
-	public long lastMod_;
 
 	/**
-	 * Image content.
+	 * Last mode.
 	 */
-	public Image imageContent_;
-	/**
-	 * Text content.
-	 */
-	public String textContent_;
+	public long lastMod_;
 
 	/**
 	 * Text to show if content is not available.
 	 */
 	public String message_;
 
+	/**
+	 * Additional information to show.
+	 */
 	public List<InfoEntry> additionalInformation_ = new ArrayList<>();
 
 	protected PreviewConfig config_;
 
 	public final long createTimeMS_ = System.currentTimeMillis();
 
-	protected PreviewProxy()
-	{
-	}
+	/**
+	 * Checks if the proxy needs a refresh due to changes in preview layout.<br>
+	 * Changes in the file leads to recreation of the proxy and are not handled here.
+	 */
+	public abstract boolean needsUpdate();
 
 	/**
 	 * Explicit Clean-Up.
@@ -103,7 +109,6 @@ public class PreviewProxy
 	protected void dispose()
 	{
 		additionalInformation_.clear();
-		imageContent_ = null;
 		config_ = null;
 	}
 
@@ -124,26 +129,12 @@ public class PreviewProxy
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder(100);
-		sb.append(uri_ == null ? name_ : uri_)
+		sb.append(file_ == null ? name_ : file_.toUri())
 		  .append(" complete:")
 		  .append(complete)
 		  .append(" active:")
 		  .append(activeAndPending)
 		  .append(" image:");
-		if (imageContent_ == null)
-			sb.append("none");
-		else
-		{
-			sb.append(imageContent_.getClass()
-								   .getSimpleName())
-			  .append(' ');
-			sb.append(imageContent_.getWidth(null))
-			  .append('x')
-			  .append(imageContent_.getHeight(null));
-		}
-		if (textContent_ != null)
-			sb.append(" Text:")
-			  .append(textContent_, 0, Math.min(10, textContent_.length()));
 		if (message_ != null)
 			sb.append(" Message:")
 			  .append(message_, 0, Math.min(10, message_.length()));

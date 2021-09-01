@@ -35,7 +35,7 @@ class ImagePreviewProxy extends PreviewProxy implements ImageObserver
 	/**
 	 * The original image.
 	 */
-	protected Image image;
+	protected Image image_;
 
 	/**
 	 * The original width of the image
@@ -47,6 +47,20 @@ class ImagePreviewProxy extends PreviewProxy implements ImageObserver
 	 */
 	protected int height_ = -1;
 
+	protected final ImagePreviewHandler handler_;
+
+	/**
+	 * Image content.
+	 */
+	public Image imageContent_;
+
+	public ImagePreviewProxy(ImagePreviewHandler imagePreviewHandler)
+	{
+		super();
+		handler_ = imagePreviewHandler;
+	}
+
+
 	/**
 	 * Is called if more of the image gets available.
 	 * Used for the scaled and original image.
@@ -54,7 +68,7 @@ class ImagePreviewProxy extends PreviewProxy implements ImageObserver
 	@Override
 	public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height)
 	{
-		if (img == image)
+		if (img == image_)
 		{
 			boolean dimReady = height_ != -1 && width_ != -1;
 			if (!dimReady)
@@ -92,11 +106,11 @@ class ImagePreviewProxy extends PreviewProxy implements ImageObserver
 					}
 					else
 					{
-						image = null;
+						image_ = null;
 						imageContent_ = config_.errorImage_;
 						message_ = config_.errorText_;
 					}
-					config_.update(this);
+					config_.update(this, handler_);
 				}
 			}
 			// Stop observing.
@@ -105,4 +119,43 @@ class ImagePreviewProxy extends PreviewProxy implements ImageObserver
 		else
 			return true;
 	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder(100);
+		sb.append(super.toString())
+		  .append(" image:");
+		if (imageContent_ == null)
+			sb.append("none");
+		else
+		{
+			sb.append(imageContent_.getClass()
+								   .getSimpleName())
+			  .append(' ');
+			sb.append(imageContent_.getWidth(null))
+			  .append('x')
+			  .append(imageContent_.getHeight(null));
+		}
+		return sb.toString();
+	}
+
+
+	@Override
+	public boolean needsUpdate()
+	{
+		return false;
+	}
+
+	/**
+	 * Explicit Clean-Up.
+	 */
+	@Override
+	protected void dispose()
+	{
+		super.dispose();
+		imageContent_ = null;
+		image_ = null;
+	}
+
 }

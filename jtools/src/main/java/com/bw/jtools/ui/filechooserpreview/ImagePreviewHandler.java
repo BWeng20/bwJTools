@@ -23,6 +23,7 @@ package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
 
+import javax.swing.*;
 import java.awt.*;
 import java.nio.file.Path;
 
@@ -35,12 +36,43 @@ public class ImagePreviewHandler extends PreviewHandler
 	protected long maxFileLength_ = 1024 * 1024 * 10;
 
 	/**
+	 * Label to show images and alternative messages.
+	 */
+	protected ImagePreview imageView_;
+
+
+	/**
 	 * Creates a new Image Preview handler.
 	 */
 	public ImagePreviewHandler()
 	{
 		// File name pattern for supported images.
 		super("(?i).*\\.(jpg|gif|png|jpeg|bmp)");
+
+	}
+
+	@Override
+	public Component getPreviewComponent(PreviewProxy proxy)
+	{
+		if ( imageView_ == null )
+		{
+			imageView_ = new ImagePreview();
+			if ( config_ != null )
+				imageView_.setPreferredSize(new Dimension(config_.previewWidth_, config_.previewWidth_));
+		}
+
+		ImagePreviewProxy imageProxy = (ImagePreviewProxy)proxy;
+
+		if (imageProxy != null && imageProxy.complete)
+		{
+			imageView_.setImage(imageProxy.imageContent_);
+		}
+		else
+		{
+			imageView_.setImage(null);
+		}
+
+		return imageView_;
 	}
 
 	@Override
@@ -50,38 +82,51 @@ public class ImagePreviewHandler extends PreviewHandler
 	}
 
 	/**
-	 * Creates a new Image Proxy that triggers and monitors the load process.
+	 * Reloads the Image Proxy.
 	 */
 	@Override
-	protected PreviewProxy createPreviewProxy(Path file, String canonicalPath)
+	protected void updatePreviewProxy(PreviewProxy proxy)
 	{
-		final ImagePreviewProxy proxy = new ImagePreviewProxy();
-		proxy.config_ = config_;
+		load((ImagePreviewProxy) proxy);
+	}
 
+	private void load( ImagePreviewProxy proxy )
+	{
 		final Toolkit toolkit = Toolkit.getDefaultToolkit();
 		try
 		{
-			proxy.image = toolkit.createImage(file.toUri()
-												  .toURL());
+			proxy.image_ = toolkit.createImage(proxy.file_.toUri().toURL());
 		}
 		catch (Exception e)
 		{
 		}
-		if (proxy.image == null)
+		if (proxy.image_ == null)
 		{
 			proxy.complete = true;
-			proxy.image = config_.errorImage_;
+			proxy.image_ = config_.errorImage_;
 			proxy.message_ = config_.errorText_;
-			Log.error("Failed " + file.getFileName());
+			Log.error("Failed " + proxy.name_);
 		}
 		else
 		{
-			proxy.imageContent_ = proxy.image.getScaledInstance(config_.previewWidth_, -1, Image.SCALE_SMOOTH);
+			proxy.imageContent_ = proxy.image_.getScaledInstance(config_.previewWidth_, -1, Image.SCALE_SMOOTH);
 			proxy.complete = toolkit.prepareImage(proxy.imageContent_, -1, -1, proxy);
-			proxy.width_ = proxy.image.getWidth(proxy);
-			proxy.height_ = proxy.image.getHeight(proxy);
+			proxy.width_ = proxy.image_.getWidth(proxy);
+			proxy.height_ = proxy.image_.getHeight(proxy);
 			proxy.message_ = config_.loadingText_;
 		}
+	}
+
+	/**
+	 * Creates a new Image Proxy that triggers and monitors the load process.
+	 */
+	@Override
+	protected ImagePreviewProxy createPreviewProxy(Path file, String canonicalPath)
+	{
+		final ImagePreviewProxy proxy = new ImagePreviewProxy(this);
+		proxy.file_ = file;
+		proxy.config_ = config_;
+		load( proxy	);
 		return proxy;
 	}
 
@@ -90,7 +135,11 @@ public class ImagePreviewHandler extends PreviewHandler
 	{
 		super.setConfiguration(config);
 		if (config_ != null)
+		{
 			cachePrefix_ = String.valueOf(config_.previewWidth_) + ":";
+			if ( imageView_ != null )
+				imageView_.setPreferredSize(new Dimension(config_.previewWidth_,config_.previewWidth_));
+		}
 	}
 
 }
