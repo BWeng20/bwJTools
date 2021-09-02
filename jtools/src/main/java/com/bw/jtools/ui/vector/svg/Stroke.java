@@ -45,7 +45,7 @@ public class Stroke
 			}
 
 		stroke_ = new BasicStroke(width == null ? 1f : width, cap, join,
-				miterlimit == null ? 10.0f : miterlimit, dasharray,
+				miterlimit == null ? 4f : miterlimit, dasharray,
 				dashoffset == null ? 0f : dashoffset);
 		paint_ = color == null ? null : color.getColor();
 	}

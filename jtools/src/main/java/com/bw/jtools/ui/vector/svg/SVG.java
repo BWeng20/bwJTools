@@ -41,6 +41,8 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RectangularShape;
+import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -233,7 +235,7 @@ public class SVG
 						if (s.aft_ == null)
 							s.aft_ = t;
 						else
-							s.aft_.concatenate(t);
+							s.aft_.preConcatenate(t);
 					}
 			}
 			for (ShapeInfo s : g)
@@ -263,11 +265,18 @@ public class SVG
 			float y = toPFloat(w.attr("y"));
 			float width = toPFloat(w.attr("width"));
 			float height = toPFloat(w.attr("height"));
+			Float rx = w.toFloat("rx");
+			Float ry = w.toFloat("ry");
 
 			Stroke stroke = stroke(w);
 			Color fill = fill(w);
 
-			Rectangle2D.Double rec = new Rectangle2D.Double(x, y, width, height);
+			RectangularShape rec;
+
+			if ( rx != null || ry != null)
+				rec = new RoundRectangle2D.Double(x,y,width,height, rx == null ? ry : rx, ry == null ? rx : ry);
+			else
+				rec = new Rectangle2D.Double(x, y, width, height);
 
 			ShapeInfo s = new ShapeInfo(rec,
 					stroke.getColor() == null ? null : stroke.getStroke(),

@@ -1,5 +1,7 @@
 package com.bw.jtools.ui.vector.svg;
 
+import com.bw.jtools.Log;
+
 public enum LineJoin
 {
 	arcs, bevel, miter, miter_clip, round;
@@ -15,6 +17,7 @@ public enum LineJoin
 			}
 			catch (IllegalArgumentException i)
 			{
+				Log.warn("Unknown line-join mode "+val);
 			}
 		}
 		return miter;
