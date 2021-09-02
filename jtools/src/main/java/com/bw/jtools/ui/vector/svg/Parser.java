@@ -36,12 +36,27 @@ public class Parser
 		return v;
 	}
 
+	protected double nextAngle(double defaultValue)
+	{
+		double d = nextDouble(Double.NaN);
+		if ( d != Double.NaN)
+			return Math.toRadians(d);
+		else
+			return defaultValue;
+	}
+
+
 	/**
 	 * Get next double value.
 	 */
 	protected double nextDouble()
 	{
-		double r = nextNumber();
+		return nextDouble(0);
+	}
+
+	protected double nextDouble(double defaultVal )
+	{
+		double r = nextNumber(defaultVal);
 		boolean negative = isNegative(r);
 		char c = nextChar();
 		if (c == '.')
@@ -88,6 +103,11 @@ public class Parser
 
 	protected double nextNumber()
 	{
+		return nextNumber(0);
+	}
+
+	protected double nextNumber(double defaultVal)
+	{
 		consumeSeparators();
 		boolean negative = false;
 		char c = nextChar();
@@ -95,6 +115,8 @@ public class Parser
 			negative = true;
 		else if (c != '+')
 			--idx_;
+		else if ( c== 0)
+			return defaultVal;
 		double val = 0;
 		while (isDigit(c = nextChar()))
 			val = (val * 10) + (c - '0');

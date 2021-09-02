@@ -167,7 +167,7 @@ public class Color
 
 	private static final Pattern urlRegExp = Pattern.compile("url\\(\\s*#([^\\)]+)\\)(.*)", Pattern.CASE_INSENSITIVE);
 
-	public Color(SVG svg, String color, Float opacity)
+	public Color(SVG svg, String color, Double opacity)
 	{
 		if (color != null)
 		{
@@ -219,7 +219,7 @@ public class Color
 		opacity_ = 1f;
 		if (opacity != null)
 		{
-			float o = opacity;
+			double o = opacity;
 			if (o < 0)
 				o = 0;
 			else if (o > 1f)
@@ -234,7 +234,7 @@ public class Color
 				}
 				else
 				{
-					opacity_ = o;
+					opacity_ = (float)o;
 				}
 			}
 		}

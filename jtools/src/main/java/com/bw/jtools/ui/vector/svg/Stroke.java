@@ -7,12 +7,12 @@ public class Stroke
 {
 	public Stroke(
 			Color color,
-			Float width,
+			Double width,
 			float[] dasharray,
-			Float dashoffset,
+			Double dashoffset,
 			LineCap linecap,
 			LineJoin linejoin,
-			Float miterlimit)
+			Double miterlimit)
 	{
 		int cap = BasicStroke.CAP_BUTT;
 		if (linecap != null)
@@ -44,9 +44,9 @@ public class Stroke
 					break;
 			}
 
-		stroke_ = new BasicStroke(width == null ? 1f : width, cap, join,
-				miterlimit == null ? 4f : miterlimit, dasharray,
-				dashoffset == null ? 0f : dashoffset);
+		stroke_ = new BasicStroke(width == null ? 1f : width.floatValue(), cap, join,
+				miterlimit == null ? 4f : miterlimit.floatValue(), dasharray,
+				dashoffset == null ? 0f : dashoffset.floatValue());
 		paint_ = color == null ? null : color.getColor();
 	}
 

@@ -40,6 +40,7 @@ import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
@@ -175,9 +176,9 @@ public class SVG
 				{
 					offset = offset.trim();
 					if (offset.endsWith("%"))
-						f = toPFloat(offset.substring(0, offset.length() - 1)) / 100f;
+						f = (float)toPDouble(offset.substring(0, offset.length() - 1)) / 100f;
 					else
-						f = toPFloat(offset);
+						f = (float)toPDouble(offset);
 					if (f < 0)
 						f = 0;
 					else if (f > 1.0f)
@@ -189,7 +190,7 @@ public class SVG
 				lg.fractions_[i] = f;
 
 				Paint p = new Color(this, wrapper.attr("stop-color"),
-						wrapper.toFloat("stop-opacity")).getColor();
+						wrapper.toDouble("stop-opacity")).getColor();
 				if (p instanceof java.awt.Color)
 					lg.colors_[i] = (java.awt.Color) p;
 				else
@@ -245,54 +246,40 @@ public class SVG
 		else if ("path".equalsIgnoreCase(e))
 		{
 			Path path = new Path(n.getAttribute("d"));
-
-			Stroke stroke = stroke(w);
-			Color fill = fill(w);
-
-			ShapeInfo s = new ShapeInfo(path.getPath(),
-					stroke.getColor() == null ? null : stroke.getStroke(),
-					stroke.getColor(),
-					opacity(w),
-					fill(w).getColor(),
-					fill.getOpacity());
-			s.id_ = w.id();
-			transform(s, n);
-			shapes.add(s);
+			shapes.add(createShape( w, path.getPath() ));
 		}
 		else if ("rect".equalsIgnoreCase(e))
 		{
-			float x = toPFloat(w.attr("x"));
-			float y = toPFloat(w.attr("y"));
-			float width = toPFloat(w.attr("width"));
-			float height = toPFloat(w.attr("height"));
-			Float rx = w.toFloat("rx");
-			Float ry = w.toFloat("ry");
-
-			Stroke stroke = stroke(w);
-			Color fill = fill(w);
+			float x = (float)toPDouble(w.attr("x"));
+			float y = (float)toPDouble(w.attr("y"));
+			float width = (float)toPDouble(w.attr("width"));
+			float height = (float)toPDouble(w.attr("height"));
+			Double rx = w.toDouble("rx", false);
+			Double ry = w.toDouble("ry", false);
 
 			RectangularShape rec;
 
-			if ( rx != null || ry != null)
-				rec = new RoundRectangle2D.Double(x,y,width,height, rx == null ? ry : rx, ry == null ? rx : ry);
+			if (rx != null || ry != null)
+				rec = new RoundRectangle2D.Double(x, y, width, height, 2d*(rx == null ? ry : rx), 2d*(ry == null ? rx : ry));
 			else
 				rec = new Rectangle2D.Double(x, y, width, height);
 
-			ShapeInfo s = new ShapeInfo(rec,
-					stroke.getColor() == null ? null : stroke.getStroke(),
-					stroke.getColor(),
-					opacity(w),
-					fill.getColor(),
-					fill.getOpacity()
-			);
-			s.id_ = w.id();
-			transform(s, n);
-			shapes.add(s);
+			shapes.add(createShape( w, rec ));
+		}
+		else if ("ellipse".equalsIgnoreCase(e))
+		{
+			float cx = (float)toPDouble(w.attr("cx", false));
+			float cy = (float)toPDouble(w.attr("cy", false));
+			float rx = (float)toPDouble(w.attr("rx", false));
+			float ry = (float)toPDouble(w.attr("ry", false));
+
+			Ellipse2D.Double ellipse = new Ellipse2D.Double(cx - rx, cy - ry, 2d*rx, 2d* ry);
+			shapes.add(createShape(w,ellipse));
 		}
 		else if ("text".equalsIgnoreCase(e))
 		{
-			float x = toPFloat(w.attr("x"));
-			float y = toPFloat(w.attr("y"));
+			float x = (float)toPDouble(w.attr("x"));
+			float y = (float)toPDouble(w.attr("y"));
 			Stroke stroke = stroke(w);
 			Color fill = fill(w);
 
@@ -305,7 +292,7 @@ public class SVG
 				ts = ts.substring(0, ts.length() - 2);
 
 
-			Font dcf = defaultFont_.deriveFont(toPFloat(ts));
+			Font dcf = defaultFont_.deriveFont((float)toPDouble(ts));
 
 			Shape textshape = new TextLayout(text, dcf, frc).getOutline(AffineTransform.getTranslateInstance(x, y));
 
@@ -323,6 +310,23 @@ public class SVG
 		{
 			System.out.println("Unknown command " + e);
 		}
+	}
+
+	protected ShapeInfo createShape(ElementWrapper w, Shape s )
+	{
+		Stroke stroke = stroke(w);
+		Color fill = fill(w);
+
+		ShapeInfo sinfo = new ShapeInfo(s,
+				stroke.getColor() == null ? null : stroke.getStroke(),
+				stroke.getColor(),
+				opacity(w),
+				fill.getColor(),
+				fill.getOpacity()
+		);
+		sinfo.id_ = w.id();
+		transform(sinfo, w.getNode());
+		return sinfo;
 	}
 
 	public Gradient getPaintServer(String id)
@@ -369,34 +373,34 @@ public class SVG
 
 	protected final float opacity(ElementWrapper w)
 	{
-		Float opacityO = w.toFloat("opacity");
-		float opacity = opacityO == null ? 1.0f : opacityO;
+		Double opacityO = w.toDouble("opacity");
+		float opacity = opacityO == null ? 1.0f : opacityO.floatValue();
 		return opacity;
 	}
 
 	protected Color fill(ElementWrapper w)
 	{
-		return new Color(this, w.attr("fill"), w.toFloat("fill-opacity"));
+		return new Color(this, w.attr("fill"), w.toDouble("fill-opacity"));
 	}
 
 	protected Stroke stroke(ElementWrapper w)
 	{
 		Stroke stroke = new Stroke(
-				new Color(this, w.attr("stroke"), w.toFloat("stroke-opacity")),
-				w.toFloat("stroke-width"),
+				new Color(this, w.attr("stroke"), w.toDouble("stroke-opacity")),
+				w.toDouble("stroke-width"),
 				toFloatArray(w.attr("stroke-dasharray")),
-				w.toFloat("stroke-dashoffset"),
+				w.toDouble("stroke-dashoffset"),
 				LineCap.fromString(w.attr("stroke-linecap")),
 				LineJoin.fromString(w.attr("stroke-linejoin")),
-				w.toFloat("stroke-miterlimit")
+				w.toDouble("stroke-miterlimit")
 		);
 		return stroke;
 	}
 
-	protected final static float toPFloat(String val)
+	protected final static double toPDouble(String val)
 	{
-		Float f = ElementWrapper.convFloat(val);
-		return f == null ? 0f : f;
+		Double f = ElementWrapper.convDouble(val);
+		return f == null ? 0d : f;
 	}
 
 	protected final static float[] toFloatArray(String val)
@@ -408,7 +412,7 @@ public class SVG
 				String values[] = val.split("[ ,]+");
 				float farr[] = new float[values.length];
 				for (int i = 0; i < values.length; ++i)
-					farr[i] = toPFloat(values[i]);
+					farr[i] = (float)toPDouble(values[i]);
 			}
 			catch (Exception e)
 			{
@@ -605,7 +609,6 @@ public class SVG
 				}
 			}
 		});
-
 
 		f.setContentPane(panel);
 		f.pack();
