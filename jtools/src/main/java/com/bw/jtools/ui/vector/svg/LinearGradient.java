@@ -49,13 +49,4 @@ public class LinearGradient extends Gradient
 			if (y2 == null) y2 = lg.y2;
 		}
 	}
-
-	public void addSVGAttributes(StringBuilder sb)
-	{
-		appendAttribute(sb, "x1", x1);
-		appendAttribute(sb, "y1", y1);
-		appendAttribute(sb, "x2", x2);
-		appendAttribute(sb, "y2", y2);
-	}
-
 }

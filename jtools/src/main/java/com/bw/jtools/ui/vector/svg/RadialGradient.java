@@ -51,10 +51,4 @@ public class RadialGradient extends Gradient
 			if (fr == null) fr = rg.fr;
 		}
 	}
-
-	public void addSVGAttributes(StringBuilder sb)
-	{
-		// @TODO
-	}
-
 }
