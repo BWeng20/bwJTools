@@ -1,15 +1,16 @@
 package com.bw.jtools.ui.vector.svg;
 
 import com.bw.jtools.Application;
+import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.ui.JExceptionDialog;
 import com.bw.jtools.ui.icon.ShapeIcon;
 import com.bw.jtools.ui.vector.ShapeInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.management.modelmbean.XMLParseException;
@@ -26,6 +27,7 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,16 +40,16 @@ import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.font.FontRenderContext;
+import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.NumberFormat;
@@ -58,6 +60,13 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Currently supported features:
+ * path
+ * rect
+ * ellipse
+ * text (but not tspan)
+ */
 public class SVG
 {
 	private final List<ShapeInfo> shapes_ = new ArrayList<>();
@@ -65,35 +74,53 @@ public class SVG
 	private Map<String, Paint> paints_ = new HashMap<>();
 	private Font defaultFont_ = Font.decode("Arial-PLAIN-12");
 	private FontRenderContext frc = new FontRenderContext(null, false, false);
+	private Document doc_;
+	private final HashMap<String, ElementWrapper> wrapperById_ = new HashMap<>();
 
-
+	/**
+	 * Parse a SVG document and creates shapes.
+	 *
+	 * @param xml The svg document.
+	 * @throws XMLParseException If the document is not valid xml.
+	 */
 	public SVG(final String xml) throws XMLParseException
 	{
 		try
 		{
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setValidating(false);
 			dbf.setIgnoringComments(true);
 			dbf.setIgnoringElementContentWhitespace(true);
 
+			dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
 			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(new InputSource(new StringReader(xml)));
+
+			doc_ = db.parse(new ByteArrayInputStream(xml.getBytes()));
+
+			// Loading the DTD/Schema will slow us down (if specified). But without validating/loading of schema the "id" attributes will not be detected as key
+			// and "getElementById" will not work. So we have to collect Ids manually.
+			scanForIds(doc_);
 
 			// Collect all gradient definitions.
-			NodeList linearGradient = doc.getElementsByTagName("linearGradient");
+			NodeList linearGradient = doc_.getElementsByTagName("linearGradient");
 			final int lgN = linearGradient.getLength();
 			for (int i = 0; i < lgN; ++i)
 				parseLinearGradient((Element) linearGradient.item(i));
 
-			NodeList radialGradient = doc.getElementsByTagName("radialGradient");
+			NodeList radialGradient = doc_.getElementsByTagName("radialGradient");
 			final int rgN = radialGradient.getLength();
 			for (int i = 0; i < rgN; ++i)
 				parseRadialGradient((Element) radialGradient.item(i));
 
-			NodeList patterns = doc.getElementsByTagName("pattern");
+			NodeList patterns = doc_.getElementsByTagName("pattern");
 			// @TODO
 
-			parseChildren(shapes_, doc.getElementsByTagName("svg")
-									  .item(0));
+			parseChildren(shapes_, doc_.getElementsByTagName("svg")
+									   .item(0));
+
 		}
 		catch (SAXException | IOException | ParserConfigurationException e)
 		{
@@ -101,15 +128,104 @@ public class SVG
 		}
 	}
 
+	/**
+	 * Get a pre-defined gradient.
+	 *
+	 * @param id The Id of the definition.
+	 * @return The gradient of null.
+	 */
+	public Gradient getPaintServer(String id)
+	{
+		return paintServer_.get(id);
+	}
+
+	/**
+	 * Get a pre-defined paint.
+	 *
+	 * @param id The Id of the definition.
+	 * @return The paint of null.
+	 */
+	public Paint getPaint(String id)
+	{
+		Paint pt = paints_.get(id);
+		if (pt == null)
+		{
+			Gradient g = paintServer_.get(id);
+			if (g != null)
+				pt = g.getPaint(this);
+			if (pt == null)
+				pt = java.awt.Color.BLACK;
+			paints_.put(id, pt);
+		}
+		return pt;
+	}
+
+	/**
+	 * Adds a gradient definition.
+	 *
+	 * @param grad The gradient. "id_" has to be set.
+	 */
+	public void addPaintServer(Gradient grad)
+	{
+		paintServer_.put(grad.id_, grad);
+	}
+
+	/**
+	 * Get all parsed shapes.
+	 */
+	public List<ShapeInfo> getShapes()
+	{
+		return Collections.unmodifiableList(shapes_);
+	}
+
+	private void scanForIds(Node node)
+	{
+		if (node.getNodeType() == Node.ELEMENT_NODE)
+		{
+			String id = ((Element) node).getAttribute("id");
+			if (ElementWrapper.isNotEmpty(id))
+			{
+				if (wrapperById_.containsKey(id))
+				{
+					// Duplicate ids are no hard error, as svg seems to allow it.
+					// As we handle the element-wrapper via id, we need to remove the id.
+					Log.warn("SVG: Duplicate id " + id);
+					((Element) node).removeAttribute("id");
+				}
+				else
+					wrapperById_.put(id, new ElementWrapper((Element) node));
+			}
+		}
+		Node next = node.getNextSibling();
+		if (next != null) scanForIds(next);
+		next = node.getFirstChild();
+		if (next != null) scanForIds(next);
+	}
+
+	private ElementWrapper getElementWrapper(Element node)
+	{
+		String id = node.getAttribute("id");
+		if (ElementWrapper.isNotEmpty(id))
+			return wrapperById_.get(id);
+		else
+			return new ElementWrapper(node);
+	}
+
+	private ElementWrapper getElementWrapperById(String id)
+	{
+		if (ElementWrapper.isNotEmpty(id))
+			return wrapperById_.get(id);
+		else
+			return null;
+	}
+
 	private void parseRadialGradient(Element node)
 	{
-		ElementWrapper w = new ElementWrapper(node);
+		ElementWrapper w = getElementWrapper(node);
 		String id = w.id();
 		if (id != null && !id.isEmpty())
 		{
 			RadialGradient rg = new RadialGradient(id);
-			// @TODO gradientUnits
-			// @TODO spreadMethod
 
 			rg.cx = w.toDouble("cx");
 			rg.cy = w.toDouble("cy");
@@ -118,85 +234,27 @@ public class SVG
 			rg.fy = w.toDouble("fy");
 			rg.fr = w.toDouble("fr");
 
-			String gradientTransform = w.attr("gradientTransform");
-			if (ElementWrapper.isNotEmpty(gradientTransform))
-				rg.aft_ = new Transform(null, gradientTransform).getTransform();
-			else
-				rg.aft_ = new AffineTransform();
-			rg.href_ = w.href();
-
+			parseCommonGradient(rg, w);
 			addPaintServer(rg);
 		}
 	}
 
 	private void parseLinearGradient(Element node)
 	{
-		ElementWrapper w = new ElementWrapper(node);
+		ElementWrapper w = getElementWrapper(node);
 		String id = w.id();
 		if (id != null && !id.isEmpty())
 		{
 			LinearGradient lg = new LinearGradient(id);
 
-			// @TODO gradientUnits
-			lg.href_ = w.href();
 			lg.x1 = w.toDouble("x1");
 			lg.y1 = w.toDouble("y1");
 			lg.x2 = w.toDouble("x2");
 			lg.y2 = w.toDouble("y2");
 
-			String spreadMethod = w.attr("spreadMethod");
-			if (ElementWrapper.isNotEmpty(spreadMethod))
-			{
-				spreadMethod = spreadMethod.trim()
-										   .toLowerCase();
-				if ("reflect".equals(spreadMethod))
-					lg.cycleMethod_ = MultipleGradientPaint.CycleMethod.REFLECT;
-				else if ("repeat".equals(spreadMethod))
-					lg.cycleMethod_ = MultipleGradientPaint.CycleMethod.REPEAT;
-			}
-
-			String gradientTransform = w.attr("gradientTransform", false);
-			if (ElementWrapper.isNotEmpty(gradientTransform))
-				lg.aft_ = new Transform(null, gradientTransform).getTransform();
-
-			NodeList stops = node.getElementsByTagName("stop");
-
-			lg.fractions_ = new float[stops.getLength()];
-			float f;
-			lg.colors_ = new java.awt.Color[stops.getLength()];
-
-			int sN = stops.getLength();
-			for (int i = 0; i < sN; ++i)
-			{
-				Element stop = (Element) stops.item(i);
-				ElementWrapper wrapper = new ElementWrapper(stop);
-
-				String offset = wrapper.attr("offset");
-				if (offset != null)
-				{
-					offset = offset.trim();
-					if (offset.endsWith("%"))
-						f = (float)toPDouble(offset.substring(0, offset.length() - 1)) / 100f;
-					else
-						f = (float)toPDouble(offset);
-					if (f < 0)
-						f = 0;
-					else if (f > 1.0f)
-						f = 1.0f;
-				}
-				else
-					f = i > 0 ? lg.fractions_[i - 1] : 0;
-
-				lg.fractions_[i] = f;
-
-				Paint p = new Color(this, wrapper.attr("stop-color"),
-						wrapper.toDouble("stop-opacity")).getColor();
-				if (p instanceof java.awt.Color)
-					lg.colors_[i] = (java.awt.Color) p;
-				else
-					lg.colors_[i] = java.awt.Color.WHITE;
-			}
+			parseCommonGradient(lg, w);
 			addPaintServer(lg);
+
 		}
 	}
 
@@ -210,23 +268,22 @@ public class SVG
 
 			if (child != null)
 			{
-				parse(shapes, (Element) child);
+				parse(shapes, getElementWrapper((Element) child));
 				child = child.getNextSibling();
 			}
 		}
 	}
 
-	private void parse(List<ShapeInfo> shapes, Element n)
+	private void parse(List<ShapeInfo> shapes, ElementWrapper w)
 	{
-		final ElementWrapper w = new ElementWrapper(n);
 		final String e = w.getTagName();
 
 		if ("g".equalsIgnoreCase(e))
 		{
 			List<ShapeInfo> g = new ArrayList<>();
-			parseChildren(g, n);
+			parseChildren(g, w.getNode());
 
-			String transform = n.getAttribute("transform");
+			String transform = w.attr("transform", false);
 			if (ElementWrapper.isNotEmpty(transform))
 			{
 				AffineTransform t = new Transform(null, transform).getTransform();
@@ -245,74 +302,124 @@ public class SVG
 		}
 		else if ("path".equalsIgnoreCase(e))
 		{
-			Path path = new Path(n.getAttribute("d"));
-			shapes.add(createShape( w, path.getPath() ));
+			Path path = new Path(w.attr("d", false));
+			shapes.add(createShape(w, path.getPath()));
 		}
 		else if ("rect".equalsIgnoreCase(e))
 		{
-			float x = (float)toPDouble(w.attr("x"));
-			float y = (float)toPDouble(w.attr("y"));
-			float width = (float)toPDouble(w.attr("width"));
-			float height = (float)toPDouble(w.attr("height"));
+			float x = (float) w.toPDouble("x");
+			float y = (float) w.toPDouble("y");
+			float width = (float) w.toPDouble("width");
+			float height = (float) w.toPDouble("height");
 			Double rx = w.toDouble("rx", false);
 			Double ry = w.toDouble("ry", false);
 
 			RectangularShape rec;
 
 			if (rx != null || ry != null)
-				rec = new RoundRectangle2D.Double(x, y, width, height, 2d*(rx == null ? ry : rx), 2d*(ry == null ? rx : ry));
+				rec = new RoundRectangle2D.Double(x, y, width, height, 2d * (rx == null ? ry : rx), 2d * (ry == null ? rx : ry));
 			else
 				rec = new Rectangle2D.Double(x, y, width, height);
 
-			shapes.add(createShape( w, rec ));
+			shapes.add(createShape(w, rec));
 		}
 		else if ("ellipse".equalsIgnoreCase(e))
 		{
-			float cx = (float)toPDouble(w.attr("cx", false));
-			float cy = (float)toPDouble(w.attr("cy", false));
-			float rx = (float)toPDouble(w.attr("rx", false));
-			float ry = (float)toPDouble(w.attr("ry", false));
+			float cx = (float) w.toPDouble("cx", false);
+			float cy = (float) w.toPDouble("cy", false);
+			float rx = (float) w.toPDouble("rx", false);
+			float ry = (float) w.toPDouble("ry", false);
 
-			Ellipse2D.Double ellipse = new Ellipse2D.Double(cx - rx, cy - ry, 2d*rx, 2d* ry);
-			shapes.add(createShape(w,ellipse));
+			Ellipse2D.Double ellipse = new Ellipse2D.Double(cx - rx, cy - ry, 2d * rx, 2d * ry);
+			shapes.add(createShape(w, ellipse));
 		}
 		else if ("text".equalsIgnoreCase(e))
 		{
-			float x = (float)toPDouble(w.attr("x"));
-			float y = (float)toPDouble(w.attr("y"));
-			Stroke stroke = stroke(w);
-			Color fill = fill(w);
+			float x = (float) w.toPDouble("x");
+			float y = (float) w.toPDouble("y");
+			String text = w.getNode()
+						   .getTextContent();
 
-			String text = n.getTextContent();
+			if (text != null && !w.preserveSpace())
+				text = text.trim();
 
-			String ts = w.attr("font-size");
-			if (ts == null) ts = "12";
-			if (ts.endsWith("px"))
-				// @TODO
-				ts = ts.substring(0, ts.length() - 2);
-
-
-			Font dcf = defaultFont_.deriveFont((float)toPDouble(ts));
+			Font dcf = font(w);
 
 			Shape textshape = new TextLayout(text, dcf, frc).getOutline(AffineTransform.getTranslateInstance(x, y));
+			shapes.add(createShape(w, textshape));
+		}
+		else if ("use".equalsIgnoreCase(e))
+		{
+			String href = w.href();
+			if (ElementWrapper.isNotEmpty(href))
+			{
+				ElementWrapper refOrgW = getElementWrapperById(href);
+				if (refOrgW != null)
+				{
+					ElementWrapper uw = new ElementWrapper(refOrgW.getNode());
+					String tag = uw.getTagName();
+					if (tag.equals("svg") || tag.equals("symbol"))
+					{
+						// @TODO: set width and height of viewbox
+					}
 
-			ShapeInfo s = new ShapeInfo(textshape,
-					stroke.getColor() == null ? null : stroke.getStroke(),
-					stroke.getColor(),
-					opacity(w),
-					fill.getColor(),
-					fill.getOpacity());
-			s.id_ = w.id();
-			transform(s, n);
-			shapes.add(s);
+					double x = w.toPDouble("x");
+					double y = w.toPDouble("y");
+
+					NamedNodeMap attributes = w.getNode()
+											   .getAttributes();
+					int nAttr = attributes.getLength();
+					for (int iAttr = 0; iAttr < nAttr; ++iAttr)
+					{
+						Node attrNode = attributes.item(iAttr);
+						String attrName = attrNode.getNodeName();
+						if (attrName != null)
+							uw.override(attrName, attrNode.getNodeValue());
+					}
+					HashMap<String, String> styleAttributes = uw.getStyleAttributes();
+					for (Map.Entry<String, String> styleAttr : styleAttributes.entrySet())
+					{
+						String attrName = styleAttr.getKey();
+						uw.override(attrName, styleAttr.getValue());
+					}
+
+					List<ShapeInfo> useShapes = new ArrayList<>();
+					parse(useShapes, uw);
+
+					AffineTransform aft = AffineTransform.getTranslateInstance(x, y);
+					for (ShapeInfo sinfo : useShapes)
+					{
+						// Remind: Ids are duplicates!
+						if (sinfo.aft_ == null)
+							sinfo.aft_ = aft;
+						else
+							sinfo.aft_.preConcatenate(aft);
+						shapes.add(sinfo);
+					}
+				}
+			}
+		}
+		else if ("defs".equalsIgnoreCase(e))
+		{
+		}
+		else if ("linearGradient".equalsIgnoreCase(e))
+		{
+			// Already processed. See C'tor.
+		}
+		else if ("radialGradient".equalsIgnoreCase(e))
+		{
+			// Already processed. See C'tor.
 		}
 		else
 		{
-			System.out.println("Unknown command " + e);
+			Log.warn("Unknown command " + e);
 		}
 	}
 
-	protected ShapeInfo createShape(ElementWrapper w, Shape s )
+	/**
+	 * Helper to handle common presentation attributes and create a ShapeInfo-instance.
+	 */
+	protected ShapeInfo createShape(ElementWrapper w, Shape s)
 	{
 		Stroke stroke = stroke(w);
 		Color fill = fill(w);
@@ -325,50 +432,108 @@ public class SVG
 				fill.getOpacity()
 		);
 		sinfo.id_ = w.id();
-		transform(sinfo, w.getNode());
+		transform(sinfo, w);
 		return sinfo;
 	}
 
-	public Gradient getPaintServer(String id)
+	private void parseCommonGradient(Gradient g, ElementWrapper w)
 	{
-		return paintServer_.get(id);
-	}
+		// @TODO gradientUnits
+		g.href_ = w.href();
 
-	public Paint getPaint(String id)
-	{
-		Paint pt = paints_.get(id);
-		if (pt == null)
+		String spreadMethod = w.attr("spreadMethod");
+		if (ElementWrapper.isNotEmpty(spreadMethod))
 		{
-			Gradient g = paintServer_.get(id);
-			if (g != null)
-				pt = g.getPaint(this);
-			if (pt == null)
-				pt = java.awt.Color.BLACK;
-			paints_.put(id, pt);
+			spreadMethod = spreadMethod.trim()
+									   .toLowerCase();
+			if ("reflect".equals(spreadMethod))
+				g.cycleMethod_ = MultipleGradientPaint.CycleMethod.REFLECT;
+			else if ("repeat".equals(spreadMethod))
+				g.cycleMethod_ = MultipleGradientPaint.CycleMethod.REPEAT;
 		}
-		return pt;
+
+		String gradientTransform = w.attr("gradientTransform", false);
+		if (ElementWrapper.isNotEmpty(gradientTransform))
+			g.aft_ = new Transform(null, gradientTransform).getTransform();
+
+		NodeList stops = w.getNode().getElementsByTagName("stop");
+
+		g.fractions_ = new float[stops.getLength()];
+		float f;
+		g.colors_ = new java.awt.Color[stops.getLength()];
+
+		int sN = stops.getLength();
+		for (int i = 0; i < sN; ++i)
+		{
+			Element stop = (Element) stops.item(i);
+			ElementWrapper wrapper = new ElementWrapper(stop);
+
+			String offset = wrapper.attr("offset");
+			if (offset != null)
+			{
+				offset = offset.trim();
+				if (offset.endsWith("%"))
+					f = (float) ElementWrapper.convPDouble(offset.substring(0, offset.length() - 1)) / 100f;
+				else
+					f = (float) ElementWrapper.convPDouble(offset);
+				if (f < 0)
+					f = 0;
+				else if (f > 1.0f)
+					f = 1.0f;
+			}
+			else
+				f = i > 0 ? g.fractions_[i - 1] : 0;
+
+			g.fractions_[i] = f;
+
+			Paint p = new Color(this, wrapper.attr("stop-color"),
+					wrapper.toDouble("stop-opacity")).getColor();
+			if (p instanceof java.awt.Color)
+				g.colors_[i] = (java.awt.Color) p;
+			else
+				g.colors_[i] = java.awt.Color.WHITE;
+		}
 	}
 
-	public void addPaintServer(Gradient grad)
-	{
-		paintServer_.put(grad.id_, grad);
-	}
 
-	public List<ShapeInfo> getShapes()
+	/**
+	 * Handles "Transform" attribute.
+	 */
+	protected final void transform(ShapeInfo s, ElementWrapper w)
 	{
-		return Collections.unmodifiableList(shapes_);
-	}
-
-	protected final void transform(ShapeInfo s, Element n)
-	{
-		String transform = n.getAttribute("transform");
+		String transform = w.attr("transform", false);
 		if (ElementWrapper.isNotEmpty(transform))
 		{
 			AffineTransform t = new Transform(null, transform).getTransform();
 			if (t != null)
 				s.aft_ = t;
 		}
+	}
 
+	/**
+	 * Handles  font repated attributes and returns the calculated font.
+	 */
+	protected Font font(ElementWrapper w)
+	{
+		Double fontSize = w.toDouble("font-size");
+		String fontFamily = w.attr("font-family");
+		double fontWeight = w.fontWeight();
+
+		if (fontSize == null) fontSize = ElementWrapper.convUnitToPixel(12, ElementWrapper.Unit.pt);
+		if (fontFamily == null) fontFamily = defaultFont_.getFamily();
+
+		Map<TextAttribute, Object> attributes = new HashMap<>();
+
+		// @TODO: I don't think it is this simple... check more deeply how this css-property shall be proceeded.
+		//        At least we don't habe all families that a browser have...
+		attributes.put(TextAttribute.FAMILY, fontFamily);
+
+		attributes.put(TextAttribute.WEIGHT, fontWeight);
+
+		// font-size seems to use also pixel as unit. But I found no documentation about that.
+		attributes.put(TextAttribute.SIZE, fontSize);
+
+		return Font.getFont(attributes);
 	}
 
 	protected final float opacity(ElementWrapper w)
@@ -380,7 +545,8 @@ public class SVG
 
 	protected Color fill(ElementWrapper w)
 	{
-		return new Color(this, w.attr("fill"), w.toDouble("fill-opacity"));
+		String color = w.attr("fill");
+		return new Color(this, color == null ? "black" : color, w.toDouble("fill-opacity"));
 	}
 
 	protected Stroke stroke(ElementWrapper w)
@@ -388,7 +554,7 @@ public class SVG
 		Stroke stroke = new Stroke(
 				new Color(this, w.attr("stroke"), w.toDouble("stroke-opacity")),
 				w.toDouble("stroke-width"),
-				toFloatArray(w.attr("stroke-dasharray")),
+				w.toFloatArray("stroke-dasharray"),
 				w.toDouble("stroke-dashoffset"),
 				LineCap.fromString(w.attr("stroke-linecap")),
 				LineJoin.fromString(w.attr("stroke-linejoin")),
@@ -396,30 +562,6 @@ public class SVG
 		);
 		return stroke;
 	}
-
-	protected final static double toPDouble(String val)
-	{
-		Double f = ElementWrapper.convDouble(val);
-		return f == null ? 0d : f;
-	}
-
-	protected final static float[] toFloatArray(String val)
-	{
-		if (val != null)
-			try
-			{
-				val = val.replace(',', ' ');
-				String values[] = val.split("[ ,]+");
-				float farr[] = new float[values.length];
-				for (int i = 0; i < values.length; ++i)
-					farr[i] = (float)toPDouble(values[i]);
-			}
-			catch (Exception e)
-			{
-			}
-		return null;
-	}
-
 
 	public static void main(String[] args)
 	{
@@ -435,14 +577,6 @@ public class SVG
 		final List<ShapeIcon> icons = new ArrayList<>();
 
 		JTextArea data = new JTextArea(5, 100);
-		try (InputStream is = SVG.class.getResourceAsStream("address-book-new.svg"))
-		{
-			data.setText(new String(is.readAllBytes(), StandardCharsets.UTF_8));
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
 
 		input.add(BorderLayout.CENTER, new JScrollPane(data));
 

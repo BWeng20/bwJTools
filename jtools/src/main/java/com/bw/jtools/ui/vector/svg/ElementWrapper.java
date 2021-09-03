@@ -3,16 +3,17 @@ package com.bw.jtools.ui.vector.svg;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import java.awt.Toolkit;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.awt.Toolkit;
 
-public class ElementWrapper
+public final class ElementWrapper
 {
 	private static final Pattern styleSplitRegExp_ = Pattern.compile(";");
 
 	private HashMap<String, String> attributes_;
+	private HashMap<String, String> overrides_;
 	private final Element node_;
 
 	private static final double pixelPerInch_;
@@ -28,40 +29,49 @@ public class ElementWrapper
 
 	private static final Pattern unitRegExp_ = Pattern.compile("([\\d+-\\.e]+)(pt|px|em|%|in|cm|mm|ex|pc)", Pattern.CASE_INSENSITIVE);
 
+	private static final HashMap<String, Integer> fontWeights_ = new HashMap<>();
+
 	static
 	{
 		double ppi = 72;
 		try
 		{
-			ppi = Toolkit.getDefaultToolkit().getScreenResolution();
+			ppi = Toolkit.getDefaultToolkit()
+						 .getScreenResolution();
 		}
 		catch (Exception ex)
-		{}
+		{
+		}
 		pixelPerInch_ = ppi;
 		pixelPerPoint_ = ppi / 72d;
 		pixelPerCM_ = 0.3937d * ppi;
 		pixelPerMM_ = 0.03937d * ppi;
 		pixelPerPica_ = ppi / 6d;
+
+		fontWeights_.put("normal", 400);
+		fontWeights_.put("bold", 700);
+		fontWeights_.put("lighter", 400);
+		fontWeights_.put("bolder", 700);
 	}
 
-	protected final static boolean isEmpty(String v)
+	protected static boolean isEmpty(String v)
 	{
 		return v == null || v.isEmpty();
 	}
 
-	protected final static boolean isNotEmpty(String v)
+	protected static boolean isNotEmpty(String v)
 	{
 		return v != null && !v.isEmpty();
 	}
 
-	protected final static Double convDouble(String val)
+	protected static Double convDouble(String val)
 	{
 		if (val != null)
 			try
 			{
 				Matcher m = unitRegExp_.matcher(val);
-				if ( m.matches() )
-					return convUnit( Double.parseDouble(m.group(1)), Unit.valueFrom( m.group(2) ));
+				if (m.matches())
+					return convUnitToPixel(Double.parseDouble(m.group(1)), Unit.valueFrom(m.group(2)));
 				else
 					return Double.parseDouble(val);
 			}
@@ -71,20 +81,11 @@ public class ElementWrapper
 		return null;
 	}
 
-	protected final static Double convAngle(String val)
-	{
-		// Units like "deg" etc. are not supported but if we need to, do it here!
-		Double d = convDouble(val);
-		if ( d != null )
-			d = Math.toRadians(d);
-		return d;
-	}
-
 	protected enum Unit
 	{
-		pt, px, em, percent, in, cm, mm, ex,  pc;
+		pt, px, em, percent, in, cm, mm, ex, pc;
 
-		public static Unit valueFrom( String unit )
+		public static Unit valueFrom(String unit)
 		{
 			unit = unit.toLowerCase();
 			if (unit.equals("pt")) return pt;
@@ -100,9 +101,9 @@ public class ElementWrapper
 		}
 	}
 
-	protected final static Double convUnit(double val, Unit unit)
+	public static double convUnitToPixel(double val, Unit unit)
 	{
-		if ( unit != null )
+		if (unit != null)
 		{
 			switch (unit)
 			{
@@ -160,20 +161,111 @@ public class ElementWrapper
 		return null;
 	}
 
+	/**
+	 * Gets the java font-weight-value from "font-weight"-attribute.
+	 */
+	public double fontWeight()
+	{
+		String w = attr("font-weight");
+		if (isEmpty(w)) return 400; // Normal
+
+		Integer pref = fontWeights_.get(w.trim()
+										 .toLowerCase());
+		if (pref != null) return pref / 400d;
+		Double d = convDouble(w);
+		return (d == null) ? 1d : d / 400d;
+	}
+
+	/**
+	 * Get the double value of a none-inherited xml- or style-attribute as Double.
+	 *
+	 * @return The double or null if the attribute doesn't exists.
+	 */
 	public Double toDouble(String attributeName)
 	{
 		return convDouble(attr(attributeName, false));
 	}
 
+	/**
+	 * Get the primitive double value of a none-inherited xml- or style-attribute.
+	 *
+	 * @return The double or 0 if the attribute doesn't exists.
+	 */
+	public double toPDouble(String attributeName)
+	{
+		return toPDouble(attributeName, false);
+	}
+
+	/**
+	 * Get the double value of a xml- or style-attribute.
+	 *
+	 * @param inherited If true and the attribute doesn't exists also the parent nodes are scanned.
+	 * @return The double or null if the attribute doesn't exists.
+	 */
 	public Double toDouble(String attributeName, boolean inherited)
 	{
 		return convDouble(attr(attributeName, inherited));
 	}
 
-	public Double toAngle( String attributeName, boolean inherited)
+	/**
+	 * Get the primitive double value of a xml- or style-attribute.
+	 *
+	 * @param inherited If true and the attribute doesn't exists also the parent nodes are scanned.
+	 * @return The double or 0 if the attribute doesn't exists.
+	 */
+	public double toPDouble(String attributeName, boolean inherited)
 	{
-		return convAngle(attr(attributeName, inherited));
+		Double d = convDouble(attr(attributeName, inherited));
+		return d == null ? 0d : d;
+	}
 
+	public float[] toFloatArray(String attributeName)
+	{
+		return convFloatArray(attr(attributeName));
+	}
+
+	public static double convPDouble(String value)
+	{
+		Double d = convDouble(value);
+		return d == null ? 0d : d;
+	}
+
+	public static float[] convFloatArray(String val)
+	{
+		if (val != null)
+			try
+			{
+				val = val.replace(',', ' ');
+				String values[] = val.split("[ ,]+");
+				float farr[] = new float[values.length];
+				for (int i = 0; i < values.length; ++i)
+					farr[i] = (float) convPDouble(values[i]);
+			}
+			catch (Exception e)
+			{
+			}
+		return null;
+	}
+
+	/**
+	 * Get the text content - to be used for text-elements.
+	 */
+	public String text(String attibuteName)
+	{
+		String text = node_.getTextContent();
+		// @TODO: Support all modes of "white-space" correctly.
+		if (text != null && !preserveSpace())
+			text = text.trim();
+		return text;
+	}
+
+	/**
+	 * Checks if the node has white-space-preservation on.
+	 */
+	public boolean preserveSpace()
+	{
+		final String ws = attr("white-space");
+		return "preserve".equals(attr("xml:space")) || (ws != null && ws.startsWith("pre"));
 	}
 
 	public String attr(String attributeName)
@@ -183,29 +275,16 @@ public class ElementWrapper
 
 	public String attr(String attributeName, boolean inherited)
 	{
+		if (overrides_ != null)
+		{
+			String ov = overrides_.get(attributeName);
+			if (isNotEmpty(ov))
+				return ov;
+		}
 		String v = node_.getAttribute(attributeName);
 		if (isEmpty(v))
 		{
-			if (attributes_ == null)
-			{
-				attributes_ = new HashMap<>();
-
-				v = node_.getAttribute("style");
-				if (isNotEmpty(v))
-				{
-					String[] stylesAr = styleSplitRegExp_.split(v);
-					for (String s : stylesAr)
-					{
-						final int i = s.indexOf(':');
-						if (i > 0)
-						{
-							attributes_.put(s.substring(0, i)
-											 .trim(), s.substring(i + 1));
-						}
-					}
-				}
-			}
-			v = attributes_.get(attributeName);
+			v = getStyleAttributes().get(attributeName);
 		}
 		if (isEmpty(v) && inherited)
 		{
@@ -214,6 +293,40 @@ public class ElementWrapper
 				attributes_.put(attributeName, v);
 		}
 		return v;
+	}
+
+	public HashMap<String, String> getStyleAttributes()
+	{
+		if (attributes_ == null)
+		{
+			attributes_ = new HashMap<>();
+
+			String v = node_.getAttribute("style");
+			if (isNotEmpty(v))
+			{
+				String[] stylesAr = styleSplitRegExp_.split(v);
+				for (String s : stylesAr)
+				{
+					final int i = s.indexOf(':');
+					if (i > 0)
+					{
+						attributes_.put(s.substring(0, i)
+										 .trim(), s.substring(i + 1));
+					}
+				}
+			}
+		}
+		return attributes_;
+	}
+
+	public void override(String attributeName, String value)
+	{
+		if (value != null && isEmpty(attr(attributeName)))
+		{
+			if (overrides_ == null)
+				overrides_ = new HashMap<>();
+			overrides_.put(attributeName, value);
+		}
 	}
 
 	protected String inherited(Element node, String attributeName)
