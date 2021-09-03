@@ -174,6 +174,14 @@ public class Color
 			color = color.trim();
 			if (color.startsWith("#"))
 			{
+				if ( color.length()<5)
+				{
+					char r = color.charAt(1);
+					char g = color.charAt(2);
+					char b = color.charAt(3);
+					color = new StringBuilder(7).append('#').append(r).append(r).append(g).append(g).append(b).append(b).toString();
+				}
+
 				try
 				{
 					color_ = java.awt.Color.decode(color);
