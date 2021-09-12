@@ -73,7 +73,7 @@ public class SVG
 	private Document doc_;
 	private final ElementCache elementCache_ = new ElementCache();
 
-	public static boolean addPathSegments_ = true;
+	public static final boolean addPathSegments_ = false;
 
 	/**
 	 * Parse a SVG document and creates shapes.
