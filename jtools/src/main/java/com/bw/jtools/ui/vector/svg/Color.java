@@ -174,12 +174,19 @@ public class Color
 			color = color.trim();
 			if (color.startsWith("#"))
 			{
-				if ( color.length()<5)
+				if (color.length() < 5)
 				{
 					char r = color.charAt(1);
 					char g = color.charAt(2);
 					char b = color.charAt(3);
-					color = new StringBuilder(7).append('#').append(r).append(r).append(g).append(g).append(b).append(b).toString();
+					color = new StringBuilder(7).append('#')
+												.append(r)
+												.append(r)
+												.append(g)
+												.append(g)
+												.append(b)
+												.append(b)
+												.toString();
 				}
 
 				try
@@ -209,14 +216,7 @@ public class Color
 				else
 				{
 					String colorLC = color.toLowerCase();
-					if (name2color_.containsKey(colorLC))
-					{
-						color_ = name2color_.get(colorLC);
-					}
-					else
-					{
-						color_ = null;
-					}
+					color_ = name2color_.getOrDefault(colorLC, null);
 				}
 			}
 		}
@@ -242,7 +242,7 @@ public class Color
 				}
 				else
 				{
-					opacity_ = (float)o;
+					opacity_ = (float) o;
 				}
 			}
 		}

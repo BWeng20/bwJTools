@@ -17,7 +17,7 @@ public enum LineJoin
 			}
 			catch (IllegalArgumentException i)
 			{
-				Log.warn("Unknown line-join mode "+val);
+				Log.warn("Unknown line-join mode " + val);
 			}
 		}
 		return miter;

@@ -35,7 +35,7 @@ public final class ShapePainter
 	 */
 	public double getAreaWidth()
 	{
-		return scaleX_ * (keepOffset_ ? (area_.x + area_.width) : area_.width);
+		return area_ == null ? 0 : scaleX_ * (keepOffset_ ? (area_.x + area_.width) : area_.width);
 	}
 
 	/**
@@ -43,7 +43,7 @@ public final class ShapePainter
 	 */
 	public double getAreaHeight()
 	{
-		return scaleY_ * (keepOffset_ ? (area_.x + area_.height) : area_.height);
+		return area_ == null ? 0 : scaleY_ * (keepOffset_ ? (area_.x + area_.height) : area_.height);
 	}
 
 	/**

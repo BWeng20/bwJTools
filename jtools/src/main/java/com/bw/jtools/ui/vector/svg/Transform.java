@@ -76,7 +76,7 @@ public class Transform extends Parser
 				double angle = nextAngle(0);
 				double x = nextDouble(Double.NaN);
 				double y = nextDouble(Double.NaN);
-				if ( x != Double.NaN && y != Double.NaN )
+				if (x != Double.NaN && y != Double.NaN)
 					t = AffineTransform.getRotateInstance(angle, x, y);
 				else
 					t = AffineTransform.getRotateInstance(angle);

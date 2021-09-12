@@ -1,10 +1,17 @@
 package com.bw.jtools.ui.vector.svg;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
+import java.awt.font.TextAttribute;
+import java.awt.geom.AffineTransform;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.IntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +22,12 @@ public final class ElementWrapper
 	private HashMap<String, String> attributes_;
 	private HashMap<String, String> overrides_;
 	private final Element node_;
+	private Node parent_;
+	private final Type type_;
+	private Boolean preserveSpace_;
+	private ShapeWrapper shape_;
+	private AffineTransform aft_;
+	private ElementCache elementCache_;
 
 	private static final double pixelPerInch_;
 	private static final double pixelPerPoint_;
@@ -81,22 +94,53 @@ public final class ElementWrapper
 		return null;
 	}
 
-	protected enum Unit
+	/**
+	 * Used for re-usable shapes, e.g. paths that are used in textPaths elements.</br>
+	 * If a transform is set on the element, the shape is set to a tranformed copy.
+	 */
+	public void setShape(ShapeWrapper shape)
+	{
+		if (shape != null)
+		{
+			AffineTransform aft = transform();
+			if (aft == null)
+				shape_ = shape;
+			else
+				shape_ = new ShapeWrapper(aft.createTransformedShape(shape.getShape()));
+		}
+		else
+			shape_ = null;
+	}
+
+	/**
+	 * Used for re-usable shapes, e.g. paths that are used in textPaths elements.
+	 * Null of other elements.
+	 */
+	public ShapeWrapper getShape()
+	{
+		return shape_;
+	}
+
+
+	public enum Unit
 	{
 		pt, px, em, percent, in, cm, mm, ex, pc;
 
 		public static Unit valueFrom(String unit)
 		{
-			unit = unit.toLowerCase();
-			if (unit.equals("pt")) return pt;
-			if (unit.equals("px")) return px;
-			if (unit.equals("em")) return em;
-			if (unit.equals("%")) return percent;
-			if (unit.equals("in")) return in;
-			if (unit.equals("mm")) return mm;
-			if (unit.equals("cm")) return cm;
-			if (unit.equals("ex")) return ex;
-			if (unit.equals("pc")) return pc;
+			if (unit != null)
+			{
+				unit = unit.toLowerCase();
+				if (unit.equals("pt")) return pt;
+				if (unit.equals("px")) return px;
+				if (unit.equals("em")) return em;
+				if (unit.equals("%")) return percent;
+				if (unit.equals("in")) return in;
+				if (unit.equals("mm")) return mm;
+				if (unit.equals("cm")) return cm;
+				if (unit.equals("ex")) return ex;
+				if (unit.equals("pc")) return pc;
+			}
 			return null;
 		}
 	}
@@ -130,9 +174,42 @@ public final class ElementWrapper
 		return val;
 	}
 
-	public ElementWrapper(Element node)
+	public enum Type
 	{
+		g,
+		path, rect, circle, ellipse,
+		text, textPath,
+		line, polyline, polygon,
+		use,
+		defs, linearGradient, radialGradient;
+
+		private final static HashMap<String, Type> types_ = new HashMap<>();
+
+		// Use map instead of "valueOf" to skip execptions for unknown values
+		static
+		{
+			for (Type t : values())
+				types_.put(t.name(), t);
+		}
+
+		public static Type valueFrom(String typeName)
+		{
+			return types_.get(typeName);
+		}
+	}
+
+
+	public ElementWrapper(ElementCache cache, Element node)
+	{
+		elementCache_ = cache;
 		node_ = node;
+		parent_ = node.getParentNode();
+		type_ = Type.valueFrom(node.getTagName());
+	}
+
+	public Type getType()
+	{
+		return type_;
 	}
 
 	public String getTagName()
@@ -224,6 +301,11 @@ public final class ElementWrapper
 		return convFloatArray(attr(attributeName));
 	}
 
+	public float[] toFloatArray(String attributeName, boolean inherited)
+	{
+		return convFloatArray(attr(attributeName, inherited));
+	}
+
 	public static double convPDouble(String value)
 	{
 		Double d = convDouble(value);
@@ -250,13 +332,156 @@ public final class ElementWrapper
 	/**
 	 * Get the text content - to be used for text-elements.
 	 */
-	public String text(String attibuteName)
+	public String text()
 	{
-		String text = node_.getTextContent();
+		return text(node_);
+	}
+
+	/**
+	 * Get the text content - to be used for text-elements.
+	 */
+	public String text(Node node)
+	{
+		String text = node.getTextContent();
 		// @TODO: Support all modes of "white-space" correctly.
 		if (text != null && !preserveSpace())
-			text = text.trim();
+		{
+			// Trim WS
+			StringBuilder sb = new StringBuilder(text.length());
+			text.chars()
+				.forEach(new IntConsumer()
+				{
+					boolean lastWasWS = false;
+
+					@Override
+					public void accept(int ch)
+					{
+						if (Character.isWhitespace(ch))
+						{
+							if (!lastWasWS)
+							{
+								sb.append((char) ch);
+								lastWasWS = true;
+							}
+						}
+						else
+						{
+							sb.append((char) ch);
+							lastWasWS = false;
+						}
+					}
+				});
+			text = sb.toString();
+		}
 		return text;
+	}
+
+	public AffineTransform transform()
+	{
+		if (aft_ == null)
+		{
+			String transform = attr("transform", false);
+			if (isNotEmpty(transform))
+				aft_ = new Transform(null, transform).getTransform();
+			else
+				aft_ = new AffineTransform();
+		}
+		return aft_.isIdentity() ? null : aft_;
+	}
+
+	public ElementWrapper createReferenceCopy(ElementWrapper usingElement)
+	{
+		ElementWrapper uw = new ElementWrapper(elementCache_, getNode());
+		uw.parent_ = usingElement.getNode()
+								 .getParentNode();
+		String tag = uw.getTagName();
+		if (tag.equals("svg") || tag.equals("symbol"))
+		{
+			// @TODO: set width and height of viewbox
+		}
+
+		NamedNodeMap attributes = usingElement.getNode()
+											  .getAttributes();
+		int nAttr = attributes.getLength();
+		for (int iAttr = 0; iAttr < nAttr; ++iAttr)
+		{
+			Node attrNode = attributes.item(iAttr);
+			String attrName = attrNode.getNodeName();
+			if (attrName != null)
+				uw.override(attrName, attrNode.getNodeValue());
+		}
+		HashMap<String, String> styleAttributes = usingElement.getStyleAttributes();
+		for (Map.Entry<String, String> styleAttr : styleAttributes.entrySet())
+		{
+			String attrName = styleAttr.getKey();
+			uw.override(attrName, styleAttr.getValue());
+		}
+		return uw;
+	}
+
+	private static Map<String, String> systemFontFamilies_;
+
+	/**
+	 * Handles font related attributes and returns the calculated font.
+	 */
+	protected Font font(Font defaultFont)
+	{
+		Double fontSize = toDouble("font-size");
+		String fontFamily = attr("font-family");
+		double fontWeight = fontWeight();
+
+		if (fontSize == null) fontSize = ElementWrapper.convUnitToPixel(12, ElementWrapper.Unit.pt);
+		if (ElementWrapper.isEmpty(fontFamily))
+			fontFamily = defaultFont.getFamily();
+		else
+		{
+			synchronized (ElementWrapper.class)
+			{
+				if (systemFontFamilies_ == null)
+				{
+					systemFontFamilies_ = new HashMap<>();
+					try
+					{
+						String sysfams[] = GraphicsEnvironment.getLocalGraphicsEnvironment()
+															  .getAvailableFontFamilyNames();
+						for (String sysFam : sysfams)
+							systemFontFamilies_.put(sysFam.toLowerCase(), sysFam);
+					}
+					catch (Exception e)
+					{
+					}
+				}
+			}
+			final String[] fams = fontFamily.split(",");
+			if (fams.length > 0)
+			{
+				String sysFF = null;
+				for (String fam : fams)
+				{
+					sysFF = systemFontFamilies_.get(fam.trim()
+													   .toLowerCase());
+					if (sysFF != null)
+						break;
+				}
+				fontFamily = sysFF == null ? fams[0] : sysFF;
+			}
+		}
+
+		Map<TextAttribute, Object> attributes = new HashMap<>();
+		attributes.put(TextAttribute.FAMILY, fontFamily);
+		attributes.put(TextAttribute.WEIGHT, fontWeight);
+
+		// font-size seems to use also pixel as unit.
+		attributes.put(TextAttribute.SIZE, fontSize);
+
+		return Font.getFont(attributes);
+	}
+
+	public float opacity()
+	{
+		Double opacityO = toDouble("opacity", true);
+		float opacity = opacityO == null ? 1.0f : opacityO.floatValue();
+		return opacity;
 	}
 
 	/**
@@ -264,8 +489,12 @@ public final class ElementWrapper
 	 */
 	public boolean preserveSpace()
 	{
-		final String ws = attr("white-space");
-		return "preserve".equals(attr("xml:space")) || (ws != null && ws.startsWith("pre"));
+		if (preserveSpace_ == null)
+		{
+			final String ws = attr("white-space");
+			preserveSpace_ = "preserve".equals(attr("xml:space")) || (ws != null && ws.startsWith("pre"));
+		}
+		return preserveSpace_;
 	}
 
 	public String attr(String attributeName)
@@ -329,19 +558,23 @@ public final class ElementWrapper
 		}
 	}
 
-	protected String inherited(Element node, String attributeName)
+	protected String inherited(Element e, String attributeName)
 	{
 		String v = null;
+		Node node = parent_;
 		while (v == null && node != null)
 		{
-			Node p = node.getParentNode();
-			while (p != null && !"g".equals(p.getNodeName()))
-				p = p.getParentNode();
-			node = (Element) p;
-			if (node != null)
-				v = new ElementWrapper(node).attr(attributeName);
+			if (node.getNodeType() == Node.ELEMENT_NODE)
+				v = elementCache_.getElementWrapper((Element) node)
+								 .attr(attributeName);
+			node = node.getParentNode();
 		}
 		return v;
+	}
+
+	public ElementCache getCache()
+	{
+		return elementCache_;
 	}
 
 	public Element getNode()

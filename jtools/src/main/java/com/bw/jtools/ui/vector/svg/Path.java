@@ -14,9 +14,6 @@ public final class Path extends Parser
 	private double lastXCtrl, lastYCtrl;
 	private double cx, cy;
 
-	private boolean drawSCurves = true;
-	private boolean drawCCurves = true;
-
 	private Path2D.Double path_;
 
 	public Path2D getPath()
@@ -75,61 +72,25 @@ public final class Path extends Parser
 					break;
 
 				case 'C':
-					if (drawCCurves)
-						path_.curveTo(nextXCtrl(), nextYCtrl(), nextXCtrl(), nextYCtrl(),
-								nextXOrdinate(), nextYOrdinate());
-					else
-					{
-						nextXCtrl();
-						nextYCtrl();
-						nextXCtrl();
-						nextYCtrl();
-						path_.lineTo(nextXOrdinate(), nextYOrdinate());
-					}
+					path_.curveTo(nextXCtrl(), nextYCtrl(), nextXCtrl(), nextYCtrl(),
+							nextXOrdinate(), nextYOrdinate());
 					resetCtrl = false;
 					break;
 				case 'c':
-					if (drawCCurves)
-						path_.curveTo(nextXCtrlRelativeStay(), nextYCtrlRelativeStay(),
-								nextXCtrlRelativeStay(), nextYCtrlRelativeStay(),
-								nextXRelative(), nextYRelative());
-					else
-					{
-						nextXCtrlRelativeStay();
-						nextYCtrlRelativeStay();
-						nextXCtrlRelativeStay();
-						nextYCtrlRelativeStay();
-						path_.lineTo(nextXRelative(), nextYRelative());
-					}
+					path_.curveTo(nextXCtrlRelativeStay(), nextYCtrlRelativeStay(),
+							nextXCtrlRelativeStay(), nextYCtrlRelativeStay(),
+							nextXRelative(), nextYRelative());
 					resetCtrl = false;
 					break;
 
 				case 'S':
-					if (drawSCurves)
-						// project last ctrl point across last end point (cx,cy)
-						path_.curveTo(nextXSymmetricCtrl(), nextYSymmetricCtrl(), nextXCtrl(), nextYCtrl(), nextXOrdinate(), nextYOrdinate());
-					else
-					{
-						nextXSymmetricCtrl();
-						nextYSymmetricCtrl();
-						nextXCtrl();
-						nextYCtrl();
-						path_.lineTo(nextXOrdinate(), nextYOrdinate());
-					}
+					// project last ctrl point across last end point (cx,cy)
+					path_.curveTo(nextXSymmetricCtrl(), nextYSymmetricCtrl(), nextXCtrl(), nextYCtrl(), nextXOrdinate(), nextYOrdinate());
 					resetCtrl = false;
 					break;
 				case 's':
-					if (drawSCurves)
-						// project last ctrl point across last end point (cx,cy)
-						path_.curveTo(nextXSymmetricCtrl(), nextYSymmetricCtrl(), nextXCtrlRelativeStay(), nextYCtrlRelativeStay(), nextXRelative(), nextYRelative());
-					else
-					{
-						nextXSymmetricCtrl();
-						nextYSymmetricCtrl();
-						nextXCtrlRelativeStay();
-						nextYCtrlRelativeStay();
-						path_.lineTo(nextXRelative(), nextYRelative());
-					}
+					// project last ctrl point across last end point (cx,cy)
+					path_.curveTo(nextXSymmetricCtrl(), nextYSymmetricCtrl(), nextXCtrlRelativeStay(), nextYCtrlRelativeStay(), nextXRelative(), nextYRelative());
 					resetCtrl = false;
 					break;
 

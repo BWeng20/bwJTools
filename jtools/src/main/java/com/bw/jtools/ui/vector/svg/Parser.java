@@ -39,7 +39,7 @@ public class Parser
 	protected double nextAngle(double defaultValue)
 	{
 		double d = nextDouble(Double.NaN);
-		if ( d != Double.NaN)
+		if (d != Double.NaN)
 			return Math.toRadians(d);
 		else
 			return defaultValue;
@@ -54,7 +54,7 @@ public class Parser
 		return nextDouble(0);
 	}
 
-	protected double nextDouble(double defaultVal )
+	protected double nextDouble(double defaultVal)
 	{
 		double r = nextNumber(defaultVal);
 		boolean negative = isNegative(r);
@@ -113,10 +113,10 @@ public class Parser
 		char c = nextChar();
 		if (c == '-')
 			negative = true;
+		else if (c == 0)
+			return defaultVal;
 		else if (c != '+')
 			--idx_;
-		else if ( c== 0)
-			return defaultVal;
 		double val = 0;
 		while (isDigit(c = nextChar()))
 			val = (val * 10) + (c - '0');
