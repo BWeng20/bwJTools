@@ -99,7 +99,7 @@ public class SVG
 		}
 		catch (SAXException | IOException | ParserConfigurationException e)
 		{
-			Log.error(e);
+			Log.error("Failed to parse SVG", e);
 		}
 	}
 
