@@ -55,7 +55,8 @@ public final class ExampleList extends JFrame
         { "Property Multiple", "com.bw.jtools.examples.properties.PropertyDemoApplication" }  ,
         { "Tab Component", "com.bw.jtools.examples.tabcomponent.JTabComponentDemo" },
         { "Path Chooser", "com.bw.jtools.examples.pathchooser.JPathChooserDemo" },
-        { "Swing UI-Default", "com.bw.jtools.examples.uidefaults.UIDefaults" }
+        { "Swing UI-Default", "com.bw.jtools.examples.uidefaults.UIDefaults" },
+        { "SVG Demonstration", "com.bw.jtools.examples.svg.SVGDemo" },
     };
 
 	private class ExampleWindowWatcher extends WindowAdapter
