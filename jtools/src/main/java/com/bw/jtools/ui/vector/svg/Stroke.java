@@ -48,10 +48,12 @@ public class Stroke
 				miterlimit == null ? 4f : miterlimit.floatValue(), dasharray,
 				dashoffset == null ? 0f : dashoffset.floatValue());
 		paint_ = color == null ? null : color.getColor();
+		opacity_ = color == null ? 1f : color.getOpacity();
 	}
 
 	private java.awt.Stroke stroke_;
 	private Paint paint_;
+	private float opacity_;
 
 	public java.awt.Stroke getStroke()
 	{
@@ -61,5 +63,10 @@ public class Stroke
 	public Paint getColor()
 	{
 		return paint_;
+	}
+
+	public float getOpacity()
+	{
+		return opacity_;
 	}
 }

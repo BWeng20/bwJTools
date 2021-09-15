@@ -137,10 +137,10 @@ public final class ShapePainter
 			}
 			else
 			{
-				if (shape.opacity_ != opacity)
+				if (shape.strokeOpacity_ != opacity)
 				{
-					g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shape.opacity_));
-					opacity = shape.opacity_;
+					g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shape.strokeOpacity_));
+					opacity = shape.strokeOpacity_;
 				}
 				g2D.setPaint(shape.paint_);
 				g2D.setStroke(shape.stroke_);

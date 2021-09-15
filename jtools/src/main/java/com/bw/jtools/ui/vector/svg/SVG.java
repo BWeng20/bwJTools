@@ -1,10 +1,6 @@
 package com.bw.jtools.ui.vector.svg;
 
-import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.io.IOTool;
-import com.bw.jtools.ui.JExceptionDialog;
-import com.bw.jtools.ui.icon.ShapeIcon;
 import com.bw.jtools.ui.vector.ShapeInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -12,29 +8,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.management.modelmbean.XMLParseException;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -45,24 +23,30 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 /**
+ * Parses and converts a SVG document into a liost of "ShapeInfo"-objects.</br>
  * Currently supported features:
- * path
- * rect
- * ellipse
- * text (but not tspan)
+ * <ul>
+ * <li>g</li>
+ * <li>path</li>
+ * <li>rect</li>
+ * <li>circle</li>
+ * <li>ellipse</li>
+ * <li>line</li>
+ * <li>polyline</li>
+ * <li>polygon</li>
+ * <li>text (with tspan and testPath)</li>
+ * <li>use</li>
+ * <li>linearGradient</li>
+ * <li>radialGradient</li>
+ * </ul>
  */
 public class SVG
 {
@@ -77,11 +61,11 @@ public class SVG
 
 	/**
 	 * Parse a SVG document and creates shapes.
+	 * After creation call {@link #getShapes()} to retrieve the resulting shapes.</br>
 	 *
 	 * @param xml The svg document.
-	 * @throws XMLParseException If the document is not valid xml.
 	 */
-	public SVG(final String xml) throws XMLParseException
+	public SVG(final String xml)
 	{
 		try
 		{
@@ -91,6 +75,10 @@ public class SVG
 			dbf.setIgnoringElementContentWhitespace(true);
 
 			dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+			// Loading a DTD/Schema will slow down processing by several seconds (if schema is specified).
+			// Suppress loading of references dtd/schema. This will also deactivate validation and
+			// id processing (see scanForIDs call below).
 			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
 			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
@@ -98,20 +86,9 @@ public class SVG
 
 			doc_ = db.parse(new ByteArrayInputStream(xml.getBytes()));
 
-			// Loading the DTD/Schema will slow us down (if specified). But without validating/loading of schema the "id" attributes will not be detected as key
-			// and "getElementById" will not work. So we have to collect Ids manually.
+			// Without automatic processing of "id" attributes will not be detected as key
+			// and "getElementById" will not work. So we have to collect the Ids manually.
 			elementCache_.scanForIds(doc_);
-
-			// Collect all gradient definitions.
-			NodeList linearGradient = doc_.getElementsByTagName("linearGradient");
-			final int lgN = linearGradient.getLength();
-			for (int i = 0; i < lgN; ++i)
-				parseLinearGradient((Element) linearGradient.item(i));
-
-			NodeList radialGradient = doc_.getElementsByTagName("radialGradient");
-			final int rgN = radialGradient.getLength();
-			for (int i = 0; i < rgN; ++i)
-				parseRadialGradient((Element) radialGradient.item(i));
 
 			NodeList patterns = doc_.getElementsByTagName("pattern");
 			// @TODO
@@ -122,7 +99,7 @@ public class SVG
 		}
 		catch (SAXException | IOException | ParserConfigurationException e)
 		{
-			e.printStackTrace();
+			Log.error(e);
 		}
 	}
 
@@ -134,7 +111,21 @@ public class SVG
 	 */
 	public Gradient getPaintServer(String id)
 	{
-		return paintServer_.get(id);
+		Gradient g = paintServer_.get(id);
+		if (g == null)
+		{
+			ElementWrapper w = elementCache_.getElementWrapperById(id);
+			if (w != null)
+			{
+				if ("linearGradient".equals(w.getTagName()))
+					g = parseLinearGradient(w);
+				else if ("radialGradient".equals(w.getTagName()))
+					g = parseRadialGradient(w);
+			}
+			if (g != null)
+				paintServer_.put(g.id_, g);
+		}
+		return g;
 	}
 
 	/**
@@ -148,7 +139,7 @@ public class SVG
 		Paint pt = paints_.get(id);
 		if (pt == null)
 		{
-			Gradient g = paintServer_.get(id);
+			Gradient g = getPaintServer(id);
 			if (g != null)
 				pt = g.getPaint(this);
 			if (pt == null)
@@ -156,16 +147,6 @@ public class SVG
 			paints_.put(id, pt);
 		}
 		return pt;
-	}
-
-	/**
-	 * Adds a gradient definition.
-	 *
-	 * @param grad The gradient. "id_" has to be set.
-	 */
-	public void addPaintServer(Gradient grad)
-	{
-		paintServer_.put(grad.id_, grad);
 	}
 
 	/**
@@ -182,9 +163,8 @@ public class SVG
 		return elementCache_;
 	}
 
-	private void parseRadialGradient(Element node)
+	private RadialGradient parseRadialGradient(ElementWrapper w)
 	{
-		ElementWrapper w = elementCache_.getElementWrapper(node);
 		String id = w.id();
 		if (id != null && !id.isEmpty())
 		{
@@ -198,13 +178,15 @@ public class SVG
 			rg.fr = w.toDouble("fr");
 
 			parseCommonGradient(rg, w);
-			addPaintServer(rg);
+
+			return rg;
 		}
+		else
+			return null;
 	}
 
-	private void parseLinearGradient(Element node)
+	private LinearGradient parseLinearGradient(ElementWrapper w)
 	{
-		ElementWrapper w = elementCache_.getElementWrapper(node);
 		String id = w.id();
 		if (id != null && !id.isEmpty())
 		{
@@ -216,8 +198,11 @@ public class SVG
 			lg.y2 = w.toDouble("y2");
 
 			parseCommonGradient(lg, w);
-			addPaintServer(lg);
+
+			return lg;
 		}
+		else
+			return null;
 	}
 
 	private void parseChildren(List<ShapeInfo> shapes, Node parent)
@@ -401,12 +386,14 @@ public class SVG
 		Stroke stroke = stroke(w);
 		Color fill = fill(w);
 
+		float generalOpacity = w.opacity();
+
 		ShapeInfo sinfo = new ShapeInfo(s,
 				stroke.getColor() == null ? null : stroke.getStroke(),
 				stroke.getColor(),
-				w.opacity(),
+				generalOpacity * stroke.getOpacity(),
 				fill.getColor(),
-				fill.getOpacity()
+				generalOpacity * fill.getOpacity()
 		);
 		sinfo.id_ = w.id();
 		transform(sinfo, w);
@@ -502,196 +489,6 @@ public class SVG
 				w.toDouble("stroke-miterlimit", true)
 		);
 		return stroke;
-	}
-
-	static int count = 0;
-
-	public static void main(String[] args)
-	{
-		Application.initialize(SVG.class);
-
-		JPanel input = new JPanel(new BorderLayout());
-		JButton render = new JButton("Show");
-		JButton load = new JButton("Load");
-		NumberFormat nf = NumberFormat.getInstance();
-		nf.setMaximumFractionDigits(2);
-		nf.setMinimumFractionDigits(2);
-
-		final List<ShapeIcon> icons = new ArrayList<>();
-
-		JTextArea data = new JTextArea(5, 100);
-
-		input.add(BorderLayout.CENTER, new JScrollPane(data));
-
-		JPanel drawPanel = new JPanel(new BorderLayout(10, 10));
-		JPanel controls = new JPanel(new GridLayout(0, 1));
-
-		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		buttons.add(load);
-		buttons.add(render);
-		controls.add(buttons);
-
-		double sliderFactor = 100;
-
-		Hashtable<Integer, String> labels = new Hashtable(
-				Map.of((int) (0 * sliderFactor), new JLabel("0"),
-						(int) (1 * sliderFactor), new JLabel("1"),
-						(int) (2 * sliderFactor), new JLabel("2"),
-						(int) (4 * sliderFactor), new JLabel("4"),
-						(int) (8 * sliderFactor), new JLabel("8"),
-						(int) (10 * sliderFactor), new JLabel("10"),
-						(int) (15 * sliderFactor), new JLabel("15"),
-						(int) (20 * sliderFactor), new JLabel("20")
-				));
-
-		final JSlider scaleX = new JSlider(JSlider.HORIZONTAL, 0, (int) (20 * sliderFactor), (int) sliderFactor);
-		scaleX.setPaintLabels(false);
-		scaleX.setPaintTicks(false);
-		scaleX.setExtent((int) (sliderFactor / 10));
-
-		final JSlider scaleY = new JSlider(JSlider.HORIZONTAL, 0, (int) (20 * sliderFactor), (int) sliderFactor);
-		scaleY.setLabelTable(labels);
-		scaleY.setPaintLabels(true);
-		scaleY.setMajorTickSpacing((int) (sliderFactor / 2));
-		scaleY.setMinorTickSpacing((int) (sliderFactor / 10));
-		scaleY.setPaintTicks(true);
-		scaleY.setExtent((int) (sliderFactor / 10));
-
-		controls.add(scaleX);
-		controls.add(scaleY);
-		input.add(BorderLayout.LINE_END, controls);
-
-		JLabel draw = new JLabel();
-		draw.setHorizontalAlignment(JLabel.LEFT);
-		draw.setVerticalAlignment(JLabel.TOP);
-
-		drawPanel.add(BorderLayout.CENTER, draw);
-		drawPanel.setPreferredSize(new Dimension(200, 600));
-
-		JTextField status = new JTextField();
-		status.setEditable(false);
-
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(BorderLayout.NORTH, input);
-		panel.add(BorderLayout.CENTER, drawPanel);
-		panel.add(BorderLayout.SOUTH, status);
-
-		Runnable updateStatus = () ->
-		{
-			status.setText(draw.getIcon()
-							   .getIconWidth() + "x" + draw.getIcon()
-														   .getIconHeight() + ", scale " +
-					nf.format(scaleX.getValue() / sliderFactor) + " x " + nf.format(scaleY.getValue() / sliderFactor)
-			);
-		};
-
-		ChangeListener sliderCl = new ChangeListener()
-		{
-			@Override
-			public void stateChanged(ChangeEvent e)
-			{
-				SwingUtilities.invokeLater(() ->
-				{
-					double x = scaleX.getValue() / sliderFactor;
-					double y = scaleY.getValue() / sliderFactor;
-
-					if (x < 0.1d)
-					{
-						scaleX.setValue((int) (0.1d * sliderFactor));
-						x = 0.1;
-					}
-					if (y < 0.1d)
-					{
-						scaleY.setValue((int) (0.1d * sliderFactor));
-						x = 0.1;
-					}
-
-					boolean repaint = false;
-					for (ShapeIcon i : icons)
-					{
-						if (x != i.getXScale() || y != i.getYScale())
-						{
-							repaint = true;
-							i.setScale(x, y);
-						}
-					}
-					if (repaint)
-					{
-						updateStatus.run();
-						drawPanel.repaint();
-					}
-				});
-			}
-		};
-
-		scaleX.addChangeListener(sliderCl);
-		scaleY.addChangeListener(sliderCl);
-
-
-		final Runnable doRender = () ->
-		{
-			try
-			{
-				SVG svg = new SVG(data.getText());
-
-				ShapeIcon icon = new ShapeIcon(svg.getShapes());
-				icon.setInlineBorder(true);
-
-				Dimension d = drawPanel.getSize();
-
-				double scale = Math.min(d.width / (double) icon.getIconWidth(), d.height / (double) icon.getIconHeight());
-				icon.setScale(scale, scale);
-				scaleX.setValue((int) (0.5 + scale * sliderFactor));
-				scaleY.setValue((int) (0.5 + scale * sliderFactor));
-
-				icons.clear();
-				icons.add(icon);
-				draw.setIcon(icon);
-				updateStatus.run();
-
-				drawPanel.invalidate();
-			}
-			catch (Exception ex)
-			{
-				ex.printStackTrace();
-				status.setText(ex.getMessage());
-			}
-		};
-
-		render.addActionListener(e ->
-		{
-			doRender.run();
-		});
-
-		JFrame f = new JFrame("Path  Test");
-
-		load.addActionListener(e ->
-		{
-			File file = IOTool.selectFile(f, "svg_file", "Select SVG", IOTool.OPEN, new FileNameExtensionFilter("SVG Files", "svg"));
-			if (file != null)
-			{
-				try
-				{
-					byte d[] = Files.readAllBytes(file.toPath());
-					data.setText(new String(d, StandardCharsets.UTF_8));
-					SwingUtilities.invokeLater(() ->
-					{
-						doRender.run();
-					});
-				}
-				catch (Exception ex)
-				{
-					JExceptionDialog d = new JExceptionDialog(f, ex);
-					d.setLocationByPlatform(true);
-					d.setVisible(true);
-				}
-			}
-		});
-
-		f.setContentPane(panel);
-		f.pack();
-		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		f.setVisible(true);
 	}
 
 }

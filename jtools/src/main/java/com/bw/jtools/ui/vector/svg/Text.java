@@ -113,7 +113,8 @@ public class Text extends Parser
 		String href = ew.href();
 		if (ElementWrapper.isNotEmpty(href))
 		{
-			ElementWrapper pw = ew.getCache().getElementWrapperById(href);
+			ElementWrapper pw = ew.getCache()
+								  .getElementWrapperById(href);
 			if (pw != null && ElementWrapper.Type.path == pw.getType())
 			{
 				pw = pw.createReferenceCopy(ew);

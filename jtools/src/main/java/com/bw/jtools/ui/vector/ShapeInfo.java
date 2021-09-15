@@ -11,18 +11,24 @@ public final class ShapeInfo
 	public Shape shape_;
 	public Stroke stroke_;
 	public Paint paint_;
-	public float opacity_;
+
+	/** Overall Stroke opacity, stroke-opacity * opacity */
+	public float strokeOpacity_;
+
 	public Paint fill_;
+
+	/** Final fill opacity, fill-opacity * opacity */
 	public float fillOpacity_;
+
 	public AffineTransform aft_;
 
-	public ShapeInfo(Shape shape, Stroke stroke, Paint paint, float opacity, Paint fill, float fillOpacity)
+	public ShapeInfo(Shape shape, Stroke stroke, Paint paint, float strokeOpacity, Paint fill, float fillOpacity)
 	{
 		this.shape_ = shape;
 		this.stroke_ = stroke;
 		this.paint_ = paint;
 		this.fill_ = fill;
-		this.opacity_ = opacity;
+		this.strokeOpacity_ = strokeOpacity;
 		this.fillOpacity_ = fillOpacity;
 	}
 
