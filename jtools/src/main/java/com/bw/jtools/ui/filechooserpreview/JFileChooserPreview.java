@@ -201,7 +201,7 @@ public class JFileChooserPreview extends JPanel
 	 */
 	public static PreviewHandler[] defaultHandlers()
 	{
-		return new PreviewHandler[]{new TextPreviewHandler(), new ImagePreviewHandler()};
+		return new PreviewHandler[]{new TextPreviewHandler(), new ImagePreviewHandler(), new SVGPreviewHandler()};
 	}
 
 	/**
@@ -682,6 +682,7 @@ public class JFileChooserPreview extends JPanel
 					}
 				}
 			}
+			validate();
 		};
 		if (SwingUtilities.isEventDispatchThread())
 			r.run();

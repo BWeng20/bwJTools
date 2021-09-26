@@ -9,6 +9,7 @@ module com.bw.jtools {
 	// transitive: using modules are also allowed to read.
 	requires static transitive java.json;
 	requires static transitive java.desktop;
+	requires transitive com.bw.jSVG;
 
 	requires java.prefs;
 	requires commons.csv;
