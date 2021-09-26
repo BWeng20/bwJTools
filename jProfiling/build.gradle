@@ -49,6 +49,7 @@ jar {
 
     archiveBaseName = 'jProfiling'
     includeEmptyDirs = false
+    duplicatesStrategy = 'exclude'
 
     from "${rootProject.projectDir}/licenses" 
     from { project(':jtools').sourceSets.main.runtimeClasspath.collect()  { (!it.exists() || it.isDirectory()) ? it : zipTree(it) } }
