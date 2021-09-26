@@ -94,7 +94,7 @@ public class DataDemo extends JFrame
         setContentPane(panel);
         logPanel.loadPreferences();
 
-        // It's important to register this listener brfore calling
+        // It's important to register this listener before calling
         // SettingsUI.storePositionAndFlushOnClose
         addWindowListener(new WindowAdapter()
         {
