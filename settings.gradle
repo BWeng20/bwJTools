@@ -4,6 +4,6 @@ include 'jtools', 'jProfiling'
 include 'jProfilingAgent'
 include 'jProfilingUI'
 include 'jToolsExamples'
-include 'jToolsShapes'
+include 'jSVG'
 
 

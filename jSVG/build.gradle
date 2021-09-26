@@ -43,12 +43,12 @@ jar {
                'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})"
     }
 
-    archiveBaseName = 'jToolsShapes'
+    archiveBaseName = 'jSVG'
     includeEmptyDirs = false
 
     from "${rootProject.projectDir}/licenses" 
-    from { project(':jtools').sourceSets.main.runtimeClasspath.collect()  { (!it.exists() || it.isDirectory()) ? it : zipTree(it) } }
     includes = [ '**/com/bw/jtools/shape/**',
+                 '/module-info.*',
                  '/LICENSE'
     ]
 }
@@ -66,14 +66,14 @@ publishing {
         }
     }
     publications {
-        jToolsShapes(MavenPublication) {
-            artifactId = 'jToolsShapes'
+        jSVG(MavenPublication) {
+            artifactId = 'jSVG'
             from components.java
 
             artifacts = [ jar, sourcesJar, javadocJar ]
             
             pom {
-                name = 'jToolShapes'
+                name = 'jSVG'
                 description = 'Draw icons and simple graphics from SVG that look great even on high-resolution screens.'
                 url = 'https://github.com/BWeng20/bwJTools'
                 licenses {
@@ -99,5 +99,5 @@ publishing {
 }
     
 signing {
-   sign publishing.publications.jToolsShapes
+   sign publishing.publications.jSVG
 }

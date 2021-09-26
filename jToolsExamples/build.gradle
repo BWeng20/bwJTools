@@ -26,7 +26,7 @@ sourceSets {
 dependencies {
     implementation project(':jtools')
     implementation project(':jProfiling')
-    implementation project(':jToolsShapes')
+    implementation project(':jSVG')
     implementation 'org.netbeans.api:org-netbeans-swing-outline:RELEASE121'
 }
 

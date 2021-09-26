@@ -1,4 +1,4 @@
-module com.bw.jtools {
+module com.bw.jSVG {
 	requires java.desktop;
 	requires java.logging;
 	exports com.bw.jtools.shape;
