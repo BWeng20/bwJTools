@@ -1,6 +1,6 @@
-package com.bw.jtools.ui.vector.svg;
+package com.bw.jtools.shape.svg;
 
-import com.bw.jtools.ui.vector.ShapeInfo;
+import com.bw.jtools.shape.ShapeWithStyle;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -16,6 +16,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
+
 
 public class Text extends Parser
 {
@@ -63,7 +64,7 @@ public class Text extends Parser
 		}
 	}
 
-	public Text(SVG svg, ElementWrapper w, Font defaultFont, List<ShapeInfo> shapes)
+	public Text(SVGConverter svg, ElementWrapper w, Font defaultFont, List<ShapeWithStyle> shapes)
 	{
 		super();
 
@@ -103,12 +104,12 @@ public class Text extends Parser
 		}
 	}
 
-	protected void parseTSpan(SVG svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeInfo> shapes)
+	protected void parseTSpan(SVGConverter svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeWithStyle> shapes)
 	{
 		shapes.add(svg.createShape(ew, createText(ew.font(defaultFont), ew.text(), pos)));
 	}
 
-	protected void parseTextPath(SVG svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeInfo> shapes)
+	protected void parseTextPath(SVGConverter svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeWithStyle> shapes)
 	{
 		String href = ew.href();
 		if (ElementWrapper.isNotEmpty(href))

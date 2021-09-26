@@ -1,4 +1,4 @@
-package com.bw.jtools.ui.vector.svg;
+package com.bw.jtools.shape.svg;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;

@@ -2,10 +2,10 @@ package com.bw.jtools.examples.svg;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.io.IOTool;
+import com.bw.jtools.shape.ShapeIcon;
 import com.bw.jtools.ui.JExceptionDialog;
 import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.icon.ShapeIcon;
-import com.bw.jtools.ui.vector.svg.SVG;
+import com.bw.jtools.shape.svg.SVGConverter;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -177,7 +177,7 @@ public class SVGDemo
 		{
 			try
 			{
-				SVG svg = new SVG(data.getText());
+				SVGConverter svg = new SVGConverter(data.getText());
 
 				ShapeIcon icon = new ShapeIcon(svg.getShapes());
 				icon.setInlineBorder(true);

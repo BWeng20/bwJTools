@@ -1,7 +1,6 @@
-package com.bw.jtools.ui.vector.svg;
+package com.bw.jtools.shape.svg;
 
-import com.bw.jtools.Log;
-import com.bw.jtools.ui.vector.ShapeInfo;
+import com.bw.jtools.shape.ShapeWithStyle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -17,8 +16,10 @@ import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
@@ -31,7 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Parses and converts a SVG document into a liost of "ShapeInfo"-objects.</br>
+ * Parses and converts a SVG document into Java2D-shapes plus bacis style-information (see {@link ShapeWithStyle}).</br>
+ * </br>
  * Currently supported features:
  * <ul>
  * <li>g</li>
@@ -46,11 +48,31 @@ import java.util.Map;
  * <li>use</li>
  * <li>linearGradient</li>
  * <li>radialGradient</li>
+ * <li>clipPath (only direct use by attribute clip-path, no inheritance)</li>
  * </ul>
+ * As the svg elements are simply converted to Shapes, complex stuff that needs offline-rendering (like blur) can't work.
+ * Also a lot of complex use-case will not work as specified. </br>
+ * The SVG specification contains a lot of such case with a large amounts of hints how agents should render it correctly.
+ * But most svg graphics doesn't use such stuff, so the conversion to Java2D shapes is the most efficient way to draw
+ * simple scalable graphics (see {@link com.bw.jtools.shape.ShapePainter} and {@link com.bw.jtools.shape.ShapeIcon}).</br>
+ * My basic need was to draw icons that will look good also on high-res-screens.</br>
+ * If you need a more feature-complete renderer, use batik or (not to forget) SVG Salamander.
  */
-public class SVG
+public class SVGConverter
 {
-	private final List<ShapeInfo> shapes_ = new ArrayList<>();
+	public static void warn(String s)
+	{
+		System.out.println("SVG Warning: "+s);
+	}
+
+	public static void error(String s, Throwable t)
+	{
+		System.err.println("SVG Error: "+(s == null ? "" : s));
+		if ( t != null )
+			t.printStackTrace(System.err);
+	}
+
+	private final List<ShapeWithStyle> shapes_ = new ArrayList<>();
 	private Map<String, Gradient> paintServer_ = new HashMap<>();
 	private Map<String, Paint> paints_ = new HashMap<>();
 	private Font defaultFont_ = Font.decode("Arial-PLAIN-12");
@@ -65,7 +87,7 @@ public class SVG
 	 *
 	 * @param xml The svg document.
 	 */
-	public SVG(final String xml)
+	public SVGConverter(final String xml)
 	{
 		try
 		{
@@ -90,8 +112,8 @@ public class SVG
 			// and "getElementById" will not work. So we have to collect the Ids manually.
 			elementCache_.scanForIds(doc_);
 
-			NodeList patterns = doc_.getElementsByTagName("pattern");
-			// @TODO
+			// @TODO patterns
+			// NodeList patterns = doc_.getElementsByTagName("pattern");
 
 			parseChildren(shapes_, doc_.getElementsByTagName("svg")
 									   .item(0));
@@ -99,7 +121,7 @@ public class SVG
 		}
 		catch (SAXException | IOException | ParserConfigurationException e)
 		{
-			Log.error("Failed to parse SVG", e);
+			error("Failed to parse SVG", e);
 		}
 	}
 
@@ -149,15 +171,62 @@ public class SVG
 		return pt;
 	}
 
+	public Shape getClipPath(String id)
+	{
+		// @TODO: use clip-rule for clipPath elements.
+
+		ElementWrapper w = elementCache_.getElementWrapperById(id);
+		if (w != null)
+		{
+			if ( w.getType() != ElementWrapper.Type.clipPath)
+			{
+				warn(w.id()+" is not a clipPath");
+			}
+			else
+			{
+				ShapeWrapper shape = w.getShape();
+				if (shape == null)
+				{
+					List<ShapeWithStyle> g = new ArrayList<>();
+					parseChildren(g, w.getNode());
+
+					Path2D.Double clipPath = new Path2D.Double();
+					for (ShapeWithStyle s : g)
+					{
+						if ( s.clipping_ == null )
+						{
+							clipPath.append( s.shape_, false );
+						}
+						else
+						{
+							// Intersect according to spec.
+							Area area = new Area(s.shape_);
+							area.intersect(new Area(s.clipping_));
+							clipPath.append( area, false );
+						}
+					}
+					g.clear();
+					w.setShape(new ShapeWrapper(clipPath));
+					shape = w.getShape();
+				}
+				return shape.getShape();
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Get all parsed shapes.
 	 */
-	public List<ShapeInfo> getShapes()
+	public List<ShapeWithStyle> getShapes()
 	{
 		return Collections.unmodifiableList(shapes_);
 	}
 
-
+	/**
+	 * Gets the internal element cache.
+	 * @return Never null.
+	 */
 	public ElementCache getCache()
 	{
 		return elementCache_;
@@ -205,7 +274,7 @@ public class SVG
 			return null;
 	}
 
-	private void parseChildren(List<ShapeInfo> shapes, Node parent)
+	private void parseChildren(List<ShapeWithStyle> shapes, Node parent)
 	{
 		Node child = parent.getFirstChild();
 		while (child != null)
@@ -221,14 +290,14 @@ public class SVG
 		}
 	}
 
-	private void parse(List<ShapeInfo> shapes, ElementWrapper w)
+	private void parse(List<ShapeWithStyle> shapes, ElementWrapper w)
 	{
 		final String e = w.getTagName();
 		ElementWrapper.Type typ = w.getType();
-		List<ShapeInfo> g = new ArrayList<>();
+		List<ShapeWithStyle> g = new ArrayList<>();
 
 		if (typ == null)
-			Log.warn("Unknown command " + e);
+			warn("Unknown command " + e);
 		else switch (typ)
 		{
 			case g:
@@ -244,12 +313,13 @@ public class SVG
 					w.setShape(shape = new ShapeWrapper(new Path(w.attr("d", false)).getPath()));
 				shapes.add(createShape(w, shape.getShape()));
 
+				// Debugging feature
 				if (addPathSegments_)
 				{
 					Stroke s = new Stroke(new Color(this, "yellow", null),
 							0.1d, null, null, null, null, null);
 
-					shapes.add(new ShapeInfo(shape.getSegmentPath(), s.getStroke(), s.getColor(), 1, null, 1));
+					shapes.add(new ShapeWithStyle(shape.getSegmentPath(), s.getStroke(), s.getColor(), 1, null, 1, null));
 				}
 			}
 			break;
@@ -301,10 +371,10 @@ public class SVG
 						double y = w.toPDouble("y");
 						ElementWrapper uw = refOrgW.createReferenceCopy(w);
 
-						List<ShapeInfo> useShapes = new ArrayList<>();
+						List<ShapeWithStyle> useShapes = new ArrayList<>();
 						parse(useShapes, uw);
 						AffineTransform aft = AffineTransform.getTranslateInstance(x, y);
-						for (ShapeInfo sinfo : useShapes)
+						for (ShapeWithStyle sinfo : useShapes)
 						{
 							// Remind: Ids are duplicates!
 							if (sinfo.aft_ == null)
@@ -353,20 +423,20 @@ public class SVG
 			case defs:
 			case linearGradient:
 			case radialGradient:
-				// Already processed. See C'tor.
-				// Already processed. See C'tor.
+			case clipPath:
+				// Parsed on demand
 				break;
 		}
 	}
 
-	protected void addShapeContainer(ElementWrapper w, List<ShapeInfo> shapes, List<ShapeInfo> global)
+	protected void addShapeContainer(ElementWrapper w, List<ShapeWithStyle> shapes, List<ShapeWithStyle> global)
 	{
 		String transform = w.attr("transform", false);
 		if (ElementWrapper.isNotEmpty(transform))
 		{
 			AffineTransform t = new Transform(null, transform).getTransform();
 			if (t != null)
-				for (ShapeInfo s : shapes)
+				for (ShapeWithStyle s : shapes)
 				{
 					if (s.aft_ == null)
 						s.aft_ = t;
@@ -374,6 +444,7 @@ public class SVG
 						s.aft_.preConcatenate(t);
 				}
 		}
+
 		global.addAll(shapes);
 		shapes.clear();
 	}
@@ -381,19 +452,21 @@ public class SVG
 	/**
 	 * Helper to handle common presentation attributes and create a ShapeInfo-instance.
 	 */
-	protected ShapeInfo createShape(ElementWrapper w, Shape s)
+	protected ShapeWithStyle createShape(ElementWrapper w, Shape s)
 	{
 		Stroke stroke = stroke(w);
 		Color fill = fill(w);
+		Shape clipPath = clipPath(w);
 
 		float generalOpacity = w.opacity();
 
-		ShapeInfo sinfo = new ShapeInfo(s,
+		ShapeWithStyle sinfo = new ShapeWithStyle(s,
 				stroke.getColor() == null ? null : stroke.getStroke(),
 				stroke.getColor(),
 				generalOpacity * stroke.getOpacity(),
 				fill.getColor(),
-				generalOpacity * fill.getOpacity()
+				generalOpacity * fill.getOpacity(),
+				clipPath
 		);
 		sinfo.id_ = w.id();
 		transform(sinfo, w);
@@ -464,7 +537,7 @@ public class SVG
 	/**
 	 * Handles "Transform" attribute.
 	 */
-	protected final void transform(ShapeInfo s, ElementWrapper w)
+	protected final void transform(ShapeWithStyle s, ElementWrapper w)
 	{
 		AffineTransform t = w.transform();
 		if (t != null)
@@ -489,6 +562,12 @@ public class SVG
 				w.toDouble("stroke-miterlimit", true)
 		);
 		return stroke;
+	}
+
+	protected Shape clipPath(ElementWrapper w)
+	{
+		// @TODO intersect inherited clip-paths.
+		return getClipPath( w.clipPath() );
 	}
 
 }

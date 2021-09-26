@@ -1,9 +1,7 @@
-package com.bw.jtools.ui.vector.svg;
+package com.bw.jtools.shape.svg;
 
 import java.awt.Paint;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Color
 {
@@ -165,9 +163,7 @@ public class Color
 	private Paint color_;
 	private float opacity_;
 
-	private static final Pattern urlRegExp = Pattern.compile("url\\(\\s*#([^\\)]+)\\)(.*)", Pattern.CASE_INSENSITIVE);
-
-	public Color(SVG svg, String color, Double opacity)
+	public Color(SVGConverter svg, String color, Double opacity)
 	{
 		if (color != null)
 		{
@@ -200,16 +196,14 @@ public class Color
 			}
 			else
 			{
-				Matcher m = urlRegExp.matcher(color);
-				if (m.matches())
+				String[] ref = ElementWrapper.urlRef(color);
+				if (ref != null)
 				{
-					String ref = m.group(1)
-								  .trim();
-					color_ = svg.getPaint(ref);
+					color_ = svg.getPaint(ref[0]);
 					if (color_ == null)
 					{
 						// Use fallback if reference doesn't exists.
-						color_ = new Color(svg, m.group(2), opacity).color_;
+						color_ = new Color(svg, ref[1], opacity).color_;
 						return;
 					}
 				}

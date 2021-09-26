@@ -1,4 +1,4 @@
-package com.bw.jtools.ui.vector.svg;
+package com.bw.jtools.shape.svg;
 
 import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
@@ -38,7 +38,7 @@ public abstract class Gradient
 
 	}
 
-	public void resolveHref(SVG svg)
+	public void resolveHref(SVGConverter svg)
 	{
 		if (href_ != null)
 		{
@@ -52,7 +52,7 @@ public abstract class Gradient
 		}
 	}
 
-	public Paint getPaint(SVG svg)
+	public Paint getPaint(SVGConverter svg)
 	{
 		resolveHref(svg);
 		return createPaint();

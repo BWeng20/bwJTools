@@ -1,6 +1,4 @@
-package com.bw.jtools.ui.vector.svg;
-
-import com.bw.jtools.Log;
+package com.bw.jtools.shape.svg;
 
 import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint;
@@ -31,7 +29,7 @@ public class LinearGradient extends Gradient
 		}
 		catch (Exception e)
 		{
-			Log.error("Failed to create linearGradient '" + id_ + "'", e);
+			SVGConverter.error("Failed to create linearGradient '" + id_ + "'", e);
 			return null;
 		}
 	}

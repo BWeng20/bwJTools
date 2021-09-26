@@ -1,4 +1,4 @@
-package com.bw.jtools.ui.vector;
+package com.bw.jtools.shape;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -8,10 +8,13 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Holds and paints  a list of shapes.
+ */
 public final class ShapePainter
 {
 	private Rectangle2D.Double area_ = null;
-	private final List<ShapeInfo> shapes_ = new ArrayList<>();
+	private final List<ShapeWithStyle> shapes_ = new ArrayList<>();
 	private final static BasicStroke defaultStroke_ = new BasicStroke(1f);
 	private double scaleX_ = 1.0f;
 	private double scaleY_ = 1.0f;
@@ -49,7 +52,7 @@ public final class ShapePainter
 	/**
 	 * Adds a shape.
 	 */
-	public void addShape(ShapeInfo shape)
+	public void addShape(ShapeWithStyle shape)
 	{
 		shapes_.add(shape);
 
@@ -106,11 +109,12 @@ public final class ShapePainter
 		AffineTransform orgAft = g2D.getTransform();
 		AffineTransform aft = new AffineTransform();
 
-		for (ShapeInfo shape : shapes_)
+		for (ShapeWithStyle shape : shapes_)
 		{
 			aft.setTransform(orgAft);
 			aft.concatenate(shape.aft_);
 			g2D.setTransform(aft);
+			g2D.setClip(shape.clipping_ );
 
 			if (shape.fill_ != null)
 			{

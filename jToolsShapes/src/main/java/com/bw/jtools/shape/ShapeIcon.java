@@ -19,28 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.ui.icon;
-
-
-import com.bw.jtools.ui.vector.ShapeInfo;
-import com.bw.jtools.ui.vector.ShapePainter;
+package com.bw.jtools.shape;
 
 import javax.swing.Icon;
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class ShapeIcon implements Icon
 {
@@ -49,17 +38,17 @@ public class ShapeIcon implements Icon
 	private final ShapePainter painter_;
 	private final static AffineTransform noTransform = new AffineTransform();
 
-	public ShapeIcon(Collection<ShapeInfo> shapes)
+	public ShapeIcon(Collection<ShapeWithStyle> shapes)
 	{
 		painter_ = new ShapePainter();
-		for ( ShapeInfo s : shapes)
+		for ( ShapeWithStyle s : shapes)
 			addShape(s);
 	}
 
 	/**
 	 * Adds a shape.
 	 */
-	public void addShape(ShapeInfo shape)
+	public void addShape(ShapeWithStyle shape)
 	{
 		if ( shape.aft_ == null )
 			shape.aft_ = noTransform;

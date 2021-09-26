@@ -1,4 +1,4 @@
-package com.bw.jtools.ui.vector.svg;
+package com.bw.jtools.shape.svg;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -77,6 +77,18 @@ public final class ElementWrapper
 		return v != null && !v.isEmpty();
 	}
 
+	private static final Pattern urlRegExp = Pattern.compile("url\\(\\s*#([^\\)]+)\\)(.*)", Pattern.CASE_INSENSITIVE);
+
+	/**
+	 * Extract id reference from a "url(#id)" expression.
+	 * @return null if the expression is not a url. Otherwise the id will be in #0 and any remaining text in #1.
+	 */
+	protected static String[] urlRef(String ref)
+	{
+		Matcher m = urlRegExp.matcher(ref);
+		return (m.matches()) ? new String[] {m.group(1).trim(), m.group(2)} : null;
+	}
+
 	protected static Double convDouble(String val)
 	{
 		if (val != null)
@@ -96,7 +108,7 @@ public final class ElementWrapper
 
 	/**
 	 * Used for re-usable shapes, e.g. paths that are used in textPaths elements.</br>
-	 * If a transform is set on the element, the shape is set to a tranformed copy.
+	 * If a transform is set on the element, the shape is set to a transformed copy.
 	 */
 	public void setShape(ShapeWrapper shape)
 	{
@@ -120,7 +132,6 @@ public final class ElementWrapper
 	{
 		return shape_;
 	}
-
 
 	public enum Unit
 	{
@@ -177,6 +188,7 @@ public final class ElementWrapper
 	public enum Type
 	{
 		g,
+		clipPath,
 		path, rect, circle, ellipse,
 		text, textPath,
 		line, polyline, polygon,
@@ -185,7 +197,7 @@ public final class ElementWrapper
 
 		private final static HashMap<String, Type> types_ = new HashMap<>();
 
-		// Use map instead of "valueOf" to skip execptions for unknown values
+		// Use map instead of "valueOf" to avoid exceptions for unknown values
 		static
 		{
 			for (Type t : values())
@@ -237,6 +249,20 @@ public final class ElementWrapper
 		}
 		return null;
 	}
+
+	public String clipPath()
+	{
+		String v = node_.getAttribute("clip-path")
+						   .trim();
+		if (isNotEmpty(v))
+		{
+			String ref[] = urlRef(v);
+			if (ref != null)
+				return ref[0];
+		}
+		return null;
+	}
+
 
 	/**
 	 * Gets the java font-weight-value from "font-weight"-attribute.

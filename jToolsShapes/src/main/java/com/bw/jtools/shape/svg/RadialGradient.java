@@ -1,6 +1,4 @@
-package com.bw.jtools.ui.vector.svg;
-
-import com.bw.jtools.Log;
+package com.bw.jtools.shape.svg;
 
 import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
@@ -31,7 +29,7 @@ public class RadialGradient extends Gradient
 		}
 		catch (Exception e)
 		{
-			Log.error("Failed to create radialGradient '" + id_ + "'", e);
+			SVGConverter.error("Failed to create radialGradient '" + id_ + "'", e);
 			return null;
 		}
 	}

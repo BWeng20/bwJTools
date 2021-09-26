@@ -1,4 +1,4 @@
-package com.bw.jtools.ui.vector.svg;
+package com.bw.jtools.shape.svg;
 
 /**
  * Base class for Parser.<br>

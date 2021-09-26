@@ -1,6 +1,6 @@
-package com.bw.jtools.ui.vector.svg;
+package com.bw.jtools.shape.svg;
 
-import com.bw.jtools.ui.vector.ShapeInfo;
+import com.bw.jtools.shape.ShapeWithStyle;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -12,7 +12,7 @@ public class Transform extends Parser
 	private AffineTransform transform_;
 	private static final Pattern transformRE = Pattern.compile("([a-z,A-Z ]+)\\(([^\\(]+)\\)", Pattern.CASE_INSENSITIVE);
 
-	public Transform(ShapeInfo s, String transform)
+	public Transform(ShapeWithStyle s, String transform)
 	{
 		super();
 		Matcher m = transformRE.matcher(transform);

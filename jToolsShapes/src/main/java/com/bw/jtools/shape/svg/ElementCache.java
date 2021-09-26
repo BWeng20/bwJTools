@@ -1,6 +1,5 @@
-package com.bw.jtools.ui.vector.svg;
+package com.bw.jtools.shape.svg;
 
-import com.bw.jtools.Log;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -30,7 +29,7 @@ public class ElementCache
 				{
 					// Duplicate ids are no hard error, as svg seems to allow it.
 					// As we handle the element-wrapper via id, we need to remove the id.
-					Log.warn("SVG: Duplicate id " + id);
+					SVGConverter.warn("SVG: Duplicate id " + id);
 					((Element) node).removeAttribute("id");
 				}
 				else

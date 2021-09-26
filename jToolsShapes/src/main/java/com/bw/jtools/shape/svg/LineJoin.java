@@ -1,6 +1,4 @@
-package com.bw.jtools.ui.vector.svg;
-
-import com.bw.jtools.Log;
+package com.bw.jtools.shape.svg;
 
 public enum LineJoin
 {
@@ -17,7 +15,7 @@ public enum LineJoin
 			}
 			catch (IllegalArgumentException i)
 			{
-				Log.warn("Unknown line-join mode " + val);
+				SVGConverter.warn("Unknown line-join mode " + val);
 			}
 		}
 		return miter;

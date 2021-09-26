@@ -26,6 +26,7 @@ sourceSets {
 dependencies {
     implementation project(':jtools')
     implementation project(':jProfiling')
+    implementation project(':jToolsShapes')
     implementation 'org.netbeans.api:org-netbeans-swing-outline:RELEASE121'
 }
 
@@ -38,13 +39,13 @@ jar {
     dependsOn ':jtools:jar'
     manifest {
         attributes 'Implementation-Title': 'Examples for usage of jtools',
-        	   'Implementation-Version': version,
-                   'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
-                   'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
-        	   'Main-Class': "com.bw.jtools.examples.starter.ExampleList"
+        	    'Implementation-Version': version,
+                'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+        	    'Main-Class': "com.bw.jtools.examples.starter.ExampleList"
     }
 
-    archiveBaseName = 'jToolsExamples';
+    archiveBaseName = 'jToolsExamples'
     // duplicatesStrategy = 'exclude'
     includeEmptyDirs = false
     from "${rootProject.projectDir}/licenses" 
