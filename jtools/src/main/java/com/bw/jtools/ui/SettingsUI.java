@@ -125,10 +125,12 @@ public class SettingsUI
 	protected static class AutoFlushPosWindowListerner extends WindowAdapter
 	{
 		public final String pref_prefix_;
+		public final boolean storeWindowPos_;
 
-		public AutoFlushPosWindowListerner(String pref_prefix)
+		public AutoFlushPosWindowListerner(String pref_prefix, boolean storeWindowPos)
 		{
 			pref_prefix_ = pref_prefix;
+			storeWindowPos_ = storeWindowPos;
 		}
 
 		@Override
@@ -142,15 +144,7 @@ public class SettingsUI
 		}
 	}
 
-	protected static WindowListener autoFlushWindowListerner_ = new WindowAdapter()
-	{
-		@Override
-		public void windowClosing(WindowEvent e)
-		{
-			// Make any change persistent:
-			Store.flushStorage();
-		}
-	};
+	protected static AutoFlushPosWindowListerner autoFlushWindowListener_ = new AutoFlushPosWindowListerner(null, false);
 
 	/**
 	 * Installs a window-listener on the window that stores the window-position
@@ -172,7 +166,7 @@ public class SettingsUI
 	 */
 	public static void storePositionAndFlushOnClose(Window w, String pref_prefix)
 	{
-		w.addWindowListener(new AutoFlushPosWindowListerner(pref_prefix));
+		w.addWindowListener(new AutoFlushPosWindowListerner(pref_prefix, true));
 	}
 
 
@@ -183,8 +177,8 @@ public class SettingsUI
 	 */
 	public static void flushOnClose(Window w)
 	{
-		w.removeWindowListener(autoFlushWindowListerner_);
-		w.addWindowListener(autoFlushWindowListerner_);
+		w.removeWindowListener(autoFlushWindowListener_);
+		w.addWindowListener(autoFlushWindowListener_);
 	}
 
 

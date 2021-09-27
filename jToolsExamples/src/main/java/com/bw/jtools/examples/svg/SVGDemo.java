@@ -4,8 +4,9 @@ import com.bw.jtools.Application;
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.shape.ShapeIcon;
 import com.bw.jtools.ui.JExceptionDialog;
+import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.shape.svg.SVGConverter;
+import com.bw.jtools.svg.SVGConverter;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -182,6 +183,7 @@ public class SVGDemo
 				ShapeIcon icon = new ShapeIcon(svg.getShapes());
 				icon.setInlineBorder(true);
 
+
 				Dimension d = drawPanel.getSize();
 
 				double scale = Math.min(d.width / (double) icon.getIconWidth(), d.height / (double) icon.getIconHeight());
@@ -236,6 +238,11 @@ public class SVGDemo
 
 		f.setContentPane(panel);
 		f.pack();
+
+		// Restore window-position and dimension from prefences.
+		SettingsUI.loadWindowPosition(f);
+		SettingsUI.storePositionAndFlushOnClose(f);
+
 		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		f.setVisible(true);
 	}
