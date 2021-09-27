@@ -1,4 +1,4 @@
-package com.bw.jtools.shape.svg;
+package com.bw.jtools.svg;
 
 import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint;
@@ -22,7 +22,7 @@ public class LinearGradient extends Gradient
 		{
 			return new LinearGradientPaint(
 					new Point2D.Double(x1, y1), new Point2D.Double(x2, y2),
-					fractions_, colors_,
+					getFractionsArray(), getColorArray(),
 					cycleMethod_ == null ? MultipleGradientPaint.CycleMethod.NO_CYCLE : cycleMethod_,
 					LinearGradientPaint.ColorSpaceType.SRGB,
 					aft_ == null ? new AffineTransform() : aft_);

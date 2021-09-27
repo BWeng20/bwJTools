@@ -1,4 +1,4 @@
-package com.bw.jtools.shape.svg;
+package com.bw.jtools.svg;
 
 import com.bw.jtools.shape.ShapeWithStyle;
 

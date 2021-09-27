@@ -1,4 +1,4 @@
-package com.bw.jtools.shape.svg;
+package com.bw.jtools.svg;
 
 import com.bw.jtools.shape.ShapeWithStyle;
 import org.w3c.dom.Document;
@@ -46,8 +46,8 @@ import java.util.Map;
  * <li>polygon</li>
  * <li>text (with tspan and testPath)</li>
  * <li>use</li>
- * <li>linearGradient</li>
- * <li>radialGradient</li>
+ * <li>linearGradient (without stop-opacity)</li>
+ * <li>radialGradient (without stop-opacity)</li>
  * <li>clipPath (only direct use by attribute clip-path, no inheritance)</li>
  * </ul>
  * As the svg elements are simply converted to Shapes, complex stuff that needs offline-rendering (like blur) can't work.
@@ -62,13 +62,13 @@ public class SVGConverter
 {
 	public static void warn(String s)
 	{
-		System.out.println("SVG Warning: "+s);
+		System.out.println("SVG Warning: " + s);
 	}
 
 	public static void error(String s, Throwable t)
 	{
-		System.err.println("SVG Error: "+(s == null ? "" : s));
-		if ( t != null )
+		System.err.println("SVG Error: " + (s == null ? "" : s));
+		if (t != null)
 			t.printStackTrace(System.err);
 	}
 
@@ -178,9 +178,9 @@ public class SVGConverter
 		ElementWrapper w = elementCache_.getElementWrapperById(id);
 		if (w != null)
 		{
-			if ( w.getType() != ElementWrapper.Type.clipPath)
+			if (w.getType() != ElementWrapper.Type.clipPath)
 			{
-				warn(w.id()+" is not a clipPath");
+				warn(w.id() + " is not a clipPath");
 			}
 			else
 			{
@@ -193,16 +193,16 @@ public class SVGConverter
 					Path2D.Double clipPath = new Path2D.Double();
 					for (ShapeWithStyle s : g)
 					{
-						if ( s.clipping_ == null )
+						if (s.clipping_ == null)
 						{
-							clipPath.append( s.shape_, false );
+							clipPath.append(s.shape_, false);
 						}
 						else
 						{
 							// Intersect according to spec.
 							Area area = new Area(s.shape_);
 							area.intersect(new Area(s.clipping_));
-							clipPath.append( area, false );
+							clipPath.append(area, false);
 						}
 					}
 					g.clear();
@@ -225,6 +225,7 @@ public class SVGConverter
 
 	/**
 	 * Gets the internal element cache.
+	 *
 	 * @return Never null.
 	 */
 	public ElementCache getCache()
@@ -439,7 +440,7 @@ public class SVGConverter
 				for (ShapeWithStyle s : shapes)
 				{
 					if (s.aft_ == null)
-						s.aft_ = t;
+						s.aft_ = new AffineTransform(t);
 					else
 						s.aft_.preConcatenate(t);
 				}
@@ -496,40 +497,40 @@ public class SVGConverter
 		NodeList stops = w.getNode()
 						  .getElementsByTagName("stop");
 
-		g.fractions_ = new float[stops.getLength()];
 		float f;
-		g.colors_ = new java.awt.Color[stops.getLength()];
-
 		int sN = stops.getLength();
-		for (int i = 0; i < sN; ++i)
+		if (sN > 0)
 		{
-			Element stop = (Element) stops.item(i);
-			ElementWrapper wrapper = new ElementWrapper(elementCache_, stop);
-
-			String offset = wrapper.attr("offset");
-			if (offset != null)
+			g.fractions_ = new float[sN];
+			g.colors_ = new java.awt.Color[sN];
+			g.opacities_ = new float[sN];
+			for (int i = 0; i < sN; ++i)
 			{
-				offset = offset.trim();
-				if (offset.endsWith("%"))
-					f = (float) ElementWrapper.convPDouble(offset.substring(0, offset.length() - 1)) / 100f;
+				Element stop = (Element) stops.item(i);
+				ElementWrapper wrapper = new ElementWrapper(elementCache_, stop);
+
+				String offset = wrapper.attr("offset");
+				if (offset != null)
+				{
+					offset = offset.trim();
+					if (offset.endsWith("%"))
+						f = (float) ElementWrapper.convPDouble(offset.substring(0, offset.length() - 1)) / 100f;
+					else
+						f = (float) ElementWrapper.convPDouble(offset);
+					if (f < 0)
+						f = 0;
+					else if (f > 1.0f)
+						f = 1.0f;
+				}
 				else
-					f = (float) ElementWrapper.convPDouble(offset);
-				if (f < 0)
-					f = 0;
-				else if (f > 1.0f)
-					f = 1.0f;
+					f = i > 0 ? g.fractions_[i - 1] : 0;
+				g.fractions_[i] = f;
+
+				final Color cp = new Color(this, wrapper.attr("stop-color"), wrapper.toDouble("stop-opacity"));
+				Paint p = cp.getColor();
+				g.colors_[i] = (p instanceof java.awt.Color) ? (java.awt.Color) p : java.awt.Color.WHITE;
+				g.opacities_[i] = cp.getOpacity();
 			}
-			else
-				f = i > 0 ? g.fractions_[i - 1] : 0;
-
-			g.fractions_[i] = f;
-
-			Paint p = new Color(this, wrapper.attr("stop-color"),
-					wrapper.toDouble("stop-opacity")).getColor();
-			if (p instanceof java.awt.Color)
-				g.colors_[i] = (java.awt.Color) p;
-			else
-				g.colors_[i] = java.awt.Color.WHITE;
 		}
 	}
 
@@ -567,7 +568,7 @@ public class SVGConverter
 	protected Shape clipPath(ElementWrapper w)
 	{
 		// @TODO intersect inherited clip-paths.
-		return getClipPath( w.clipPath() );
+		return getClipPath(w.clipPath());
 	}
 
 }

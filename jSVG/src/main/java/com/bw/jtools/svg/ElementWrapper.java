@@ -1,4 +1,4 @@
-package com.bw.jtools.shape.svg;
+package com.bw.jtools.svg;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -81,12 +81,13 @@ public final class ElementWrapper
 
 	/**
 	 * Extract id reference from a "url(#id)" expression.
+	 *
 	 * @return null if the expression is not a url. Otherwise the id will be in #0 and any remaining text in #1.
 	 */
 	protected static String[] urlRef(String ref)
 	{
 		Matcher m = urlRegExp.matcher(ref);
-		return (m.matches()) ? new String[] {m.group(1).trim(), m.group(2)} : null;
+		return (m.matches()) ? new String[]{m.group(1).trim(), m.group(2)} : null;
 	}
 
 	protected static Double convDouble(String val)
@@ -253,7 +254,7 @@ public final class ElementWrapper
 	public String clipPath()
 	{
 		String v = node_.getAttribute("clip-path")
-						   .trim();
+						.trim();
 		if (isNotEmpty(v))
 		{
 			String ref[] = urlRef(v);

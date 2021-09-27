@@ -1,4 +1,4 @@
-package com.bw.jtools.shape.svg;
+package com.bw.jtools.svg;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

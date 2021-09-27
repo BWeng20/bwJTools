@@ -1,4 +1,4 @@
-package com.bw.jtools.shape.svg;
+package com.bw.jtools.svg;
 
 import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
@@ -14,6 +14,18 @@ public abstract class Gradient
 
 	public float[] fractions_;
 	public java.awt.Color[] colors_;
+	public float[] opacities_;
+
+	protected java.awt.Color[] getColorArray()
+	{
+		return colors_;
+	}
+
+	protected float[] getFractionsArray()
+	{
+		return fractions_;
+	}
+
 
 	public MultipleGradientPaint.CycleMethod cycleMethod_;
 
@@ -29,13 +41,12 @@ public abstract class Gradient
 		if (aft_ == null) aft_ = template.aft_;
 
 		if (cycleMethod_ == null) cycleMethod_ = template.cycleMethod_;
-
 		if (fractions_ == null || fractions_.length == 0)
 		{
 			fractions_ = template.fractions_;
 			colors_ = template.colors_;
+			opacities_ = template.opacities_;
 		}
-
 	}
 
 	public void resolveHref(SVGConverter svg)

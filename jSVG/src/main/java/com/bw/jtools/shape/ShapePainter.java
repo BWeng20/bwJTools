@@ -21,9 +21,7 @@ public final class ShapePainter
 	private boolean keepOffset_ = false;
 
 	/**
-	 * Returnes the covered area according to shapes and scale.
-	 *
-	 * @return
+	 * Returns the covered area according to shapes and scale.
 	 */
 	public Rectangle2D.Double getArea()
 	{
@@ -46,7 +44,7 @@ public final class ShapePainter
 	 */
 	public double getAreaHeight()
 	{
-		return area_ == null ? 0 : scaleY_ * (keepOffset_ ? (area_.x + area_.height) : area_.height);
+		return area_ == null ? 0 : scaleY_ * (keepOffset_ ? (area_.y + area_.height) : area_.height);
 	}
 
 	/**
@@ -56,11 +54,14 @@ public final class ShapePainter
 	{
 		shapes_.add(shape);
 
-		Rectangle2D r = shape.shape_.getBounds2D();
+		final double lw = ((shape.stroke_ instanceof BasicStroke) ? (BasicStroke) shape.stroke_ : defaultStroke_).getLineWidth();
 
-		final float lw = ((shape.stroke_ instanceof BasicStroke) ? (BasicStroke) shape.stroke_ : defaultStroke_).getLineWidth();
+		/*
 		Rectangle2D transRect = shape.aft_.createTransformedShape(new Rectangle2D.Double(r.getX() - lw, r.getY() - lw, r.getWidth() + 2 * lw, r.getHeight() + 2 * lw))
 										  .getBounds2D();
+										  */
+		Rectangle2D r =  shape.aft_.createTransformedShape( shape.shape_ ).getBounds2D();
+		Rectangle2D transRect = new Rectangle2D.Double(r.getX()-lw,r.getY()-lw,r.getWidth()+2*lw,r.getHeight()+2*lw);
 		if (area_ == null)
 			area_ = new Rectangle2D.Double(transRect.getX(), transRect.getY(), transRect.getWidth(), transRect.getHeight());
 		else

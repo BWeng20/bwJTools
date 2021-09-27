@@ -47,7 +47,7 @@ jar {
     includeEmptyDirs = false
 
     from "${rootProject.projectDir}/licenses" 
-    includes = [ '**/com/bw/jtools/shape/**',
+    includes = [ '**/com/bw/jtools/**',
                  '/module-info.*',
                  '/LICENSE'
     ]

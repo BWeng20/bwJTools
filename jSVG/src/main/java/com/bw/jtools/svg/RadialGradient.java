@@ -1,4 +1,4 @@
-package com.bw.jtools.shape.svg;
+package com.bw.jtools.svg;
 
 import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
@@ -22,7 +22,7 @@ public class RadialGradient extends Gradient
 		{
 			return new RadialGradientPaint(
 					new Point2D.Double(cx, cy), r.floatValue(), new Point2D.Double(fx, fy),
-					fractions_, colors_,
+					getFractionsArray(), getColorArray(),
 					cycleMethod_ == null ? MultipleGradientPaint.CycleMethod.NO_CYCLE : cycleMethod_,
 					MultipleGradientPaint.ColorSpaceType.SRGB,
 					aft_ == null ? new AffineTransform() : aft_);
