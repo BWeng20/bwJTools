@@ -22,19 +22,12 @@
 package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
-import com.bw.jtools.io.IOTool;
 import com.bw.jtools.shape.ShapeIcon;
-import com.bw.jtools.shape.svg.SVGConverter;
+import com.bw.jtools.svg.SVGConverter;
 
 import javax.swing.JLabel;
 import javax.swing.SwingWorker;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
