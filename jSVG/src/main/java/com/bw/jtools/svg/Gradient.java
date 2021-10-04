@@ -4,6 +4,9 @@ import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
 import java.awt.geom.AffineTransform;
 
+/**
+ * Abstract base of gradient types.
+ */
 public abstract class Gradient
 {
 	public final String id_;
@@ -15,6 +18,7 @@ public abstract class Gradient
 	public float[] fractions_;
 	public java.awt.Color[] colors_;
 	public float[] opacities_;
+	public GradientUnits gradientUnits_;
 
 	protected java.awt.Color[] getColorArray()
 	{
@@ -25,7 +29,6 @@ public abstract class Gradient
 	{
 		return fractions_;
 	}
-
 
 	public MultipleGradientPaint.CycleMethod cycleMethod_;
 
@@ -39,6 +42,7 @@ public abstract class Gradient
 	{
 		//@TODO: Aggregate or copy? Check specs!
 		if (aft_ == null) aft_ = template.aft_;
+		if (gradientUnits_ == null) gradientUnits_ = template.gradientUnits_;
 
 		if (cycleMethod_ == null) cycleMethod_ = template.cycleMethod_;
 		if (fractions_ == null || fractions_.length == 0)
@@ -47,6 +51,11 @@ public abstract class Gradient
 			colors_ = template.colors_;
 			opacities_ = template.opacities_;
 		}
+	}
+
+	public GradientUnits getGradientUnits()
+	{
+		return gradientUnits_ == null ? GradientUnits.objectBoundingBox : gradientUnits_;
 	}
 
 	public void resolveHref(SVGConverter svg)
@@ -63,12 +72,30 @@ public abstract class Gradient
 		}
 	}
 
-	public Paint getPaint(SVGConverter svg)
+	public PaintWrapper getPaintWrapper(SVGConverter svg)
 	{
 		resolveHref(svg);
-		return createPaint();
+		return new PaintWrapper(this);
 	}
 
-	protected abstract Paint createPaint();
+	protected AffineTransform getResultingTransform(ElementWrapper w)
+	{
+		AffineTransform eat = w == null ? null : w.transform();
+		if (eat == null)
+			eat = new AffineTransform();
+
+		AffineTransform at;
+		if (eat == null)
+			at = new AffineTransform();
+		else
+			at = new AffineTransform(eat);
+
+		if (aft_ != null)
+			at.preConcatenate(aft_);
+
+		return at;
+	}
+
+	public abstract Paint createPaint(ElementWrapper w);
 
 }

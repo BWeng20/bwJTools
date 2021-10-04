@@ -23,6 +23,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -111,6 +112,8 @@ public class SVGDemo
 		JLabel draw = new JLabel();
 		draw.setHorizontalAlignment(JLabel.LEFT);
 		draw.setVerticalAlignment(JLabel.TOP);
+		draw.setBackground(Color.WHITE);
+		draw.setOpaque(true);
 
 		drawPanel.add(BorderLayout.CENTER, draw);
 		drawPanel.setPreferredSize(new Dimension(200, 600));
@@ -182,7 +185,6 @@ public class SVGDemo
 
 				ShapeIcon icon = new ShapeIcon(svg.getShapes());
 				icon.setInlineBorder(true);
-
 
 				Dimension d = drawPanel.getSize();
 

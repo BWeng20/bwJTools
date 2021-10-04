@@ -2,13 +2,11 @@ package com.bw.jtools.svg;
 
 import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint;
-import java.awt.Paint;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 
 public class LinearGradient extends Gradient
 {
-	public Double x1, y1, x2, y2;
+	public Length x1, y1, x2, y2;
 
 	public LinearGradient(String id)
 	{
@@ -16,16 +14,21 @@ public class LinearGradient extends Gradient
 	}
 
 	@Override
-	protected Paint createPaint()
+	public java.awt.Paint createPaint(ElementWrapper w)
 	{
 		try
 		{
+			AffineTransform eat = getResultingTransform(w);
+
+			ShapeHelper shape = w.getShape();
+
+			boolean userSpace = (gradientUnits_ == GradientUnits.userSpaceOnUse);
+
 			return new LinearGradientPaint(
-					new Point2D.Double(x1, y1), new Point2D.Double(x2, y2),
+					shape.getPoint(x1, y1, userSpace), shape.getPoint(x2, y2, userSpace),
 					getFractionsArray(), getColorArray(),
 					cycleMethod_ == null ? MultipleGradientPaint.CycleMethod.NO_CYCLE : cycleMethod_,
-					LinearGradientPaint.ColorSpaceType.SRGB,
-					aft_ == null ? new AffineTransform() : aft_);
+					LinearGradientPaint.ColorSpaceType.LINEAR_RGB, eat);
 		}
 		catch (Exception e)
 		{

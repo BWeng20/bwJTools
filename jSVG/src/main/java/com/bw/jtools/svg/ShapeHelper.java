@@ -5,19 +5,21 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides geometric functions on a shape.
+ * Provides geometric and other helper functions on a shape.
  */
-public final class ShapeWrapper
+public final class ShapeHelper
 {
 	private final Shape shape_;
 	private double outlineLength_;
 	private List<Segment> segments_;
+	private Rectangle2D bounds_;
 
-	public ShapeWrapper(Shape shape)
+	public ShapeHelper(Shape shape)
 	{
 		shape_ = shape;
 	}
@@ -27,12 +29,32 @@ public final class ShapeWrapper
 		return shape_;
 	}
 
+
+	public Point2D.Double getPoint(Length x1, Length y1, boolean userSpace)
+	{
+		if (userSpace)
+			return new Point2D.Double(x1.toPixel(null), y1.toPixel(null));
+		else
+		{
+			Rectangle2D box = getBoundingBox();
+			return new Point2D.Double(
+					box.getX() + x1.toPixel(box.getWidth()),
+					box.getY() + y1.toPixel(box.getHeight()));
+		}
+	}
+
+	public Rectangle2D getBoundingBox()
+	{
+		if (bounds_ == null)
+			bounds_ = shape_.getBounds2D();
+		return bounds_;
+	}
+
 	public double getOutlineLength()
 	{
 		initialiseIfNeeded();
 		return outlineLength_;
 	}
-
 
 	public PointOnPath pointAtLength(double length)
 	{
@@ -63,7 +85,6 @@ public final class ShapeWrapper
 	{
 		return (index >= 0 && index < segments_.size()) ? segments_.get(index) : null;
 	}
-
 
 	public Segment findSegmentAtLength(double length)
 	{
@@ -170,5 +191,4 @@ public final class ShapeWrapper
 			index_ = index;
 		}
 	}
-
 }

@@ -13,7 +13,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.Font;
 import java.awt.MultipleGradientPaint;
-import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -72,9 +71,10 @@ public class SVGConverter
 			t.printStackTrace(System.err);
 	}
 
-	private final List<ShapeWithStyle> shapes_ = new ArrayList<>();
+	private final List<ShapeInfo> shapes_ = new ArrayList<>();
+	private final List<ShapeWithStyle> finalShapes_ = new ArrayList<>();
 	private Map<String, Gradient> paintServer_ = new HashMap<>();
-	private Map<String, Paint> paints_ = new HashMap<>();
+	private Map<String, PaintWrapper> paints_ = new HashMap<>();
 	private Font defaultFont_ = Font.decode("Arial-PLAIN-12");
 	private Document doc_;
 	private final ElementCache elementCache_ = new ElementCache();
@@ -118,11 +118,45 @@ public class SVGConverter
 			parseChildren(shapes_, doc_.getElementsByTagName("svg")
 									   .item(0));
 
+			for (ShapeInfo s : shapes_)
+			{
+				finalShapes_.add(finish(s));
+			}
+
 		}
 		catch (SAXException | IOException | ParserConfigurationException e)
 		{
 			error("Failed to parse SVG", e);
 		}
+	}
+
+	private ShapeWithStyle finish(ShapeInfo s)
+	{
+		ElementWrapper w = elementCache_.getElementWrapperById(s.id_);
+
+		Shape shape;
+		Shape clipping = null;
+		if (s.aft_ == null)
+		{
+			shape = s.shape_;
+			clipping = s.clipping_;
+		}
+		else
+		{
+			shape = s.aft_.createTransformedShape(s.shape_);
+			if ( s.clipping_ != null )
+				clipping = s.aft_.createTransformedShape(s.clipping_);
+		}
+
+		ShapeWithStyle sws = new ShapeWithStyle(
+				s.id_,
+				shape,
+				s.stroke_,
+				s.paintWrapper_ == null ? null : s.paintWrapper_.createPaint(w), s.strokeOpacity_,
+				s.fillWrapper_ == null ? null : s.fillWrapper_.createPaint(w), s.fillOpacity_,
+				clipping);
+
+		return sws;
 	}
 
 	/**
@@ -156,16 +190,16 @@ public class SVGConverter
 	 * @param id The Id of the definition.
 	 * @return The paint of null.
 	 */
-	public Paint getPaint(String id)
+	public PaintWrapper getPaint(String id)
 	{
-		Paint pt = paints_.get(id);
+		PaintWrapper pt = paints_.get(id);
 		if (pt == null)
 		{
 			Gradient g = getPaintServer(id);
 			if (g != null)
-				pt = g.getPaint(this);
+				pt = g.getPaintWrapper(this);
 			if (pt == null)
-				pt = java.awt.Color.BLACK;
+				pt = new PaintWrapper(java.awt.Color.BLACK);
 			paints_.put(id, pt);
 		}
 		return pt;
@@ -178,20 +212,20 @@ public class SVGConverter
 		ElementWrapper w = elementCache_.getElementWrapperById(id);
 		if (w != null)
 		{
-			if (w.getType() != ElementWrapper.Type.clipPath)
+			if (w.getType() != Type.clipPath)
 			{
 				warn(w.id() + " is not a clipPath");
 			}
 			else
 			{
-				ShapeWrapper shape = w.getShape();
+				ShapeHelper shape = w.getShape();
 				if (shape == null)
 				{
-					List<ShapeWithStyle> g = new ArrayList<>();
+					List<ShapeInfo> g = new ArrayList<>();
 					parseChildren(g, w.getNode());
 
 					Path2D.Double clipPath = new Path2D.Double();
-					for (ShapeWithStyle s : g)
+					for (ShapeInfo s : g)
 					{
 						if (s.clipping_ == null)
 						{
@@ -206,7 +240,7 @@ public class SVGConverter
 						}
 					}
 					g.clear();
-					w.setShape(new ShapeWrapper(clipPath));
+					w.setShape(clipPath);
 					shape = w.getShape();
 				}
 				return shape.getShape();
@@ -220,7 +254,7 @@ public class SVGConverter
 	 */
 	public List<ShapeWithStyle> getShapes()
 	{
-		return Collections.unmodifiableList(shapes_);
+		return Collections.unmodifiableList(finalShapes_);
 	}
 
 	/**
@@ -240,12 +274,13 @@ public class SVGConverter
 		{
 			RadialGradient rg = new RadialGradient(id);
 
-			rg.cx = w.toDouble("cx");
-			rg.cy = w.toDouble("cy");
-			rg.r = w.toDouble("r");
-			rg.fx = w.toDouble("fx");
-			rg.fy = w.toDouble("fy");
-			rg.fr = w.toDouble("fr");
+			rg.cx = w.toDouble("cx", false);
+			rg.cy = w.toDouble("cy", false);
+			rg.r = w.toDouble("r", false);
+
+			rg.fx = w.toDouble("fx", true);
+			rg.fy = w.toDouble("fy", true);
+			rg.fr = w.toDouble("fr", true);
 
 			parseCommonGradient(rg, w);
 
@@ -262,10 +297,10 @@ public class SVGConverter
 		{
 			LinearGradient lg = new LinearGradient(id);
 
-			lg.x1 = w.toDouble("x1");
-			lg.y1 = w.toDouble("y1");
-			lg.x2 = w.toDouble("x2");
-			lg.y2 = w.toDouble("y2");
+			lg.x1 = w.toLength("x1");
+			lg.y1 = w.toLength("y1");
+			lg.x2 = w.toLength("x2");
+			lg.y2 = w.toLength("y2");
 
 			parseCommonGradient(lg, w);
 
@@ -275,7 +310,7 @@ public class SVGConverter
 			return null;
 	}
 
-	private void parseChildren(List<ShapeWithStyle> shapes, Node parent)
+	private void parseChildren(List<ShapeInfo> shapes, Node parent)
 	{
 		Node child = parent.getFirstChild();
 		while (child != null)
@@ -291,11 +326,11 @@ public class SVGConverter
 		}
 	}
 
-	private void parse(List<ShapeWithStyle> shapes, ElementWrapper w)
+	private void parse(List<ShapeInfo> shapes, ElementWrapper w)
 	{
 		final String e = w.getTagName();
-		ElementWrapper.Type typ = w.getType();
-		List<ShapeWithStyle> g = new ArrayList<>();
+		Type typ = w.getType();
+		List<ShapeInfo> g = new ArrayList<>();
 
 		if (typ == null)
 			warn("Unknown command " + e);
@@ -309,10 +344,9 @@ public class SVGConverter
 			break;
 			case path:
 			{
-				ShapeWrapper shape = w.getShape();
-				if (shape == null)
-					w.setShape(shape = new ShapeWrapper(new Path(w.attr("d", false)).getPath()));
-				shapes.add(createShape(w, shape.getShape()));
+				if (w.getShape() == null)
+					w.setShape(new Path(w.attr("d", false)).getPath());
+				shapes.add(createShapeInfo(w));
 
 				// Debugging feature
 				if (addPathSegments_)
@@ -320,27 +354,33 @@ public class SVGConverter
 					Stroke s = new Stroke(new Color(this, "yellow", null),
 							0.1d, null, null, null, null, null);
 
-					shapes.add(new ShapeWithStyle(shape.getSegmentPath(), s.getStroke(), s.getColor(), 1, null, 1, null));
+					shapes.add(new ShapeInfo(w.getShape()
+											  .getSegmentPath(), s.getStroke(), s.getPaintWrapper(),
+							1, null, 1, null));
 				}
 			}
 			break;
 			case rect:
 			{
-				float x = (float) w.toPDouble("x");
-				float y = (float) w.toPDouble("y");
-				float width = (float) w.toPDouble("width");
-				float height = (float) w.toPDouble("height");
-				Double rx = w.toDouble("rx", false);
-				Double ry = w.toDouble("ry", false);
+				if (w.getShape() == null)
+				{
+					float x = (float) w.toPDouble("x");
+					float y = (float) w.toPDouble("y");
+					float width = (float) w.toPDouble("width");
+					float height = (float) w.toPDouble("height");
+					Double rx = w.toDouble("rx", false);
+					Double ry = w.toDouble("ry", false);
 
-				RectangularShape rec;
+					RectangularShape rec;
 
-				if (rx != null || ry != null)
-					rec = new RoundRectangle2D.Double(x, y, width, height, 2d * (rx == null ? ry : rx), 2d * (ry == null ? rx : ry));
-				else
-					rec = new Rectangle2D.Double(x, y, width, height);
+					if (rx != null || ry != null)
+						rec = new RoundRectangle2D.Double(x, y, width, height, 2d * (rx == null ? ry : rx), 2d * (ry == null ? rx : ry));
+					else
+						rec = new Rectangle2D.Double(x, y, width, height);
 
-				shapes.add(createShape(w, rec));
+					w.setShape(rec);
+				}
+				shapes.add(createShapeInfo(w));
 			}
 			break;
 			case ellipse:
@@ -350,13 +390,13 @@ public class SVGConverter
 				float rx = (float) w.toPDouble("rx", false);
 				float ry = (float) w.toPDouble("ry", false);
 
-				Ellipse2D.Double ellipse = new Ellipse2D.Double(cx - rx, cy - ry, 2d * rx, 2d * ry);
-				shapes.add(createShape(w, ellipse));
+				w.setShape(new Ellipse2D.Double(cx - rx, cy - ry, 2d * rx, 2d * ry));
+				shapes.add(createShapeInfo(w));
 			}
 			break;
 			case text:
 			{
-				Text text = new Text(this, w, defaultFont_, g);
+				new Text(this, w, defaultFont_, g);
 				addShapeContainer(w, g, shapes);
 			}
 			break;
@@ -372,10 +412,10 @@ public class SVGConverter
 						double y = w.toPDouble("y");
 						ElementWrapper uw = refOrgW.createReferenceCopy(w);
 
-						List<ShapeWithStyle> useShapes = new ArrayList<>();
+						List<ShapeInfo> useShapes = new ArrayList<>();
 						parse(useShapes, uw);
 						AffineTransform aft = AffineTransform.getTranslateInstance(x, y);
-						for (ShapeWithStyle sinfo : useShapes)
+						for (ShapeInfo sinfo : useShapes)
 						{
 							// Remind: Ids are duplicates!
 							if (sinfo.aft_ == null)
@@ -394,8 +434,8 @@ public class SVGConverter
 				double y1 = w.toPDouble("cy");
 				double r = w.toPDouble("r");
 
-				Ellipse2D.Double circle = new Ellipse2D.Double(x1 - r, y1 - r, 2 * r, 2 * r);
-				shapes.add(createShape(w, circle));
+				w.setShape(new Ellipse2D.Double(x1 - r, y1 - r, 2 * r, 2 * r));
+				shapes.add(createShapeInfo(w));
 			}
 			break;
 			case line:
@@ -405,20 +445,20 @@ public class SVGConverter
 				double x2 = w.toPDouble("x2");
 				double y2 = w.toPDouble("y2");
 
-				Line2D.Double line = new Line2D.Double(x1, y1, x2, y2);
-				shapes.add(createShape(w, line));
+				w.setShape(new Line2D.Double(x1, y1, x2, y2));
+				shapes.add(createShapeInfo(w));
 			}
 			break;
 			case polyline:
 			{
-				Polyline poly = new Polyline(w.attr("points"));
-				shapes.add(createShape(w, poly.getPath()));
+				w.setShape(new Polyline(w.attr("points")).getPath());
+				shapes.add(createShapeInfo(w));
 			}
 			break;
 			case polygon:
 			{
-				Polyline poly = new Polyline(w.attr("points"));
-				shapes.add(createShape(w, poly.toPolygon()));
+				w.setShape(new Polyline(w.attr("points")).getPath());
+				shapes.add(createShapeInfo(w));
 			}
 			break;
 			case defs:
@@ -430,14 +470,14 @@ public class SVGConverter
 		}
 	}
 
-	protected void addShapeContainer(ElementWrapper w, List<ShapeWithStyle> shapes, List<ShapeWithStyle> global)
+	protected void addShapeContainer(ElementWrapper w, List<ShapeInfo> shapes, List<ShapeInfo> global)
 	{
 		String transform = w.attr("transform", false);
 		if (ElementWrapper.isNotEmpty(transform))
 		{
 			AffineTransform t = new Transform(null, transform).getTransform();
 			if (t != null)
-				for (ShapeWithStyle s : shapes)
+				for (ShapeInfo s : shapes)
 				{
 					if (s.aft_ == null)
 						s.aft_ = new AffineTransform(t);
@@ -445,7 +485,6 @@ public class SVGConverter
 						s.aft_.preConcatenate(t);
 				}
 		}
-
 		global.addAll(shapes);
 		shapes.clear();
 	}
@@ -453,7 +492,7 @@ public class SVGConverter
 	/**
 	 * Helper to handle common presentation attributes and create a ShapeInfo-instance.
 	 */
-	protected ShapeWithStyle createShape(ElementWrapper w, Shape s)
+	protected ShapeInfo createShapeInfo(ElementWrapper w)
 	{
 		Stroke stroke = stroke(w);
 		Color fill = fill(w);
@@ -461,11 +500,12 @@ public class SVGConverter
 
 		float generalOpacity = w.opacity();
 
-		ShapeWithStyle sinfo = new ShapeWithStyle(s,
-				stroke.getColor() == null ? null : stroke.getStroke(),
-				stroke.getColor(),
+		ShapeInfo sinfo = new ShapeInfo(w.getShape()
+										 .getShape(),
+				stroke.getPaintWrapper() == null ? null : stroke.getStroke(),
+				stroke.getPaintWrapper(),
 				generalOpacity * stroke.getOpacity(),
-				fill.getColor(),
+				fill.getPaintWrapper(),
 				generalOpacity * fill.getOpacity(),
 				clipPath
 		);
@@ -476,7 +516,6 @@ public class SVGConverter
 
 	private void parseCommonGradient(Gradient g, ElementWrapper w)
 	{
-		// @TODO gradientUnits
 		g.href_ = w.href();
 
 		String spreadMethod = w.attr("spreadMethod");
@@ -489,6 +528,8 @@ public class SVGConverter
 			else if ("repeat".equals(spreadMethod))
 				g.cycleMethod_ = MultipleGradientPaint.CycleMethod.REPEAT;
 		}
+
+		g.gradientUnits_ = GradientUnits.fromString(w.attr("gradientUnits"));
 
 		String gradientTransform = w.attr("gradientTransform", false);
 		if (ElementWrapper.isNotEmpty(gradientTransform))
@@ -527,8 +568,8 @@ public class SVGConverter
 				g.fractions_[i] = f;
 
 				final Color cp = new Color(this, wrapper.attr("stop-color"), wrapper.toDouble("stop-opacity"));
-				Paint p = cp.getColor();
-				g.colors_[i] = (p instanceof java.awt.Color) ? (java.awt.Color) p : java.awt.Color.WHITE;
+				PaintWrapper pw = cp.getPaintWrapper();
+				g.colors_[i] = (pw != null && pw.color_ != null) ? pw.color_ : java.awt.Color.WHITE;
 				g.opacities_[i] = cp.getOpacity();
 			}
 		}
@@ -538,7 +579,7 @@ public class SVGConverter
 	/**
 	 * Handles "Transform" attribute.
 	 */
-	protected final void transform(ShapeWithStyle s, ElementWrapper w)
+	protected final void transform(ShapeInfo s, ElementWrapper w)
 	{
 		AffineTransform t = w.transform();
 		if (t != null)

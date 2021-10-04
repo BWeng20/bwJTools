@@ -1,6 +1,5 @@
 package com.bw.jtools.svg;
 
-import com.bw.jtools.shape.ShapeWithStyle;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -64,7 +63,7 @@ public class Text extends Parser
 		}
 	}
 
-	public Text(SVGConverter svg, ElementWrapper w, Font defaultFont, List<ShapeWithStyle> shapes)
+	public Text(SVGConverter svg, ElementWrapper w, Font defaultFont, List<ShapeInfo> shapes)
 	{
 		super();
 
@@ -90,7 +89,8 @@ public class Text extends Parser
 					String text = w.text(childNode);
 					if (ElementWrapper.isNotEmpty(text))
 					{
-						shapes.add(svg.createShape(w, createText(font, text, pos)));
+						w.setShape(createText(font, text, pos));
+						shapes.add(svg.createShapeInfo(w));
 					}
 					break;
 				case Node.ELEMENT_NODE:
@@ -104,29 +104,32 @@ public class Text extends Parser
 		}
 	}
 
-	protected void parseTSpan(SVGConverter svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeWithStyle> shapes)
+	protected void parseTSpan(SVGConverter svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeInfo> shapes)
 	{
-		shapes.add(svg.createShape(ew, createText(ew.font(defaultFont), ew.text(), pos)));
+		ew.setShape(createText(ew.font(defaultFont), ew.text(), pos));
+		shapes.add(svg.createShapeInfo(ew));
 	}
 
-	protected void parseTextPath(SVGConverter svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeWithStyle> shapes)
+	protected void parseTextPath(SVGConverter svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeInfo> shapes)
 	{
 		String href = ew.href();
 		if (ElementWrapper.isNotEmpty(href))
 		{
 			ElementWrapper pw = ew.getCache()
 								  .getElementWrapperById(href);
-			if (pw != null && ElementWrapper.Type.path == pw.getType())
+			if (pw != null && Type.path == pw.getType())
 			{
 				pw = pw.createReferenceCopy(ew);
 
-				ShapeWrapper path = pw.getShape();
+				ShapeHelper path = pw.getShape();
 				if (path == null)
 				{
-					pw.setShape(new ShapeWrapper(new Path(pw.attr("d", false)).getPath()));
-					// Possibly transformed. Get it again.
+					pw.setShape(new Path(pw.attr("d", false)).getPath());
 					path = pw.getShape();
 				}
+				AffineTransform aft = pw.transform();
+				if (aft != null)
+					path = new ShapeHelper(aft.createTransformedShape(path.getShape()));
 
 				Double startOffset = ew.toDouble("startOffset", false);
 				Double textLength = ew.toDouble("textLength", false);
@@ -136,9 +139,10 @@ public class Text extends Parser
 				TextAnchor anchor = TextAnchor.valueFrom(ew.attr("text-anchor", true));
 
 				// @TODO: Adapt pos
-				shapes.add(svg.createShape(ew, layoutText(ew.font(defaultFont), ew.text(), path, anchor,
+				ew.setShape(layoutText(ew.font(defaultFont), ew.text(), path, anchor,
 						startOffset == null ? x_ : x_ + startOffset.doubleValue(),
-						textLength == null ? 0 : textLength.doubleValue(), adjust)));
+						textLength == null ? 0 : textLength.doubleValue(), adjust));
+				shapes.add(svg.createShapeInfo(ew));
 			}
 		}
 	}
@@ -156,7 +160,7 @@ public class Text extends Parser
 	 * Creates text along a path
 	 */
 	public static Shape layoutText(Font font, String text,
-								   ShapeWrapper path, TextAnchor align,
+								   ShapeHelper path, TextAnchor align,
 								   double startOffset,
 								   double textLength,
 								   LengthAdjust lengthAdjustMode)
@@ -208,7 +212,7 @@ public class Text extends Parser
 			double glyphWidth = bounds.getWidth();
 			double charMidPos = currentPosition + (advance / 2d);
 
-			final ShapeWrapper.PointOnPath point = path.pointAtLength(charMidPos);
+			final ShapeHelper.PointOnPath point = path.pointAtLength(charMidPos);
 
 			// To trace the reference points on the path:
 			// Rectangle2D dot = new Rectangle2D.Double(point.x_-1, point.y_-1,2, 2);

@@ -16,16 +16,18 @@ public class RadialGradient extends Gradient
 	}
 
 	@Override
-	public Paint createPaint()
+	public Paint createPaint(ElementWrapper w)
 	{
 		try
 		{
+			AffineTransform eat = getResultingTransform(w);
+
 			return new RadialGradientPaint(
-					new Point2D.Double(cx, cy), r.floatValue(), new Point2D.Double(fx, fy),
+					new Point2D.Double(cx, cy), r.floatValue(), new Point2D.Double(fx == null ? cx : fx, fy == null ? cy : fy),
 					getFractionsArray(), getColorArray(),
 					cycleMethod_ == null ? MultipleGradientPaint.CycleMethod.NO_CYCLE : cycleMethod_,
 					MultipleGradientPaint.ColorSpaceType.SRGB,
-					aft_ == null ? new AffineTransform() : aft_);
+					eat);
 		}
 		catch (Exception e)
 		{

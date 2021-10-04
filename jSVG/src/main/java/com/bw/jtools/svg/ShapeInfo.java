@@ -1,23 +1,23 @@
-package com.bw.jtools.shape;
+package com.bw.jtools.svg;
 
-import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 
 /**
- * A shape plus additional style information.
+ * Collectgs all information about a shape that are needed to produce a final shape.
  */
-public final class ShapeWithStyle
+public final class ShapeInfo
 {
 	/**
 	 * Id to identify the shape in the some document.
 	 */
-	public final String id_;
+	public String id_;
 
 	/**
 	 * The shape.
 	 */
-	public final Shape shape_;
+	public Shape shape_;
 
 	/**
 	 * The stroke to render the outline.
@@ -28,42 +28,44 @@ public final class ShapeWithStyle
 	 * The Paint to render the outline.</br>
 	 * Can be null.
 	 */
-	public final Paint paint_;
+	public PaintWrapper paintWrapper_;
 
 	/**
 	 * Overall Stroke opacity. Is equal to stroke-opacity * opacity
 	 */
-	public final float strokeOpacity_;
+	public float strokeOpacity_;
 
 	/**
 	 * The Paint to fill the shape. </br>
 	 * Can be null.
 	 */
-	public final Paint fill_;
+	public PaintWrapper fillWrapper_;
 
 	/**
 	 * Final fill opacity. Is equal to fill-opacity * opacity
 	 */
-	public final float fillOpacity_;
+	public float fillOpacity_;
 
-	public final Shape clipping_;
+	/**
+	 * Transform to be applied to the graphics context.</br>
+	 * Never null.
+	 */
+	public AffineTransform aft_;
+
+	public Shape clipping_;
 
 	/**
 	 * Constructor to initialize,
 	 */
-	public ShapeWithStyle(String id,
-						  Shape shape, Stroke stroke, Paint paint,
-						  float strokeOpacity, Paint fill, float fillOpacity,
-						  Shape clipping)
+	public ShapeInfo(Shape shape, Stroke stroke, PaintWrapper paint,
+					 float strokeOpacity, PaintWrapper fill, float fillOpacity, Shape clipping)
 	{
-		this.id_ = id;
 		this.shape_ = shape;
 		this.stroke_ = stroke;
-		this.paint_ = paint;
+		this.paintWrapper_ = paint;
+		this.fillWrapper_ = fill;
 		this.strokeOpacity_ = strokeOpacity;
-		this.fill_ = fill;
 		this.fillOpacity_ = fillOpacity;
-
 		this.clipping_ = clipping;
 	}
 

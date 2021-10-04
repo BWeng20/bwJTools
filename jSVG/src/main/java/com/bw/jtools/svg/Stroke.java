@@ -1,7 +1,6 @@
 package com.bw.jtools.svg;
 
 import java.awt.BasicStroke;
-import java.awt.Paint;
 
 public class Stroke
 {
@@ -47,12 +46,12 @@ public class Stroke
 		stroke_ = new BasicStroke(width == null ? 1f : width.floatValue(), cap, join,
 				miterlimit == null ? 4f : miterlimit.floatValue(), dasharray,
 				dashoffset == null ? 0f : dashoffset.floatValue());
-		paint_ = color == null ? null : color.getColor();
+		paint_ = color == null ? null : color.getPaintWrapper();
 		opacity_ = color == null ? 1f : color.getOpacity();
 	}
 
 	private java.awt.Stroke stroke_;
-	private Paint paint_;
+	private PaintWrapper paint_;
 	private float opacity_;
 
 	public java.awt.Stroke getStroke()
@@ -60,7 +59,7 @@ public class Stroke
 		return stroke_;
 	}
 
-	public Paint getColor()
+	public PaintWrapper getPaintWrapper()
 	{
 		return paint_;
 	}

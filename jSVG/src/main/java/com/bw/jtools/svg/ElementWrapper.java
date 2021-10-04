@@ -6,7 +6,7 @@ import org.w3c.dom.Node;
 
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
+import java.awt.Shape;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
@@ -15,6 +15,9 @@ import java.util.function.IntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Holds a svg element
+ */
 public final class ElementWrapper
 {
 	private static final Pattern styleSplitRegExp_ = Pattern.compile(";");
@@ -25,20 +28,9 @@ public final class ElementWrapper
 	private Node parent_;
 	private final Type type_;
 	private Boolean preserveSpace_;
-	private ShapeWrapper shape_;
+	private ShapeHelper shape_;
 	private AffineTransform aft_;
 	private ElementCache elementCache_;
-
-	private static final double pixelPerInch_;
-	private static final double pixelPerPoint_;
-	private static final double pixelPerCM_;
-	private static final double pixelPerMM_;
-	private static final double pixelPerPica_;
-
-	// @TODO: font height
-	private static final double pixelPerEM_ = 12;
-	// @TODO: font x-height (height of small letters)
-	private static final double pixelPerEX_ = 8;
 
 	private static final Pattern unitRegExp_ = Pattern.compile("([\\d+-\\.e]+)(pt|px|em|%|in|cm|mm|ex|pc)", Pattern.CASE_INSENSITIVE);
 
@@ -46,38 +38,29 @@ public final class ElementWrapper
 
 	static
 	{
-		double ppi = 72;
-		try
-		{
-			ppi = Toolkit.getDefaultToolkit()
-						 .getScreenResolution();
-		}
-		catch (Exception ex)
-		{
-		}
-		pixelPerInch_ = ppi;
-		pixelPerPoint_ = ppi / 72d;
-		pixelPerCM_ = 0.3937d * ppi;
-		pixelPerMM_ = 0.03937d * ppi;
-		pixelPerPica_ = ppi / 6d;
-
 		fontWeights_.put("normal", 400);
 		fontWeights_.put("bold", 700);
 		fontWeights_.put("lighter", 400);
 		fontWeights_.put("bolder", 700);
 	}
 
+	/**
+	 * Checks a string for null or empty.
+	 */
 	protected static boolean isEmpty(String v)
 	{
 		return v == null || v.isEmpty();
 	}
 
+	/**
+	 * Checks if string is not null or empty.
+	 */
 	protected static boolean isNotEmpty(String v)
 	{
 		return v != null && !v.isEmpty();
 	}
 
-	private static final Pattern urlRegExp = Pattern.compile("url\\(\\s*#([^\\)]+)\\)(.*)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern urlRegExp = Pattern.compile("url\\(['\"]?\\s*#([^\\\"')]+)['\"]?\\)(.*)", Pattern.CASE_INSENSITIVE);
 
 	/**
 	 * Extract id reference from a "url(#id)" expression.
@@ -90,6 +73,29 @@ public final class ElementWrapper
 		return (m.matches()) ? new String[]{m.group(1).trim(), m.group(2)} : null;
 	}
 
+	/**
+	 * Parse a length value.
+	 */
+	protected static Length parseLength(String val)
+	{
+		if (val != null)
+			try
+			{
+				Matcher m = unitRegExp_.matcher(val);
+				if (m.matches())
+					return new Length(Double.parseDouble(m.group(1)), LengthUnit.fromString(m.group(2)));
+				else
+					return new Length(Double.parseDouble(val), LengthUnit.px);
+			}
+			catch (Exception e)
+			{
+			}
+		return null;
+	}
+
+	/**
+	 * Converts a number o rlength value to double.
+	 */
 	protected static Double convDouble(String val)
 	{
 		if (val != null)
@@ -97,7 +103,7 @@ public final class ElementWrapper
 			{
 				Matcher m = unitRegExp_.matcher(val);
 				if (m.matches())
-					return convUnitToPixel(Double.parseDouble(m.group(1)), Unit.valueFrom(m.group(2)));
+					return new Length(Double.parseDouble(m.group(1)), LengthUnit.fromString(m.group(2))).toPixel(null);
 				else
 					return Double.parseDouble(val);
 			}
@@ -107,110 +113,27 @@ public final class ElementWrapper
 		return null;
 	}
 
-	/**
-	 * Used for re-usable shapes, e.g. paths that are used in textPaths elements.</br>
-	 * If a transform is set on the element, the shape is set to a transformed copy.
-	 */
-	public void setShape(ShapeWrapper shape)
+	public void setShape(Shape shape)
 	{
 		if (shape != null)
-		{
-			AffineTransform aft = transform();
-			if (aft == null)
-				shape_ = shape;
-			else
-				shape_ = new ShapeWrapper(aft.createTransformedShape(shape.getShape()));
-		}
+			shape_ = new ShapeHelper(shape);
 		else
 			shape_ = null;
 	}
 
-	/**
-	 * Used for re-usable shapes, e.g. paths that are used in textPaths elements.
-	 * Null of other elements.
-	 */
-	public ShapeWrapper getShape()
+	public ShapeHelper getShape()
 	{
 		return shape_;
 	}
 
-	public enum Unit
+	public Shape getTransformedShape()
 	{
-		pt, px, em, percent, in, cm, mm, ex, pc;
-
-		public static Unit valueFrom(String unit)
-		{
-			if (unit != null)
-			{
-				unit = unit.toLowerCase();
-				if (unit.equals("pt")) return pt;
-				if (unit.equals("px")) return px;
-				if (unit.equals("em")) return em;
-				if (unit.equals("%")) return percent;
-				if (unit.equals("in")) return in;
-				if (unit.equals("mm")) return mm;
-				if (unit.equals("cm")) return cm;
-				if (unit.equals("ex")) return ex;
-				if (unit.equals("pc")) return pc;
-			}
-			return null;
-		}
+		AffineTransform aft = transform();
+		if (aft != null)
+			return aft.createTransformedShape(shape_.getShape());
+		else
+			return shape_.getShape();
 	}
-
-	public static double convUnitToPixel(double val, Unit unit)
-	{
-		if (unit != null)
-		{
-			switch (unit)
-			{
-				case pt:
-					return val * pixelPerPoint_;
-				case px:
-					return val;
-				case in:
-					return val * pixelPerInch_;
-				case cm:
-					return val * pixelPerCM_;
-				case mm:
-					return val * pixelPerMM_;
-				case pc:
-					return val * pixelPerPica_;
-				case em:
-					return val * pixelPerEM_;
-				case ex:
-					return val * pixelPerEX_;
-				case percent:
-					// @TODO
-			}
-		}
-		return val;
-	}
-
-	public enum Type
-	{
-		g,
-		clipPath,
-		path, rect, circle, ellipse,
-		text, textPath,
-		line, polyline, polygon,
-		use,
-		defs, linearGradient, radialGradient;
-
-		private final static HashMap<String, Type> types_ = new HashMap<>();
-
-		// Use map instead of "valueOf" to avoid exceptions for unknown values
-		static
-		{
-			for (Type t : values())
-				types_.put(t.name(), t);
-		}
-
-		public static Type valueFrom(String typeName)
-		{
-			return types_.get(typeName);
-		}
-	}
-
 
 	public ElementWrapper(ElementCache cache, Element node)
 	{
@@ -230,11 +153,17 @@ public final class ElementWrapper
 		return node_.getTagName();
 	}
 
+	/**
+	 * Get id attribute.
+	 */
 	public String id()
 	{
 		return node_.getAttribute("id");
 	}
 
+	/**
+	 * Get href or xlink:href attribute.
+	 */
 	public String href()
 	{
 		String href = node_.getAttribute("href")
@@ -251,6 +180,9 @@ public final class ElementWrapper
 		return null;
 	}
 
+	/**
+	 * Get clip-path attribute.
+	 */
 	public String clipPath()
 	{
 		String v = node_.getAttribute("clip-path")
@@ -279,6 +211,17 @@ public final class ElementWrapper
 		Double d = convDouble(w);
 		return (d == null) ? 1d : d / 400d;
 	}
+
+	/**
+	 * Get the length value of a none-inherited xml- or style-attribute.
+	 *
+	 * @return The length or null if the attribute doesn't exists.
+	 */
+	public Length toLength(String attributeName)
+	{
+		return parseLength(attr(attributeName, false));
+	}
+
 
 	/**
 	 * Get the double value of a none-inherited xml- or style-attribute as Double.
@@ -457,7 +400,7 @@ public final class ElementWrapper
 		String fontFamily = attr("font-family");
 		double fontWeight = fontWeight();
 
-		if (fontSize == null) fontSize = ElementWrapper.convUnitToPixel(12, ElementWrapper.Unit.pt);
+		if (fontSize == null) fontSize = new Length(12, LengthUnit.pt).toPixel(null);
 		if (ElementWrapper.isEmpty(fontFamily))
 			fontFamily = defaultFont.getFamily();
 		else
@@ -504,6 +447,9 @@ public final class ElementWrapper
 		return Font.getFont(attributes);
 	}
 
+	/**
+	 * Gets attribute opacity
+	 */
 	public float opacity()
 	{
 		Double opacityO = toDouble("opacity", true);
@@ -524,11 +470,22 @@ public final class ElementWrapper
 		return preserveSpace_;
 	}
 
+	/**
+	 * Gets an attribute from this element or ancestors.<br>
+	 * The value can be specified directly or via
+	 * style-attribute.
+	 */
 	public String attr(String attributeName)
 	{
 		return attr(attributeName, true);
 	}
 
+	/**
+	 * Gets an attribute from this element.<br>
+	 * The value can be specified directly or via
+	 * style-attribute.
+	 * @param inherited If true the attribute canbe inherited.
+	 */
 	public String attr(String attributeName, boolean inherited)
 	{
 		if (overrides_ != null)
@@ -544,13 +501,16 @@ public final class ElementWrapper
 		}
 		if (isEmpty(v) && inherited)
 		{
-			v = inherited(node_, attributeName);
+			v = inherited(attributeName);
 			if (isNotEmpty(v))
 				attributes_.put(attributeName, v);
 		}
 		return v;
 	}
 
+	/**
+	 * Get all attributes from the  style-attribute.
+	 */
 	public HashMap<String, String> getStyleAttributes()
 	{
 		if (attributes_ == null)
@@ -575,6 +535,9 @@ public final class ElementWrapper
 		return attributes_;
 	}
 
+	/**
+	 * Overrides an attribute.
+	 */
 	public void override(String attributeName, String value)
 	{
 		if (value != null && isEmpty(attr(attributeName)))
@@ -585,7 +548,10 @@ public final class ElementWrapper
 		}
 	}
 
-	protected String inherited(Element e, String attributeName)
+	/**
+	 * Gets an attribute from parents.
+	 */
+	protected String inherited(String attributeName)
 	{
 		String v = null;
 		Node node = parent_;

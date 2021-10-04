@@ -3,7 +3,6 @@ package com.bw.jtools.shape;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,12 +55,8 @@ public final class ShapePainter
 
 		final double lw = ((shape.stroke_ instanceof BasicStroke) ? (BasicStroke) shape.stroke_ : defaultStroke_).getLineWidth();
 
-		/*
-		Rectangle2D transRect = shape.aft_.createTransformedShape(new Rectangle2D.Double(r.getX() - lw, r.getY() - lw, r.getWidth() + 2 * lw, r.getHeight() + 2 * lw))
-										  .getBounds2D();
-										  */
-		Rectangle2D r =  shape.aft_.createTransformedShape( shape.shape_ ).getBounds2D();
-		Rectangle2D transRect = new Rectangle2D.Double(r.getX()-lw,r.getY()-lw,r.getWidth()+2*lw,r.getHeight()+2*lw);
+		Rectangle2D r = shape.shape_.getBounds2D();
+		Rectangle2D transRect = new Rectangle2D.Double(r.getX() - lw, r.getY() - lw, r.getWidth() + 2 * lw, r.getHeight() + 2 * lw);
 		if (area_ == null)
 			area_ = new Rectangle2D.Double(transRect.getX(), transRect.getY(), transRect.getWidth(), transRect.getHeight());
 		else
@@ -107,15 +102,11 @@ public final class ShapePainter
 			g2D.fill(area_);
 
 		float opacity = 1f;
-		AffineTransform orgAft = g2D.getTransform();
-		AffineTransform aft = new AffineTransform();
+		g2D.setTransform(g2D.getTransform());
 
 		for (ShapeWithStyle shape : shapes_)
 		{
-			aft.setTransform(orgAft);
-			aft.concatenate(shape.aft_);
-			g2D.setTransform(aft);
-			g2D.setClip(shape.clipping_ );
+			g2D.setClip(shape.clipping_);
 
 			if (shape.fill_ != null)
 			{

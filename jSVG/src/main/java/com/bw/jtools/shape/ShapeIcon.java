@@ -28,7 +28,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.util.Collection;
 
 public class ShapeIcon implements Icon
@@ -36,12 +35,11 @@ public class ShapeIcon implements Icon
 	private boolean drawFrame_ = true;
 	private Paint framePaint_ = Color.BLACK;
 	private final ShapePainter painter_;
-	private final static AffineTransform noTransform = new AffineTransform();
 
 	public ShapeIcon(Collection<ShapeWithStyle> shapes)
 	{
 		painter_ = new ShapePainter();
-		for ( ShapeWithStyle s : shapes)
+		for (ShapeWithStyle s : shapes)
 			addShape(s);
 	}
 
@@ -50,15 +48,13 @@ public class ShapeIcon implements Icon
 	 */
 	public void addShape(ShapeWithStyle shape)
 	{
-		if ( shape.aft_ == null )
-			shape.aft_ = noTransform;
-		painter_.addShape( shape );
+		painter_.addShape(shape);
 	}
 
 	/**
 	 * Draws a border inside the icon with the default stroke.
 	 */
-	public void setInlineBorder( boolean draw, Paint color)
+	public void setInlineBorder(boolean draw, Paint color)
 	{
 		drawFrame_ = draw;
 		framePaint_ = color;
@@ -67,9 +63,9 @@ public class ShapeIcon implements Icon
 	/**
 	 * Draws a border inside the icon with the default stroke and Color.BLACK.
 	 */
-	public void setInlineBorder( boolean draw)
+	public void setInlineBorder(boolean draw)
 	{
-		setInlineBorder( draw, Color.BLACK );
+		setInlineBorder(draw, Color.BLACK);
 	}
 
 	/**
@@ -77,7 +73,7 @@ public class ShapeIcon implements Icon
 	 */
 	public void setScale(double scaleX, double scaleY)
 	{
-		painter_.setScale( scaleX, scaleY );
+		painter_.setScale(scaleX, scaleY);
 	}
 
 	/**
@@ -105,10 +101,10 @@ public class ShapeIcon implements Icon
 	{
 		Graphics2D g2D = (Graphics2D) g.create();
 
-		g2D.translate(x,y);
+		g2D.translate(x, y);
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		if ( drawFrame_ )
+		if (drawFrame_)
 		{
 			g2D.setPaint(framePaint_);
 			g2D.draw(painter_.getArea());
@@ -122,13 +118,13 @@ public class ShapeIcon implements Icon
 	@Override
 	public int getIconWidth()
 	{
-		return (int) Math.ceil( painter_.getAreaWidth() );
+		return (int) Math.ceil(painter_.getAreaWidth());
 	}
 
 	@Override
 	public int getIconHeight()
 	{
-		return (int) Math.ceil( painter_.getAreaHeight() );
+		return (int) Math.ceil(painter_.getAreaHeight());
 	}
 
 }
