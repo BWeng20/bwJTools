@@ -18,7 +18,7 @@ public class LinearGradient extends Gradient
 	{
 		try
 		{
-			AffineTransform eat = getResultingTransform(w);
+			AffineTransform eat = getEffectiveTransform(w);
 
 			ShapeHelper shape = w.getShape();
 

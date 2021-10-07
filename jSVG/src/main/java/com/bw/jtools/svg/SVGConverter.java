@@ -274,13 +274,13 @@ public class SVGConverter
 		{
 			RadialGradient rg = new RadialGradient(id);
 
-			rg.cx = w.toDouble("cx", false);
-			rg.cy = w.toDouble("cy", false);
-			rg.r = w.toDouble("r", false);
+			rg.cx = w.toLength("cx");
+			rg.cy = w.toLength("cy");
+			rg.r = w.toLength("r");
 
-			rg.fx = w.toDouble("fx", true);
-			rg.fy = w.toDouble("fy", true);
-			rg.fr = w.toDouble("fr", true);
+			rg.fx = w.toLength("fx");
+			rg.fy = w.toLength("fy");
+			rg.fr = w.toLength("fr");
 
 			parseCommonGradient(rg, w);
 

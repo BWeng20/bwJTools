@@ -219,7 +219,17 @@ public final class ElementWrapper
 	 */
 	public Length toLength(String attributeName)
 	{
-		return parseLength(attr(attributeName, false));
+		return toLength(attributeName, false);
+	}
+
+	/**
+	 * Get the length value of a xml- or style-attribute.
+	 *
+	 * @return The length or null if the attribute doesn't exists.
+	 */
+	public Length toLength(String attributeName, boolean inherited)
+	{
+		return parseLength(attr(attributeName, inherited));
 	}
 
 

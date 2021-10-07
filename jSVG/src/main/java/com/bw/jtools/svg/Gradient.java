@@ -78,7 +78,7 @@ public abstract class Gradient
 		return new PaintWrapper(this);
 	}
 
-	protected AffineTransform getResultingTransform(ElementWrapper w)
+	protected AffineTransform getEffectiveTransform(ElementWrapper w)
 	{
 		AffineTransform eat = w == null ? null : w.transform();
 		if (eat == null)
