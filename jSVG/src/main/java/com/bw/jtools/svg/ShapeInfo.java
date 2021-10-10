@@ -1,7 +1,6 @@
 package com.bw.jtools.svg;
 
 import java.awt.Shape;
-import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 
 /**
@@ -30,21 +29,12 @@ public final class ShapeInfo
 	 */
 	public PaintWrapper paintWrapper_;
 
-	/**
-	 * Overall Stroke opacity. Is equal to stroke-opacity * opacity
-	 */
-	public float strokeOpacity_;
 
 	/**
 	 * The Paint to fill the shape. </br>
 	 * Can be null.
 	 */
 	public PaintWrapper fillWrapper_;
-
-	/**
-	 * Final fill opacity. Is equal to fill-opacity * opacity
-	 */
-	public float fillOpacity_;
 
 	/**
 	 * Transform to be applied to the graphics context.</br>
@@ -57,15 +47,12 @@ public final class ShapeInfo
 	/**
 	 * Constructor to initialize,
 	 */
-	public ShapeInfo(Shape shape, Stroke stroke, PaintWrapper paint,
-					 float strokeOpacity, PaintWrapper fill, float fillOpacity, Shape clipping)
+	public ShapeInfo(Shape shape, Stroke stroke, PaintWrapper paint, PaintWrapper fill, Shape clipping)
 	{
 		this.shape_ = shape;
 		this.stroke_ = stroke;
 		this.paintWrapper_ = paint;
 		this.fillWrapper_ = fill;
-		this.strokeOpacity_ = strokeOpacity;
-		this.fillOpacity_ = fillOpacity;
 		this.clipping_ = clipping;
 	}
 

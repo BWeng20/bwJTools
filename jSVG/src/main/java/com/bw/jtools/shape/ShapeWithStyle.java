@@ -31,38 +31,23 @@ public final class ShapeWithStyle
 	public final Paint paint_;
 
 	/**
-	 * Overall Stroke opacity. Is equal to stroke-opacity * opacity
-	 */
-	public final float strokeOpacity_;
-
-	/**
 	 * The Paint to fill the shape. </br>
 	 * Can be null.
 	 */
 	public final Paint fill_;
-
-	/**
-	 * Final fill opacity. Is equal to fill-opacity * opacity
-	 */
-	public final float fillOpacity_;
 
 	public final Shape clipping_;
 
 	/**
 	 * Constructor to initialize,
 	 */
-	public ShapeWithStyle(String id,
-						  Shape shape, Stroke stroke, Paint paint,
-						  float strokeOpacity, Paint fill, float fillOpacity,
-						  Shape clipping)
+	public ShapeWithStyle(String id, Shape shape, Stroke stroke, Paint paint, Paint fill, Shape clipping)
 	{
 		this.id_ = id;
 		this.shape_ = shape;
 		this.stroke_ = stroke;
 		this.paint_ = paint;
-		this.strokeOpacity_ = strokeOpacity;
 		this.fill_ = fill;
-		this.fillOpacity_ = fillOpacity;
 
 		this.clipping_ = clipping;
 	}

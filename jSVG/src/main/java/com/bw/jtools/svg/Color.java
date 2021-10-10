@@ -160,10 +160,14 @@ public class Color
 	}
 
 	private PaintWrapper paintWrapper_;
-	private float opacity_;
 
-	public Color(SVGConverter svg, String color, Double opacity)
+	public Color(SVGConverter svg, String color, double opacity)
 	{
+		if (opacity < 0)
+			opacity = 0;
+		else if (opacity > 1f)
+			opacity = 1f;
+
 		if (color != null)
 		{
 			color = color.trim();
@@ -203,37 +207,24 @@ public class Color
 					{
 						// Use fallback if reference doesn't exists.
 						paintWrapper_ = new Color(svg, ref[1], opacity).paintWrapper_;
-						return;
+						opacity = 1f;
 					}
 				}
 				else
-				{
-					String colorLC = color.toLowerCase();
-					paintWrapper_ = new PaintWrapper(name2color_.getOrDefault(colorLC, null));
-				}
+					paintWrapper_ = new PaintWrapper(name2color_.getOrDefault(color.toLowerCase(), null));
 			}
+			// Adapt Paint if still needed
+			if (opacity != 1f)
+				paintWrapper_ = paintWrapper_.adaptOpacity((float) opacity);
 		}
 		else
-		{
 			paintWrapper_ = null;
-		}
-		opacity_ = 1f;
-		if (opacity != null)
-		{
-			opacity_ = opacity.floatValue();
-			if (opacity_ < 0)
-				opacity_ = 0;
-			else if (opacity_ > 1f)
-				opacity_ = 1f;
-		}
+	}
 
-		if (paintWrapper_ != null && paintWrapper_.color_ != null)
-		{
-			java.awt.Color c = paintWrapper_.color_;
-			// Opacity can be coded inside the color, no need to set it explicitly.
-			paintWrapper_.color_ = new java.awt.Color(c.getRed(), c.getGreen(), c.getBlue(), (int) (opacity_ * 255 + 0.5));
-			opacity_ = 1f;
-		}
+	public static java.awt.Color adaptOpacity(java.awt.Color color, double opacity)
+	{
+		double alpha = color.getAlpha() * opacity;
+		return new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (alpha + 0.5));
 	}
 
 	public PaintWrapper getPaintWrapper()
@@ -241,8 +232,4 @@ public class Color
 		return paintWrapper_;
 	}
 
-	public float getOpacity()
-	{
-		return opacity_;
-	}
 }

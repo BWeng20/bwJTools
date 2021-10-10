@@ -40,11 +40,11 @@ public class Transform extends Parser
 			if ("none".equals(transformation))
 				t = null;
 			else if ("translate".equals(transformation))
-				t = AffineTransform.getTranslateInstance(nextLengthPercentage(w), nextLengthPercentage(h));
+				t = AffineTransform.getTranslateInstance(nextLengthPercentage().toPixel(w), nextLengthPercentage().toPixel(h));
 			else if ("translateX".equals(transformation))
-				t = AffineTransform.getTranslateInstance(nextLengthPercentage(w), 0);
+				t = AffineTransform.getTranslateInstance(nextLengthPercentage().toPixel(w), 0);
 			else if ("translateY".equals(transformation))
-				t = AffineTransform.getTranslateInstance(0, nextLengthPercentage(h));
+				t = AffineTransform.getTranslateInstance(0, nextLengthPercentage().toPixel(h));
 			else if ("matrix".equals(transformation))
 			{
 				double[] matrix = new double[6];

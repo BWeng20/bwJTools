@@ -2,18 +2,21 @@ package com.bw.jtools.svg;
 
 import java.awt.BasicStroke;
 
+/**
+ * Holds all information about a stroke.
+ */
 public class Stroke
 {
 	public Stroke(
 			Color color,
-			Double width,
-			float[] dasharray,
+			Length width,
+			LengthList dasharray,
 			Double dashoffset,
 			LineCap linecap,
 			LineJoin linejoin,
 			Double miterlimit)
 	{
-		int cap = BasicStroke.CAP_BUTT;
+		cap = BasicStroke.CAP_BUTT;
 		if (linecap != null)
 			switch (linecap)
 			{
@@ -27,7 +30,7 @@ public class Stroke
 					break;
 			}
 
-		int join = BasicStroke.JOIN_MITER;
+		join = BasicStroke.JOIN_MITER;
 		if (linejoin != null)
 			switch (linejoin)
 			{
@@ -43,20 +46,34 @@ public class Stroke
 					break;
 			}
 
-		stroke_ = new BasicStroke(width == null ? 1f : width.floatValue(), cap, join,
-				miterlimit == null ? 4f : miterlimit.floatValue(), dasharray,
-				dashoffset == null ? 0f : dashoffset.floatValue());
+		width_ = width == null ? defaultWidth_ : width;
+		miterlimit_ = miterlimit == null ? 4f : miterlimit.floatValue();
+		dasharray_ = dasharray;
+		dashoffset_ = dashoffset == null ? 0f : dashoffset.floatValue();
+
 		paint_ = color == null ? null : color.getPaintWrapper();
-		opacity_ = color == null ? 1f : color.getOpacity();
 	}
 
-	private java.awt.Stroke stroke_;
 	private PaintWrapper paint_;
-	private float opacity_;
+	private int cap;
+	private int join;
+	private Length width_;
+	private float miterlimit_;
+	private LengthList dasharray_;
+	private float dashoffset_;
+	private static final Length defaultWidth_ = new Length(1, LengthUnit.px);
 
-	public java.awt.Stroke getStroke()
+	/**
+	 * Applies the stroke to an element and creates an awt stroke instance for it.
+	 */
+	public java.awt.Stroke createStroke(ElementWrapper w)
 	{
-		return stroke_;
+		final Double vpLength = w.getViewPortLength();
+		return new BasicStroke(
+				(float) width_.toPixel(vpLength), cap, join, miterlimit_,
+				dasharray_ == null ? null : dasharray_.toFloatPixel(vpLength),
+				dashoffset_);
+
 	}
 
 	public PaintWrapper getPaintWrapper()
@@ -64,8 +81,4 @@ public class Stroke
 		return paint_;
 	}
 
-	public float getOpacity()
-	{
-		return opacity_;
-	}
 }

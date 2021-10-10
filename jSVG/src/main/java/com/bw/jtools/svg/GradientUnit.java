@@ -3,23 +3,23 @@ package com.bw.jtools.svg;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum GradientUnits
+public enum GradientUnit
 {
 	userSpaceOnUse,
 	objectBoundingBox;
 
-	private static final Map<String, GradientUnits> lowerCaseMap_;
+	private static final Map<String, GradientUnit> lowerCaseMap_;
 
 	static
 	{
 		lowerCaseMap_ = new HashMap<>();
-		for (GradientUnits gu : GradientUnits.values())
+		for (GradientUnit gu : GradientUnit.values())
 			lowerCaseMap_.put(gu.name()
 								.toLowerCase(), gu);
 	}
 
 
-	public static GradientUnits fromString(String val)
+	public static GradientUnit fromString(String val)
 	{
 		if (val != null)
 			return lowerCaseMap_.get(val.trim()

@@ -130,6 +130,9 @@ public class SVGConverter
 		}
 	}
 
+	/**
+	 * Finally create shapes from the elements.
+	 */
 	private ShapeWithStyle finish(ShapeInfo s)
 	{
 		ElementWrapper w = elementCache_.getElementWrapperById(s.id_);
@@ -144,16 +147,16 @@ public class SVGConverter
 		else
 		{
 			shape = s.aft_.createTransformedShape(s.shape_);
-			if ( s.clipping_ != null )
+			if (s.clipping_ != null)
 				clipping = s.aft_.createTransformedShape(s.clipping_);
 		}
 
 		ShapeWithStyle sws = new ShapeWithStyle(
 				s.id_,
 				shape,
-				s.stroke_,
-				s.paintWrapper_ == null ? null : s.paintWrapper_.createPaint(w), s.strokeOpacity_,
-				s.fillWrapper_ == null ? null : s.fillWrapper_.createPaint(w), s.fillOpacity_,
+				s.stroke_ == null ? null : s.stroke_.createStroke(w),
+				s.paintWrapper_ == null ? null : s.paintWrapper_.createPaint(w),
+				s.fillWrapper_ == null ? null : s.fillWrapper_.createPaint(w),
 				clipping);
 
 		return sws;
@@ -351,12 +354,12 @@ public class SVGConverter
 				// Debugging feature
 				if (addPathSegments_)
 				{
-					Stroke s = new Stroke(new Color(this, "yellow", null),
-							0.1d, null, null, null, null, null);
+					Stroke s = new Stroke(new Color(this, "yellow", 1d),
+							null, null, null, null, null, null);
 
 					shapes.add(new ShapeInfo(w.getShape()
-											  .getSegmentPath(), s.getStroke(), s.getPaintWrapper(),
-							1, null, 1, null));
+											  .getSegmentPath(), s, s.getPaintWrapper(),
+							null, null));
 				}
 			}
 			break;
@@ -498,15 +501,11 @@ public class SVGConverter
 		Color fill = fill(w);
 		Shape clipPath = clipPath(w);
 
-		float generalOpacity = w.opacity();
-
 		ShapeInfo sinfo = new ShapeInfo(w.getShape()
 										 .getShape(),
-				stroke.getPaintWrapper() == null ? null : stroke.getStroke(),
+				stroke.getPaintWrapper() == null ? null : stroke,
 				stroke.getPaintWrapper(),
-				generalOpacity * stroke.getOpacity(),
 				fill.getPaintWrapper(),
-				generalOpacity * fill.getOpacity(),
 				clipPath
 		);
 		sinfo.id_ = w.id();
@@ -529,7 +528,7 @@ public class SVGConverter
 				g.cycleMethod_ = MultipleGradientPaint.CycleMethod.REPEAT;
 		}
 
-		g.gradientUnits_ = GradientUnits.fromString(w.attr("gradientUnits"));
+		g.gradientUnit_ = GradientUnit.fromString(w.attr("gradientUnits"));
 
 		String gradientTransform = w.attr("gradientTransform", false);
 		if (ElementWrapper.isNotEmpty(gradientTransform))
@@ -544,7 +543,6 @@ public class SVGConverter
 		{
 			g.fractions_ = new float[sN];
 			g.colors_ = new java.awt.Color[sN];
-			g.opacities_ = new float[sN];
 			for (int i = 0; i < sN; ++i)
 			{
 				Element stop = (Element) stops.item(i);
@@ -567,10 +565,10 @@ public class SVGConverter
 					f = i > 0 ? g.fractions_[i - 1] : 0;
 				g.fractions_[i] = f;
 
-				final Color cp = new Color(this, wrapper.attr("stop-color"), wrapper.toDouble("stop-opacity"));
+				final Color cp = new Color(this, wrapper.attr("stop-color"),
+						wrapper.toPDouble("stop-opacity", 1d, false));
 				PaintWrapper pw = cp.getPaintWrapper();
-				g.colors_[i] = (pw != null && pw.color_ != null) ? pw.color_ : java.awt.Color.WHITE;
-				g.opacities_[i] = cp.getOpacity();
+				g.colors_[i] = (pw != null && pw.getColor() != null) ? pw.getColor() : java.awt.Color.WHITE;
 			}
 		}
 	}
@@ -589,15 +587,16 @@ public class SVGConverter
 	protected Color fill(ElementWrapper w)
 	{
 		String color = w.attr("fill", true);
-		return new Color(this, color == null ? "black" : color, w.toDouble("fill-opacity", true));
+		return new Color(this, color == null ? "black" : color, w.effectiveOpacity() * w.toPDouble("fill-opacity", 1.0d, true));
 	}
 
 	protected Stroke stroke(ElementWrapper w)
 	{
 		Stroke stroke = new Stroke(
-				new Color(this, w.attr("stroke", true), w.toDouble("stroke-opacity", true)),
-				w.toDouble("stroke-width", true),
-				w.toFloatArray("stroke-dasharray", true),
+				new Color(this, w.attr("stroke", true),
+						w.effectiveOpacity() * w.toPDouble("stroke-opacity", 1.0d, true)),
+				w.toLength("stroke-width", true),
+				w.toLengthList("stroke-dasharray", true),
 				w.toDouble("stroke-dashoffset", true),
 				LineCap.fromString(w.attr("stroke-linecap", true)),
 				LineJoin.fromString(w.attr("stroke-linejoin", true)),

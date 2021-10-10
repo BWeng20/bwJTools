@@ -9,7 +9,9 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Shape;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.IntConsumer;
 import java.util.regex.Matcher;
@@ -25,12 +27,18 @@ public final class ElementWrapper
 	private HashMap<String, String> attributes_;
 	private HashMap<String, String> overrides_;
 	private final Element node_;
-	private Node parent_;
+	private ElementWrapper parent_;
 	private final Type type_;
 	private Boolean preserveSpace_;
 	private ShapeHelper shape_;
 	private AffineTransform aft_;
 	private ElementCache elementCache_;
+	private Rectangle2D.Double viewPort_;
+	private Double viewPortLength_;
+	private Double opacity_;
+	private Double effectiveOpacity_;
+
+	private static final double SQRT2 = Math.sqrt(2d);
 
 	private static final Pattern unitRegExp_ = Pattern.compile("([\\d+-\\.e]+)(pt|px|em|%|in|cm|mm|ex|pc)", Pattern.CASE_INSENSITIVE);
 
@@ -76,7 +84,7 @@ public final class ElementWrapper
 	/**
 	 * Parse a length value.
 	 */
-	protected static Length parseLength(String val)
+	public static Length parseLength(String val)
 	{
 		if (val != null)
 			try
@@ -139,7 +147,14 @@ public final class ElementWrapper
 	{
 		elementCache_ = cache;
 		node_ = node;
-		parent_ = node.getParentNode();
+
+		Node parentNode = node.getParentNode();
+		while (parent_ == null && parentNode != null)
+		{
+			if (parentNode.getNodeType() == Node.ELEMENT_NODE)
+				parent_ = elementCache_.getElementWrapper((Element) parentNode);
+			parentNode = parentNode.getParentNode();
+		}
 		type_ = Type.valueFrom(node.getTagName());
 	}
 
@@ -266,47 +281,48 @@ public final class ElementWrapper
 
 	/**
 	 * Get the primitive double value of a xml- or style-attribute.
+	 * Default is 0.
 	 *
 	 * @param inherited If true and the attribute doesn't exists also the parent nodes are scanned.
 	 * @return The double or 0 if the attribute doesn't exists.
 	 */
 	public double toPDouble(String attributeName, boolean inherited)
 	{
+		return toPDouble(attributeName, 0d, inherited);
+	}
+
+	/**
+	 * Get the primitive double value of a xml- or style-attribute.
+	 *
+	 * @param inherited If true and the attribute doesn't exists also the parent nodes are scanned.
+	 * @return The double or 0 if the attribute doesn't exists.
+	 */
+	public double toPDouble(String attributeName, double defaultValue, boolean inherited)
+	{
 		Double d = convDouble(attr(attributeName, inherited));
-		return d == null ? 0d : d;
+		return d == null ? defaultValue : d;
 	}
 
-	public float[] toFloatArray(String attributeName)
-	{
-		return convFloatArray(attr(attributeName));
-	}
 
-	public float[] toFloatArray(String attributeName, boolean inherited)
+	public LengthList toLengthList(String attributeName, boolean inherited)
 	{
-		return convFloatArray(attr(attributeName, inherited));
+		final String val = attr(attributeName, inherited);
+		LengthList l;
+		if (val != null)
+		{
+			l = new LengthList(val);
+			if (l.isEmpty())
+				l = null;
+		}
+		else
+			l = null;
+		return l;
 	}
 
 	public static double convPDouble(String value)
 	{
 		Double d = convDouble(value);
 		return d == null ? 0d : d;
-	}
-
-	public static float[] convFloatArray(String val)
-	{
-		if (val != null)
-			try
-			{
-				val = val.replace(',', ' ');
-				String values[] = val.split("[ ,]+");
-				float farr[] = new float[values.length];
-				for (int i = 0; i < values.length; ++i)
-					farr[i] = (float) convPDouble(values[i]);
-			}
-			catch (Exception e)
-			{
-			}
-		return null;
 	}
 
 	/**
@@ -372,8 +388,7 @@ public final class ElementWrapper
 	public ElementWrapper createReferenceCopy(ElementWrapper usingElement)
 	{
 		ElementWrapper uw = new ElementWrapper(elementCache_, getNode());
-		uw.parent_ = usingElement.getNode()
-								 .getParentNode();
+		uw.parent_ = usingElement.parent_;
 		String tag = uw.getTagName();
 		if (tag.equals("svg") || tag.equals("symbol"))
 		{
@@ -398,6 +413,50 @@ public final class ElementWrapper
 		}
 		return uw;
 	}
+
+	/**
+	 * Get the base for percentages-values bases on the viewport that are not x- or y-bound.
+	 *
+	 * @see <a href="https://www.w3.org/TR/SVG11/coords.html#Units">https://www.w3.org/TR/SVG11/coords.html#Units</a>
+	 */
+	public double getViewPortLength()
+	{
+		if (viewPortLength_ == null)
+		{
+			if (viewPort_ == null) getViewPort();
+			viewPortLength_ = Math.sqrt((viewPort_.width * viewPort_.width) + (viewPort_.height * viewPort_.height)) / SQRT2;
+		}
+		return viewPortLength_;
+	}
+
+	public Rectangle2D.Double getViewPort()
+	{
+		if (viewPort_ == null)
+		{
+			LengthList l = toLengthList("viewBox", true);
+			if (l != null)
+			{
+				List<Length> ll = l.getLengthList();
+				if (ll.size() >= 4)
+				{
+					viewPort_ = new Rectangle2D.Double(
+							ll.get(0)
+							  .toPixel(null),
+							ll.get(1)
+							  .toPixel(null),
+							ll.get(2)
+							  .toPixel(null),
+							ll.get(3)
+							  .toPixel(null)
+					);
+				}
+			}
+			if (viewPort_ == null)
+				viewPort_ = new Rectangle2D.Double(0, 0, 100, 100);
+		}
+		return viewPort_;
+	}
+
 
 	private static Map<String, String> systemFontFamilies_;
 
@@ -462,10 +521,25 @@ public final class ElementWrapper
 	 */
 	public float opacity()
 	{
-		Double opacityO = toDouble("opacity", true);
-		float opacity = opacityO == null ? 1.0f : opacityO.floatValue();
-		return opacity;
+		if (opacity_ == null)
+		{
+			opacity_ = toPDouble("opacity", 1.0d, true);
+		}
+		return opacity_.floatValue();
 	}
+
+	/**
+	 * Gets the effective opacity, combined from this element and ancestors.
+	 */
+	public double effectiveOpacity()
+	{
+		if (effectiveOpacity_ == null)
+		{
+			effectiveOpacity_ = opacity() * ((parent_ == null) ? 1d : parent_.effectiveOpacity());
+		}
+		return effectiveOpacity_.doubleValue();
+	}
+
 
 	/**
 	 * Checks if the node has white-space-preservation on.
@@ -494,6 +568,7 @@ public final class ElementWrapper
 	 * Gets an attribute from this element.<br>
 	 * The value can be specified directly or via
 	 * style-attribute.
+	 *
 	 * @param inherited If true the attribute canbe inherited.
 	 */
 	public String attr(String attributeName, boolean inherited)
@@ -564,13 +639,11 @@ public final class ElementWrapper
 	protected String inherited(String attributeName)
 	{
 		String v = null;
-		Node node = parent_;
-		while (v == null && node != null)
+		ElementWrapper ancestor = parent_;
+		while (v == null && ancestor != null)
 		{
-			if (node.getNodeType() == Node.ELEMENT_NODE)
-				v = elementCache_.getElementWrapper((Element) node)
-								 .attr(attributeName);
-			node = node.getParentNode();
+			v = ancestor.attr(attributeName);
+			ancestor = ancestor.parent_;
 		}
 		return v;
 	}
@@ -584,4 +657,5 @@ public final class ElementWrapper
 	{
 		return node_;
 	}
+
 }

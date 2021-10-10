@@ -1,6 +1,5 @@
 package com.bw.jtools.shape;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
@@ -18,6 +17,9 @@ public final class ShapePainter
 	private double scaleX_ = 1.0f;
 	private double scaleY_ = 1.0f;
 	private boolean keepOffset_ = false;
+
+	private boolean measureTime_ = false;
+	private long lastMSNeeded_ = 0;
 
 	/**
 	 * Returns the covered area according to shapes and scale.
@@ -95,13 +97,13 @@ public final class ShapePainter
 	 */
 	public void paintShapes(Graphics2D g2D, boolean clearArea)
 	{
+		final long ms = (measureTime_) ? System.currentTimeMillis() : 0;
 		g2D.scale(scaleX_, scaleY_);
 		if (!keepOffset_)
 			g2D.translate(-area_.x, -area_.y);
 		if (clearArea)
 			g2D.fill(area_);
 
-		float opacity = 1f;
 		g2D.setTransform(g2D.getTransform());
 
 		for (ShapeWithStyle shape : shapes_)
@@ -110,11 +112,6 @@ public final class ShapePainter
 
 			if (shape.fill_ != null)
 			{
-				if (shape.fillOpacity_ != opacity)
-				{
-					g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shape.fillOpacity_));
-					opacity = shape.fillOpacity_;
-				}
 				g2D.setPaint(shape.fill_);
 				g2D.fill(shape.shape_);
 			}
@@ -122,28 +119,29 @@ public final class ShapePainter
 			{
 				if (shape.fill_ == null)
 				{
-					if (1f != opacity)
-					{
-						g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-						opacity = 1f;
-					}
 					g2D.setStroke(defaultStroke_);
 					g2D.draw(shape.shape_);
 				}
 			}
 			else
 			{
-				if (shape.strokeOpacity_ != opacity)
-				{
-					g2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, shape.strokeOpacity_));
-					opacity = shape.strokeOpacity_;
-				}
 				g2D.setPaint(shape.paint_);
 				g2D.setStroke(shape.stroke_);
 				g2D.draw(shape.shape_);
 			}
 		}
+		if (measureTime_)
+			lastMSNeeded_ = System.currentTimeMillis() - ms;
 	}
 
+	public void setTimeMeasurementEnabled(boolean measureTime)
+	{
+		this.measureTime_ = measureTime;
+	}
+
+	public long getMeasuredTimeMS()
+	{
+		return lastMSNeeded_;
+	}
 
 }

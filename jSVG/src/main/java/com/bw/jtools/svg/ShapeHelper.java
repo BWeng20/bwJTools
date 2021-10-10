@@ -29,20 +29,6 @@ public final class ShapeHelper
 		return shape_;
 	}
 
-
-	public Point2D.Double getPoint(Length x1, Length y1, boolean userSpace)
-	{
-		if (userSpace)
-			return new Point2D.Double(x1.toPixel(null), y1.toPixel(null));
-		else
-		{
-			Rectangle2D box = getBoundingBox();
-			return new Point2D.Double(
-					box.getX() + x1.toPixel(box.getWidth()),
-					box.getY() + y1.toPixel(box.getHeight()));
-		}
-	}
-
 	public Rectangle2D getBoundingBox()
 	{
 		if (bounds_ == null)

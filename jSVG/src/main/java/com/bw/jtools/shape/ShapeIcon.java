@@ -127,4 +127,9 @@ public class ShapeIcon implements Icon
 		return (int) Math.ceil(painter_.getAreaHeight());
 	}
 
+	public ShapePainter getPainter()
+	{
+		return painter_;
+	}
+
 }

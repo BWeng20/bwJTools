@@ -3,59 +3,100 @@ package com.bw.jtools.svg;
 import java.awt.MultipleGradientPaint;
 import java.awt.Paint;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Abstract base of gradient types.
  */
-public abstract class Gradient
+public abstract class Gradient implements Cloneable
 {
 	public final String id_;
-	public final String tag_;
 
 	public String href_;
 	public AffineTransform aft_;
 
-	public float[] fractions_;
-	public java.awt.Color[] colors_;
-	public float[] opacities_;
-	public GradientUnits gradientUnits_;
+	protected float[] fractions_;
+	protected java.awt.Color[] colors_;
+	public GradientUnit gradientUnit_;
+	public MultipleGradientPaint.CycleMethod cycleMethod_;
 
-	protected java.awt.Color[] getColorArray()
+	/**
+	 * Space for objectBoundingBox gradientUnits
+	 */
+	public static final Rectangle2D.Double objectBoundingBoxSpace_ = new Rectangle2D.Double(0, 0, 1d, 1d);
+
+	/**
+	 * Get the color list of this gradient.
+	 *
+	 * @param opacity The global opacity to adapt the colors.
+	 */
+	public java.awt.Color[] getColorArray(double opacity)
 	{
-		return colors_;
+		if (opacity == 1f)
+		{
+			return colors_;
+		}
+		else if (colors_ == null)
+			return null;
+		else
+		{
+			java.awt.Color adaptedColors[] = new java.awt.Color[colors_.length];
+			for (int i = 0; i < adaptedColors.length; ++i)
+				adaptedColors[i] = Color.adaptOpacity(colors_[i], opacity);
+			return adaptedColors;
+		}
 	}
 
-	protected float[] getFractionsArray()
+	/**
+	 * Creates adapted copy if opacity <> 1.
+	 * Returns this instalce if opacity = 1.
+	 */
+	public Gradient adaptOpacity(float opacity)
+	{
+		if (opacity == 1f)
+			return this;
+
+		try
+		{
+			Gradient pw = (Gradient) clone();
+			pw.colors_ = getColorArray(opacity);
+			return pw;
+		}
+		catch (CloneNotSupportedException e)
+		{
+			return null;
+		}
+	}
+
+
+	public float[] getFractionsArray()
 	{
 		return fractions_;
 	}
 
-	public MultipleGradientPaint.CycleMethod cycleMethod_;
 
-	public Gradient(String id, String tag)
+	protected Gradient(String id)
 	{
 		id_ = id;
-		tag_ = tag;
 	}
 
 	public void copyFromTemplate(Gradient template)
 	{
 		//@TODO: Aggregate or copy? Check specs!
 		if (aft_ == null) aft_ = template.aft_;
-		if (gradientUnits_ == null) gradientUnits_ = template.gradientUnits_;
+		if (gradientUnit_ == null) gradientUnit_ = template.gradientUnit_;
 
 		if (cycleMethod_ == null) cycleMethod_ = template.cycleMethod_;
 		if (fractions_ == null || fractions_.length == 0)
 		{
 			fractions_ = template.fractions_;
 			colors_ = template.colors_;
-			opacities_ = template.opacities_;
 		}
 	}
 
-	public GradientUnits getGradientUnits()
+	public GradientUnit getGradientUnits()
 	{
-		return gradientUnits_ == null ? GradientUnits.objectBoundingBox : gradientUnits_;
+		return gradientUnit_ == null ? GradientUnit.objectBoundingBox : gradientUnit_;
 	}
 
 	public void resolveHref(SVGConverter svg)
@@ -81,18 +122,9 @@ public abstract class Gradient
 	protected AffineTransform getEffectiveTransform(ElementWrapper w)
 	{
 		AffineTransform eat = w == null ? null : w.transform();
-		if (eat == null)
-			eat = new AffineTransform();
-
-		AffineTransform at;
-		if (eat == null)
-			at = new AffineTransform();
-		else
-			at = new AffineTransform(eat);
-
+		final AffineTransform at = (eat == null) ? new AffineTransform() : new AffineTransform(eat);
 		if (aft_ != null)
 			at.preConcatenate(aft_);
-
 		return at;
 	}
 

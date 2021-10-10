@@ -17,6 +17,7 @@ import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -44,6 +45,8 @@ public class SVGDemo
 			{ "de", "Demonstriert die Verwendung von SVG." }
 	};
 
+	static ShapeIcon icon;
+	static long timeMS = 0;
 
 	public static void main(String[] args)
 	{
@@ -64,8 +67,6 @@ public class SVGDemo
 		NumberFormat nf = NumberFormat.getInstance();
 		nf.setMaximumFractionDigits(2);
 		nf.setMinimumFractionDigits(2);
-
-		final List<ShapeIcon> icons = new ArrayList<>();
 
 		JTextArea data = new JTextArea(5, 100);
 
@@ -131,7 +132,8 @@ public class SVGDemo
 			status.setText(draw.getIcon()
 							   .getIconWidth() + "x" + draw.getIcon()
 														   .getIconHeight() + ", scale " +
-					nf.format(scaleX.getValue() / sliderFactor) + " x " + nf.format(scaleY.getValue() / sliderFactor)
+					nf.format(scaleX.getValue() / sliderFactor) + " x " + nf.format(scaleY.getValue() / sliderFactor)+
+					((timeMS>0)? " Rendered in "+Double.toString(timeMS/1000d)+"s" : "")
 			);
 		};
 
@@ -157,13 +159,10 @@ public class SVGDemo
 					}
 
 					boolean repaint = false;
-					for (ShapeIcon i : icons)
+					if (x != icon.getXScale() || y != icon.getYScale())
 					{
-						if (x != i.getXScale() || y != i.getYScale())
-						{
-							repaint = true;
-							i.setScale(x, y);
-						}
+						repaint = true;
+						icon.setScale(x, y);
 					}
 					if (repaint)
 					{
@@ -183,7 +182,8 @@ public class SVGDemo
 			{
 				SVGConverter svg = new SVGConverter(data.getText());
 
-				ShapeIcon icon = new ShapeIcon(svg.getShapes());
+				icon = new ShapeIcon(svg.getShapes());
+				icon.getPainter().setTimeMeasurementEnabled(true);
 				icon.setInlineBorder(true);
 
 				Dimension d = drawPanel.getSize();
@@ -193,8 +193,6 @@ public class SVGDemo
 				scaleX.setValue((int) (0.5 + scale * sliderFactor));
 				scaleY.setValue((int) (0.5 + scale * sliderFactor));
 
-				icons.clear();
-				icons.add(icon);
 				draw.setIcon(icon);
 				updateStatus.run();
 
@@ -247,5 +245,15 @@ public class SVGDemo
 
 		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		f.setVisible(true);
+
+		Timer timer = new Timer(1000, e -> {
+			if ( icon != null )
+			{
+				timeMS = icon.getPainter().getMeasuredTimeMS();
+				updateStatus.run();
+			}
+		});
+		timer.start();
+
 	}
 }

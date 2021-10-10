@@ -11,12 +11,15 @@ public class RadialGradient extends Gradient
 {
 	public Length cx, cy, r, fx, fy, fr;
 
-	/** Default value for all properties is 50%. */
-	private static final Length default_ = new Length(50, LengthUnit.percent );;
+	/**
+	 * Default value for all properties is 50%.
+	 */
+	private static final Length default_ = new Length(50, LengthUnit.percent);
+	;
 
 	public RadialGradient(String id)
 	{
-		super(id, "radialGradient");
+		super(id);
 	}
 
 	@Override
@@ -26,38 +29,41 @@ public class RadialGradient extends Gradient
 		{
 			AffineTransform eat = getEffectiveTransform(w);
 
-			final boolean userSpace = gradientUnits_ == GradientUnits.userSpaceOnUse;
+			final boolean userSpace = gradientUnit_ == GradientUnit.userSpaceOnUse;
 			final ShapeHelper shape = w.getShape();
 
+			// Use 1x1 as 100% for objectBoundingBox.
+			final Rectangle2D space = userSpace ? w.getViewPort() : objectBoundingBoxSpace_;
+			final double spaceW = space.getWidth();
+			final double spaceH = space.getHeight();
+
 			// Raw center coordinates
-			final Length ex = (cx==null?default_:cx);
-			final Length ey = (cy==null?default_:cy);
+			final Length ex = (cx == null ? default_ : cx);
+			final Length ey = (cy == null ? default_ : cy);
 
-			// Use 1 as 100% for userSpaceOnUse
-			final Double abs = userSpace ? null : 1d;
 			// Adapt center
-			final Point2D center = new Point2D.Double(ex.toPixel(abs), ey.toPixel(abs) );
+			final Point2D center = new Point2D.Double(ex.toPixel(spaceW), ey.toPixel(spaceH));
 			// Adapt focus, default is center.
-			final Point2D focus = new Point2D.Double((fx==null?ex:fx).toPixel(abs),(fy==null?ey:fy).toPixel(abs) );
-			// Adapt radius. Default is again 50%
-			final float radius = (float) (r==null?default_:r).toPixel(abs);
+			final Point2D focus = new Point2D.Double((fx == null ? ex : fx).toPixel(spaceW), (fy == null ? ey : fy).toPixel(spaceH));
+			// Adapt radius. Default is also 50%
+			// @TODO: Clarify: max to use, average, min, max?
+			final float radius = (float) (r == null ? default_ : r).toPixel(Math.max(spaceW, spaceH));
 
-			if ( !userSpace) {
+			if (!userSpace)
+			{
 				// For objectBoundingBox adapt coordinate space
 				Rectangle2D box = shape.getBoundingBox();
 				// 2. Scale
-				eat.preConcatenate( AffineTransform.getScaleInstance(box.getWidth(), box.getHeight()) );
+				eat.preConcatenate(AffineTransform.getScaleInstance(box.getWidth(), box.getHeight()));
 				// 1. Move
-				eat.preConcatenate( AffineTransform.getTranslateInstance(box.getX(), box.getY()) );
+				eat.preConcatenate(AffineTransform.getTranslateInstance(box.getX(), box.getY()));
 			}
 
-			RadialGradientPaint rg = new RadialGradientPaint( center, radius, focus,
-					getFractionsArray(), getColorArray(),
+			return new RadialGradientPaint(center, radius, focus,
+					getFractionsArray(), getColorArray(w.effectiveOpacity()),
 					cycleMethod_ == null ? MultipleGradientPaint.CycleMethod.NO_CYCLE : cycleMethod_,
 					MultipleGradientPaint.ColorSpaceType.SRGB,
 					eat);
-
-			return rg;
 		}
 		catch (Exception e)
 		{

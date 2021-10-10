@@ -7,6 +7,7 @@ public class Parser
 {
 	private String content_;
 	protected int idx_;
+	protected int length_;
 
 	protected Parser(String content)
 	{
@@ -21,19 +22,32 @@ public class Parser
 	{
 		content_ = content;
 		idx_ = 0;
+		length_ = content == null ? 0 : content.length();
 	}
 
 	/**
-	 * Get next double length or percentage.
+	 * Get next length.
 	 */
-	protected double nextLengthPercentage(double absLength)
+	protected Length nextLengthPercentage()
 	{
-		double v = nextDouble();
-		if (nextChar() == '%')
-			v = (v / 100d) * absLength;
-		else
-			--idx_;
-		return v;
+		double v = nextDouble(Double.NaN);
+		if (Double.isNaN(v))
+			return null;
+		LengthUnit lu = LengthUnit.px;
+		if (!isSeparator(nextChar()))
+		{
+			int idx1 = idx_ - 1;
+			char c;
+			do
+			{
+				c = nextChar();
+			}
+			while (c != 0 && !isSeparator(c));
+			if (idx_ <= length_)
+				lu = LengthUnit.fromString(content_.substring(idx1, idx_));
+		}
+		--idx_;
+		return new Length(v, lu);
 	}
 
 	protected double nextAngle(double defaultValue)
@@ -118,37 +132,43 @@ public class Parser
 		else if (c != '+')
 			--idx_;
 		double val = 0;
+		int digits = 0;
 		while (isDigit(c = nextChar()))
+		{
 			val = (val * 10) + (c - '0');
+			++digits;
+		}
 		--idx_;
 		if (negative)
 			val = -val;
-		return val;
+		return (digits == 0) ? defaultVal : val;
+	}
+
+	public static boolean isSeparator(char c)
+	{
+		switch (c)
+		{
+			case 0x09:
+			case 0x20:
+			case 0x0A:
+			case 0x0C:
+			case 0x0D:
+			case ',':
+				return true;
+			default:
+				return false;
+		}
 	}
 
 	protected void consumeSeparators()
 	{
-		do
-		{
-			switch (nextChar())
-			{
-				case 0x09:
-				case 0x20:
-				case 0x0A:
-				case 0x0C:
-				case 0x0D:
-				case ',':
-					break;
-				default:
-					--idx_;
-					return;
-			}
-		} while (true);
+		while (isSeparator(nextChar())) ;
+		--idx_;
 	}
 
 	protected char nextChar()
 	{
-		if (idx_ < content_.length())
+		if (idx_ < length_)
 			return content_.charAt(idx_++);
 		else
 		{
