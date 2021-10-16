@@ -27,7 +27,8 @@ public class RadialGradient extends Gradient
 	{
 		try
 		{
-			AffineTransform eat = getEffectiveTransform(w);
+			AffineTransform eat = new AffineTransform();
+			if (aft_ != null) eat.setTransform(aft_);
 
 			final boolean userSpace = gradientUnit_ == GradientUnit.userSpaceOnUse;
 			final ShapeHelper shape = w.getShape();

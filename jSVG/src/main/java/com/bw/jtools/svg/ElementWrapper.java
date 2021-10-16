@@ -42,14 +42,17 @@ public final class ElementWrapper
 
 	private static final Pattern unitRegExp_ = Pattern.compile("([\\d+-\\.e]+)(pt|px|em|%|in|cm|mm|ex|pc)", Pattern.CASE_INSENSITIVE);
 
-	private static final HashMap<String, Integer> fontWeights_ = new HashMap<>();
+	private static final HashMap<String, Float> fontWeights_ = new HashMap<>();
+	private static final float FONT_WEIGHT_FACTOR = TextAttribute.WEIGHT_BOLD / 700;
 
 	static
 	{
-		fontWeights_.put("normal", 400);
-		fontWeights_.put("bold", 700);
-		fontWeights_.put("lighter", 400);
-		fontWeights_.put("bolder", 700);
+		fontWeights_.put("normal", TextAttribute.WEIGHT_REGULAR);
+		fontWeights_.put("bold", TextAttribute.WEIGHT_BOLD);
+		// @ODO: make it relative
+		fontWeights_.put("lighter", TextAttribute.WEIGHT_LIGHT);
+		// @ODO: make it relative
+		fontWeights_.put("bolder", TextAttribute.WEIGHT_DEMIBOLD);
 	}
 
 	/**
@@ -124,7 +127,9 @@ public final class ElementWrapper
 	public void setShape(Shape shape)
 	{
 		if (shape != null)
+		{
 			shape_ = new ShapeHelper(shape);
+		}
 		else
 			shape_ = null;
 	}
@@ -132,15 +137,6 @@ public final class ElementWrapper
 	public ShapeHelper getShape()
 	{
 		return shape_;
-	}
-
-	public Shape getTransformedShape()
-	{
-		AffineTransform aft = transform();
-		if (aft != null)
-			return aft.createTransformedShape(shape_.getShape());
-		else
-			return shape_.getShape();
 	}
 
 	public ElementWrapper(ElementCache cache, Element node)
@@ -213,18 +209,20 @@ public final class ElementWrapper
 
 
 	/**
-	 * Gets the java font-weight-value from "font-weight"-attribute.
+	 * Gets the java font-weight-value from "font-weight"-attribute expressed as {@link java.awt.font.TextAttribute#WEIGHT}.
 	 */
 	public double fontWeight()
 	{
-		String w = attr("font-weight");
-		if (isEmpty(w)) return 400; // Normal
+		String w = attr("font-weight", true);
+		if (isEmpty(w))
+			return TextAttribute.WEIGHT_REGULAR;
 
-		Integer pref = fontWeights_.get(w.trim()
-										 .toLowerCase());
-		if (pref != null) return pref / 400d;
+		Float pref = fontWeights_.get(w.trim()
+									   .toLowerCase());
+		if (pref != null)
+			return pref;
 		Double d = convDouble(w);
-		return (d == null) ? 1d : d / 400d;
+		return (d == null) ? TextAttribute.WEIGHT_REGULAR : (d * FONT_WEIGHT_FACTOR);
 	}
 
 	/**
@@ -372,6 +370,9 @@ public final class ElementWrapper
 		return text;
 	}
 
+	/**
+	 * Gets the transform on this ele.
+	 */
 	public AffineTransform transform()
 	{
 		if (aft_ == null)
@@ -465,8 +466,8 @@ public final class ElementWrapper
 	 */
 	protected Font font(Font defaultFont)
 	{
-		Double fontSize = toDouble("font-size");
-		String fontFamily = attr("font-family");
+		Double fontSize = toDouble("font-size", true);
+		String fontFamily = attr("font-family", true);
 		double fontWeight = fontWeight();
 
 		if (fontSize == null) fontSize = new Length(12, LengthUnit.pt).toPixel(null);

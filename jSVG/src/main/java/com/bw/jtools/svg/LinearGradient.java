@@ -25,7 +25,8 @@ public class LinearGradient extends Gradient
 		{
 			final double opacity = w.effectiveOpacity();
 
-			AffineTransform eat = getEffectiveTransform(w);
+			AffineTransform eat = new AffineTransform();
+			if (aft_ != null) eat.setTransform(aft_);
 
 			final boolean userSpace = gradientUnit_ == GradientUnit.userSpaceOnUse;
 			final ShapeHelper shape = w.getShape();
@@ -52,7 +53,8 @@ public class LinearGradient extends Gradient
 				// For objectBoundingBox adapt coordinate space
 				Rectangle2D box = shape.getBoundingBox();
 				// 2. Scale
-				eat.preConcatenate(AffineTransform.getScaleInstance(box.getWidth(), box.getHeight()));
+				AffineTransform scale = AffineTransform.getScaleInstance(box.getWidth(), box.getHeight());
+				eat.preConcatenate(scale);
 				// 1. Move
 				eat.preConcatenate(AffineTransform.getTranslateInstance(box.getX(), box.getY()));
 			}

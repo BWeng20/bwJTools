@@ -2,6 +2,7 @@ package com.bw.jtools.shape;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,9 @@ public final class ShapePainter
 	 */
 	public Rectangle2D.Double getArea()
 	{
-		if (keepOffset_)
+		if (area_ == null)
+			return new Rectangle2D.Double(0, 0, 0, 0);
+		else if (keepOffset_)
 			return new Rectangle2D.Double(scaleX_ * area_.x, scaleY_ * area_.y, scaleX_ * area_.width, scaleY_ * area_.height);
 		else
 			return new Rectangle2D.Double(0, 0, scaleX_ * area_.width, scaleY_ * area_.height);
@@ -57,7 +60,8 @@ public final class ShapePainter
 
 		final double lw = ((shape.stroke_ instanceof BasicStroke) ? (BasicStroke) shape.stroke_ : defaultStroke_).getLineWidth();
 
-		Rectangle2D r = shape.shape_.getBounds2D();
+		Rectangle2D r = shape.aft_.createTransformedShape(shape.shape_)
+								  .getBounds2D();
 		Rectangle2D transRect = new Rectangle2D.Double(r.getX() - lw, r.getY() - lw, r.getWidth() + 2 * lw, r.getHeight() + 2 * lw);
 		if (area_ == null)
 			area_ = new Rectangle2D.Double(transRect.getX(), transRect.getY(), transRect.getWidth(), transRect.getHeight());
@@ -97,6 +101,9 @@ public final class ShapePainter
 	 */
 	public void paintShapes(Graphics2D g2D, boolean clearArea)
 	{
+		if (area_ == null)
+			return;
+
 		final long ms = (measureTime_) ? System.currentTimeMillis() : 0;
 		g2D.scale(scaleX_, scaleY_);
 		if (!keepOffset_)
@@ -104,10 +111,14 @@ public final class ShapePainter
 		if (clearArea)
 			g2D.fill(area_);
 
-		g2D.setTransform(g2D.getTransform());
+		AffineTransform orgAft = g2D.getTransform();
+		AffineTransform aft = new AffineTransform();
 
 		for (ShapeWithStyle shape : shapes_)
 		{
+			aft.setTransform(orgAft);
+			aft.concatenate(shape.aft_);
+			g2D.setTransform(aft);
 			g2D.setClip(shape.clipping_);
 
 			if (shape.fill_ != null)

@@ -119,14 +119,6 @@ public abstract class Gradient implements Cloneable
 		return new PaintWrapper(this);
 	}
 
-	protected AffineTransform getEffectiveTransform(ElementWrapper w)
-	{
-		AffineTransform eat = w == null ? null : w.transform();
-		final AffineTransform at = (eat == null) ? new AffineTransform() : new AffineTransform(eat);
-		if (aft_ != null)
-			at.preConcatenate(aft_);
-		return at;
-	}
 
 	public abstract Paint createPaint(ElementWrapper w);
 

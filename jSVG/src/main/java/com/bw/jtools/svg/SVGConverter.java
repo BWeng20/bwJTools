@@ -5,12 +5,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.awt.Font;
 import java.awt.MultipleGradientPaint;
 import java.awt.Shape;
@@ -23,7 +21,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -89,6 +88,11 @@ public class SVGConverter
 	 */
 	public SVGConverter(final String xml)
 	{
+		this(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+	}
+
+	public SVGConverter(final InputStream in)
+	{
 		try
 		{
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -106,7 +110,7 @@ public class SVGConverter
 
 			DocumentBuilder db = dbf.newDocumentBuilder();
 
-			doc_ = db.parse(new ByteArrayInputStream(xml.getBytes()));
+			doc_ = db.parse(in);
 
 			// Without automatic processing of "id" attributes will not be detected as key
 			// and "getElementById" will not work. So we have to collect the Ids manually.
@@ -124,7 +128,7 @@ public class SVGConverter
 			}
 
 		}
-		catch (SAXException | IOException | ParserConfigurationException e)
+		catch (Exception e)
 		{
 			error("Failed to parse SVG", e);
 		}
@@ -137,27 +141,14 @@ public class SVGConverter
 	{
 		ElementWrapper w = elementCache_.getElementWrapperById(s.id_);
 
-		Shape shape;
-		Shape clipping = null;
-		if (s.aft_ == null)
-		{
-			shape = s.shape_;
-			clipping = s.clipping_;
-		}
-		else
-		{
-			shape = s.aft_.createTransformedShape(s.shape_);
-			if (s.clipping_ != null)
-				clipping = s.aft_.createTransformedShape(s.clipping_);
-		}
-
 		ShapeWithStyle sws = new ShapeWithStyle(
 				s.id_,
-				shape,
+				s.shape_,
 				s.stroke_ == null ? null : s.stroke_.createStroke(w),
 				s.paintWrapper_ == null ? null : s.paintWrapper_.createPaint(w),
 				s.fillWrapper_ == null ? null : s.fillWrapper_.createPaint(w),
-				clipping);
+				s.clipping_,
+				s.aft_);
 
 		return sws;
 	}
@@ -475,19 +466,15 @@ public class SVGConverter
 
 	protected void addShapeContainer(ElementWrapper w, List<ShapeInfo> shapes, List<ShapeInfo> global)
 	{
-		String transform = w.attr("transform", false);
-		if (ElementWrapper.isNotEmpty(transform))
-		{
-			AffineTransform t = new Transform(null, transform).getTransform();
-			if (t != null)
-				for (ShapeInfo s : shapes)
-				{
-					if (s.aft_ == null)
-						s.aft_ = new AffineTransform(t);
-					else
-						s.aft_.preConcatenate(t);
-				}
-		}
+		AffineTransform t = w.transform();
+		if (t != null)
+			for (ShapeInfo s : shapes)
+			{
+				if (s.aft_ == null)
+					s.aft_ = new AffineTransform(t);
+				else
+					s.aft_.preConcatenate(t);
+			}
 		global.addAll(shapes);
 		shapes.clear();
 	}

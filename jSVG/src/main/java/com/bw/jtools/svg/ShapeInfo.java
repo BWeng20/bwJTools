@@ -37,8 +37,7 @@ public final class ShapeInfo
 	public PaintWrapper fillWrapper_;
 
 	/**
-	 * Transform to be applied to the graphics context.</br>
-	 * Never null.
+	 * Transform to be applied to the graphics context.
 	 */
 	public AffineTransform aft_;
 
