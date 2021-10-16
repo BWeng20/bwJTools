@@ -1,5 +1,6 @@
 package com.bw.jtools.shape;
 
+import java.awt.Color;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
@@ -10,6 +11,8 @@ import java.awt.geom.AffineTransform;
  */
 public final class ShapeWithStyle
 {
+	public static final Color NONE = new Color(0,0,0,0);
+
 	/**
 	 * Id to identify the shape in the some document.
 	 */

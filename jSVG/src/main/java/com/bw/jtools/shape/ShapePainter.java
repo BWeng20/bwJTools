@@ -1,6 +1,7 @@
 package com.bw.jtools.shape;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -121,20 +122,19 @@ public final class ShapePainter
 			g2D.setTransform(aft);
 			g2D.setClip(shape.clipping_);
 
-			if (shape.fill_ != null)
+			if (shape.fill_ == null)
+			{
+				// If fill is not set, fill is done with default.
+				g2D.setPaint(Color.BLACK);
+				g2D.fill(shape.shape_);
+			}
+			else if ( shape.fill_ != ShapeWithStyle.NONE)
 			{
 				g2D.setPaint(shape.fill_);
 				g2D.fill(shape.shape_);
 			}
-			if (shape.paint_ == null)
-			{
-				if (shape.fill_ == null)
-				{
-					g2D.setStroke(defaultStroke_);
-					g2D.draw(shape.shape_);
-				}
-			}
-			else
+
+			if ( shape.paint_ != null && shape.paint_ != ShapeWithStyle.NONE )
 			{
 				g2D.setPaint(shape.paint_);
 				g2D.setStroke(shape.stroke_);

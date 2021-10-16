@@ -1,5 +1,7 @@
 package com.bw.jtools.svg;
 
+import com.bw.jtools.shape.ShapeWithStyle;
+
 import java.util.HashMap;
 
 public class Color
@@ -155,7 +157,7 @@ public class Color
 		name2color_.put("lightyellow", new java.awt.Color(0xFF, 0xFF, 0xE0));
 		name2color_.put("ivory", new java.awt.Color(0xFF, 0xFF, 0xF0));
 		name2color_.put("white", java.awt.Color.WHITE);
-		name2color_.put("none", null);
+		name2color_.put("none", ShapeWithStyle.NONE );
 		name2color_.put("currentColor", java.awt.Color.BLACK);
 	}
 
