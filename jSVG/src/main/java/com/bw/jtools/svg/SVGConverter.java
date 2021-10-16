@@ -470,10 +470,13 @@ public class SVGConverter
 		if (t != null)
 			for (ShapeInfo s : shapes)
 			{
-				if (s.aft_ == null)
-					s.aft_ = new AffineTransform(t);
-				else
-					s.aft_.preConcatenate(t);
+				if (!s.id_.equals(w.id()))
+				{
+					if (s.aft_ == null)
+						s.aft_ = new AffineTransform(t);
+					else
+						s.aft_.preConcatenate(t);
+				}
 			}
 		global.addAll(shapes);
 		shapes.clear();
