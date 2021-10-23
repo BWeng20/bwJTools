@@ -9,7 +9,7 @@ public enum Type
 	path, rect, circle, ellipse,
 	text, textPath,
 	line, polyline, polygon,
-	use,
+	use, style,
 	defs, linearGradient, radialGradient;
 
 	private final static HashMap<String, Type> types_ = new HashMap<>();

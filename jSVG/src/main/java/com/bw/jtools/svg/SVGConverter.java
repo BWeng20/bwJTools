@@ -1,6 +1,9 @@
 package com.bw.jtools.svg;
 
 import com.bw.jtools.shape.ShapeWithStyle;
+import com.bw.jtools.svg.css.Lexer;
+import com.bw.jtools.svg.css.CSSParser;
+import com.bw.jtools.svg.css.StyleSelector;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -22,6 +25,7 @@ import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,12 +90,12 @@ public class SVGConverter
 	 *
 	 * @param xml The svg document.
 	 */
-	public SVGConverter(final String xml)
+	public SVGConverter(final String xml) throws SVGException
 	{
 		this(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 	}
 
-	public SVGConverter(final InputStream in)
+	public SVGConverter(final InputStream in) throws SVGException
 	{
 		try
 		{
@@ -130,7 +134,7 @@ public class SVGConverter
 		}
 		catch (Exception e)
 		{
-			error("Failed to parse SVG", e);
+			throw new SVGException("Faild to parse SVG", e);
 		}
 	}
 
@@ -453,6 +457,17 @@ public class SVGConverter
 			{
 				w.setShape(new Polyline(w.attr("points")).getPath());
 				shapes.add(createShapeInfo(w));
+			}
+			break;
+			case style:
+			{
+				String type = w.attr("type", false);
+				String txt = w.getNode().getTextContent();
+
+				Lexer lx = new Lexer(new StringReader(txt), true);
+				CSSParser p = new CSSParser();
+				StyleSelector selector =  new StyleSelector();
+				p.parse(lx,selector);
 			}
 			break;
 			case defs:

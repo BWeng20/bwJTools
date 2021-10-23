@@ -52,6 +52,12 @@ public final class ShapePainter
 		return area_ == null ? 0 : scaleY_ * (keepOffset_ ? (area_.y + area_.height) : area_.height);
 	}
 
+	public void clearShapes()
+	{
+		shapes_.clear();
+		area_ = null;
+	}
+
 	/**
 	 * Adds a shape.
 	 */

@@ -382,5 +382,40 @@ public class ImageTool
 		g2.dispose();
 	}
 
+	/**
+	 * Create a checkerboard paint where each field is width x height.
+	 */
+	public static BufferedImage createCheckerboardImage(Color c1, Color c2, int width, int height )
+	{
+		return createCheckerboardImage(c1, c2, width, height, 2, 2);
+	}
+
+	/**
+	 * Create a checkerboard paint where each field is width x height.
+	 * Number of fields in each direction can be specified with column and rows.
+	 */
+	public static BufferedImage createCheckerboardImage(Color c1, Color c2, int width, int height, int columns, int rows ) {
+		final BufferedImage img = createImage(columns*width, rows*height, false);
+		Graphics2D g2 = img.createGraphics();
+		Color tmp;
+		for ( int r = 0 ; r<rows; ++r)
+		{
+			for (int c = 0; c < columns; ++c)
+			{
+				g2.setColor(c1);
+				g2.fillRect(c * width, r * height, width, height);
+				// Swap colors
+				tmp = c2;
+				c2 = c1;
+				c1 = tmp;
+			}
+			tmp = c2;
+			c2 = c1;
+			c1 = tmp;
+		}
+		g2.dispose();
+		return img;
+	}
+
 
 }

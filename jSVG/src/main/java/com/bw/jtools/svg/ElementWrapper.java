@@ -1,5 +1,6 @@
 package com.bw.jtools.svg;
 
+import com.bw.jtools.svg.css.CSSParser;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -11,8 +12,11 @@ import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.function.IntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,10 +26,9 @@ import java.util.regex.Pattern;
  */
 public final class ElementWrapper
 {
-	private static final Pattern styleSplitRegExp_ = Pattern.compile(";");
-
-	private HashMap<String, String> attributes_;
-	private HashMap<String, String> overrides_;
+	private Map<String, String> attributes_;
+	private Map<String, String> overrides_;
+	private Set<String> classes_;
 	private final Element node_;
 	private ElementWrapper parent_;
 	private final Type type_;
@@ -162,6 +165,26 @@ public final class ElementWrapper
 	public String getTagName()
 	{
 		return node_.getTagName();
+	}
+
+	public boolean hasClass(String clazz)
+	{
+		return getClasses().contains(clazz);
+	}
+
+	public Set<String> getClasses()
+	{
+		if( classes_ == null )
+		{
+			classes_ = new HashSet<>();
+			String clazz = attr("class", false);
+			if ( clazz != null ) {
+				Scanner s = new Scanner(clazz);
+				while(s.hasNext())
+					classes_.add(s.next());
+			}
+		}
+		return classes_;
 	}
 
 	/**
@@ -406,7 +429,7 @@ public final class ElementWrapper
 			if (attrName != null)
 				uw.override(attrName, attrNode.getNodeValue());
 		}
-		HashMap<String, String> styleAttributes = usingElement.getStyleAttributes();
+		Map<String, String> styleAttributes = usingElement.getStyleAttributes();
 		for (Map.Entry<String, String> styleAttr : styleAttributes.entrySet())
 		{
 			String attrName = styleAttr.getKey();
@@ -568,7 +591,8 @@ public final class ElementWrapper
 	/**
 	 * Gets an attribute from this element.<br>
 	 * The value can be specified directly or via
-	 * style-attribute.
+	 * style-attribute.<br>
+	 * Values from "style" (direct style-attribute or via style-sheet) have higher priority than attributes.
 	 *
 	 * @param inherited If true the attribute canbe inherited.
 	 */
@@ -580,10 +604,10 @@ public final class ElementWrapper
 			if (isNotEmpty(ov))
 				return ov;
 		}
-		String v = node_.getAttribute(attributeName);
+		String v = getStyleAttributes().get(attributeName);
 		if (isEmpty(v))
 		{
-			v = getStyleAttributes().get(attributeName);
+			v = node_.getAttribute(attributeName);
 		}
 		if (isEmpty(v) && inherited)
 		{
@@ -595,29 +619,23 @@ public final class ElementWrapper
 	}
 
 	/**
-	 * Get all attributes from the  style-attribute.
+	 * Local style attributes have higher priority than style-sheet-values.
 	 */
-	public HashMap<String, String> getStyleAttributes()
+	public String getStyleValue(String attributeName)
+	{
+		String v = getStyleAttributes().get(attributeName);
+		if ( v == null )
+			v = elementCache_.getStyleSelector().getStyle(this, attributeName);
+		return v;
+	}
+
+	/**
+	 * Get all attributes from the local style-attribute.<br>
+	 */
+	public Map<String, String> getStyleAttributes()
 	{
 		if (attributes_ == null)
-		{
-			attributes_ = new HashMap<>();
-
-			String v = node_.getAttribute("style");
-			if (isNotEmpty(v))
-			{
-				String[] stylesAr = styleSplitRegExp_.split(v);
-				for (String s : stylesAr)
-				{
-					final int i = s.indexOf(':');
-					if (i > 0)
-					{
-						attributes_.put(s.substring(0, i)
-										 .trim(), s.substring(i + 1));
-					}
-				}
-			}
-		}
+			attributes_ = CSSParser.parseStyle(node_.getAttribute("style"));
 		return attributes_;
 	}
 
