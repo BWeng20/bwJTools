@@ -274,6 +274,4 @@ public final class UITool
 		}
 		g2.addRenderingHints(fontRenderHints_);
 	}
-
-
 }
