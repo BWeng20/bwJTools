@@ -1,18 +1,39 @@
+/*
+ * (c) copyright 2021 Bernd Wengenroth
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package com.bw.jtools.svg;
 
-import com.bw.jtools.svg.css.StyleSelector;
+import com.bw.jtools.svg.css.CssStyleSelector;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ElementCache
 {
 	private final HashMap<String, ElementWrapper> wrapperById_ = new HashMap<>();
 	private static AtomicLong idGenerator = new AtomicLong(9999);
-	private final StyleSelector styleSelector_ = new StyleSelector();
+	private final CssStyleSelector cssStyleSelector_ = new CssStyleSelector();
 
 
 	private String generateId()
@@ -67,24 +88,8 @@ public class ElementCache
 			return null;
 	}
 
-	private Map<String, Map<String,String>> stylesById_ = new HashMap<>();
-	private Map<Type, Map<String,String>> stylesByType_ = new HashMap<>();
-
-	/**
-	 * Returns all styles for an id.
-	 * @return The map - never null
-	 */
-	protected Map<String,String> getOrCreateStylesFor( String id ) {
-		Map<String,String> s = stylesById_.get(id);
-		if ( s == null )
-		{
-			s = new HashMap<>();
-			stylesById_.put( id, s );
-		}
-		return s;
-	}
-
-	public StyleSelector getStyleSelector() {
-		return styleSelector_;
+	public CssStyleSelector getCssStyleSelector()
+	{
+		return cssStyleSelector_;
 	}
 }

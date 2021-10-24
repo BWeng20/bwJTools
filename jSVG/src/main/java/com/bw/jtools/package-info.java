@@ -1,5 +1,5 @@
 /*
- * (c) copyright Bernd Wengenroth
+ * (c) copyright 2021 Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +26,9 @@
  * As the svg elements are simply converted to shapes, complex stuff that needs offline-rendering (like blur) can't work.
  * Also a lot of complex use-case will not work as specified. </br>
  * The SVG specification contains a lot of such case with a large amounts of hints how agents should render it correctly.
- * But most svg graphics doesn't use such stuff, so the conversion to Java2D shapes is the most efficient way to draw
+ * But most svg graphics doesn't use such stuff, so the conversion to Java2D shapes is a efficient way to draw
  * such simple scalable graphics.</br>
- * If you need a more feature-complete renderer, use batik or (not to forget) SVG Salamander.
+ * If you need a feature-complete renderer, use Batik.
  */
 package com.bw.jtools;
 

@@ -22,14 +22,65 @@
 
 package com.bw.jtools.svg.css;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-public class SelectorRule
+import com.bw.jtools.svg.ElementWrapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public final class CssStyleSelector
 {
-	public List<Selector> selectors_ = new ArrayList<>();
-	public Map<String, String> styles_ = new HashMap<>();
+	public List<SelectorRule> rules_ = new ArrayList<>();
+
+	public String getStyle(ElementWrapper e, String attributeName)
+	{
+		int maxPrecedence = -1;
+		String bestValue = null;
+		for (SelectorRule rule : rules_)
+		{
+			int precedence = matchPrecedence(rule, e);
+			if (precedence > 0)
+			{
+				String value = rule.styles_.get(attributeName);
+				if (value != null && precedence > maxPrecedence)
+				{
+					bestValue = value;
+					maxPrecedence = precedence;
+				}
+			}
+		}
+		return bestValue;
+	}
+
+	protected int matchPrecedence(SelectorRule rule, ElementWrapper e)
+	{
+		for (Selector s : rule.selectors_)
+		{
+			int precedence = 1;
+			while (s != null)
+			{
+				if (!match(s, e))
+					break;
+				s = s.and_;
+				// @TODO: make this real! CHeck precedence by type and position
+				precedence++;
+			}
+		}
+		return -1;
+	}
+
+	protected boolean match(Selector s, ElementWrapper e)
+	{
+		switch (s.type_)
+		{
+			case CLASS:
+				return e.hasClass(s.id_);
+			case TAG:
+				return s.id_.equals(e.getTagName());
+			case ID:
+				return s.id_.equals(e.id());
+		}
+		return false;
+	}
 
 }

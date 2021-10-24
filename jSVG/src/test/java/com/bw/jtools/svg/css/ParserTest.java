@@ -14,7 +14,7 @@ class ParserTest
 	{
 		CSSParser cssParser = new CSSParser();
 		Lexer lx = new Lexer( new StringReader("[xxx=123], .class dev , #someid span { color: red; background: red blue; }"), true);
-		StyleSelector ssel = new StyleSelector();
+		CssStyleSelector ssel = new CssStyleSelector();
 		cssParser.parse(lx,ssel);
 
 		for (SelectorRule r : ssel.rules_)
@@ -24,8 +24,8 @@ class ParserTest
 				System.out.print("Selector");
 				while (s != null)
 				{
-					System.out.print( " "+s.type.name() + "-" + s.id);
-					s = s.and;
+					System.out.print( " "+s.type_.name() + "-" + s.id_);
+					s = s.and_;
 				}
 				System.out.println("");
 

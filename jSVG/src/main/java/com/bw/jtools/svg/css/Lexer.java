@@ -1,10 +1,30 @@
+/*
+ * (c) copyright 2021 Bernd Wengenroth
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package com.bw.jtools.svg.css;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,10 +40,13 @@ public class Lexer
 	private Reader reader_;
 
 	private static final int[] separators_;
-	static {
-		separators_ = new int[] { '\t',' ',':', '\n',';','.',',','-','+','(',')','{','}','[',']','#','*','?','=','%','@','!', -1};
+
+	static
+	{
+		separators_ = new int[]{'\t', ' ', ':', '\n', ';', '.', ',', '-', '+', '(', ')', '{', '}', '[', ']', '#', '*', '?', '=', '%', '@', '!', -1};
 		Arrays.sort(separators_);
 	}
+
 	private LexerSymbol reused_;
 	private int stringDelimiter = -100;
 	private boolean number = false;
@@ -32,7 +55,7 @@ public class Lexer
 	public Lexer(Reader reader, boolean reUseSymbol)
 	{
 		reader_ = reader;
-		if ( reUseSymbol )
+		if (reUseSymbol)
 			reused_ = new LexerSymbol();
 	}
 
@@ -48,8 +71,9 @@ public class Lexer
 		int c;
 		while (true)
 		{
-			if ( isStop(c = nextChar()) ){
-				if ( c > 0)
+			if (isStop(c = nextChar()))
+			{
+				if (c > 0)
 				{
 					// If not an EOF
 					if (buffer.length() == 0)
@@ -69,14 +93,15 @@ public class Lexer
 		result.value_ = buffer.toString();
 		buffer.setLength(0);
 
-		if ( result.value_.isEmpty() )
+		if (result.value_.isEmpty())
 			result.type_ = LexerSymbolType.EOF;
-		else if ( numberpattern.matcher(result.value_).matches() )
+		else if (numberpattern.matcher(result.value_)
+							  .matches())
 			result.type_ = LexerSymbolType.NUMBER;
 		else if (result.value_.length() > 1)
 			result.type_ = LexerSymbolType.IDENTIFIER;
 		else
-			result.type_ = isStopChar(result.value_.charAt(0))? LexerSymbolType.SEPARATOR : LexerSymbolType.IDENTIFIER;
+			result.type_ = isStopChar(result.value_.charAt(0)) ? LexerSymbolType.SEPARATOR : LexerSymbolType.IDENTIFIER;
 		return result;
 	}
 
@@ -85,9 +110,9 @@ public class Lexer
 	 */
 	protected boolean isStop(int c)
 	{
-		if ( c < 0)
+		if (c < 0)
 			return true;
-		else if ( buffer.length() == 0)
+		else if (buffer.length() == 0)
 		{
 			buffer.append((char) c);
 			number = checkForNumber();
@@ -95,22 +120,23 @@ public class Lexer
 			if (number)
 				return false;
 		}
-		else if ( number )
+		else if (number)
 		{
 			int oldLength = buffer.length();
-			buffer.append((char)c);
+			buffer.append((char) c);
 			boolean numberStop = !checkForNumber();
 			buffer.setLength(oldLength);
 			return numberStop;
 		}
 
-		if ( stringDelimiter > 0 )
+		if (stringDelimiter > 0)
 		{
-			if ( c == stringDelimiter)
+			if (c == stringDelimiter)
 			{
 				stringDelimiter = -100;
 				return true;
-			} else
+			}
+			else
 				// EOF is in any case a stop
 				return c < 0;
 		}
@@ -119,14 +145,15 @@ public class Lexer
 			if (isStringDelimiter(c))
 				stringDelimiter = c;
 			return true;
-		} else
+		}
+		else
 			return false;
 	}
 
 	/**
 	 * Check if the character is in list of stop characters
 	 */
-	protected boolean isStopChar(int c )
+	protected boolean isStopChar(int c)
 	{
 		// Binary search
 		int startIndex = 0;
@@ -147,18 +174,19 @@ public class Lexer
 		return false;
 	}
 
-	protected boolean isStringDelimiter(int c )
+	protected boolean isStringDelimiter(int c)
 	{
-		return ( c == '\'' || c == '"');
+		return (c == '\'' || c == '"');
 	}
 
-	protected void eatSpace() {
-		if ( stringDelimiter < 0)
+	protected void eatSpace()
+	{
+		if (stringDelimiter < 0)
 		{
 			int c;
 			while (Character.isWhitespace(c = nextChar())) ;
 
-			if ( isStringDelimiter( c))
+			if (isStringDelimiter(c))
 				stringDelimiter = c;
 			else if (c > 0)
 				pushBack(c);
@@ -168,7 +196,8 @@ public class Lexer
 	/**
 	 * Check if the current buffer is possibly start of a number
 	 */
-	private boolean checkForNumber(){
+	private boolean checkForNumber()
+	{
 		Matcher m = numberpattern.matcher(buffer);
 		m.matches();
 		return m.hitEnd();
@@ -181,20 +210,23 @@ public class Lexer
 	private int[] pushback_ = new int[10];
 	private int pushbackPos_ = -1;
 
-	private void pushBack(int c) {
+	private void pushBack(int c)
+	{
 		pushback_[++pushbackPos_] = c;
 	}
 
 	private int nextChar()
 	{
-		if ( pushbackPos_ < 0 )
+		if (pushbackPos_ < 0)
 		{
-			if ( reader_ == null )
+			if (reader_ == null)
 				return -1;
 			try
 			{
 				return reader_.read();
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				exception_ = e;
 				reader_ = null;
 				return -1;

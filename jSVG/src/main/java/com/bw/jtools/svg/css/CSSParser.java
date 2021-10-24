@@ -1,3 +1,25 @@
+/*
+ * (c) copyright 2021 Bernd Wengenroth
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package com.bw.jtools.svg.css;
 
 import java.io.IOException;
@@ -7,14 +29,17 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
+/**
+ * Simple CSS Parser.<br>
+ */
 public class CSSParser
 {
-	public static StyleSelector parse(Reader reader, String type) throws IOException
+	public static CssStyleSelector parse(Reader reader, String type) throws IOException
 	{
 		// if ( type == null ) type = "text/css";
 		//@TODO: any other then "text/css"?
 
-		StyleSelector styleSelector = new StyleSelector();
+		CssStyleSelector styleSelector = new CssStyleSelector();
 		new CSSParser().parse(new Lexer(reader, true), styleSelector);
 		return styleSelector;
 	}
@@ -28,6 +53,7 @@ public class CSSParser
 		Selector selector;
 		boolean chain;
 	}
+
 	private Stack<RuleStub> ruleStack = new Stack<>();
 
 	private Selector selector_;
@@ -37,7 +63,7 @@ public class CSSParser
 	 * Parse a style sheet and put all style in the selector.<br>
 	 * Method is not thread-safe, use separate instances on each thread!
 	 */
-	public void parse(Lexer lexer, StyleSelector styleSelector)
+	public void parse(Lexer lexer, CssStyleSelector styleSelector)
 	{
 		LexerSymbol symbol;
 		LexerSymbolType lastLexType = LexerSymbolType.EOF;
@@ -50,7 +76,7 @@ public class CSSParser
 			{
 				case SEPARATOR:
 					char c = symbol.value_.charAt(0);
-					if ( attribute != null )
+					if (attribute != null)
 					{
 						if (c == ']')
 							//@TODO: How to handle attributes in svg? Ignored for now.
@@ -61,7 +87,7 @@ public class CSSParser
 					else if (declaration != null)
 					{
 						if (c == '}')
-							styleSelector.rules_.add( generateRule() );
+							styleSelector.rules_.add(generateRule());
 						else
 							declaration.append(c);
 					}
@@ -90,13 +116,14 @@ public class CSSParser
 					}
 					break;
 				case IDENTIFIER:
-					if ( attribute != null )
+					if (attribute != null)
 					{
 						if (lastLexType != LexerSymbolType.SEPARATOR)
 							attribute.append(' ');
 						attribute.append(symbol.value_);
 
-					} else if (declaration != null)
+					}
+					else if (declaration != null)
 					{
 						if (lastLexType != LexerSymbolType.SEPARATOR)
 							declaration.append(' ');
@@ -105,9 +132,9 @@ public class CSSParser
 					else
 					{
 						Selector s = getCurrentSelector();
-						if ( s.id != null )
-							startRule( SelectorType.TAG, chain);
-						getCurrentSelector().id = symbol.value_;
+						if (s.id_ != null)
+							startRule(SelectorType.TAG, chain);
+						getCurrentSelector().id_ = symbol.value_;
 					}
 					chain = true;
 					break;
@@ -133,39 +160,45 @@ public class CSSParser
 		while (!ruleStack.isEmpty())
 		{
 			RuleStub stub = ruleStack.pop();
-			if ( selectorToChain != null )
-				stub.selector.and = selectorToChain;
+			if (selectorToChain != null)
+				stub.selector.and_ = selectorToChain;
 
-			if (stub.chain) {
+			if (stub.chain)
+			{
 				selectorToChain = stub.selector;
-			} else
+			}
+			else
 			{
 				selectorToChain = null;
 				rule.selectors_.add(stub.selector);
 			}
 		}
-		if ( selectorToChain != null )
+		if (selectorToChain != null)
 			rule.selectors_.add(selectorToChain);
 		return rule;
 	}
 
-	void startRule(SelectorType type, boolean chain)
+	private void startRule(SelectorType type, boolean chain)
 	{
 		RuleStub stub = new RuleStub();
-		stub.selector = selector_ = new Selector();;
-		selector_.type = type;
+		stub.selector = selector_ = new Selector();
+		;
+		selector_.type_ = type;
 		stub.chain = chain;
 		ruleStack.push(stub);
 	}
 
-	Selector getCurrentSelector()
+	private Selector getCurrentSelector()
 	{
-		if ( selector_ == null )
+		if (selector_ == null)
 			startRule(SelectorType.TAG, false);
 		return selector_;
 	}
 
-	public static Map<String,String> parseStyle(String style)
+	/**
+	 * Parses a style definition, e.g. "width:10px;height30px" and returns all entries as map.
+	 */
+	public static Map<String, String> parseStyle(String style)
 	{
 		Map<String, String> attrs = new HashMap<>();
 		if (style != null && !style.isEmpty())
