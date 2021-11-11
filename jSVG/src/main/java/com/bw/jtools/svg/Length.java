@@ -43,6 +43,8 @@ public final class Length
 
 	// @TODO: font height
 	private static final double pixelPerEM_ = 12;
+
+
 	// @TODO: font x-height (height of small letters)
 	private static final double pixelPerEX_ = 8;
 
@@ -70,6 +72,8 @@ public final class Length
 	 */
 	public double toPixel(Double absValue)
 	{
+		if (unit_ == null)
+			return value_ * pixelPerPoint_;
 		switch (unit_)
 		{
 			case pt:
@@ -84,6 +88,7 @@ public final class Length
 				return value_ * pixelPerMM_;
 			case pc:
 				return value_ * pixelPerPica_;
+			case rem:
 			case em:
 				return value_ * pixelPerEM_;
 			case ex:

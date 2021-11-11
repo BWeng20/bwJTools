@@ -35,7 +35,8 @@ public enum LengthUnit
 	mm,
 	pt,
 	pc,
-	percent;
+	percent,
+	rem;
 
 	private static final Map<String, LengthUnit> lowerCaseMap_;
 
