@@ -33,6 +33,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -131,7 +133,7 @@ public class SVGDemo
 
 		JScrollPane drawScroll = new JScrollPane();
 		JPaintViewport vp = new JPaintViewport();
-		vp.setBackgroundImage(ImageTool.createCheckerboardImage(Color.WHITE, Color.LIGHT_GRAY, 10, 10));
+		vp.setBackgroundImage(ImageTool.createCheckerboardImage(Color.WHITE, new Color(230, 230, 230), 10, 10));
 		vp.setOpaque(true);
 		drawScroll.setViewport(vp);
 		drawScroll.setViewportView(drawPanel);
@@ -268,6 +270,15 @@ public class SVGDemo
 			updateStatus.run();
 		});
 		timer.start();
+		f.addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosed(WindowEvent e)
+			{
+				timer.stop();
+			}
+		});
+
 
 	}
 }
