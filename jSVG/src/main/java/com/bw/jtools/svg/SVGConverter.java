@@ -23,8 +23,8 @@
 package com.bw.jtools.svg;
 
 import com.bw.jtools.shape.ShapeWithStyle;
-import com.bw.jtools.svg.css.Lexer;
 import com.bw.jtools.svg.css.CSSParser;
+import com.bw.jtools.svg.css.CssStyleSelector;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -46,7 +46,6 @@ import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,25 +73,48 @@ import java.util.Map;
  * <li>clipPath (only direct use by attribute clip-path, no inheritance)</li>
  * </ul>
  * As the svg elements are simply converted to Shapes, complex stuff that needs offline-rendering (like blur) can't work.
- * Also a lot of complex use-case will not work as specified. </br>
- * The SVG specification contains a lot of such case with a large amounts of hints how agents should render it correctly.
- * But most svg graphics doesn't use such stuff, so the conversion to Java2D shapes is the most efficient way to draw
+ * Some complex use-case will not work as specified. </br>
+ * The SVG specification contains a lot of such case with some amounts of hints how agents should render it correctly.</br>
+ * Most svg graphics doesn't use such stuff, so the conversion to Java2D shapes is the most efficient way to draw
  * simple scalable graphics (see {@link com.bw.jtools.shape.ShapePainter} and {@link com.bw.jtools.shape.ShapeIcon}).</br>
- * My basic need was to draw icons that will look good also on high-res-screens.</br>
- * If you need a more feature-complete renderer, use batik or (not to forget) SVG Salamander.
+ * The basic need for thos lib was to draw icons that will look good also on high-res-screens.</br>
+ * If you need a feature-complete renderer, use batik or (also not complete) SVG Salamander.
  */
 public class SVGConverter
 {
-	public static void warn(String s)
+
+	/**
+	 * Helper method to dump SVG warnings that may need user-attention.<br>
+	 * Can be used
+	 */
+	public static void warn(String s, Object... params)
 	{
-		System.out.println("SVG Warning: " + s);
+		System.out.print("SVG Warning: ");
+		System.out.printf(s, params);
+		System.out.println();
 	}
 
-	public static void error(String s, Throwable t)
+	/**
+	 * Helper method to dump SVG errors that may need user-attention.<br>
+	 * Can be used
+	 */
+	public static void error(Throwable t, String s, Object... params)
 	{
-		System.err.println("SVG Error: " + (s == null ? "" : s));
+		error(s, params);
 		if (t != null)
-			t.printStackTrace(System.err);
+		{
+			if (detailedErrorInformation_)
+				t.printStackTrace(System.err);
+			else
+				System.err.println(t.getMessage());
+		}
+	}
+
+	public static void error(String s, Object... params)
+	{
+		System.err.print("SVG Error: ");
+		System.err.printf(s, params);
+		System.err.println();
 	}
 
 	private final List<ShapeInfo> shapes_ = new ArrayList<>();
@@ -104,6 +126,8 @@ public class SVGConverter
 	private final ElementCache elementCache_ = new ElementCache();
 
 	public static final boolean addPathSegments_ = false;
+
+	public static boolean detailedErrorInformation_ = false;
 
 	/**
 	 * Parse a SVG document and creates shapes.
@@ -134,12 +158,25 @@ public class SVGConverter
 			dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
 			DocumentBuilder db = dbf.newDocumentBuilder();
-
 			doc_ = db.parse(in);
 
-			// Without automatic processing of "id" attributes will not be detected as key
+			// Without schema processing (see above), "id" attributes will not be detected as key
 			// and "getElementById" will not work. So we have to collect the Ids manually.
 			elementCache_.scanForIds(doc_);
+
+			// Parse styles and apply them
+			NodeList styles = doc_.getElementsByTagName(Type.style.name());
+			if (styles.getLength() > 0)
+			{
+				CSSParser cssParser = new CSSParser();
+				CssStyleSelector cssStyleSelector = new CssStyleSelector();
+				for (int i = 0; i < styles.getLength(); ++i)
+				{
+					cssParser.parse(styles.item(i)
+										  .getTextContent(), null, cssStyleSelector);
+				}
+				cssStyleSelector.apply(doc_.getDocumentElement(), elementCache_);
+			}
 
 			// @TODO patterns
 			// NodeList patterns = doc_.getElementsByTagName("pattern");
@@ -156,6 +193,170 @@ public class SVGConverter
 		catch (Exception e)
 		{
 			throw new SVGException("Faild to parse SVG", e);
+		}
+	}
+
+	private void parseChildren(List<ShapeInfo> shapes, Node parent)
+	{
+		Node child = parent.getFirstChild();
+		while (child != null)
+		{
+			while (child != null && child.getNodeType() != Node.ELEMENT_NODE)
+				child = child.getNextSibling();
+
+			if (child != null)
+			{
+				parseElement(shapes, elementCache_.getElementWrapper(child));
+				child = child.getNextSibling();
+			}
+		}
+	}
+
+	private void parseElement(List<ShapeInfo> shapes, ElementWrapper w)
+	{
+		final String e = w.getTagName();
+		Type typ = w.getType();
+		List<ShapeInfo> g = new ArrayList<>();
+
+		if (typ == null)
+			warn("Unknown command %s", e);
+		else switch (typ)
+		{
+			case g:
+			{
+				parseChildren(g, w.getNode());
+				addShapeContainer(w, g, shapes);
+			}
+			break;
+			case path:
+			{
+				if (w.getShape() == null)
+					w.setShape(new Path(w.attr("d", false)).getPath());
+				shapes.add(createShapeInfo(w));
+
+				// Debugging feature
+				if (addPathSegments_)
+				{
+					Stroke s = new Stroke(new Color(this, "yellow", 1d),
+							null, null, null, null, null, null);
+
+					shapes.add(new ShapeInfo(w.getShape()
+											  .getSegmentPath(), s, s.getPaintWrapper(),
+							null, null));
+				}
+			}
+			break;
+			case rect:
+			{
+				if (w.getShape() == null)
+				{
+					float x = (float) w.toPDouble("x");
+					float y = (float) w.toPDouble("y");
+					float width = (float) w.toPDouble("width");
+					float height = (float) w.toPDouble("height");
+					Double rx = w.toDouble("rx", false);
+					Double ry = w.toDouble("ry", false);
+
+					RectangularShape rec;
+
+					if (rx != null || ry != null)
+						rec = new RoundRectangle2D.Double(x, y, width, height, 2d * (rx == null ? ry : rx), 2d * (ry == null ? rx : ry));
+					else
+						rec = new Rectangle2D.Double(x, y, width, height);
+
+					w.setShape(rec);
+				}
+				shapes.add(createShapeInfo(w));
+			}
+			break;
+			case ellipse:
+			{
+				float cx = (float) w.toPDouble("cx", false);
+				float cy = (float) w.toPDouble("cy", false);
+				float rx = (float) w.toPDouble("rx", false);
+				float ry = (float) w.toPDouble("ry", false);
+
+				w.setShape(new Ellipse2D.Double(cx - rx, cy - ry, 2d * rx, 2d * ry));
+				shapes.add(createShapeInfo(w));
+			}
+			break;
+			case text:
+			{
+				new Text(this, w, defaultFont_, g);
+				addShapeContainer(w, g, shapes);
+			}
+			break;
+			case use:
+			{
+				String href = w.href();
+				if (ElementWrapper.isNotEmpty(href))
+				{
+					ElementWrapper refOrgW = elementCache_.getElementWrapperById(href);
+					if (refOrgW != null)
+					{
+						double x = w.toPDouble("x");
+						double y = w.toPDouble("y");
+						ElementWrapper uw = refOrgW.createReferenceCopy(w);
+
+						List<ShapeInfo> useShapes = new ArrayList<>();
+						parseElement(useShapes, uw);
+						AffineTransform aft = AffineTransform.getTranslateInstance(x, y);
+						for (ShapeInfo sinfo : useShapes)
+						{
+							// Remind: Ids are duplicates!
+							if (sinfo.aft_ == null)
+								sinfo.aft_ = aft;
+							else
+								sinfo.aft_.preConcatenate(aft);
+							shapes.add(sinfo);
+						}
+					}
+				}
+			}
+			break;
+			case circle:
+			{
+				double x1 = w.toPDouble("cx");
+				double y1 = w.toPDouble("cy");
+				double r = w.toPDouble("r");
+
+				w.setShape(new Ellipse2D.Double(x1 - r, y1 - r, 2 * r, 2 * r));
+				shapes.add(createShapeInfo(w));
+			}
+			break;
+			case line:
+			{
+				double x1 = w.toPDouble("x1");
+				double y1 = w.toPDouble("y1");
+				double x2 = w.toPDouble("x2");
+				double y2 = w.toPDouble("y2");
+
+				w.setShape(new Line2D.Double(x1, y1, x2, y2));
+				shapes.add(createShapeInfo(w));
+			}
+			break;
+			case polyline:
+			{
+				// @TODO
+				w.setShape(new Polyline(w.attr("points")).getPath());
+				shapes.add(createShapeInfo(w));
+			}
+			break;
+			case polygon:
+			{
+				w.setShape(new Polyline(w.attr("points")).toPolygon());
+				shapes.add(createShapeInfo(w));
+			}
+			break;
+			case style:
+				// already parsed
+				break;
+			case defs:
+			case linearGradient:
+			case radialGradient:
+			case clipPath:
+				// Parsed on demand
+				break;
 		}
 	}
 
@@ -233,7 +434,7 @@ public class SVGConverter
 		{
 			if (w.getType() != Type.clipPath)
 			{
-				warn(w.id() + " is not a clipPath");
+				warn("%s is not a clipPath", w.id());
 			}
 			else
 			{
@@ -329,173 +530,6 @@ public class SVGConverter
 			return null;
 	}
 
-	private void parseChildren(List<ShapeInfo> shapes, Node parent)
-	{
-		Node child = parent.getFirstChild();
-		while (child != null)
-		{
-			while (child != null && child.getNodeType() != Node.ELEMENT_NODE)
-				child = child.getNextSibling();
-
-			if (child != null)
-			{
-				parse(shapes, elementCache_.getElementWrapper((Element) child));
-				child = child.getNextSibling();
-			}
-		}
-	}
-
-	private void parse(List<ShapeInfo> shapes, ElementWrapper w)
-	{
-		final String e = w.getTagName();
-		Type typ = w.getType();
-		List<ShapeInfo> g = new ArrayList<>();
-		CSSParser cssParser = new CSSParser();
-
-		if (typ == null)
-			warn("Unknown command " + e);
-		else switch (typ)
-		{
-			case g:
-			{
-				parseChildren(g, w.getNode());
-				addShapeContainer(w, g, shapes);
-			}
-			break;
-			case path:
-			{
-				if (w.getShape() == null)
-					w.setShape(new Path(w.attr("d", false)).getPath());
-				shapes.add(createShapeInfo(w));
-
-				// Debugging feature
-				if (addPathSegments_)
-				{
-					Stroke s = new Stroke(new Color(this, "yellow", 1d),
-							null, null, null, null, null, null);
-
-					shapes.add(new ShapeInfo(w.getShape()
-											  .getSegmentPath(), s, s.getPaintWrapper(),
-							null, null));
-				}
-			}
-			break;
-			case rect:
-			{
-				if (w.getShape() == null)
-				{
-					float x = (float) w.toPDouble("x");
-					float y = (float) w.toPDouble("y");
-					float width = (float) w.toPDouble("width");
-					float height = (float) w.toPDouble("height");
-					Double rx = w.toDouble("rx", false);
-					Double ry = w.toDouble("ry", false);
-
-					RectangularShape rec;
-
-					if (rx != null || ry != null)
-						rec = new RoundRectangle2D.Double(x, y, width, height, 2d * (rx == null ? ry : rx), 2d * (ry == null ? rx : ry));
-					else
-						rec = new Rectangle2D.Double(x, y, width, height);
-
-					w.setShape(rec);
-				}
-				shapes.add(createShapeInfo(w));
-			}
-			break;
-			case ellipse:
-			{
-				float cx = (float) w.toPDouble("cx", false);
-				float cy = (float) w.toPDouble("cy", false);
-				float rx = (float) w.toPDouble("rx", false);
-				float ry = (float) w.toPDouble("ry", false);
-
-				w.setShape(new Ellipse2D.Double(cx - rx, cy - ry, 2d * rx, 2d * ry));
-				shapes.add(createShapeInfo(w));
-			}
-			break;
-			case text:
-			{
-				new Text(this, w, defaultFont_, g);
-				addShapeContainer(w, g, shapes);
-			}
-			break;
-			case use:
-			{
-				String href = w.href();
-				if (ElementWrapper.isNotEmpty(href))
-				{
-					ElementWrapper refOrgW = elementCache_.getElementWrapperById(href);
-					if (refOrgW != null)
-					{
-						double x = w.toPDouble("x");
-						double y = w.toPDouble("y");
-						ElementWrapper uw = refOrgW.createReferenceCopy(w);
-
-						List<ShapeInfo> useShapes = new ArrayList<>();
-						parse(useShapes, uw);
-						AffineTransform aft = AffineTransform.getTranslateInstance(x, y);
-						for (ShapeInfo sinfo : useShapes)
-						{
-							// Remind: Ids are duplicates!
-							if (sinfo.aft_ == null)
-								sinfo.aft_ = aft;
-							else
-								sinfo.aft_.preConcatenate(aft);
-							shapes.add(sinfo);
-						}
-					}
-				}
-			}
-			break;
-			case circle:
-			{
-				double x1 = w.toPDouble("cx");
-				double y1 = w.toPDouble("cy");
-				double r = w.toPDouble("r");
-
-				w.setShape(new Ellipse2D.Double(x1 - r, y1 - r, 2 * r, 2 * r));
-				shapes.add(createShapeInfo(w));
-			}
-			break;
-			case line:
-			{
-				double x1 = w.toPDouble("x1");
-				double y1 = w.toPDouble("y1");
-				double x2 = w.toPDouble("x2");
-				double y2 = w.toPDouble("y2");
-
-				w.setShape(new Line2D.Double(x1, y1, x2, y2));
-				shapes.add(createShapeInfo(w));
-			}
-			break;
-			case polyline:
-			{
-				// @TODO
-				w.setShape(new Polyline(w.attr("points")).getPath());
-				shapes.add(createShapeInfo(w));
-			}
-			break;
-			case polygon:
-			{
-				w.setShape(new Polyline(w.attr("points")).toPolygon());
-				shapes.add(createShapeInfo(w));
-			}
-			break;
-			case style:
-			{
-				cssParser.parse(new Lexer(new StringReader(w.getNode().getTextContent()), true),
-						elementCache_.getCssStyleSelector());
-			}
-			break;
-			case defs:
-			case linearGradient:
-			case radialGradient:
-			case clipPath:
-				// Parsed on demand
-				break;
-		}
-	}
 
 	protected void addShapeContainer(ElementWrapper w, List<ShapeInfo> shapes, List<ShapeInfo> global)
 	{
@@ -586,6 +620,13 @@ public class SVGConverter
 				}
 				else
 					f = i > 0 ? g.fractions_[i - 1] : 0;
+
+				// Java2D enforce strictly increasing fractions.
+				// SVG allows it - see https://svgwg.org/svg2-draft/pservers.html#StopNotes
+				if (i > 0 && f <= g.fractions_[i - 1])
+				{
+					f = g.fractions_[i - 1] + .0000000001f;
+				}
 				g.fractions_[i] = f;
 
 				final Color cp = new Color(this, wrapper.attr("stop-color"),

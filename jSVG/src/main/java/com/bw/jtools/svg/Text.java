@@ -22,7 +22,6 @@
 
 package com.bw.jtools.svg;
 
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -116,7 +115,7 @@ public class Text extends Parser
 					}
 					break;
 				case Node.ELEMENT_NODE:
-					ElementWrapper cw = cache.getElementWrapper((Element) childNode);
+					ElementWrapper cw = cache.getElementWrapper(childNode);
 					final String tag = cw.getTagName();
 					if ("tspan".equals(tag))
 						parseTSpan(svg, cw, font, pos, shapes);

@@ -22,7 +22,6 @@
 
 package com.bw.jtools.svg;
 
-import com.bw.jtools.svg.css.CssStyleSelector;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -33,7 +32,6 @@ public class ElementCache
 {
 	private final HashMap<String, ElementWrapper> wrapperById_ = new HashMap<>();
 	private static AtomicLong idGenerator = new AtomicLong(9999);
-	private final CssStyleSelector cssStyleSelector_ = new CssStyleSelector();
 
 
 	private String generateId()
@@ -53,7 +51,7 @@ public class ElementCache
 				{
 					// Duplicate ids are no hard error, as svg seems to allow it.
 					// As we handle the element-wrapper via id, we need to remove the id.
-					SVGConverter.warn("SVG: Duplicate id " + id);
+					SVGConverter.warn("SVG: Duplicate %s", id);
 					((Element) node).removeAttribute("id");
 				}
 				else
@@ -66,21 +64,27 @@ public class ElementCache
 		if (next != null) scanForIds(next);
 	}
 
-	protected ElementWrapper getElementWrapper(Element node)
+	public ElementWrapper getElementWrapper(Node node)
 	{
-		String id = node.getAttribute("id");
-		if (ElementWrapper.isNotEmpty(id))
-			return wrapperById_.get(id);
-		else
+		if (node instanceof Element)
 		{
-			node.setAttribute("id", id = generateId());
-			ElementWrapper ew = new ElementWrapper(this, node);
-			wrapperById_.put(id, ew);
-			return ew;
+			Element element = (Element) node;
+			String id = element.getAttribute("id");
+			if (ElementWrapper.isNotEmpty(id))
+				return wrapperById_.get(id);
+			else
+			{
+				element.setAttribute("id", id = generateId());
+				ElementWrapper ew = new ElementWrapper(this, element);
+				wrapperById_.put(id, ew);
+				return ew;
+			}
 		}
+		else
+			return null;
 	}
 
-	protected ElementWrapper getElementWrapperById(String id)
+	public ElementWrapper getElementWrapperById(String id)
 	{
 		if (ElementWrapper.isNotEmpty(id))
 			return wrapperById_.get(id);
@@ -88,8 +92,4 @@ public class ElementCache
 			return null;
 	}
 
-	public CssStyleSelector getCssStyleSelector()
-	{
-		return cssStyleSelector_;
-	}
 }

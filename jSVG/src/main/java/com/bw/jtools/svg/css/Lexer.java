@@ -43,7 +43,8 @@ public class Lexer
 
 	static
 	{
-		separators_ = new int[]{'\t', ' ', ':', '\n', ';', '.', ',', '-', '+', '(', ')', '{', '}', '[', ']', '#', '*', '?', '=', '%', '@', '!', -1};
+		// +,- are no separators in css.
+		separators_ = new int[]{'\t', ' ', ':', '\n', ';', '.', ',', '(', ')', '{', '}', '[', ']', '#', '*', '?', '=', '%', '@', '!', -1};
 		Arrays.sort(separators_);
 	}
 

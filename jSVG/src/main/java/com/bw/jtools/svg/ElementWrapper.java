@@ -23,6 +23,8 @@
 package com.bw.jtools.svg;
 
 import com.bw.jtools.svg.css.CSSParser;
+import com.bw.jtools.svg.css.Specificity;
+import com.bw.jtools.svg.css.StyleValue;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -48,7 +50,7 @@ import java.util.regex.Pattern;
  */
 public final class ElementWrapper
 {
-	private Map<String, String> attributes_;
+	private Map<String, StyleValue> attributes_;
 	private Map<String, String> overrides_;
 	private Set<String> classes_;
 	private final Element node_;
@@ -65,7 +67,8 @@ public final class ElementWrapper
 
 	private static final double SQRT2 = Math.sqrt(2d);
 
-	private static final Pattern unitRegExp_ = Pattern.compile("([\\d+-\\.e]+)(pt|px|em|%|in|cm|mm|ex|pc)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern unitRegExp_ = Pattern.compile("([\\d+-\\.e]+)\\s+(rem|pt|px|em|%|in|cm|mm|ex|pc)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern urlRegExp = Pattern.compile("url\\(['\"]?\\s*#([^\\\"')]+)['\"]?\\)(.*)", Pattern.CASE_INSENSITIVE);
 
 	private static final HashMap<String, Float> fontWeights_ = new HashMap<>();
 	private static final float FONT_WEIGHT_FACTOR = TextAttribute.WEIGHT_BOLD / 700;
@@ -96,8 +99,6 @@ public final class ElementWrapper
 		return v != null && !v.isEmpty();
 	}
 
-	private static final Pattern urlRegExp = Pattern.compile("url\\(['\"]?\\s*#([^\\\"')]+)['\"]?\\)(.*)", Pattern.CASE_INSENSITIVE);
-
 	/**
 	 * Extract id reference from a "url(#id)" expression.
 	 *
@@ -114,7 +115,7 @@ public final class ElementWrapper
 	 */
 	public static Length parseLength(String val)
 	{
-		if (val != null)
+		if (isNotEmpty(val))
 			try
 			{
 				Matcher m = unitRegExp_.matcher(val);
@@ -125,6 +126,7 @@ public final class ElementWrapper
 			}
 			catch (Exception e)
 			{
+				SVGConverter.error(e, "Can't parse length '%s'", val);
 			}
 		return null;
 	}
@@ -134,7 +136,7 @@ public final class ElementWrapper
 	 */
 	protected static Double convDouble(String val)
 	{
-		if (val != null)
+		if (isNotEmpty(val))
 			try
 			{
 				Matcher m = unitRegExp_.matcher(val);
@@ -145,6 +147,7 @@ public final class ElementWrapper
 			}
 			catch (Exception e)
 			{
+				SVGConverter.error(e, "Can't parse '%s'", val);
 			}
 		return null;
 	}
@@ -172,8 +175,7 @@ public final class ElementWrapper
 		Node parentNode = node.getParentNode();
 		while (parent_ == null && parentNode != null)
 		{
-			if (parentNode.getNodeType() == Node.ELEMENT_NODE)
-				parent_ = elementCache_.getElementWrapper((Element) parentNode);
+			parent_ = elementCache_.getElementWrapper(parentNode);
 			parentNode = parentNode.getParentNode();
 		}
 		type_ = Type.valueFrom(node.getTagName());
@@ -196,13 +198,14 @@ public final class ElementWrapper
 
 	public Set<String> getClasses()
 	{
-		if( classes_ == null )
+		if (classes_ == null)
 		{
 			classes_ = new HashSet<>();
 			String clazz = attr("class", false);
-			if ( clazz != null ) {
+			if (clazz != null)
+			{
 				Scanner s = new Scanner(clazz);
-				while(s.hasNext())
+				while (s.hasNext())
 					classes_.add(s.next());
 			}
 		}
@@ -451,11 +454,11 @@ public final class ElementWrapper
 			if (attrName != null)
 				uw.override(attrName, attrNode.getNodeValue());
 		}
-		Map<String, String> styleAttributes = usingElement.getStyleAttributes();
-		for (Map.Entry<String, String> styleAttr : styleAttributes.entrySet())
+		Map<String, StyleValue> styleAttributes = usingElement.getStyleAttributes();
+		for (Map.Entry<String, StyleValue> styleAttr : styleAttributes.entrySet())
 		{
 			String attrName = styleAttr.getKey();
-			uw.override(attrName, styleAttr.getValue());
+			uw.override(attrName, styleAttr.getValue().value_);
 		}
 		return uw;
 	}
@@ -511,11 +514,11 @@ public final class ElementWrapper
 	 */
 	protected Font font(Font defaultFont)
 	{
-		Double fontSize = toDouble("font-size", true);
+		Length fontSize = toLength("font-size", true);
 		String fontFamily = attr("font-family", true);
 		double fontWeight = fontWeight();
 
-		if (fontSize == null) fontSize = new Length(12, LengthUnit.pt).toPixel(null);
+		if (fontSize == null) fontSize = new Length(12, LengthUnit.pt);
 		if (ElementWrapper.isEmpty(fontFamily))
 			fontFamily = defaultFont.getFamily();
 		else
@@ -557,7 +560,7 @@ public final class ElementWrapper
 		attributes.put(TextAttribute.WEIGHT, fontWeight);
 
 		// font-size seems to use also pixel as unit.
-		attributes.put(TextAttribute.SIZE, fontSize);
+		attributes.put(TextAttribute.SIZE, fontSize.toPixel(null));
 
 		return Font.getFont(attributes);
 	}
@@ -635,7 +638,7 @@ public final class ElementWrapper
 		{
 			v = inherited(attributeName);
 			if (isNotEmpty(v))
-				attributes_.put(attributeName, v);
+				attributes_.put(attributeName, new StyleValue(v, Specificity.MIN));
 		}
 		return v;
 	}
@@ -645,19 +648,25 @@ public final class ElementWrapper
 	 */
 	public String getStyleValue(String attributeName)
 	{
-		String v = getStyleAttributes().get(attributeName);
-		if ( v == null )
-			v = elementCache_.getCssStyleSelector().getStyle(this, attributeName);
-		return v;
+		StyleValue sv = getStyleAttributes().get(attributeName);
+		return sv == null ? null : sv.value_;
 	}
 
 	/**
 	 * Get all attributes from the local style-attribute.<br>
 	 */
-	public Map<String, String> getStyleAttributes()
+	public Map<String, StyleValue> getStyleAttributes()
 	{
 		if (attributes_ == null)
-			attributes_ = CSSParser.parseStyle(node_.getAttribute("style"));
+		{
+			Map<String, String> attrs = CSSParser.parseStyle(node_.getAttribute("style"));
+			attributes_ = new HashMap<>();
+			for (Map.Entry<String, String> e : attrs.entrySet())
+			{
+				//@TODO: Handle "!important"
+				attributes_.put(e.getKey(), new StyleValue(e.getValue(), Specificity.MAX));
+			}
+		}
 		return attributes_;
 	}
 

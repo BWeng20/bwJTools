@@ -22,11 +22,11 @@
 
 package com.bw.jtools.svg.css;
 
-import java.io.IOException;
-import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.regex.Pattern;
 
 /**
@@ -34,16 +34,25 @@ import java.util.regex.Pattern;
  */
 public class CSSParser
 {
-	public static CssStyleSelector parse(Reader reader, String type) throws IOException
+	public static CssStyleSelector parse(String style, String type)
 	{
-		// if ( type == null ) type = "text/css";
-		//@TODO: any other then "text/css"?
-
 		CssStyleSelector styleSelector = new CssStyleSelector();
-		new CSSParser().parse(new Lexer(reader, true), styleSelector);
+		new CSSParser().parse(style, type, styleSelector);
 		return styleSelector;
 	}
 
+
+	/**
+	 * Parse a style sheet and put all style in the selector.<br>
+	 * Method is not thread-safe, use separate instances on each thread!
+	 */
+	public void parse(String style, String type, CssStyleSelector styleSelector)
+	{
+		//@TODO: any other then "text/css"?
+		parse(new Lexer(new StringReader(style), true), styleSelector);
+	}
+
+	private StringBuilder id;
 	private StringBuilder declaration;
 	private StringBuilder attribute;
 	private static final Pattern styleSplitRegExp_ = Pattern.compile(";");
@@ -51,13 +60,16 @@ public class CSSParser
 	private static class RuleStub
 	{
 		Selector selector;
-		boolean chain;
+		/**
+		 * How the selector shall be chained to the previous one.
+		 */
+		CombinatorType chain;
 	}
 
-	private Stack<RuleStub> ruleStack = new Stack<>();
+	private List<RuleStub> rules = new LinkedList<>();
 
 	private Selector selector_;
-
+	private CombinatorType chain;
 
 	/**
 	 * Parse a style sheet and put all style in the selector.<br>
@@ -67,7 +79,10 @@ public class CSSParser
 	{
 		LexerSymbol symbol;
 		LexerSymbolType lastLexType = LexerSymbolType.EOF;
-		boolean chain = true;
+		chain = null;
+		id = null;
+		declaration = null;
+		attribute = null;
 		loop:
 		while (true)
 		{
@@ -96,23 +111,61 @@ public class CSSParser
 						switch (c)
 						{
 							case '[':
+								handleId();
 								attribute = new StringBuilder();
 								break;
 							case '{':
+								handleId();
 								declaration = new StringBuilder();
 								break;
 							case ',':
-								chain = false;
+								handleId();
+								chain = null;
 								break;
 							case '#':
 								startRule(SelectorType.ID, chain);
-								chain = true;
+								chain = null;
+								break;
+							case '>':
+								handleId();
+								chain = CombinatorType.CHILD;
+								break;
+							case '~':
+								handleId();
+								chain = CombinatorType.SIBLING;
+								break;
+							case '+':
+								handleId();
+								chain = CombinatorType.ADJACENT_SIBLING;
 								break;
 							case '.':
 								startRule(SelectorType.CLASS, chain);
-								chain = true;
+								chain = null;
+								break;
+							default:
+								// TODO: Space is a separator!
+								// Otherwise "-" etc will not work
+								// if "-" is not used in expressions, we can remove it from sep...
+								// and don't need to handel spaces expl.
+								if (id != null)
+									id.append(c);
 								break;
 						}
+					}
+					break;
+				case NUMBER:
+					if (attribute != null)
+					{
+						if (lastLexType != LexerSymbolType.SEPARATOR)
+							attribute.append(' ');
+						attribute.append(symbol.value_);
+
+					}
+					else if (declaration != null)
+					{
+						if (lastLexType != LexerSymbolType.SEPARATOR)
+							declaration.append(' ');
+						declaration.append(symbol.value_);
 					}
 					break;
 				case IDENTIFIER:
@@ -131,12 +184,11 @@ public class CSSParser
 					}
 					else
 					{
-						Selector s = getCurrentSelector();
-						if (s.id_ != null)
-							startRule(SelectorType.TAG, chain);
-						getCurrentSelector().id_ = symbol.value_;
+						id = new StringBuilder();
+						id.append(symbol.value_);
+						handleId();
 					}
-					chain = true;
+					chain = CombinatorType.DESCENDANT;
 					break;
 				case EOF:
 					break loop;
@@ -156,43 +208,54 @@ public class CSSParser
 		rule.styles_ = parseStyle(declaration.toString());
 		declaration = null;
 
-		Selector selectorToChain = null;
-		while (!ruleStack.isEmpty())
+		Selector lastSelector = null;
+		while (!rules.isEmpty())
 		{
-			RuleStub stub = ruleStack.pop();
-			if (selectorToChain != null)
-				stub.selector.and_ = selectorToChain;
-
-			if (stub.chain)
+			RuleStub stub = rules.remove(0);
+			if (stub.chain != null && lastSelector != null)
 			{
-				selectorToChain = stub.selector;
+				lastSelector.combinate_ = stub.selector;
+				lastSelector.combinateType_ = stub.chain;
 			}
 			else
-			{
-				selectorToChain = null;
 				rule.selectors_.add(stub.selector);
-			}
+			lastSelector = stub.selector;
 		}
-		if (selectorToChain != null)
-			rule.selectors_.add(selectorToChain);
 		return rule;
 	}
 
-	private void startRule(SelectorType type, boolean chain)
+	private void startRule(SelectorType type, CombinatorType chain)
 	{
+		handleId();
 		RuleStub stub = new RuleStub();
 		stub.selector = selector_ = new Selector();
-		;
 		selector_.type_ = type;
 		stub.chain = chain;
-		ruleStack.push(stub);
+		rules.add(stub);
 	}
 
 	private Selector getCurrentSelector()
 	{
 		if (selector_ == null)
-			startRule(SelectorType.TAG, false);
+			startRule(SelectorType.TAG, null);
 		return selector_;
+	}
+
+	private void handleId()
+	{
+		if (id != null)
+		{
+			String ids = id.toString();
+			id = null;
+			if (selector_ != null && selector_.id_ == null)
+				selector_.id_ = ids;
+			else
+			{
+				startRule(SelectorType.TAG, chain);
+				chain = null;
+				selector_.id_ = ids;
+			}
+		}
 	}
 
 	/**

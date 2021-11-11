@@ -22,12 +22,14 @@
 
 package com.bw.jtools.svg.css;
 
-public class SelectorDefinition
+public class StyleValue
 {
-	public String def;
+	public Specificity specificity_;
+	public String value_;
 
-	public SelectorDefinition(String definition)
+	public StyleValue(String value, Specificity specificity)
 	{
-		def = definition;
+		value_ = value;
+		specificity_ = specificity;
 	}
 }

@@ -22,12 +22,31 @@
 
 package com.bw.jtools.svg.css;
 
-public class SelectorDefinition
+public enum CombinatorType
 {
-	public String def;
+	/**
+	 * Space
+	 */
+	DESCENDANT,
 
-	public SelectorDefinition(String definition)
-	{
-		def = definition;
-	}
+	/**
+	 * >
+	 */
+	CHILD,
+
+	/**
+	 * ~
+	 */
+	SIBLING,
+
+	/**
+	 * +
+	 */
+	ADJACENT_SIBLING,
+
+	/**
+	 * || - not supported!
+	 */
+	COLUMN_SIBLING
+
 }

@@ -1,0 +1,101 @@
+/*
+ * (c) copyright 2021 Bernd Wengenroth
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package com.bw.jtools.svg.css;
+
+import com.bw.jtools.svg.ElementCache;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class CssStyleSelectorTest
+{
+
+	DocumentBuilder db;
+	ElementCache elementCache_ = new ElementCache();
+
+	@BeforeEach
+	protected void initParser() throws ParserConfigurationException
+	{
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		db = dbf.newDocumentBuilder();
+	}
+
+	String svg = "" +
+			"<svg class='svgc' id='s1'>" +
+			"  <rect class='rect-c1 rect-c2' id='r1' x='20' y='20' width='25' height='50'/>" +
+			"  <circle id='c1' cx='10' cy='10' r='20'/>"+
+			"</svg>";
+
+	@Test
+	public void applyTag() throws IOException, SAXException
+	{
+		CssStyleSelector cssStyleSelector = CSSParser.parse("rect { color:red } svg { color: blue }", "text/css");
+
+		ByteArrayInputStream in = new ByteArrayInputStream(svg.getBytes(StandardCharsets.UTF_8));
+		Document doc = db.parse(in);
+		elementCache_.scanForIds(doc);
+
+		cssStyleSelector.apply(doc, elementCache_);
+
+		assertEquals("red", elementCache_.getElementWrapperById("r1").attr("color"),
+				"Rectangle shall get the more specific color from tag selector");
+
+		assertEquals("blue", elementCache_.getElementWrapperById("c1").attr("color"),
+				"Circle shall inherit parent color");
+
+		assertEquals("blue", elementCache_.getElementWrapperById("s1").attr("color"),
+				"svg element shall get color from tag-selector.");
+	}
+
+	@Test
+	public void applyClass() throws IOException, SAXException
+	{
+		CssStyleSelector cssStyleSelector = CSSParser.parse(".svgc { color:red } .rect-c2 { color:green }", "text/css");
+
+		ByteArrayInputStream in = new ByteArrayInputStream(svg.getBytes(StandardCharsets.UTF_8));
+		Document doc = db.parse(in);
+		elementCache_.scanForIds(doc);
+
+		cssStyleSelector.apply(doc, elementCache_);
+
+		assertEquals("green", elementCache_.getElementWrapperById("r1").attr("color"),
+				"Rectangle shall get the more specific color from class selector");
+
+		assertEquals("red", elementCache_.getElementWrapperById("c1").attr("color"),
+				"Circle shall inherit parent color");
+
+		assertEquals("red", elementCache_.getElementWrapperById("s1").attr("color"),
+				"svg element shall get color from class-selector.");
+	}
+
+}

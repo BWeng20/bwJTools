@@ -26,5 +26,6 @@ public class Selector
 {
 	public SelectorType type_ = SelectorType.TAG;
 	public String id_;
-	public Selector and_;
+	public Selector combinate_;
+	public CombinatorType combinateType_;
 }
