@@ -37,7 +37,7 @@ public enum LineJoin
 			}
 			catch (IllegalArgumentException i)
 			{
-				SVGConverter.warn("Unknown line-join mode " + val);
+				SVGConverter.warn("Unknown line-join mode %s", val);
 			}
 		}
 		return miter;

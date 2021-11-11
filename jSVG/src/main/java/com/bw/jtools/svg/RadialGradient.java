@@ -90,7 +90,7 @@ public class RadialGradient extends Gradient
 		}
 		catch (Exception e)
 		{
-			SVGConverter.error("Failed to create radialGradient '" + id_ + "'", e);
+			SVGConverter.error(e, "Failed to create radialGradient %s", id_);
 			return null;
 		}
 	}

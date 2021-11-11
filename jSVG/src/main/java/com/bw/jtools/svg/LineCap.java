@@ -38,6 +38,7 @@ public enum LineCap
 			}
 			catch (IllegalArgumentException i)
 			{
+				SVGConverter.error("Unknown line-cap value '%s'", val);
 			}
 		}
 		return butt;

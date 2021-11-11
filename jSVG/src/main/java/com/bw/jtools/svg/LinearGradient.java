@@ -89,7 +89,7 @@ public class LinearGradient extends Gradient
 		}
 		catch (Exception e)
 		{
-			SVGConverter.error("Failed to create linearGradient '" + id_ + "'", e);
+			SVGConverter.error(e, "Failed to create linearGradient %s", id_);
 			return null;
 		}
 	}
