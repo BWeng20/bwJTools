@@ -8,8 +8,37 @@ import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LexerTest
+public class LexerTest
 {
+	@Test
+	void numbers() throws IOException
+	{
+		Lexer lx = new Lexer(new StringReader(
+				"fill:#332211; width: 0.34rem"), true);
+
+		LexerSymbol t = lx.nextSymbol();
+		assertEquals("fill", t.value_);
+		t = lx.nextSymbol();
+		assertEquals(":", t.value_);
+		t = lx.nextSymbol();
+		assertEquals("#", t.value_);
+		t = lx.nextSymbol();
+		assertEquals("332211", t.value_);
+		assertEquals(LexerSymbolType.NUMBER, t.type_);
+		t = lx.nextSymbol();
+		assertEquals(";", t.value_);
+		t = lx.nextSymbol();
+		assertEquals("width", t.value_);
+		t = lx.nextSymbol();
+		assertEquals(":", t.value_);
+		t = lx.nextSymbol();
+		assertEquals("0.34", t.value_);
+		assertEquals(LexerSymbolType.NUMBER, t.type_);
+		t = lx.nextSymbol();
+		assertEquals("rem", t.value_);
+		assertEquals(LexerSymbolType.IDENTIFIER, t.type_);
+
+	}
 
 	@Test
 	void nextToken() throws IOException
@@ -28,10 +57,8 @@ class LexerTest
 			c++;
 			System.out.println(" '"+t+"'");
 		}
-		assertEquals( 36, c);
+		assertEquals( 35, c);
 		assertEquals( LexerSymbolType.EOF, t.type_);
 		assertEquals( "", t.value_);
-
-
 	}
 }

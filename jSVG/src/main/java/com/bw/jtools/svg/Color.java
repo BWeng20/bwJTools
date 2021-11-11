@@ -179,7 +179,7 @@ public class Color
 		name2color_.put("lightyellow", new java.awt.Color(0xFF, 0xFF, 0xE0));
 		name2color_.put("ivory", new java.awt.Color(0xFF, 0xFF, 0xF0));
 		name2color_.put("white", java.awt.Color.WHITE);
-		name2color_.put("none", ShapeWithStyle.NONE );
+		name2color_.put("none", ShapeWithStyle.NONE);
 		name2color_.put("currentColor", java.awt.Color.BLACK);
 	}
 
@@ -199,17 +199,22 @@ public class Color
 			{
 				if (color.length() < 5)
 				{
-					char r = color.charAt(1);
-					char g = color.charAt(2);
-					char b = color.charAt(3);
-					color = new StringBuilder(7).append('#')
-												.append(r)
-												.append(r)
-												.append(g)
-												.append(g)
-												.append(b)
-												.append(b)
-												.toString();
+					if (color.length() > 3)
+					{
+						char r = color.charAt(1);
+						char g = color.charAt(2);
+						char b = color.charAt(3);
+						color = new StringBuilder(7).append('#')
+													.append(r)
+													.append(r)
+													.append(g)
+													.append(g)
+													.append(b)
+													.append(b)
+													.toString();
+					}
+					else
+						color = "#000000";
 				}
 
 				try
@@ -218,6 +223,7 @@ public class Color
 				}
 				catch (NumberFormatException ne)
 				{
+					SVGConverter.error("Illegal color value '%s'", color);
 					paintWrapper_ = new PaintWrapper(java.awt.Color.BLACK);
 				}
 			}

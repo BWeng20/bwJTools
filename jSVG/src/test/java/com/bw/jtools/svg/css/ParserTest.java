@@ -6,14 +6,15 @@ import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ParserTest
+public class ParserTest
 {
 
 	@Test
 	void parse()
 	{
 		CSSParser cssParser = new CSSParser();
-		Lexer lx = new Lexer( new StringReader("[xxx=123], .class dev , #someid span { color: red; background: red blue; }"), true);
+		// Attribute selectors are currently ignored
+		Lexer lx = new Lexer( new StringReader("[xxx=123], .class dev , #someid span { color: #123456; background: red blue; }"), true);
 		CssStyleSelector ssel = new CssStyleSelector();
 		cssParser.parse(lx,ssel);
 
@@ -24,8 +25,8 @@ class ParserTest
 				System.out.print("Selector");
 				while (s != null)
 				{
-					System.out.print( " "+s.type_.name() + "-" + s.id_);
-					s = s.and_;
+					System.out.print( " "+s.type_.name() + " " + s.id_);
+					s = s.combinate_;
 				}
 				System.out.println("");
 
