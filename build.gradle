@@ -4,6 +4,11 @@ plugins {
 
 ext {
     publishUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+
+    // Sonatype user name and password needs be set in user gradle-settings.
+    // This dummy value ensures that normal build work.
+    sonatype_username = project.properties['sonatypeUsername'] ?: 'MISSINGUSERNAME'
+    sonatype_password = project.properties['sonatypePassword'] ?: 'MISSINGPASSWORD'
 }
 
 allprojects {

@@ -65,8 +65,8 @@ publishing {
             credentials {
                 // Place this two variable with the correct values in your 
                 // <Gradle-User-Home>/gradle.properties
-                username sonatypeUsername
-                password sonatypePassword
+                username sonatype_username
+                password sonatype_password
             }
         }
     }
