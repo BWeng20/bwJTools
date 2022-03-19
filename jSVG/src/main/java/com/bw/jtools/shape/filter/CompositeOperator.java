@@ -20,46 +20,23 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.svg;
+package com.bw.jtools.shape.filter;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.bw.jtools.CaseInsensitiveEnum;
 
-public enum LengthUnit
+public enum CompositeOperator
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	over,
+	in, out,
+	atop,
+	xor,
+	arithmetic;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
+	private static final CaseInsensitiveEnum<CompositeOperator> mapper_ = new CaseInsensitiveEnum( CompositeOperator.values() );
 
-	static
+	public static CompositeOperator fromString(String val)
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		return mapper_.fromString(val);
 	}
-
-
-	public static LengthUnit fromString(String val)
-	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
-	}
-
 
 }

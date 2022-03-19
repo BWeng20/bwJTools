@@ -22,44 +22,17 @@
 
 package com.bw.jtools.svg;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.bw.jtools.CaseInsensitiveEnum;
 
-public enum LengthUnit
+public enum MarkerUnit
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	userSpaceOnUse,
+	strokeWidth;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
+	private static final CaseInsensitiveEnum<MarkerUnit> mapper_ = new CaseInsensitiveEnum( MarkerUnit.values() );
 
-	static
+	public static MarkerUnit fromString(String val)
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		return mapper_.fromString(val);
 	}
-
-
-	public static LengthUnit fromString(String val)
-	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
-	}
-
-
 }

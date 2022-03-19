@@ -52,7 +52,7 @@ public class RadialGradient extends Gradient
 			AffineTransform eat = new AffineTransform();
 			if (aft_ != null) eat.setTransform(aft_);
 
-			final boolean userSpace = gradientUnit_ == GradientUnit.userSpaceOnUse;
+			final boolean userSpace = gradientUnit_ == Unit.userSpaceOnUse;
 			final ShapeHelper shape = w.getShape();
 
 			// Use 1x1 as 100% for objectBoundingBox.

@@ -39,7 +39,7 @@ public abstract class Gradient implements Cloneable
 
 	protected float[] fractions_;
 	protected java.awt.Color[] colors_;
-	public GradientUnit gradientUnit_;
+	public Unit gradientUnit_;
 	public MultipleGradientPaint.CycleMethod cycleMethod_;
 
 	/**
@@ -116,9 +116,9 @@ public abstract class Gradient implements Cloneable
 		}
 	}
 
-	public GradientUnit getGradientUnits()
+	public Unit getGradientUnits()
 	{
-		return gradientUnit_ == null ? GradientUnit.objectBoundingBox : gradientUnit_;
+		return gradientUnit_ == null ? Unit.objectBoundingBox : gradientUnit_;
 	}
 
 	public void resolveHref(SVGConverter svg)

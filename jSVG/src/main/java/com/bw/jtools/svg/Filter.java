@@ -22,44 +22,23 @@
 
 package com.bw.jtools.svg;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-public enum LengthUnit
+public class Filter
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public final String id_;
+	public final Type type_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
+	public Unit filterUnits_;
+	public Unit primitiveUnits_;
 
-	static
+	public Length x_, y_, width_, height_;
+
+	public List<FilterPrimitive> primitives_;
+
+	public Filter(String id, Type type)
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		id_ = id;
+		type_ = type;
 	}
-
-
-	public static LengthUnit fromString(String val)
-	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
-	}
-
-
 }

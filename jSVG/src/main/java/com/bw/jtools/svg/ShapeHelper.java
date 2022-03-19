@@ -23,7 +23,6 @@
 package com.bw.jtools.svg;
 
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
@@ -80,9 +79,19 @@ public final class ShapeHelper
 			}
 			else
 			{
-				p.x_ = upper.x_;
-				p.y_ = upper.y_;
-				p.angle_ = 0;
+				Segment next = getSegmentAtIndex(upper.index_+1);
+				if ( next != null )
+				{
+					p.angle_ = Math.atan2(next.y_ - upper.y_, next.x_ - upper.x_);
+					p.x_ = upper.x_ + (length * Math.cos(p.angle_));
+					p.y_ = upper.y_ + (length * Math.sin(p.angle_));
+				}
+				else
+				{
+					p.x_ = upper.x_;
+					p.y_ = upper.y_;
+					p.angle_ = 0;
+				}
 			}
 			return p;
 		}
@@ -112,7 +121,7 @@ public final class ShapeHelper
 		{
 			outlineLength_ = 0d;
 
-			PathIterator pi = shape_.getPathIterator(new AffineTransform(), 0.1d);
+			PathIterator pi = shape_.getPathIterator(null, 0.1d);
 			segments_ = new ArrayList<>(10);
 
 			double x = 0;
@@ -120,8 +129,6 @@ public final class ShapeHelper
 			double cx = 0;
 			double cy = 0;
 			double[] seg = new double[6];
-
-			segments_.add(new Segment(PathIterator.SEG_MOVETO, 0f, 0f, 0f, segments_.size()));
 
 			while (!pi.isDone())
 			{
@@ -177,9 +184,9 @@ public final class ShapeHelper
 
 	public static class PointOnPath
 	{
-		double x_;
-		double y_;
-		double angle_;
+		public double x_;
+		public double y_;
+		public double angle_;
 	}
 
 	public static class Segment

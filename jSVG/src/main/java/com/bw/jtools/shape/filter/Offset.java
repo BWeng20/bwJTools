@@ -20,46 +20,33 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.svg;
+package com.bw.jtools.shape.filter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 
-public enum LengthUnit
+public class Offset extends FilterBaseSingleSource
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public double dx_;
+	public double dy_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
-
-	static
+	@Override
+	protected Point2D.Double getOffset(double scaleX, double scaleY)
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		return new Point2D.Double(dx_*scaleX, dy_*scaleY );
 	}
 
-
-	public static LengthUnit fromString(String val)
+	@Override
+	protected void render(PainterBuffers buffers, String targetName, BufferedImage src, BufferedImage target, double scaleX, double scaleY)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		src.copyData(target.getRaster());
 	}
 
-
+	public Offset(String source, String target, double dx, double dy)
+	{
+		super(source, target);
+		dx_ = dx;
+		dy_ = dy;
+	}
 }
+

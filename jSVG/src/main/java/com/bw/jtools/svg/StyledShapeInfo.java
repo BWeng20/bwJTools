@@ -22,44 +22,63 @@
 
 package com.bw.jtools.svg;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 
-public enum LengthUnit
+/**
+ * Collects all information about a shape that are needed to produce a final shape.
+ */
+public final class StyledShapeInfo extends ElementInfo
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	/**
+	 * The shape.
+	 */
+	public Shape shape_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
+	/**
+	 * The stroke to render the outline.
+	 */
+	public Stroke stroke_;
 
-	static
+	/**
+	 * The Paint to render the outline.</br>
+	 * Can be null.
+	 */
+	public PaintWrapper paintWrapper_;
+
+
+	/**
+	 * The Paint to fill the shape. </br>
+	 * Can be null.
+	 */
+	public PaintWrapper fillWrapper_;
+
+	/**
+	 * Transform to be applied to the graphics context.
+	 */
+	public AffineTransform aft_;
+
+	public Shape clipping_;
+
+	/**
+	 * Constructor to initialize,
+	 */
+	public StyledShapeInfo(Shape shape, Stroke stroke, PaintWrapper paint, PaintWrapper fill, Shape clipping )
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		this.shape_ = shape;
+		this.stroke_ = stroke;
+		this.paintWrapper_ = paint;
+		this.fillWrapper_ = fill;
+		this.clipping_ = clipping;
 	}
 
-
-	public static LengthUnit fromString(String val)
+	@Override
+	public void applyTransform(AffineTransform aft)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		if (aft_ == null)
+			aft_ = new AffineTransform(aft);
+		else
+			aft_.preConcatenate(aft);
+
 	}
-
-
 }

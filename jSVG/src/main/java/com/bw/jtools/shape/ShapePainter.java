@@ -23,27 +23,29 @@
 package com.bw.jtools.shape;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
- * Holds and paints  a list of shapes.
+ * Holds and paints a list of shapes.
  */
 public final class ShapePainter
 {
 	private Rectangle2D.Double area_ = null;
-	private final List<ShapeWithStyle> shapes_ = new ArrayList<>();
+	private final List<AbstractShape> shapes_ = new ArrayList<>();
 	private final static BasicStroke defaultStroke_ = new BasicStroke(1f);
 	private double scaleX_ = 1.0f;
 	private double scaleY_ = 1.0f;
-	private boolean keepOffset_ = false;
+	private boolean adaptOffset_ = true;
 
 	private boolean measureTime_ = false;
 	private long lastMSNeeded_ = 0;
+
+	private double offsetX_ = 0;
+	private double offsetY_ = 0;
 
 	/**
 	 * Returns the covered area according to shapes and scale.
@@ -52,10 +54,28 @@ public final class ShapePainter
 	{
 		if (area_ == null)
 			return new Rectangle2D.Double(0, 0, 0, 0);
-		else if (keepOffset_)
-			return new Rectangle2D.Double(scaleX_ * area_.x, scaleY_ * area_.y, scaleX_ * area_.width, scaleY_ * area_.height);
-		else
+		else if (adaptOffset_)
 			return new Rectangle2D.Double(0, 0, scaleX_ * area_.width, scaleY_ * area_.height);
+		else
+			return new Rectangle2D.Double(scaleX_ * area_.x, scaleY_ * area_.y, scaleX_ * area_.width, scaleY_ * area_.height);
+	}
+
+	/**
+	 * Auto adapt origin. Manual offset is ignored.
+	 * Upper-left corner is moved to 0,0.
+	 */
+	public void setAdaptOrigin( boolean on )
+	{
+		adaptOffset_ = on;
+	}
+
+	/**
+	 * Sets manual offset.
+	 */
+	public void setOrigin( double x, double y )
+	{
+		offsetX_ = x;
+		offsetY_ = y;
 	}
 
 	/**
@@ -63,7 +83,7 @@ public final class ShapePainter
 	 */
 	public double getAreaWidth()
 	{
-		return area_ == null ? 0 : scaleX_ * (keepOffset_ ? (area_.x + area_.width) : area_.width);
+		return area_ == null ? 0 : scaleX_ * (adaptOffset_ ? area_.width : (area_.x + area_.width) );
 	}
 
 	/**
@@ -71,7 +91,7 @@ public final class ShapePainter
 	 */
 	public double getAreaHeight()
 	{
-		return area_ == null ? 0 : scaleY_ * (keepOffset_ ? (area_.y + area_.height) : area_.height);
+		return area_ == null ? 0 : scaleY_ * (adaptOffset_ ? area_.height : (area_.y + area_.height));
 	}
 
 	public void clearShapes()
@@ -83,19 +103,26 @@ public final class ShapePainter
 	/**
 	 * Adds a shape.
 	 */
-	public void addShape(ShapeWithStyle shape)
+	public void addShape(AbstractShape shape)
 	{
 		shapes_.add(shape);
 
-		final double lw = ((shape.stroke_ instanceof BasicStroke) ? (BasicStroke) shape.stroke_ : defaultStroke_).getLineWidth();
-
-		Rectangle2D r = shape.aft_.createTransformedShape(shape.shape_)
-								  .getBounds2D();
-		Rectangle2D transRect = new Rectangle2D.Double(r.getX() - lw, r.getY() - lw, r.getWidth() + 2 * lw, r.getHeight() + 2 * lw);
+		Rectangle2D transRect = shape.getTransformedBounds();
 		if (area_ == null)
 			area_ = new Rectangle2D.Double(transRect.getX(), transRect.getY(), transRect.getWidth(), transRect.getHeight());
 		else
 			area_ = (Rectangle2D.Double) area_.createUnion(transRect);
+	}
+
+	/**
+	 * Adds a number of shapes.
+	 * Iterates across the collection and calls {@link #addShape(AbstractShape)}.
+	 */
+	public void addShapes(Collection<AbstractShape> shapes)
+	{
+		if (shapes != null)
+			for (AbstractShape s : shapes)
+				addShape(s);
 	}
 
 	/**
@@ -125,50 +152,33 @@ public final class ShapePainter
 
 	/**
 	 * Paints the shapes.
+	 * @param ctx Graphic context, will NOT be restored.
 	 *
 	 * @param clearArea If true the area of the shapes is cleared with the current color.
 	 */
-	public void paintShapes(Graphics2D g2D, boolean clearArea)
+	public void paintShapes(Context ctx, boolean clearArea)
 	{
 		if (area_ == null)
 			return;
 
 		final long ms = (measureTime_) ? System.currentTimeMillis() : 0;
+
+		Context lct = new Context(ctx, false);
+		final Graphics2D g2D = lct.g2D_;
+
 		g2D.scale(scaleX_, scaleY_);
-		if (!keepOffset_)
+		if (adaptOffset_)
 			g2D.translate(-area_.x, -area_.y);
+		else
+			g2D.translate(offsetX_, offsetY_);
+
 		if (clearArea)
 			g2D.fill(area_);
 
-		AffineTransform orgAft = g2D.getTransform();
-		AffineTransform aft = new AffineTransform();
+		lct.aft_ = lct.g2D_.getTransform();
+		for (AbstractShape shape : shapes_)
+			shape.paint(lct);
 
-		for (ShapeWithStyle shape : shapes_)
-		{
-			aft.setTransform(orgAft);
-			aft.concatenate(shape.aft_);
-			g2D.setTransform(aft);
-			g2D.setClip(shape.clipping_);
-
-			if (shape.fill_ == null)
-			{
-				// If fill is not set, fill is done with default.
-				g2D.setPaint(Color.BLACK);
-				g2D.fill(shape.shape_);
-			}
-			else if ( shape.fill_ != ShapeWithStyle.NONE)
-			{
-				g2D.setPaint(shape.fill_);
-				g2D.fill(shape.shape_);
-			}
-
-			if ( shape.paint_ != null && shape.paint_ != ShapeWithStyle.NONE )
-			{
-				g2D.setPaint(shape.paint_);
-				g2D.setStroke(shape.stroke_);
-				g2D.draw(shape.shape_);
-			}
-		}
 		if (measureTime_)
 			lastMSNeeded_ = System.currentTimeMillis() - ms;
 	}

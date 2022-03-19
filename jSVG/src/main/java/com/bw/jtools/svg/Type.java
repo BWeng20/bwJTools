@@ -32,7 +32,28 @@ public enum Type
 	text, textPath,
 	line, polyline, polygon,
 	use, style,
-	defs, linearGradient, radialGradient;
+	defs, linearGradient, radialGradient,
+	filter, marker,
+
+	title,
+	desc,
+
+	// Sub elements for feComponentTransfer
+	feFuncA, feFuncB, feFuncG, feFuncR,
+
+	// Sub element for feMerge
+	feMergeNode,
+
+	// Filter primitive elements
+	feBlend, feColorMatrix, feComponentTransfer,
+	feComposite, feConvolveMatrix, feDiffuseLighting,
+	feDisplacementMap, feDropShadow, feFlood,
+	feGaussianBlur, feImage, feMerge, feMorphology, feOffset, feSpecularLighting,
+	feTile, feTurbulence,
+
+	// Sub elements of feDiffuseLighting and feSpecularLighting
+	feDistantLight, fePointLight, feSpotLight;
+
 
 	private final static HashMap<String, Type> types_ = new HashMap<>();
 

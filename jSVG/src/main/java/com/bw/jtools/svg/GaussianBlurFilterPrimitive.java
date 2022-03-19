@@ -22,44 +22,24 @@
 
 package com.bw.jtools.svg;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-public enum LengthUnit
+/**
+ * Gaussian blur filter primitive.
+ */
+public class GaussianBlurFilterPrimitive extends FilterPrimitive
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public final List<Double> stdDeviation_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
-
-	static
+	@Override
+	public int numberOfInputs()
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		return 1;
 	}
 
-
-	public static LengthUnit fromString(String val)
+	public GaussianBlurFilterPrimitive(List<Double> stdDeviation)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		super(Type.feGaussianBlur);
+		this.stdDeviation_ = stdDeviation;
 	}
-
-
 }

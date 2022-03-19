@@ -22,44 +22,24 @@
 
 package com.bw.jtools.svg;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public enum LengthUnit
+/**
+ * Offset filter primitive.
+ */
+public class OffsetFilterPrimitive extends FilterPrimitive
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public final Length dx_;
+	public final Length dy_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
-
-	static
+	@Override
+	public int numberOfInputs()
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		return 1;
 	}
 
-
-	public static LengthUnit fromString(String val)
+	public OffsetFilterPrimitive(Length dx, Length dy)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		super(Type.feOffset);
+		this.dx_ = dx;
+		this.dy_ = dy;
 	}
-
-
 }

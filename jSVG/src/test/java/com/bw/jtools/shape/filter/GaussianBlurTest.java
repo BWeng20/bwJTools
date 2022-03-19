@@ -20,46 +20,35 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.svg;
+package com.bw.jtools.shape.filter;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.junit.jupiter.api.Test;
 
-public enum LengthUnit
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class GaussianBlurTest
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
-
-	private static final Map<String, LengthUnit> lowerCaseMap_;
-
-	static
+	@Test
+	public void test() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+
+		Method initKernel = GaussianBlur.class.getDeclaredMethod("initKernel", float[].class, double.class);
+		initKernel.setAccessible(true);
+		GaussianBlur gb = new GaussianBlur(FilterBase.SOURCE, "Target", 1, 1);
+
+		for ( int s=0 ; s<3; ++s)
+		{
+			float[] kernelX = new float[s*4+1];
+			initKernel.invoke(gb, kernelX, s);
+			double sum = 0;
+			for (int i = 0; i < kernelX.length; i++)
+			{
+				System.out.print(kernelX[i] + " ");
+				sum += kernelX[i];
+			}
+		}
 	}
-
-
-	public static LengthUnit fromString(String val)
-	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
-	}
-
-
 }

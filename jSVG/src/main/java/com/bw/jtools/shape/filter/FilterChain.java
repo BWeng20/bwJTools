@@ -20,46 +20,46 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.svg;
+package com.bw.jtools.shape.filter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
-public enum LengthUnit
+/**
+ * List of related filters.
+ */
+public class FilterChain
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	private List<FilterBase> filters_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
-
-	static
+	public FilteredImage render( PainterBuffers buffers, double scaleX, double scaleY )
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		FilteredImage result = new FilteredImage();
+		result.offset_= new Point2D.Double(0,0);
+		for ( FilterBase f : filters_)
+		{
+			List<BufferedImage> src = f.getSourceBuffers(buffers);
+			if ( !src.isEmpty() )
+			{
+				Dimension d = f.getTargetDimension(src, scaleX, scaleY);
+				result.image_ = buffers.getTargetBuffer(f.target_, d.width, d.height);
+				Point2D.Double off = f.getOffset(scaleX, scaleY);
+				result.offset_.x += off.x;
+				result.offset_.y += off.y;
+				f.render(buffers, f.target_, src, result.image_, scaleX, scaleY);
+			}
+		}
+		return result;
 	}
 
-
-	public static LengthUnit fromString(String val)
+	/**
+	 * Create a chain of filters.
+	 */
+	public FilterChain(List<FilterBase> filter)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		filters_ = new ArrayList<>(filter);
 	}
-
-
 }

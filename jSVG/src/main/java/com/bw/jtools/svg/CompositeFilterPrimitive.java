@@ -22,44 +22,29 @@
 
 package com.bw.jtools.svg;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.bw.jtools.shape.filter.CompositeOperator;
 
-public enum LengthUnit
+import java.util.List;
+
+/**
+ * Composite filter primitive.
+ */
+public class CompositeFilterPrimitive extends FilterPrimitive
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public final CompositeOperator operator_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
+	public final List<Double> k_;
 
-	static
+	@Override
+	public int numberOfInputs()
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		return 2;
 	}
 
-
-	public static LengthUnit fromString(String val)
+	public CompositeFilterPrimitive(CompositeOperator operator, List<Double> k)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		super(Type.feComposite);
+		this.operator_ = operator;
+		this.k_ = k;
 	}
-
-
 }

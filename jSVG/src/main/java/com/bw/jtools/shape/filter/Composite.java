@@ -20,46 +20,42 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.svg;
+package com.bw.jtools.shape.filter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.util.List;
 
-public enum LengthUnit
+public class Composite extends FilterBaseSingleSource
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public CompositeOperator operator_;
+	public List<Double> k_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
-
-	static
+	@Override
+	protected void render(PainterBuffers buffers, String targetName, BufferedImage src, BufferedImage target, double scaleX, double scaleY)
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		Graphics2D g2d = (Graphics2D)target.getGraphics();
+		try
+		{
+			g2d.drawImage( src,0,0, null);
+			g2d.setColor(Color.ORANGE);
+			g2d.drawRect(0,0, src.getWidth(), src.getHeight());
+
+		}
+		finally
+		{
+			g2d.dispose();
+		}
 	}
 
-
-	public static LengthUnit fromString(String val)
+	public Composite(String source, String target,
+					 CompositeOperator operator,
+					 List<Double> k)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		super(source, target);
+		operator_ = operator;
+		k_ = k;
 	}
-
-
 }
+

@@ -20,33 +20,13 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.svg;
+package com.bw.jtools.shape.filter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 
-public enum GradientUnit
+public class FilteredImage
 {
-	userSpaceOnUse,
-	objectBoundingBox;
-
-	private static final Map<String, GradientUnit> lowerCaseMap_;
-
-	static
-	{
-		lowerCaseMap_ = new HashMap<>();
-		for (GradientUnit gu : GradientUnit.values())
-			lowerCaseMap_.put(gu.name()
-								.toLowerCase(), gu);
-	}
-
-
-	public static GradientUnit fromString(String val)
-	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
-	}
-
+	public BufferedImage image_;
+	public Point2D.Double offset_;
 }

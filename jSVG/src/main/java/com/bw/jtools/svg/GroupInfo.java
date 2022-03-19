@@ -22,44 +22,32 @@
 
 package com.bw.jtools.svg;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
 
-public enum LengthUnit
+/**
+ * Collects all information about a shape that are needed to produce a final shape.
+ */
+public final class GroupInfo extends ElementInfo
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public List<ElementInfo> shapes_ = new ArrayList<>();
+	public Filter filter_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
-
-	static
+	/**
+	 * Constructor to initialize,
+	 */
+	public GroupInfo(String id, Filter filter)
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		id_ = id;
+		filter_ = filter;
 	}
 
-
-	public static LengthUnit fromString(String val)
+	@Override
+	public void applyTransform(AffineTransform aft)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		for ( ElementInfo e : shapes_)
+			e.applyTransform(aft);
 	}
-
 
 }

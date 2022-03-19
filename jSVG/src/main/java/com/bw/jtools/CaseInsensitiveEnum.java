@@ -20,46 +20,27 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.svg;
+package com.bw.jtools;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public enum LengthUnit
+public final class CaseInsensitiveEnum<T extends Enum>
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public Map<String, T> lowerCaseMap_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
-
-	static
+	public CaseInsensitiveEnum( T[] values )
 	{
 		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		for (T gu : values)
+			lowerCaseMap_.put(gu.name().toLowerCase(), gu);
 	}
 
-
-	public static LengthUnit fromString(String val)
+	public T fromString( String val )
 	{
 		if (val != null)
 			return lowerCaseMap_.get(val.trim()
 										.toLowerCase());
 		return null;
 	}
-
-
 }

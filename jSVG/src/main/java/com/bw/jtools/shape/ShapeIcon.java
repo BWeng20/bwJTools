@@ -25,7 +25,6 @@ import javax.swing.Icon;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.util.Collection;
@@ -36,17 +35,17 @@ public class ShapeIcon implements Icon
 	private Paint framePaint_ = Color.BLACK;
 	private final ShapePainter painter_;
 
-	public ShapeIcon(Collection<ShapeWithStyle> shapes)
+	public ShapeIcon(Collection<AbstractShape> shapes)
 	{
 		painter_ = new ShapePainter();
-		for (ShapeWithStyle s : shapes)
+		for (AbstractShape s : shapes)
 			addShape(s);
 	}
 
 	/**
 	 * Adds a shape.
 	 */
-	public void addShape(ShapeWithStyle shape)
+	public void addShape(AbstractShape shape)
 	{
 		painter_.addShape(shape);
 	}
@@ -99,20 +98,24 @@ public class ShapeIcon implements Icon
 	@Override
 	public void paintIcon(Component c, Graphics g, int x, int y)
 	{
-		Graphics2D g2D = (Graphics2D) g.create();
-
-		g2D.translate(x, y);
-		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-		if (drawFrame_)
+		Context ctx = new Context(g);
+		try
 		{
-			g2D.setPaint(framePaint_);
-			g2D.draw(painter_.getArea());
-		}
-		g2D.setColor(c.getBackground());
-		painter_.paintShapes(g2D, c.isOpaque());
 
-		g2D.dispose();
+			ctx.currentColor_ = c.getBackground();
+			ctx.g2D_.translate(x, y);
+			ctx.g2D_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+			if (drawFrame_)
+			{
+				ctx.g2D_.setPaint(framePaint_);
+				ctx.g2D_.draw(painter_.getArea());
+			}
+			painter_.paintShapes(ctx, c.isOpaque());
+		} finally
+		{
+			ctx.dispose();
+		}
 	}
 
 	@Override

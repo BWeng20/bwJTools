@@ -20,46 +20,51 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.svg;
+package com.bw.jtools.shape.filter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 
-public enum LengthUnit
+public class SpecularLighting extends FilterBaseSingleSource
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
+	public double surfaceScale_;
+	public double specularConstant_;
+	public double specularExponent_;
+	public Double dx_;
+	public Double dy_;
 
-	static
+	public Color color_;
+
+	public LightSource light_;
+
+	@Override
+	protected void render(PainterBuffers buffers, String targetName, BufferedImage src, BufferedImage target, double scaleX, double scaleY)
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+
+		src.copyData(target.getRaster());
 	}
 
-
-	public static LengthUnit fromString(String val)
+	public SpecularLighting(String source, String target,
+							double surfaceScale,
+							double specularConstant,
+							double specularExponent,
+							Double dx, Double dy,
+							LightSource light)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		super(source, target);
+
+		surfaceScale_ = surfaceScale;
+		specularConstant_ = specularConstant;
+		specularExponent_ = specularExponent;
+		dx_ = dx;
+		dy_ = dy;
+		light_ = light;
 	}
+
 
 
 }
+
+
+

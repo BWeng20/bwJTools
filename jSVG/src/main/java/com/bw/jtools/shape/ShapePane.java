@@ -26,7 +26,6 @@ import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
@@ -75,12 +74,10 @@ public class ShapePane extends JComponent
 		return painter_;
 	}
 
-	public void setShapes(Collection<ShapeWithStyle> shapes)
+	public void setShapes(Collection<AbstractShape> shapes)
 	{
 		painter_.clearShapes();
-		if (shapes != null)
-			for (ShapeWithStyle s : shapes)
-				painter_.addShape(s);
+		painter_.addShapes(shapes);
 		refresh();
 	}
 
@@ -101,7 +98,7 @@ public class ShapePane extends JComponent
 	}
 
 
-	public void addShape(ShapeWithStyle shape)
+	public void addShape(ShapeGroup shape)
 	{
 		painter_.addShape(shape);
 		refresh();
@@ -131,21 +128,22 @@ public class ShapePane extends JComponent
 			super.paintComponent(g);
 		else
 		{
-			Graphics2D g2D = (Graphics2D) g.create();
+			Context ctx = new Context(g);
+			ctx.currentColor_ = getForeground();
+			ctx.currentBackground_ = getBackground();
 			try
 			{
-				g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				ctx.g2D_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				if (drawFrame_)
 				{
-					g2D.setPaint(framePaint_);
-					g2D.draw(painter_.getArea());
+					ctx.g2D_.setPaint(framePaint_);
+					ctx.g2D_.draw(painter_.getArea());
 				}
-				g2D.setColor(getBackground());
-				painter_.paintShapes(g2D, isOpaque());
+				painter_.paintShapes(ctx, isOpaque());
 			}
 			finally
 			{
-				g2D.dispose();
+				ctx.dispose();
 			}
 		}
 	}

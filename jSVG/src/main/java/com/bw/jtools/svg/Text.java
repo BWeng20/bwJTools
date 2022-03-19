@@ -84,13 +84,15 @@ public class Text extends Parser
 		}
 	}
 
-	public Text(SVGConverter svg, ElementWrapper w, Font defaultFont, List<ShapeInfo> shapes)
+	public Text(SVGConverter svg, ElementWrapper w, Font defaultFont, List<ElementInfo> shapes)
 	{
 		super();
 
 		// @TODO: Multiple values for x/y
 		x_ = w.toPDouble("x", false);
 		y_ = w.toPDouble("y", false);
+
+		Rectangle2D.Double box = w.getViewPort();
 
 		NodeList nodes = w.getNode()
 						  .getChildNodes();
@@ -118,20 +120,41 @@ public class Text extends Parser
 					ElementWrapper cw = cache.getElementWrapper(childNode);
 					final String tag = cw.getTagName();
 					if ("tspan".equals(tag))
-						parseTSpan(svg, cw, font, pos, shapes);
+						parseTSpan(svg, cw, font, pos, box, shapes);
 					else if ("textPath".equals(tag))
-						parseTextPath(svg, cw, font, pos, shapes);
+						parseTextPath(svg, cw, font, shapes);
 			}
 		}
 	}
 
-	protected void parseTSpan(SVGConverter svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeInfo> shapes)
+	protected void parseTSpan(SVGConverter svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, Rectangle2D.Double box, List<ElementInfo> shapes)
 	{
+		Length x = ew.toLength("x");
+		Length y = ew.toLength("y");
+		Length dx = ew.toLength("dx");
+		Length dy = ew.toLength("dy");
+
+		// @TODO: x,y,dx,dy: can contain a list of values
+
+		// @TODO: rotate
+		// @TODO: textLength
+		// @TODO: lengthAdjust
+
+		if ( x != null )
+			pos.x = x.toPixel(box.getWidth());
+		if ( y != null )
+			pos.y = y.toPixel(box.getHeight());
+
+		if ( dx != null )
+			pos.x += dx.toPixel(box.getWidth());
+		if ( dy != null )
+			pos.y += dy.toPixel(box.getHeight());
+
 		ew.setShape(createText(ew.font(defaultFont), ew.text(), pos));
 		shapes.add(svg.createShapeInfo(ew));
 	}
 
-	protected void parseTextPath(SVGConverter svg, ElementWrapper ew, Font defaultFont, Point2D.Double pos, List<ShapeInfo> shapes)
+	protected void parseTextPath(SVGConverter svg, ElementWrapper ew, Font defaultFont, List<ElementInfo> shapes)
 	{
 		String href = ew.href();
 		if (ElementWrapper.isNotEmpty(href))
@@ -140,7 +163,7 @@ public class Text extends Parser
 								  .getElementWrapperById(href);
 			if (pw != null && Type.path == pw.getType())
 			{
-				pw = pw.createReferenceCopy(ew);
+				pw = pw.createReferenceShadow(ew);
 
 				ShapeHelper path = pw.getShape();
 				if (path == null)
@@ -170,11 +193,18 @@ public class Text extends Parser
 
 	protected Shape createText(Font font, String text, Point2D.Double pos)
 	{
-		TextLayout tl = new TextLayout(text, font, frc_);
-		Rectangle2D bounds = tl.getBounds();
-		Shape shape = tl.getOutline(AffineTransform.getTranslateInstance(pos.x, pos.y));
-		pos.x += bounds.getWidth();
-		return shape;
+		if ( text == null || text.isEmpty())
+		{
+			return new Rectangle2D.Double(pos.x,pos.y,0,0);
+		}
+		else
+		{
+			TextLayout tl = new TextLayout(text, font, frc_);
+			Rectangle2D bounds = tl.getBounds();
+			Shape shape = tl.getOutline(AffineTransform.getTranslateInstance(pos.x, pos.y));
+			pos.x += bounds.getWidth();
+			return shape;
+		}
 	}
 
 	/**

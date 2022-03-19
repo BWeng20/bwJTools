@@ -20,46 +20,39 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.svg;
+package com.bw.jtools.shape.filter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
-public enum LengthUnit
+public class Merge extends FilterBase
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public final List<String> sources_ = new ArrayList<>();
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
-
-	static
+	public Merge( List<String> src, String target)
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		super(src.get(0), target);
+		if ( src.size() > 1)
+			sources_.addAll(src.subList(1,src.size()));
 	}
 
-
-	public static LengthUnit fromString(String val)
+	@Override
+	protected void render(PainterBuffers buffers, String targetName, List<BufferedImage> src, BufferedImage target, double scaleX, double scaleY)
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		Graphics2D g2d = (Graphics2D)target.getGraphics();
+		try
+		{
+			for ( BufferedImage s : src)
+			{
+				g2d.drawImage( s, 0,0, null);
+			}
+		}
+		finally
+		{
+			g2d.dispose();
+		}
 	}
-
-
 }
+

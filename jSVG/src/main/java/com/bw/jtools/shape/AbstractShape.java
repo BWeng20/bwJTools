@@ -24,64 +24,63 @@ package com.bw.jtools.shape;
 
 import java.awt.Color;
 import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.Stroke;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 /**
- * A shape plus additional style information.
+ * A abstract base for shapes.
  */
-public final class ShapeWithStyle
+public abstract class AbstractShape
 {
+	/**
+	 * Placeholder for "currentColor". The color from caller-perspective.
+	 */
+	public static final Color CURRENT_COLOR = new Color(0,0,0);
+
+	/**
+	 * Placeholder for "background", an internal extension to access the background of the painting component.
+	 */
+	public static final Color CURRENT_BACKGROUND = new Color( 0xce, 0xce,0xce);
+
+	/**
+	 * Placeholder for "none" color.
+	 */
 	public static final Color NONE = new Color(0,0,0,0);
 
 	/**
-	 * Id to identify the shape in the some document.
+	 * Id to identify the shape group in the some document.
 	 */
 	public final String id_;
 
 	/**
-	 * The shape.
-	 */
-	public final Shape shape_;
-
-	/**
-	 * The stroke to render the outline.
-	 */
-	public Stroke stroke_;
-
-	/**
-	 * The Paint to render the outline.</br>
-	 * Can be null.
-	 */
-	public final Paint paint_;
-
-	/**
-	 * The Paint to fill the shape. </br>
-	 * Can be null.
-	 */
-	public final Paint fill_;
-
-	/**
-	 * Transform to be applied to the graphics context.</br>
-	 * Never null.
-	 */
-	public AffineTransform aft_;
-
-	public final Shape clipping_;
-
-	/**
 	 * Constructor to initialize,
 	 */
-	public ShapeWithStyle(String id, Shape shape, Stroke stroke, Paint paint, Paint fill, Shape clipping, AffineTransform aft)
+	protected AbstractShape(String id)
 	{
 		this.id_ = id;
-		this.shape_ = shape;
-		this.stroke_ = stroke;
-		this.paint_ = paint;
-		this.fill_ = fill;
-		this.clipping_ = clipping;
-		this.aft_ = aft == null ? new AffineTransform() : aft;
+	}
+
+	public abstract void paint( Context ctx );
+
+	/**
+	 * Get bounds of the transformed shape including stroke-width.
+	 */
+	public abstract Rectangle2D getTransformedBounds();
+
+	/**
+	 * Translates special paints to values.
+	 */
+	protected Paint transatePaint(Context ctx, Paint p )
+	{
+		if (p == null)
+			return Color.BLACK;
+		else if (p == NONE)
+			return null;
+		else if (p == CURRENT_COLOR)
+			return ctx.currentColor_;
+		else if (p == CURRENT_BACKGROUND)
+			return ctx.currentBackground_;
+		else
+			return p;
 	}
 
 }

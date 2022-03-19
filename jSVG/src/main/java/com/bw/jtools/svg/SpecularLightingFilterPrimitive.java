@@ -22,44 +22,36 @@
 
 package com.bw.jtools.svg;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.bw.jtools.shape.filter.LightSource;
 
-public enum LengthUnit
+/**
+ * Specular-Lighting filter primitive.
+ */
+public class SpecularLightingFilterPrimitive extends FilterPrimitive
 {
-	em,
-	ex,
-	px,
-	in,
-	m,
-	cm,
-	mm,
-	pt,
-	pc,
-	percent,
-	rem;
+	public final double surfaceScale_;
+	public final double specularConstant_;
+	public final double specularExponent_;
+	public final Double dx_;
+	public final Double dy_;
 
-	private static final Map<String, LengthUnit> lowerCaseMap_;
+	public final LightSource light_;
 
-	static
+	public SpecularLightingFilterPrimitive(double surfaceScale, double specularConstant, double specularExponent, Double dx, Double dy, LightSource light)
 	{
-		lowerCaseMap_ = new HashMap<>();
-		for (LengthUnit gu : LengthUnit.values())
-			if (gu == percent)
-				lowerCaseMap_.put("%", gu);
-			else
-				lowerCaseMap_.put(gu.name()
-									.toLowerCase(), gu);
+		super(Type.feSpecularLighting);
+		surfaceScale_ = surfaceScale;
+		specularConstant_ = specularConstant;
+		specularExponent_ = specularExponent;
+		dx_ = dx;
+		dy_ = (dy == null) ? dx : dy;
+		light_ = light;
 	}
 
-
-	public static LengthUnit fromString(String val)
+	@Override
+	public int numberOfInputs()
 	{
-		if (val != null)
-			return lowerCaseMap_.get(val.trim()
-										.toLowerCase());
-		return null;
+		return 1;
 	}
-
 
 }

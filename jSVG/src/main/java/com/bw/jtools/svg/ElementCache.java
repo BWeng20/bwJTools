@@ -26,18 +26,26 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 public class ElementCache
 {
 	private final HashMap<String, ElementWrapper> wrapperById_ = new HashMap<>();
-	private static AtomicLong idGenerator = new AtomicLong(9999);
+	private static AtomicLong idGenerator_ = new AtomicLong(9999);
+	private final HashMap<String, Marker> markerById_ = new HashMap<>();
 
 
 	private String generateId()
 	{
-		return "_#" + idGenerator.incrementAndGet() + "Generated__";
+		return "_#" + idGenerator_.incrementAndGet() + "Generated__";
+	}
 
+	public static boolean isGenerated( String id )
+	{
+		return id != null && id.startsWith("_#") && id.endsWith("Generated__");
 	}
 
 	public void scanForIds(Node node)
@@ -92,4 +100,37 @@ public class ElementCache
 			return null;
 	}
 
+	/**
+	 * Calls a function on each element of a sub-tree.
+	 * Includes the root and all sub-elements.
+	 * @param consumer The function to call.
+	 */
+	public void forSubTree(Node root, Consumer<ElementWrapper> consumer)
+	{
+		final Queue<Node> unvisited = new LinkedList<>();
+		unvisited.add(root);
+		while (!unvisited.isEmpty())
+		{
+			Node n = unvisited.remove();
+			final ElementWrapper w = getElementWrapper(n);
+			if (w != null )
+				consumer.accept(w);
+			n = n.getFirstChild();
+			while (n != null)
+			{
+				unvisited.add(n);
+				n = n.getNextSibling();
+			}
+		}
+	}
+
+	public Marker getMarkerById(String id)
+	{
+		return markerById_.get(id);
+	}
+
+	public void addMarker(String id, Marker marker)
+	{
+		markerById_.put(id, marker);
+	}
 }

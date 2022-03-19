@@ -22,7 +22,18 @@
 
 package com.bw.jtools.svg;
 
-import com.bw.jtools.shape.ShapeWithStyle;
+import com.bw.jtools.shape.AbstractShape;
+import com.bw.jtools.shape.ShapeGroup;
+import com.bw.jtools.shape.StyledShape;
+import com.bw.jtools.shape.filter.Composite;
+import com.bw.jtools.shape.filter.CompositeOperator;
+import com.bw.jtools.shape.filter.FilterBase;
+import com.bw.jtools.shape.filter.FilterChain;
+import com.bw.jtools.shape.filter.GaussianBlur;
+import com.bw.jtools.shape.filter.LightSource;
+import com.bw.jtools.shape.filter.LightSourceType;
+import com.bw.jtools.shape.filter.Offset;
+import com.bw.jtools.shape.filter.SpecularLighting;
 import com.bw.jtools.svg.css.CSSParser;
 import com.bw.jtools.svg.css.CssStyleSelector;
 import org.w3c.dom.Document;
@@ -41,6 +52,7 @@ import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
@@ -52,9 +64,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.bw.jtools.svg.ElementWrapper.isNotEmpty;
 
 /**
- * Parses and converts a SVG document into Java2D-shapes plus bacis style-information (see {@link ShapeWithStyle}).</br>
+ * Parses and converts a SVG document into Java2D-shapes plus bacis style-information (see {@link StyledShape}).</br>
  * </br>
  * Currently supported features:
  * <ul>
@@ -66,11 +81,12 @@ import java.util.Map;
  * <li>line</li>
  * <li>polyline</li>
  * <li>polygon</li>
- * <li>text (with tspan and testPath)</li>
+ * <li>text (with tspan and textPath, only single x,y,dx,dy length values, no textLength, no lengthAdjust, no rotate, no content area)</li>
  * <li>use</li>
  * <li>linearGradient (without stop-opacity)</li>
  * <li>radialGradient (without stop-opacity)</li>
  * <li>clipPath (only direct use by attribute clip-path, no inheritance)</li>
+ * <li>filter (partial and only simple scenarios)</li>
  * </ul>
  * As the svg elements are simply converted to Shapes, complex stuff that needs offline-rendering (like blur) can't work.
  * Some complex use-case will not work as specified. </br>
@@ -106,7 +122,8 @@ public class SVGConverter
 			if (detailedErrorInformation_)
 				t.printStackTrace(System.err);
 			else
-				System.err.println(t.getMessage());
+				System.err.println(t.getClass()
+									.getSimpleName() + ": " + t.getMessage());
 		}
 	}
 
@@ -117,8 +134,8 @@ public class SVGConverter
 		System.err.println();
 	}
 
-	private final List<ShapeInfo> shapes_ = new ArrayList<>();
-	private final List<ShapeWithStyle> finalShapes_ = new ArrayList<>();
+	private final List<ElementInfo> shapes_ = new ArrayList<>();
+	private final List<AbstractShape> finalShapes_ = new ArrayList<>();
 	private Map<String, Gradient> paintServer_ = new HashMap<>();
 	private Map<String, PaintWrapper> paints_ = new HashMap<>();
 	private Font defaultFont_ = Font.decode("Arial-PLAIN-12");
@@ -184,19 +201,17 @@ public class SVGConverter
 			parseChildren(shapes_, doc_.getElementsByTagName("svg")
 									   .item(0));
 
-			for (ShapeInfo s : shapes_)
-			{
+			for (ElementInfo s : shapes_)
 				finalShapes_.add(finish(s));
-			}
 
 		}
 		catch (Exception e)
 		{
-			throw new SVGException("Faild to parse SVG", e);
+			throw new SVGException("Failed to parse SVG", e);
 		}
 	}
 
-	private void parseChildren(List<ShapeInfo> shapes, Node parent)
+	private void parseChildren(List<ElementInfo> shapes, Node parent)
 	{
 		Node child = parent.getFirstChild();
 		while (child != null)
@@ -212,11 +227,11 @@ public class SVGConverter
 		}
 	}
 
-	private void parseElement(List<ShapeInfo> shapes, ElementWrapper w)
+	private void parseElement(List<ElementInfo> shapes, ElementWrapper w)
 	{
 		final String e = w.getTagName();
 		Type typ = w.getType();
-		List<ShapeInfo> g = new ArrayList<>();
+		List<ElementInfo> g = new ArrayList<>();
 
 		if (typ == null)
 			warn("Unknown command %s", e);
@@ -240,8 +255,8 @@ public class SVGConverter
 					Stroke s = new Stroke(new Color(this, "yellow", 1d),
 							null, null, null, null, null, null);
 
-					shapes.add(new ShapeInfo(w.getShape()
-											  .getSegmentPath(), s, s.getPaintWrapper(),
+					shapes.add(new StyledShapeInfo(w.getShape()
+												.getSegmentPath(), s, s.getPaintWrapper(),
 							null, null));
 				}
 			}
@@ -289,25 +304,21 @@ public class SVGConverter
 			case use:
 			{
 				String href = w.href();
-				if (ElementWrapper.isNotEmpty(href))
+				if (isNotEmpty(href))
 				{
 					ElementWrapper refOrgW = elementCache_.getElementWrapperById(href);
 					if (refOrgW != null)
 					{
 						double x = w.toPDouble("x");
 						double y = w.toPDouble("y");
-						ElementWrapper uw = refOrgW.createReferenceCopy(w);
+						ElementWrapper uw = refOrgW.createReferenceShadow(w);
 
-						List<ShapeInfo> useShapes = new ArrayList<>();
-						parseElement(useShapes, uw);
+						List<ElementInfo> usedElements = new ArrayList<>();
+						parseElement(usedElements, uw);
 						AffineTransform aft = AffineTransform.getTranslateInstance(x, y);
-						for (ShapeInfo sinfo : useShapes)
+						for (ElementInfo sinfo : usedElements)
 						{
-							// Remind: Ids are duplicates!
-							if (sinfo.aft_ == null)
-								sinfo.aft_ = aft;
-							else
-								sinfo.aft_.preConcatenate(aft);
+							sinfo.applyTransform( aft );
 							shapes.add(sinfo);
 						}
 					}
@@ -348,35 +359,151 @@ public class SVGConverter
 				shapes.add(createShapeInfo(w));
 			}
 			break;
-			case style:
-				// already parsed
-				break;
-			case defs:
-			case linearGradient:
-			case radialGradient:
-			case clipPath:
-				// Parsed on demand
-				break;
+
+			// Others are parsed on demand
 		}
 	}
 
 	/**
 	 * Finally create shapes from the elements.
 	 */
-	private ShapeWithStyle finish(ShapeInfo s)
+	private AbstractShape finish(ElementInfo si)
 	{
-		ElementWrapper w = elementCache_.getElementWrapperById(s.id_);
+		ElementWrapper w = elementCache_.getElementWrapperById(si.id_);
 
-		ShapeWithStyle sws = new ShapeWithStyle(
-				s.id_,
-				s.shape_,
-				s.stroke_ == null ? null : s.stroke_.createStroke(w),
-				s.paintWrapper_ == null ? null : s.paintWrapper_.createPaint(w),
-				s.fillWrapper_ == null ? null : s.fillWrapper_.createPaint(w),
-				s.clipping_,
-				s.aft_);
+		if ( si instanceof StyledShapeInfo)
+		{
+			StyledShapeInfo s = (StyledShapeInfo) si;
+			StyledShape sws = new StyledShape(
+					s.id_,
+					s.shape_,
+					s.stroke_ == null ? null : s.stroke_.createStroke(w),
+					s.paintWrapper_ == null ? null : s.paintWrapper_.createPaint(w),
+					s.fillWrapper_ == null ? null : s.fillWrapper_.createPaint(w),
+					s.clipping_,
+					s.aft_
+			);
+			return sws;
+		} else {
+			GroupInfo g = (GroupInfo)si;
+			ShapeGroup gr = new ShapeGroup(g.id_, createFilterChain(g.filter_));
+			for ( ElementInfo e : g.shapes_)
+				gr.shapes_.add( finish(e) );
+			// @TODO
+			gr.units_ = new Point2D.Double(1,1);
+			return gr;
+		}
+	}
 
-		return sws;
+	protected String mapSvgBufferName(String svgBufferName )
+	{
+		if ( StandardFilterSource.SourceGraphic.name().equals(svgBufferName))
+			return FilterBase.SOURCE;
+		else
+			return svgBufferName;
+	}
+
+	protected FilterChain createFilterChain(Filter filter)
+	{
+		FilterChain filterChain;
+		String src;
+		if ( filter != null && !filter.primitives_.isEmpty())
+		{
+			List<FilterPrimitive> primitives = filter.primitives_;
+
+			// Set-up default in/result-linkage
+			Map<String, List<FilterPrimitive>> filterMap = new HashMap<>();
+			final String sourceGraphic = StandardFilterSource.SourceGraphic.name();
+			int sN;
+			for ( int fi = 0 ; fi <  primitives.size(); ++fi)
+			{
+				FilterPrimitive fp = primitives.get(fi);
+				if ( fp.result_ == null ) fp.result_ = "FilterBuffer"+filter.id_+"-"+fi;
+				sN = fp.numberOfInputs();
+				if ( sN > 0 )
+				{
+					if ( fp.in_.isEmpty())
+						fp.in_.add( fi > 0 ? primitives.get(fi-1).result_ : sourceGraphic );
+					if ( sN > 1 && fp.in_.size() < 2 )
+						fp.in_.add( fi > 0 ? primitives.get(fi-1).result_ : sourceGraphic );
+				}
+				filterMap.computeIfAbsent(fp.result_,s -> new ArrayList<>()).add(fp);
+			}
+			// Build primary filter tree
+			List<FilterPrimitive> chain = new ArrayList<>();
+			List<String> sourcesNeeded = new ArrayList<>();
+			// Get root of primary filter tree
+			FilterPrimitive fp = primitives.get(primitives.size()-1);
+			// Add sources until needed sources are empty or chain is broken
+			while ( fp != null )
+			{
+				chain.add(0, fp);
+				sN = fp.in_.size();
+				for (int sI = 0; sI < sN; ++sI)
+					sourcesNeeded.add(fp.in_.get(sI));
+
+				if ( sourcesNeeded.isEmpty() ) break;
+				do {
+					src = sourcesNeeded.remove(0);
+					if ( StandardFilterSource.fromString(src) != null)
+						src = null;
+				} while ( src==null && !sourcesNeeded.isEmpty() );
+				if ( src == null )
+					fp = null;
+				else
+				{
+					List<FilterPrimitive> srcList = filterMap.get(src);
+					if ( srcList == null || srcList.isEmpty())
+						fp = null;
+					else
+						fp = srcList.remove(srcList.size()-1);
+
+				}
+			}
+			if ( !sourcesNeeded.isEmpty() )
+			{
+				warn("Filter %s has missing inputs: %s", filter.id_, sourcesNeeded.stream().collect(Collectors.joining(",")) );
+			}
+
+			filterChain = new FilterChain(
+					chain.stream().map(f -> {
+
+						final String resultBuffer = mapSvgBufferName(f.result_);
+						final String inBuffer = f.in_.isEmpty() ? null : mapSvgBufferName(f.in_.get(0));
+
+						switch (f.type_)
+						{
+							case feGaussianBlur:
+								GaussianBlurFilterPrimitive gf = (GaussianBlurFilterPrimitive)f;
+								double stdDevX = 0;
+								double stdDevY = 0;
+								if ( !gf.stdDeviation_.isEmpty() )
+								{
+									stdDevX = gf.stdDeviation_.get(0);
+									stdDevY = ( gf.stdDeviation_.size()>1) ? gf.stdDeviation_.get(1) : stdDevX;
+								}
+								return new GaussianBlur( inBuffer,resultBuffer,
+										stdDevX, stdDevY );
+							case feOffset:
+								OffsetFilterPrimitive of = (OffsetFilterPrimitive)f;
+								return new Offset( inBuffer,resultBuffer,
+										of.dx_.toPixel(null), of.dy_.toPixel(null) );
+							case feSpecularLighting:
+								SpecularLightingFilterPrimitive sl = (SpecularLightingFilterPrimitive)f;
+								return new SpecularLighting(inBuffer,resultBuffer,sl.surfaceScale_, sl.specularConstant_,
+										sl.specularExponent_, sl.dx_, sl.dy_, sl.light_ );
+							case feComposite:
+								CompositeFilterPrimitive cp = (CompositeFilterPrimitive)f;
+								return new Composite(inBuffer,resultBuffer,cp.operator_, cp.k_);
+							case feMerge:
+							default:
+								return null;
+						}
+					} ).filter(f -> f != null).collect(Collectors.toList()));
+		}
+		else
+			filterChain = null;
+		return filterChain;
 	}
 
 	/**
@@ -434,29 +561,34 @@ public class SVGConverter
 		{
 			if (w.getType() != Type.clipPath)
 			{
-				warn("%s is not a clipPath", w.id());
+				warn("%s is not a clipPath", w.nodeName());
 			}
 			else
 			{
 				ShapeHelper shape = w.getShape();
 				if (shape == null)
 				{
-					List<ShapeInfo> g = new ArrayList<>();
+					List<ElementInfo> g = new ArrayList<>();
 					parseChildren(g, w.getNode());
 
 					Path2D.Double clipPath = new Path2D.Double();
-					for (ShapeInfo s : g)
+					for (ElementInfo si : g)
 					{
-						if (s.clipping_ == null)
+						// @TODO: Can Clip paths contain groups?
+						if ( si instanceof StyledShapeInfo )
 						{
-							clipPath.append(s.shape_, false);
-						}
-						else
-						{
-							// Intersect according to spec.
-							Area area = new Area(s.shape_);
-							area.intersect(new Area(s.clipping_));
-							clipPath.append(area, false);
+							StyledShapeInfo s = (StyledShapeInfo)si;
+							if (s.clipping_ == null)
+							{
+								clipPath.append(s.shape_, false);
+							}
+							else
+							{
+								// Intersect according to spec.
+								Area area = new Area(s.shape_);
+								area.intersect(new Area(s.clipping_));
+								clipPath.append(area, false);
+							}
 						}
 					}
 					g.clear();
@@ -470,9 +602,186 @@ public class SVGConverter
 	}
 
 	/**
+	 * Gets a marker wrapper.
+	 */
+	public Marker getMarker(String id)
+	{
+		Marker m = elementCache_.getMarkerById(id);
+		if (m == null)
+		{
+			ElementWrapper w = elementCache_.getElementWrapperById(id);
+			if (w != null && w.getType() != Type.marker)
+				warn("%s is not a marker", w.nodeName());
+			m = new Marker(w);
+			elementCache_.addMarker(id, m);
+		}
+		return m;
+	}
+
+	/**
+	 * Gets the filter wrapper for an element.
+	 */
+	public Filter filter(ElementWrapper w)
+	{
+		w = w == null ? null : elementCache_.getElementWrapperById(w.filter());
+		if (w != null)
+		{
+			Filter f = new Filter(w.id(), w.getType());
+			// @TODO: handle href references for filters (same as for gradients).
+			if (f.type_ != Type.filter)
+				warn("%s is not a filter", f.id_);
+
+			f.x_ = w.toLength("x");
+			f.y_ = w.toLength("y");
+			f.width_ = w.toLength("width");
+			f.height_ = w.toLength("height");
+
+			// @TODO: filterRes
+			f.filterUnits_ = Unit.fromString( w.attr("filterUnits"));
+			f.primitiveUnits_ = Unit.fromString( w.attr("primitiveUnits"));
+
+			f.primitives_ = new ArrayList<>();
+
+			elementCache_.forSubTree(w.getNode(), e ->
+			{
+				FilterPrimitive fp = filterPrimitive(e);
+				if ( fp != null )
+					f.primitives_.add( fp  );
+			});
+			return f;
+		}
+		return null;
+	}
+
+	public FilterPrimitive filterPrimitive(ElementWrapper w)
+	{
+		Type t = w.getType();
+		if ( FilterPrimitive.isFilterPrimitive( t ) )
+		{
+			FilterPrimitive fp;
+			switch (t)
+			{
+				case feGaussianBlur:
+					fp = new GaussianBlurFilterPrimitive(w.toPDoubleList("stdDeviation",  false));
+					break;
+				case feOffset:
+					fp = new OffsetFilterPrimitive( w.toLength("dx"), w.toLength("dy"));
+					break;
+				case feSpecularLighting:
+				{
+					double surfaceScale = w.toPDouble("surfaceScale", 1, false);
+					double specularConstant = w.toPDouble("specularConstant", 1, false);
+					double specularExponent = w.toPDouble("specularExponent", 1, false);
+
+					List<Double> kernelUnitLength = w.toPDoubleList("kernelUnitLength", false);
+					Double dy = null;
+					Double dx = null;
+					if (!kernelUnitLength.isEmpty())
+					{
+						dx = kernelUnitLength.get(0);
+						dy = kernelUnitLength.size() > 1 ? kernelUnitLength.get(1) : dx;
+					}
+
+					final List<LightSource> lights = new ArrayList<>();
+
+					w.forSubTree(ew -> {
+						LightSource source = new LightSource();
+						switch ( ew.getType())
+						{
+							case feDistantLight:
+								source.type_ = LightSourceType.distant;
+								break;
+							case fePointLight:
+								source.type_ = LightSourceType.point;
+								break;
+							case feSpotLight:
+								source.type_ = LightSourceType.spot;
+								break;
+						}
+						if ( source.type_ != null )
+							lights.add(source);
+					});
+					if ( lights.isEmpty() )
+					{
+						warn("Missing light source element for %s", w.nodeName());
+						fp = null;
+					}
+					else
+						fp = new SpecularLightingFilterPrimitive(surfaceScale, specularConstant, specularExponent, dx, dy, lights.get(0));
+				}
+				break;
+				case feComposite:
+				{
+					CompositeOperator operator = CompositeOperator.fromString(w.attr("operator", false));
+					List<Double> ks = new ArrayList<>(4);
+					for (int k = 1; k < 5; ++k)
+					{
+						Double kx = w.toDouble("k" + k, false);
+						ks.add(kx == null ? 0d : kx);
+					}
+					fp = new CompositeFilterPrimitive(operator, ks);
+				}
+				break;
+				case feMerge:
+				{
+					MergeFilterPrimitive merge = new MergeFilterPrimitive();
+					elementCache_.forSubTree(w.getNode(), e ->
+					{
+						if ( e.getType() == Type.feMergeNode)
+						{
+							MergeFilterNode node = new MergeFilterNode();
+							node.id_ = e.id();
+							node.in_ = e.attr("in",false);
+							merge.nodes_.add(node);
+							merge.in_.add(node.in_);
+						}
+					});
+					fp = merge;
+				}
+				break;
+				default:
+					fp = null;
+					warn("Filter primitive %s not yet supported", t.name());
+					break;
+			}
+			if ( fp != null )
+				parseCommonFilterPrimitive(fp, w );
+			return fp;
+		}
+		else
+			return null;
+	}
+
+	private static Map<String, MultipleGradientPaint.ColorSpaceType> colorInterpolationTypes_ =
+			Map.of( // @TODO: Check for correct value for "auto"
+					"auto", MultipleGradientPaint.ColorSpaceType.LINEAR_RGB,
+					"sRGB ", MultipleGradientPaint.ColorSpaceType.SRGB,
+					"linearRGB", MultipleGradientPaint.ColorSpaceType.LINEAR_RGB);
+
+	public void parseCommonFilterPrimitive(FilterPrimitive fp, ElementWrapper w )
+	{
+		String in = w.attr("in", false);
+		if( isNotEmpty(in) )
+			fp.in_.add(in);
+		in = w.attr("in2", false);
+		if( isNotEmpty(in) )
+			fp.in_.add(in);
+
+		String colorInterpolationFilters = w.attr( "color-interpolation-filters", true);
+		fp.colorInterpolation_ = colorInterpolationFilters == null ? MultipleGradientPaint.ColorSpaceType.LINEAR_RGB :
+					colorInterpolationTypes_.getOrDefault(colorInterpolationFilters, MultipleGradientPaint.ColorSpaceType.LINEAR_RGB);
+
+		fp.x_ = w.toLength("x");
+		fp.y_ = w.toLength("y");
+		fp.width_ = w.toLength("width");
+		fp.height_ = w.toLength("height");
+		fp.result_ = w.attr("result", false);
+	}
+
+	/**
 	 * Get all parsed shapes.
 	 */
-	public List<ShapeWithStyle> getShapes()
+	public List<AbstractShape> getShapes()
 	{
 		return Collections.unmodifiableList(finalShapes_);
 	}
@@ -531,43 +840,54 @@ public class SVGConverter
 	}
 
 
-	protected void addShapeContainer(ElementWrapper w, List<ShapeInfo> shapes, List<ShapeInfo> global)
+	protected void addShapeContainer(ElementWrapper w, List<ElementInfo> shapes, List<ElementInfo> global)
 	{
 		AffineTransform t = w.transform();
 		if (t != null)
-			for (ShapeInfo s : shapes)
-			{
+			for (ElementInfo s : shapes)
 				if (!s.id_.equals(w.id()))
-				{
-					if (s.aft_ == null)
-						s.aft_ = new AffineTransform(t);
-					else
-						s.aft_.preConcatenate(t);
-				}
-			}
-		global.addAll(shapes);
+					s.applyTransform(t);
+		Filter f = filter(w);
+		if ( f == null )
+			global.addAll(shapes);
+		else
+		{
+			GroupInfo group = new GroupInfo(w.id(), f);
+			group.shapes_.addAll(shapes);
+			global.add(group);
+		}
 		shapes.clear();
 	}
 
 	/**
 	 * Helper to handle common presentation attributes and create a ShapeInfo-instance.
 	 */
-	protected ShapeInfo createShapeInfo(ElementWrapper w)
+	protected ElementInfo createShapeInfo(ElementWrapper w)
 	{
 		Stroke stroke = stroke(w);
 		Color fill = fill(w);
 		Shape clipPath = clipPath(w);
 
-		ShapeInfo sinfo = new ShapeInfo(w.getShape()
-										 .getShape(),
+		StyledShapeInfo styledShapeInfo = new StyledShapeInfo(w.getShape().getShape(),
 				stroke.getPaintWrapper() == null ? null : stroke,
 				stroke.getPaintWrapper(),
 				fill.getPaintWrapper(),
 				clipPath
 		);
+
+		ElementInfo sinfo = styledShapeInfo;
 		sinfo.id_ = w.id();
-		transform(sinfo, w);
-		return sinfo;
+		transform(styledShapeInfo, w);
+
+		Filter f = filter(w);
+		if ( f != null )
+		{
+			GroupInfo g = new GroupInfo(sinfo.id_, f);
+			g.shapes_.add(sinfo);
+			return g;
+		}
+		else
+			return sinfo;
 	}
 
 	private void parseCommonGradient(Gradient g, ElementWrapper w)
@@ -575,7 +895,7 @@ public class SVGConverter
 		g.href_ = w.href();
 
 		String spreadMethod = w.attr("spreadMethod");
-		if (ElementWrapper.isNotEmpty(spreadMethod))
+		if (isNotEmpty(spreadMethod))
 		{
 			spreadMethod = spreadMethod.trim()
 									   .toLowerCase();
@@ -585,10 +905,10 @@ public class SVGConverter
 				g.cycleMethod_ = MultipleGradientPaint.CycleMethod.REPEAT;
 		}
 
-		g.gradientUnit_ = GradientUnit.fromString(w.attr("gradientUnits"));
+		g.gradientUnit_ = Unit.fromString(w.attr("gradientUnits"));
 
 		String gradientTransform = w.attr("gradientTransform", false);
-		if (ElementWrapper.isNotEmpty(gradientTransform))
+		if (isNotEmpty(gradientTransform))
 			g.aft_ = new Transform(null, gradientTransform).getTransform();
 
 		NodeList stops = w.getNode()
@@ -632,7 +952,7 @@ public class SVGConverter
 				final Color cp = new Color(this, wrapper.attr("stop-color"),
 						wrapper.toPDouble("stop-opacity", 1d, false));
 				PaintWrapper pw = cp.getPaintWrapper();
-				g.colors_[i] = (pw != null && pw.getColor() != null) ? pw.getColor() : java.awt.Color.WHITE;
+				g.colors_[i] = (pw != null && pw.getColor() != null) ? pw.getColor() : java.awt.Color.BLACK;
 			}
 		}
 	}
@@ -641,7 +961,7 @@ public class SVGConverter
 	/**
 	 * Handles "Transform" attribute.
 	 */
-	protected final void transform(ShapeInfo s, ElementWrapper w)
+	protected final void transform(StyledShapeInfo s, ElementWrapper w)
 	{
 		AffineTransform t = w.transform();
 		if (t != null)

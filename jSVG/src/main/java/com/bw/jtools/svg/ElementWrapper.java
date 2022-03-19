@@ -35,15 +35,18 @@ import java.awt.Shape;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Holds a svg element
@@ -61,13 +64,15 @@ public final class ElementWrapper
 	private AffineTransform aft_;
 	private ElementCache elementCache_;
 	private Rectangle2D.Double viewPort_;
+	private boolean viewBoxRetrieved_;
+	private Rectangle2D.Double viewBox_;
 	private Double viewPortLength_;
 	private Double opacity_;
 	private Double effectiveOpacity_;
 
 	private static final double SQRT2 = Math.sqrt(2d);
 
-	private static final Pattern unitRegExp_ = Pattern.compile("([\\d+-\\.e]+)\\s+(rem|pt|px|em|%|in|cm|mm|ex|pc)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern unitRegExp_ = Pattern.compile("(\\s*[+-]?[\\d\\.]+(?:e[+-]?\\d+)?)\\s*(rem|pt|px|em|%|in|cm|mm|m|ex|pc)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern urlRegExp = Pattern.compile("url\\(['\"]?\\s*#([^\\\"')]+)['\"]?\\)(.*)", Pattern.CASE_INSENSITIVE);
 
 	private static final HashMap<String, Float> fontWeights_ = new HashMap<>();
@@ -120,9 +125,9 @@ public final class ElementWrapper
 			{
 				Matcher m = unitRegExp_.matcher(val);
 				if (m.matches())
-					return new Length(Double.parseDouble(m.group(1)), LengthUnit.fromString(m.group(2)));
+					return new Length(parseDouble(m.group(1)), LengthUnit.fromString(m.group(2)));
 				else
-					return new Length(Double.parseDouble(val), LengthUnit.px);
+					return new Length(parseDouble(val), LengthUnit.px);
 			}
 			catch (Exception e)
 			{
@@ -132,7 +137,19 @@ public final class ElementWrapper
 	}
 
 	/**
-	 * Converts a number o rlength value to double.
+	 * Parse a double mote error tolerant.
+	 * @param val The value as string
+	 * @return The converted value.
+	 */
+	protected static double parseDouble(String val)
+	{
+		if ( isEmpty(val) ) return 0;
+		return Double.parseDouble(val);
+	}
+
+
+	/**
+	 * Converts a number or length value to double.
 	 */
 	protected static Double convDouble(String val)
 	{
@@ -141,9 +158,9 @@ public final class ElementWrapper
 			{
 				Matcher m = unitRegExp_.matcher(val);
 				if (m.matches())
-					return new Length(Double.parseDouble(m.group(1)), LengthUnit.fromString(m.group(2))).toPixel(null);
+					return new Length(parseDouble(m.group(1)), LengthUnit.fromString(m.group(2))).toPixel(null);
 				else
-					return Double.parseDouble(val);
+					return parseDouble(val);
 			}
 			catch (Exception e)
 			{
@@ -255,6 +272,20 @@ public final class ElementWrapper
 		return null;
 	}
 
+	/**
+	 * Get the filter id from the filter attribute.
+	 */
+	public String filter()
+	{
+		String v = node_.getAttribute("filter").trim();
+		if (isNotEmpty(v))
+		{
+			String ref[] = urlRef(v);
+			if (ref != null)
+				return ref[0];
+		}
+		return null;
+	}
 
 	/**
 	 * Gets the java font-weight-value from "font-weight"-attribute expressed as {@link java.awt.font.TextAttribute#WEIGHT}.
@@ -349,6 +380,20 @@ public final class ElementWrapper
 		return d == null ? defaultValue : d;
 	}
 
+	/**
+	 * Get list of doubles
+	 * @return List, never null but possible empty.
+	 */
+	public List<Double> toPDoubleList(String attributeName, boolean inherited)
+	{
+		final String val = attr(attributeName, inherited);
+		LengthList l;
+		if (val != null)
+			return new LengthList(val).getLengthList().stream().map(length -> length.value_).collect(Collectors.toList());
+		else
+			return Collections.emptyList();
+	}
+
 
 	public LengthList toLengthList(String attributeName, boolean inherited)
 	{
@@ -434,10 +479,17 @@ public final class ElementWrapper
 		return aft_.isIdentity() ? null : aft_;
 	}
 
-	public ElementWrapper createReferenceCopy(ElementWrapper usingElement)
+	/**
+	 * Creates a shadow copy of this element, copies attributes from the "usingElement" to
+	 * the copy. Other styles and attributes are inherited from the original.
+	 *
+	 * @param usingElement The referencing element.
+	 * @return The shadow copy.
+	 */
+	public ElementWrapper createReferenceShadow(ElementWrapper usingElement)
 	{
 		ElementWrapper uw = new ElementWrapper(elementCache_, getNode());
-		uw.parent_ = usingElement.parent_;
+		uw.parent_ = parent_;
 		String tag = uw.getTagName();
 		if (tag.equals("svg") || tag.equals("symbol"))
 		{
@@ -482,28 +534,39 @@ public final class ElementWrapper
 	{
 		if (viewPort_ == null)
 		{
+			Length width = toLength("width", true );
+			Length height = toLength("height", true );
+
+			if ( width == null ) width = new Length(100,LengthUnit.px);
+			if ( height == null ) height = new Length(100,LengthUnit.px);
+
+			viewPort_ = new Rectangle2D.Double(0, 0, width.toPixel(null), height.toPixel(null));
+		}
+		return viewPort_;
+	}
+
+	public Rectangle2D.Double getViewBox()
+	{
+		if (!viewBoxRetrieved_)
+		{
+			viewBoxRetrieved_ = true;
 			LengthList l = toLengthList("viewBox", true);
 			if (l != null)
 			{
 				List<Length> ll = l.getLengthList();
 				if (ll.size() >= 4)
 				{
+					Rectangle2D.Double vp = getViewPort();
 					viewPort_ = new Rectangle2D.Double(
-							ll.get(0)
-							  .toPixel(null),
-							ll.get(1)
-							  .toPixel(null),
-							ll.get(2)
-							  .toPixel(null),
-							ll.get(3)
-							  .toPixel(null)
+							ll.get(0).toPixel(vp.width),
+							ll.get(1).toPixel(vp.height),
+							ll.get(2).toPixel(vp.width),
+							ll.get(3).toPixel(vp.height)
 					);
 				}
 			}
-			if (viewPort_ == null)
-				viewPort_ = new Rectangle2D.Double(0, 0, 100, 100);
 		}
-		return viewPort_;
+		return viewBox_;
 	}
 
 
@@ -566,13 +629,13 @@ public final class ElementWrapper
 	}
 
 	/**
-	 * Gets attribute opacity
+	 * Gets attribute opacity (none inherited)
 	 */
 	public float opacity()
 	{
 		if (opacity_ == null)
 		{
-			opacity_ = toPDouble("opacity", 1.0d, true);
+			opacity_ = toPDouble("opacity", 1.0d, false);
 		}
 		return opacity_.floatValue();
 	}
@@ -708,4 +771,26 @@ public final class ElementWrapper
 		return node_;
 	}
 
+	/**
+	 * Calls a function on each element of this sub-tree.
+	 * Includes this element and all sub-elements.
+	 * @param consumer The function to call.
+	 */
+	public void forSubTree(Consumer<ElementWrapper> consumer)
+	{
+		elementCache_.forSubTree(node_,consumer);
+	}
+
+	/**
+	 * Get human-readable name of this node to identify it in the source.
+	 */
+	public String nodeName()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append( type_.name() );
+		final String id = id();
+		if ( !ElementCache.isGenerated(id))
+			sb.append(' ').append(id);
+		return sb.toString();
+	}
 }
