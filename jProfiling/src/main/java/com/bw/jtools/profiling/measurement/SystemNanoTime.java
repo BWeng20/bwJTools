@@ -30,23 +30,23 @@ import java.text.NumberFormat;
  */
 public final class SystemNanoTime extends AbstractMeasurementSource
 {
+	@Override
+	public MeasurementValue getMeasurement()
+	{
+		return new MeasurementValue(new long[]{System.nanoTime()});
+	}
 
-    @Override
-    public MeasurementValue getMeasurement()
-    {
-        return new MeasurementValue( new long[] { System.nanoTime()} );
-    }
-
-    @Override
-    public String formatValue(NumberFormat nf, MeasurementValue value)
-    {
+	@Override
+	public String formatValue(NumberFormat nf, MeasurementValue value)
+	{
         StringBuilder sb = new StringBuilder(30);
-        if ( value != null ) {
+        if (value != null)
+        {
             sb
                     .append(nf.format(value.values[0] / 1000000000.0))
                     .append('s');
         }
-        return sb.toString();
-    }
+		return sb.toString();
+	}
 
 }
