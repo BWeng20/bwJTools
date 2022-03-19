@@ -3,9 +3,11 @@ package com.bw.jtools.ui.graph;
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.Node;
 
-import java.awt.*;
+import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 
 public class GraphMouseHandler extends MouseAdapter
 {
@@ -31,10 +33,12 @@ public class GraphMouseHandler extends MouseAdapter
 		{
 			if (Log.isDebugEnabled()) Log.debug("Click on Node " + nodeDragged.id + " " + org.x + "," + org.y);
 
-			Point p = gpanel.getNodeLocation(nodeDragged);
-			p.x = e.getX() - p.x;
-			p.y = e.getY() - p.y;
-			gpanel.getVisual()
+			Point2D.Float p = gpanel.getNodeLocation(nodeDragged);
+			float scale = gpanel.getNodeVisual().getVisualSettings().scale;
+			p.x = (e.getX() - p.x) / scale;
+			p.y = (e.getY() - p.y) / scale;
+			System.out.println("mousePressed at "+p);
+			gpanel.getNodeVisual()
 				  .pressed(nodeDragged, p);
 		}
 
@@ -43,7 +47,7 @@ public class GraphMouseHandler extends MouseAdapter
 	@Override
 	public void mouseReleased(MouseEvent e)
 	{
-		Log.debug("Mouse released");
+		Log.debug("Mouse released "+e.getPoint());
 		if (moved)
 		{
 			gpanel.endNodeDrag();
@@ -55,7 +59,7 @@ public class GraphMouseHandler extends MouseAdapter
 			cursor = null;
 		}
 
-		gpanel.getVisual()
+		gpanel.getNodeVisual()
 			  .released();
 
 	}
@@ -70,6 +74,7 @@ public class GraphMouseHandler extends MouseAdapter
 		}
 
 		Point p = e.getPoint();
+
 		int dx = p.x - org.x;
 		int dy = p.y - org.y;
 		org.x = p.x;
@@ -87,7 +92,7 @@ public class GraphMouseHandler extends MouseAdapter
 		}
 		else
 		{
-			gpanel.moveNode(nodeDragged, dx, dy);
+			gpanel.moveNode(nodeDragged, dx, dy, !e.isControlDown());
 		}
 	}
 
@@ -101,13 +106,13 @@ public class GraphMouseHandler extends MouseAdapter
 
 			Log.debug("Click @ Node " + node.id);
 
-			Point p = gpanel.getNodeLocation(node);
+			Point2D.Float p = gpanel.getNodeLocation(node);
 			if (p != null)
 			{
-				p.x = e.getX() - p.x;
-				p.y = e.getY() - p.y;
-				gpanel.getVisual()
-					  .click(node, p);
+				float scale = gpanel.getNodeVisual().getVisualSettings().scale;
+				p.x = (e.getX() - p.x) / scale;
+				p.y = (e.getY() - p.y) / scale;
+				gpanel.getNodeVisual().click(node, p);
 				gpanel.repaintIfNeeded();
 			}
 		}

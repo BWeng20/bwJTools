@@ -23,8 +23,13 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.ui.icon.JColorIcon;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Insets;
 
 /**
  * Convenience button to show a color chooser.

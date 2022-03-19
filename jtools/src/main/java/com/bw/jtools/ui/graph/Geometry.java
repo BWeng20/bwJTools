@@ -4,9 +4,10 @@ import com.bw.jtools.graph.Graph;
 import com.bw.jtools.graph.GraphElement;
 import com.bw.jtools.graph.Node;
 
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public interface Geometry
@@ -31,30 +32,16 @@ public interface Geometry
 	public void setVisibility(GraphElement e, boolean visible);
 
 	/**
-	 * Gets the shape of the node.
+	 * Gets the bounding rectangle of the node.<br/>
+	 * Returned object shall NOT be modified.
 	 */
-	public Shape getShape(Node node);
+	public Rectangle2D.Float getBounds(Node node);
 
 	/**
-	 * Sets the shape of the node.
+	 * Sets the bounding rectangle of the node.
 	 */
-	public void setShape(Node node, Shape s);
+	public void setBounds(Node node, Rectangle2D.Float r, boolean isExpanded);
 
-	/**
-	 * Gets the bounding rectangle of the node.
-	 */
-	public Rectangle getBounds(Node node);
-
-	/**
-	 * Sets the area rectangle of the sub-tree.
-	 */
-	public void setTreeArea(Node node, Rectangle r);
-
-	/**
-	 * Gets the area rectangle of the sub-tree.
-	 * Any change to the returned rectangle will be reflected in the geometry!
-	 */
-	public Rectangle getTreeArea(Node node);
 
 	/**
 	 * Get all points of the shapes of this sub-tree.
@@ -66,9 +53,9 @@ public interface Geometry
 	 */
 	public List<Point> getTreeDescendantPoints(Node node);
 
-	public void moveTree(Graph g, Node node, int dx, int dy);
+	public void moveTree(Graph g, Node node, double dx, double dy);
 
-	public void moveNode(Graph g, Node node, int dx, int dy);
+	public void moveNode(Graph g, Node node, double dx, double dy, boolean isExpanded);
 
 	public void clear();
 
@@ -90,54 +77,13 @@ public interface Geometry
 
 	public void notifyDependencies(GraphElement e);
 
-	public void dirty(Rectangle e);
+	public void dirty(Rectangle2D e);
 
-	public Rectangle getDirtyArea();
+	public Rectangle2D getDirtyArea();
 
 	public void resetDirtyArea();
 
-	public default void animateTree(Node root, Geometry source, Geometry target, double amount)
-	{
-		if (root != null)
-		{
-			animateNode(root, source, target, amount);
-			for (Iterator<Node> cit = root.children(); cit.hasNext(); )
-			{
-				animateTree(cit.next(), source, target, amount);
-			}
-		}
-	}
-
-
-	public default void animateNode(Node node, Geometry source, Geometry target, double amount)
-	{
-
-		Rectangle ts = source.getTreeArea(node);
-		Rectangle tt = target.getTreeArea(node);
-
-		if (ts != null && tt != null)
-		{
-			Rectangle r = getTreeArea(node);
-
-			final int x = ts.x + (int) (0.5 + (tt.x - ts.x) * amount);
-			final int y = ts.y + (int) (0.5 + (tt.y - ts.y) * amount);
-			final int w = ts.width + (int) (0.5 + (tt.width - ts.width) * amount);
-			final int h = ts.height + (int) (0.5 + (tt.height - ts.height) * amount);
-
-			if (r == null)
-			{
-				r = new Rectangle(x, y, w, h);
-				setTreeArea(node, r);
-			}
-			else
-			{
-				r.x = x;
-				r.y = y;
-				r.width = w;
-				r.height = h;
-			}
-		}
-	}
+	public Rectangle2D.Float getGraphBounds(Node root);
 
 	/**
 	 * Simplified union w/o creating a new object and w/o any range checks.
@@ -155,10 +101,57 @@ public interface Geometry
 		r1.height = ((r1y2 < r2y2) ? r2y2 : r1y2) - r1.y;
 	}
 
+	public static void translate(Rectangle2D.Float r, double dx, double dy)
+	{
+		r.x += dx;
+		r.y += dy;
+	}
+
+	public static void translate(Rectangle2D.Double r, double dx, double dy)
+	{
+		r.x += dx;
+		r.y += dy;
+	}
+
 	public static boolean isEmpty(Rectangle r)
 	{
 		return r == null || r.isEmpty();
 	}
 
+	public static boolean isEmpty(Rectangle2D r)
+	{
+		return r == null || r.isEmpty();
+	}
+
+	/**
+	 * Creates Rectangle by simple int-casts.
+	 */
+	public static Rectangle toRect(Rectangle2D r)
+	{
+		if (r instanceof Rectangle2D.Float)
+			return toRect((Rectangle2D.Float) r);
+		else if (r instanceof Rectangle)
+			return new Rectangle((Rectangle) r);
+		else if (r instanceof Rectangle2D.Double)
+			return toRect((Rectangle2D.Double) r);
+		else
+			return new Rectangle((int) r.getX(), (int) r.getY(), (int) r.getWidth(), (int) r.getHeight());
+	}
+
+	/**
+	 * Creates Rectangle by simple int-casts.
+	 */
+	public static Rectangle toRect(Rectangle2D.Float r)
+	{
+		return new Rectangle((int) r.x, (int) r.y, (int) r.width, (int) r.height);
+	}
+
+	/**
+	 * Creates Rectangle by simple int-casts.
+	 */
+	public static Rectangle toRect(Rectangle2D.Double r)
+	{
+		return new Rectangle((int) r.x, (int) r.y, (int) r.width, (int) r.height);
+	}
 
 }

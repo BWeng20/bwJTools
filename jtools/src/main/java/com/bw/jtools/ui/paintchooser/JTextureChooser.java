@@ -2,8 +2,23 @@ package com.bw.jtools.ui.paintchooser;
 
 import com.bw.jtools.ui.I18N;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Paint;
+import java.awt.TexturePaint;
+import java.awt.Window;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 

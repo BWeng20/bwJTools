@@ -23,7 +23,7 @@ package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
 
-import java.awt.*;
+import java.awt.Component;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.WeakHashMap;

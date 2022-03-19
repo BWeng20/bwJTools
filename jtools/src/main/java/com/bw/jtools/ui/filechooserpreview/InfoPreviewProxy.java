@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui.filechooserpreview;
 
-import java.awt.*;
+import java.awt.Image;
 
 /**
  * Proxy for information purposes without specific file type.

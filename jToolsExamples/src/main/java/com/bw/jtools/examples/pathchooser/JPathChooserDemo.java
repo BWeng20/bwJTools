@@ -7,7 +7,10 @@ import com.bw.jtools.ui.filechooserpreview.JFileChooserPreview;
 import com.bw.jtools.ui.pathchooser.JPathChooser;
 import com.bw.jtools.ui.pathchooser.PathChooserMode;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 

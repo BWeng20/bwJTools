@@ -1,19 +1,15 @@
 package com.bw.jtools.ui.graph;
 
-import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.Node;
+import com.bw.jtools.shape.Context;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
-public interface Visual
+public interface NodeVisual
 {
-	public void setDebug(boolean debug);
-
-	public boolean isDebug();
-
-	public void paint(Graphics2D g, Node node);
-
-	public void paint(Graphics2D g, Edge edge);
+	public void paint(Context ctx, Node node);
 
 	/**
 	 * Updates the geometry of a node according to its visual properties.
@@ -35,9 +31,10 @@ public interface Visual
 	public VisualState getVisualState(Node node);
 
 	/**
-	 * Get the rectangle that covers all visuals of it.
+	 * Get the rectangle that covers all visuals of it.<br/>
+	 * Returned object shall NOT be modified.
 	 */
-	public Rectangle getVisualBounds(Node n);
+	public Rectangle2D getVisualBounds(Node n);
 
 	/**
 	 * Expand or collapse the node.
@@ -69,16 +66,18 @@ public interface Visual
 	 * Calls if used clicked on the node.
 	 * Coordinates are relative to node origin.
 	 */
-	public void click(Node node, Point p);
+	public void click(Node node, Point2D p);
 
 	/**
 	 * Calls if used clicked on the node.
 	 * Coordinates are relative to node origin.
 	 */
-	public void pressed(Node node, Point p);
+	public void pressed(Node node, Point2D p);
 
 	/**
 	 * Calls if used release the mouse button.
 	 */
 	public void released();
+
+	VisualSettings getVisualSettings();
 }

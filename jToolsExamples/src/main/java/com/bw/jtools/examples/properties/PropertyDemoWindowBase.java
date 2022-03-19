@@ -22,13 +22,27 @@
 package com.bw.jtools.examples.properties;
 
 import com.bw.jtools.Log;
-import com.bw.jtools.properties.*;
-import com.bw.jtools.ui.icon.IconTool;
+import com.bw.jtools.properties.PropertyBooleanValue;
+import com.bw.jtools.properties.PropertyChangeListener;
+import com.bw.jtools.properties.PropertyColorValue;
+import com.bw.jtools.properties.PropertyEnumValue;
+import com.bw.jtools.properties.PropertyGroup;
+import com.bw.jtools.properties.PropertyNumberValue;
+import com.bw.jtools.properties.PropertyStringValue;
+import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
+import com.bw.jtools.ui.icon.IconTool;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Font;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

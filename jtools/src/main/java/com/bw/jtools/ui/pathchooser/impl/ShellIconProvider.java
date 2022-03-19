@@ -23,8 +23,9 @@ package com.bw.jtools.ui.pathchooser.impl;
 
 import com.bw.jtools.ui.pathchooser.PathInfo;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import java.awt.Image;
 import java.io.File;
 import java.io.FileNotFoundException;
 

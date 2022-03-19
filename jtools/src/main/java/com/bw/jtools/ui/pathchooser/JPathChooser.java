@@ -22,15 +22,27 @@
 package com.bw.jtools.ui.pathchooser;
 
 import com.bw.jtools.Log;
-import com.bw.jtools.io.IOTool;
-import com.bw.jtools.ui.JLAFComboBox;
-import com.bw.jtools.ui.filechooserpreview.JFileChooserPreview;
 import com.bw.jtools.ui.pathchooser.impl.ShellIconProvider;
 import com.bw.jtools.ui.pathchooser.impl.SystemIconProvider;
 import com.bw.jtools.ui.pathchooser.impl.ZipAwarePathProvider;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Window;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;

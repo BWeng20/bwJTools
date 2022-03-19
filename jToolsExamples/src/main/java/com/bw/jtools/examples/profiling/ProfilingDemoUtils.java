@@ -21,6 +21,16 @@
  */
 package com.bw.jtools.examples.profiling;
 
+import com.bw.jtools.profiling.CalleeProfilingInformation;
+import com.bw.jtools.profiling.ClassProfilingInformation;
+import com.bw.jtools.profiling.MethodProfilingInformation;
+import com.bw.jtools.profiling.callgraph.AbstractCallGraphRenderer;
+import com.bw.jtools.profiling.callgraph.FreeMindGraphRenderer;
+import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
+import com.bw.jtools.profiling.callgraph.JSONCallGraphRenderer;
+import com.bw.jtools.profiling.callgraph.Options;
+import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -36,16 +46,6 @@ import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-
-import com.bw.jtools.profiling.CalleeProfilingInformation;
-import com.bw.jtools.profiling.ClassProfilingInformation;
-import com.bw.jtools.profiling.MethodProfilingInformation;
-import com.bw.jtools.profiling.callgraph.AbstractCallGraphRenderer;
-import com.bw.jtools.profiling.callgraph.FreeMindGraphRenderer;
-import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
-import com.bw.jtools.profiling.callgraph.JSONCallGraphRenderer;
-import com.bw.jtools.profiling.callgraph.Options;
-import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
 
 /**
  * Some helpful function for the demos in this package.

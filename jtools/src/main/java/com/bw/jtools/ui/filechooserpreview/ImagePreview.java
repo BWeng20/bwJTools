@@ -1,11 +1,9 @@
 package com.bw.jtools.ui.filechooserpreview;
 
-import com.bw.jtools.ui.image.ImageTool;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import java.awt.Font;
+import java.awt.Image;
 
 public class ImagePreview extends JLabel
 {

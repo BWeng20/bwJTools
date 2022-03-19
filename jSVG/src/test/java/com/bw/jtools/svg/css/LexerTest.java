@@ -24,7 +24,7 @@ public class LexerTest
 		assertEquals("#", t.value_);
 		t = lx.nextSymbol();
 		assertEquals("332211", t.value_);
-		assertEquals(LexerSymbolType.NUMBER, t.type_);
+		assertEquals(LexerSymbolType.IDENTIFIER, t.type_);
 		t = lx.nextSymbol();
 		assertEquals(";", t.value_);
 		t = lx.nextSymbol();
@@ -32,12 +32,13 @@ public class LexerTest
 		t = lx.nextSymbol();
 		assertEquals(":", t.value_);
 		t = lx.nextSymbol();
-		assertEquals("0.34", t.value_);
-		assertEquals(LexerSymbolType.NUMBER, t.type_);
+		assertEquals("0", t.value_);
 		t = lx.nextSymbol();
-		assertEquals("rem", t.value_);
+		assertEquals(LexerSymbolType.SEPARATOR, t.type_);
+		assertEquals(".", t.value_);
+		t = lx.nextSymbol();
+		assertEquals("34rem", t.value_);
 		assertEquals(LexerSymbolType.IDENTIFIER, t.type_);
-
 	}
 
 	@Test
@@ -57,7 +58,7 @@ public class LexerTest
 			c++;
 			System.out.println(" '"+t+"'");
 		}
-		assertEquals( 35, c);
+		assertEquals( 32, c);
 		assertEquals( LexerSymbolType.EOF, t.type_);
 		assertEquals( "", t.value_);
 	}

@@ -20,7 +20,9 @@
  */
 package com.bw.jtools.ui;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JPopupMenu;
+import javax.swing.JToggleButton;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import java.awt.event.ActionEvent;

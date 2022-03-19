@@ -3,52 +3,75 @@ package com.bw.jtools.ui.graph.impl;
 import com.bw.jtools.geometry.ConvexHull;
 import com.bw.jtools.graph.GraphElement;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.ui.graph.Decorator;
+import com.bw.jtools.shape.Context;
 import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.GeometryListener;
+import com.bw.jtools.ui.graph.NodeDecorator;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 
-public class CloudDecorator implements Decorator, GeometryListener
+public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 {
 	private int pointDistance = 50;
 	private int gap = 3;
 	private Stroke stroke = new BasicStroke(2);
+	private Geometry geo;
 
 	private final Map<Integer, Path2D.Float> paths = new HashMap<>();
 
+	public CloudNodeDecorator(Geometry geometry)
+	{
+		geo = geometry;
+	}
+
 	@Override
-	public void install(Geometry g, Node node)
+	public void install(Node node)
 	{
 		// All sub nodes affect the convex hull so we depend on them
-		g.addDependency(this, node.getTreeNodes());
+		geo.addDependency(this, node.getTreeNodes());
 		paths.put(node.id, new Path2D.Float());
-		geometryUpdated(g, node);
+		geometryUpdated(geo, node);
 	}
 
 	@Override
-	public void uninstall(Geometry g, Node node)
+	public void uninstall(Node node)
 	{
 		paths.remove(node.id);
-		g.removeDependency(this, node.getTreeNodes());
+		geo.removeDependency(this, node.getTreeNodes());
 	}
 
 
 	@Override
-	public void decorate(Graphics g, Node node)
+	public void decorate(Context ctx, Node node)
 	{
 		Path2D.Float p = paths.get(node.id);
 		if (p != null)
 		{
-			Graphics2D g2 = (Graphics2D) g.create();
-			g2.setPaint(Color.GRAY);
-			g2.setStroke(stroke);
-			g2.draw(p);
-			g2.dispose();
+			Graphics2D g2 = (Graphics2D)ctx.g2D_.create();
+			try
+			{
+				g2.setPaint(Color.GRAY);
+				g2.setStroke(stroke);
+				g2.draw(p);
+			}
+			finally
+			{
+				g2.dispose();
+			}
 		}
 	}
 
@@ -93,7 +116,7 @@ public class CloudDecorator implements Decorator, GeometryListener
 				Path2D.Float oldPath = paths.get(node.id);
 				if (oldPath != null)
 				{
-					Rectangle b = oldPath.getBounds();
+					Rectangle2D b = oldPath.getBounds2D();
 					if (!b.isEmpty())
 						geo.dirty(b);
 				}
@@ -185,7 +208,7 @@ public class CloudDecorator implements Decorator, GeometryListener
 					y0 = y1;
 				}
 				paths.put(node.id, path);
-				geo.dirty(path.getBounds());
+				geo.dirty(path.getBounds2D());
 			}
 		}
 	}

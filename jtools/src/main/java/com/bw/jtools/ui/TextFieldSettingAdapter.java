@@ -23,7 +23,7 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.persistence.Store;
 
-import javax.swing.*;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 

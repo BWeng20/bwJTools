@@ -1,7 +1,9 @@
 package com.bw.jtools.ui.filechooserpreview;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JTextArea;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 

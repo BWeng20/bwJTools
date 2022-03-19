@@ -21,11 +21,17 @@
  */
 package com.bw.jtools.ui.properties.table;
 
-import javax.swing.*;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
-import java.awt.*;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 /**

@@ -21,12 +21,8 @@
  */
 package com.bw.jtools.ui.filechooserpreview;
 
-import com.bw.jtools.Log;
-import com.bw.jtools.shape.ShapeWithStyle;
-import com.bw.jtools.ui.I18N;
+import com.bw.jtools.shape.AbstractShape;
 
-import java.awt.Image;
-import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +34,7 @@ class SVGPreviewProxy extends PreviewProxy
 	/**
 	 * The converted shapes.
 	 */
-	protected List<ShapeWithStyle> shapes_ = new ArrayList<>();
+	protected List<AbstractShape> shapes_ = new ArrayList<>();
 
 	/**
 	 * The original width of the image

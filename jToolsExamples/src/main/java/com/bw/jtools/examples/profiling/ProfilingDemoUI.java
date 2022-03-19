@@ -23,12 +23,15 @@ package com.bw.jtools.examples.profiling;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.examples.exceptiondialog.JExceptionDialogDemo;
-import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
+import com.bw.jtools.ui.icon.IconTool;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
 
 public class ProfilingDemoUI
 {

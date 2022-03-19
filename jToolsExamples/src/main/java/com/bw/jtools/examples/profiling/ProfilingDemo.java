@@ -21,9 +21,10 @@
  */
 package com.bw.jtools.examples.profiling;
 
-import java.text.NumberFormat;
 import com.bw.jtools.profiling.ClassProfilingInformation;
 import com.bw.jtools.profiling.MethodProfiling;
+
+import java.text.NumberFormat;
 
 /**
  * A test for profiling with different examples about manual profiling methods and

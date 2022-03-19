@@ -21,10 +21,10 @@
  */
 package com.bw.jtools.examples.profiling;
 
-import java.text.NumberFormat;
-
 import com.bw.jtools.profiling.ClassProfilingInformation;
+
 import java.beans.BeanProperty;
+import java.text.NumberFormat;
 
 /**
  * <h2>A test target for profiling via Weaving.</h2>

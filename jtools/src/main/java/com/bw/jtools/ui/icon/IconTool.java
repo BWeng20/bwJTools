@@ -23,9 +23,10 @@ package com.bw.jtools.ui.icon;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.image.ImageTool;
+import com.bw.jtools.image.ImageTool;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 

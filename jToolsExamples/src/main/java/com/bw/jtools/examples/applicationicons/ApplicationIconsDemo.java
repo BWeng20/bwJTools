@@ -23,12 +23,16 @@ package com.bw.jtools.examples.applicationicons;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.SettingsUI;
+import com.bw.jtools.ui.icon.IconTool;
 
-import java.awt.*;
-import java.lang.annotation.Documented;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 /**
  * Demonstration of Application-Icons.

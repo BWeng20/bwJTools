@@ -1,15 +1,18 @@
 package com.bw.jtools.examples.svg;
 
 import com.bw.jtools.Application;
+import com.bw.jtools.image.ImageTool;
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.shape.ShapePane;
+import com.bw.jtools.shape.filter.PainterBuffers;
 import com.bw.jtools.svg.SVGConverter;
 import com.bw.jtools.ui.JExceptionDialog;
 import com.bw.jtools.ui.JPaintViewport;
+import com.bw.jtools.ui.JVMStatus;
 import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.image.ImageTool;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -141,16 +144,24 @@ public class SVGDemo
 		split.setBottomComponent(drawScroll);
 
 		JTextField status = new JTextField();
+		status.setBorder(BorderFactory.createEmptyBorder(0,5,0,5));
 		status.setEditable(false);
+		JVMStatus jvmStatus = new JVMStatus(2000);
+
+		JPanel statusLine = new JPanel(new BorderLayout());
+		statusLine.add(BorderLayout.CENTER, status);
+		statusLine.add(BorderLayout.EAST, jvmStatus);
 
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(BorderLayout.CENTER, split);
-		panel.add(BorderLayout.SOUTH, status);
+		panel.add(BorderLayout.SOUTH, statusLine);
 
 		Runnable updateStatus = () ->
 		{
 			Dimension r = drawPanel.getPreferredSize();
-			status.setText(r.width + "x" + r.height + ", scale " +
+			status.setText(
+					"Buffers created: "+ PainterBuffers.buffersCreated_+" "+
+					r.width + "x" + r.height + ", scale " +
 					scaleX.getValue() + "% x " + scaleY.getValue() + "% " +
 					((timeMS > 0) ? ", Rendered in " + Double.toString(timeMS / 1000d) + "s" : ""));
 			status.setForeground(panel.getForeground());
@@ -165,7 +176,6 @@ public class SVGDemo
 				{
 					double x = scaleX.getValue() / 100d;
 					double y = scaleY.getValue() / 100d;
-					;
 
 					scaleXL.setText(scaleX.getValue() + "%");
 					scaleYL.setText(scaleY.getValue() + "%");
@@ -188,6 +198,7 @@ public class SVGDemo
 			{
 				SVGConverter svg = new SVGConverter(data.getText());
 
+				drawPanel.getPainter().setScale(1,1);
 				drawPanel.setShapes(svg.getShapes());
 				drawPanel.getPainter()
 						 .setTimeMeasurementEnabled(true);

@@ -1,15 +1,25 @@
 package com.bw.jtools.ui.graph.impl;
 
 import com.bw.jtools.Log;
-import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.Node;
+import com.bw.jtools.shape.Context;
 import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.Layout;
-import com.bw.jtools.ui.graph.Visual;
+import com.bw.jtools.ui.graph.NodeVisual;
+import com.bw.jtools.ui.graph.VisualSettings;
 import com.bw.jtools.ui.graph.VisualState;
 import com.bw.jtools.ui.icon.IconTool;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,7 +29,7 @@ import java.util.Map;
 /**
  * Shows only raw text.
  */
-public class SimpleVisual implements Visual
+public class NodeVisualBase implements NodeVisual
 {
 	protected int margin_y = 5;
 	protected int margin_x = 5;
@@ -31,7 +41,7 @@ public class SimpleVisual implements Visual
 	protected Map<Integer, VisualState> visualStates = new HashMap<>();
 
 	protected Node focusedNode;
-	protected Point focusedNodePressedAt;
+	protected Point2D focusedNodePressedAt;
 
 	protected BufferedImage expandImage;
 	protected BufferedImage collapseImage;
@@ -40,13 +50,18 @@ public class SimpleVisual implements Visual
 	protected static BufferedImage defaultCollapseImage;
 	protected static int defaultExpandWidth = 10;
 
-	protected Stroke edgeStroke;
 	protected Stroke borderStroke;
 	protected Stroke focusStroke;
 
 	protected final static Stroke debugStroke;
 
-	protected static boolean debug = false;
+	protected VisualSettings settings;
+
+	@Override
+	public VisualSettings getVisualSettings()
+	{
+		return settings;
+	}
 
 	@Override
 	public VisualState getVisualState(Node node)
@@ -64,35 +79,20 @@ public class SimpleVisual implements Visual
 	}
 
 	@Override
-	public Rectangle getVisualBounds(Node n)
+	public Rectangle2D getVisualBounds(Node n)
 	{
-		Rectangle r = geo.getBounds(n);
-		if (r != null)
-			r = new Rectangle(r);
-		else
-			r = new Rectangle();
+		Rectangle2D r = geo.getBounds(n);
+		if (r == null)
+			r = new Rectangle2D.Float();
 		return r;
-	}
-
-
-	@Override
-	public void setDebug(boolean debug)
-	{
-		SimpleVisual.debug = debug;
-	}
-
-	@Override
-	public boolean isDebug()
-	{
-		return debug;
 	}
 
 	static
 	{
 		try
 		{
-			defaultExpandImage = IconTool.getImage(SimpleVisual.class, "icons/expand.png");
-			defaultCollapseImage = IconTool.getImage(SimpleVisual.class, "icons/collapse.png");
+			defaultExpandImage = IconTool.getImage(NodeVisualBase.class, "icons/expand.png");
+			defaultCollapseImage = IconTool.getImage(NodeVisualBase.class, "icons/collapse.png");
 		}
 		catch (IOException io)
 		{
@@ -134,14 +134,14 @@ public class SimpleVisual implements Visual
 			g.drawLine(gab, centery, defaultExpandWidth - gab, centery);
 			g.dispose();
 
-			SimpleVisual.defaultCollapseImage = collapseImage;
+			NodeVisualBase.defaultCollapseImage = collapseImage;
 		}
 
 		debugStroke = new BasicStroke(1);
 
 	}
 
-	public SimpleVisual(Layout layout)
+	public NodeVisualBase(Layout layout, VisualSettings settings)
 	{
 		this.geo = layout.getGeometry();
 		this.layout = layout;
@@ -149,9 +149,9 @@ public class SimpleVisual implements Visual
 		this.collapseImage = defaultCollapseImage;
 
 		this.borderStroke = new BasicStroke(1.5f);
-		this.edgeStroke = new BasicStroke(2f);
 		final float[] dashes = {5};
 		this.focusStroke = new BasicStroke(2.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, dashes, 0.0f);
+		this.settings = settings;
 	}
 
 	@Override
@@ -187,7 +187,7 @@ public class SimpleVisual implements Visual
 		if (expand != state.expanded)
 		{
 			geo.beginUpdate();
-			geo.dirty(getVisualBounds(node));
+			geo.dirty(geo.getGraphBounds(node));
 			state.expanded = expand;
 			for (Iterator<Node> it = node.children(); it.hasNext(); )
 			{
@@ -210,11 +210,18 @@ public class SimpleVisual implements Visual
 		}
 	}
 
-	public void paintBorder(Graphics2D g, Node node, Rectangle bounds)
+	public void paintBorder(Context ctx, Node node, Rectangle bounds)
 	{
 		boolean focused = (focusedNode == node);
 
-		g.setColor(Color.BLACK);
+		final Graphics2D g = ctx.g2D_;
+		if (settings.node.opaque)
+		{
+			g.setColor(settings.node.background);
+			g.fillRect(bounds.x + margin_x, bounds.y + margin_y, bounds.width - margin_x2, bounds.height - margin_y2);
+		}
+
+		g.setColor(settings.node.border);
 		g.setStroke(borderStroke);
 		g.drawRect(bounds.x + margin_x, bounds.y + margin_y, bounds.width - margin_x2, bounds.height - margin_y2);
 		if (focused)
@@ -239,22 +246,23 @@ public class SimpleVisual implements Visual
 	}
 
 	@Override
-	public void paint(Graphics2D g, Node node)
+	public void paint(Context ctx, Node node)
 	{
-		Rectangle r = (Rectangle) geo.getShape(node);
+		Rectangle r = Geometry.toRect(geo.getBounds(node));
 
-		if (debug)
+		final Graphics2D g = ctx.g2D_;
+
+		if (ctx.debug_)
 		{
-			Rectangle tr = geo.getTreeArea(node);
+			Rectangle2D tr = geo.getGraphBounds(node);
 			if (tr != null)
 			{
 				g.setColor(Color.RED);
 				g.setStroke(debugStroke);
-				g.drawRect(tr.x, tr.y, tr.width, tr.height);
+				g.draw(tr);
 			}
 		}
-
-		paintBorder(g, node, r);
+		paintBorder(ctx, node, r);
 
 		final FontMetrics m = g.getFontMetrics();
 		String text = ((TextData) node.data).text;
@@ -275,18 +283,6 @@ public class SimpleVisual implements Visual
 	}
 
 	@Override
-	public void paint(Graphics2D g, Edge edge)
-	{
-		Rectangle r1 = geo.getShape(edge.source)
-						  .getBounds();
-		Rectangle r2 = geo.getShape(edge.target)
-						  .getBounds();
-		g.setColor(Color.GRAY);
-		g.setStroke(edgeStroke);
-		g.drawLine(r1.x + r1.width - margin_x, r1.y + (r1.height / 2), r2.x + margin_x, r2.y + (r2.height / 2));
-	}
-
-	@Override
 	public void updateGeometry(Graphics2D g, Node node)
 	{
 
@@ -294,7 +290,7 @@ public class SimpleVisual implements Visual
 		final FontMetrics m = g.getFontMetrics();
 		String text = ((TextData) node.data).text;
 
-		Rectangle r = new Rectangle();
+		Rectangle2D.Float r = new Rectangle2D.Float();
 		int lineHeight = m.getHeight();
 		int i1 = 0;
 		final int n = text.length();
@@ -313,7 +309,7 @@ public class SimpleVisual implements Visual
 		r.height += (4 * margin_y);
 		r.width += (4 * margin_x);
 
-		geo.setShape(node, r);
+		geo.setBounds(node, r, isExpanded(node));
 		updateVisibility(node);
 
 		geo.endUpdate();
@@ -351,14 +347,17 @@ public class SimpleVisual implements Visual
 		return layout;
 	}
 
-	public void click(Node node, Point p)
+	@Override
+	public void click(Node node, Point2D p)
 	{
 		if (isExpandable(node))
 		{
-			Rectangle r = geo.getBounds(node);
+			Rectangle2D r = geo.getBounds(node);
 			if (r != null)
 			{
-				Rectangle expandBox = new Rectangle(r.width - expandImage.getWidth(), (r.height - expandImage.getHeight()) / 2, expandImage.getWidth(), expandImage.getHeight());
+				Rectangle expandBox = new Rectangle((int) (r.getWidth() - expandImage.getWidth()),
+						(int) ((r.getHeight() - expandImage.getHeight()) / 2), expandImage.getWidth(),
+						expandImage.getHeight());
 				if (expandBox.contains(p))
 				{
 					expand(node, !isExpanded(node));
@@ -368,31 +367,34 @@ public class SimpleVisual implements Visual
 
 	}
 
-	public void setFocusedNode(Node node, Point pressedAt)
+	public void setFocusedNode(Node node, Point2D pressedAt)
 	{
 		if (focusedNode != node)
 		{
 			if (focusedNode != null)
 			{
-				final Rectangle fr = geo.getBounds(focusedNode);
+				final Rectangle2D fr = geo.getBounds(focusedNode);
 				if (fr != null) geo.dirty(fr);
 			}
 			if (node != null)
 			{
-				final Rectangle r = geo.getBounds(node);
+				final Rectangle2D r = geo.getBounds(node);
 				if (r != null) geo.dirty(r);
 			}
 			focusedNode = node;
 		}
 		if (pressedAt != null)
-			focusedNodePressedAt = new Point(pressedAt);
+		{
+			focusedNodePressedAt = new Point2D.Float();
+			focusedNodePressedAt.setLocation(pressedAt);
+		}
 		else
 			focusedNodePressedAt = null;
 
 	}
 
 	@Override
-	public void pressed(Node node, Point graphPoint)
+	public void pressed(Node node, Point2D graphPoint)
 	{
 		setFocusedNode(node, graphPoint);
 	}
@@ -403,7 +405,7 @@ public class SimpleVisual implements Visual
 		focusedNodePressedAt = null;
 		if (focusedNode != null)
 		{
-			final Rectangle fr = geo.getBounds(focusedNode);
+			final Rectangle2D.Float fr = geo.getBounds(focusedNode);
 			if (fr != null) geo.dirty(fr);
 		}
 	}

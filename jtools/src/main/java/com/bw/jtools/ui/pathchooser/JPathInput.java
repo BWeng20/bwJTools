@@ -24,8 +24,8 @@ package com.bw.jtools.ui.pathchooser;
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.ui.JAutoCompleteTextField;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 

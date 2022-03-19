@@ -3,14 +3,36 @@ package com.bw.jtools.examples.uidefaults;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.examples.applicationicons.ApplicationIconsDemo;
+import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.icon.DummyIcon;
 import com.bw.jtools.ui.icon.JColorIcon;
-import com.bw.jtools.ui.SettingsUI;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.ListModel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class UIDefaults
 {

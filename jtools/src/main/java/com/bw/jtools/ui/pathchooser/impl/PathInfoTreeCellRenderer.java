@@ -25,9 +25,10 @@ import com.bw.jtools.ui.pathchooser.FileSystemInfo;
 import com.bw.jtools.ui.pathchooser.PathInfo;
 import com.bw.jtools.ui.pathchooser.PathInfoProvider;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import java.awt.*;
+import java.awt.Component;
 
 /**
  * Renderer for folder tree items.<br>

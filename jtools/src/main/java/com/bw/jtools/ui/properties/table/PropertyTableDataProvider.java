@@ -24,7 +24,7 @@ package com.bw.jtools.ui.properties.table;
 import com.bw.jtools.properties.PropertyValue;
 import org.netbeans.swing.outline.RenderDataProvider;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Implementation of a "RenderDataProvider".

@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui.pathchooser;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;

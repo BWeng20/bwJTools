@@ -22,8 +22,11 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
 

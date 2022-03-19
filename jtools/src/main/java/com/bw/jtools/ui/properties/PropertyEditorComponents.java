@@ -26,10 +26,16 @@ import com.bw.jtools.ui.JColorChooserButton;
 import com.bw.jtools.ui.JFontButton;
 import com.bw.jtools.ui.fontchooser.JFontChooser;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ItemListener;
 import java.text.NumberFormat;
 import java.text.ParseException;

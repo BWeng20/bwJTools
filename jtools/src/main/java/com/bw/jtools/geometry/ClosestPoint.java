@@ -1,6 +1,6 @@
 package com.bw.jtools.geometry;
 
-import java.awt.*;
+import java.awt.Point;
 
 public class ClosestPoint
 {

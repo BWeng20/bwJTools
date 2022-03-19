@@ -1,5 +1,6 @@
 package com.bw.jtools.ui.graph.impl;
 
+import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.Graph;
 import com.bw.jtools.graph.GraphElement;
 import com.bw.jtools.graph.Node;
@@ -7,9 +8,13 @@ import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.GeometryListener;
 import com.bw.jtools.ui.graph.GeometryState;
 
-import java.awt.*;
+import java.awt.Point;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 /**
  * Manages node geometry as rectangle-shapes. This means "shape" equals "bounds".
@@ -25,7 +30,7 @@ public class TreeRectangleGeometry implements Geometry
 
 	HashMap<Integer, GeometryState> states = new HashMap<>();
 
-	Rectangle dirtyArea = null;
+	Rectangle2D.Float dirtyArea = null;
 
 	protected static class GeometryListenerEntry
 	{
@@ -68,77 +73,51 @@ public class TreeRectangleGeometry implements Geometry
 	}
 
 	@Override
-	public void moveTree(Graph g, Node node, int dx, int dy)
+	public void moveTree(Graph g, Node node, double dx, double dy)
 	{
 		beginUpdate();
 		if (node != null)
 		{
-			Shape s = getShape(node);
-			if (s != null)
-			{
-				moveSubTreeRelative(g, node, dx, dy);
-				updateParentTreeArea(node);
-			}
+			moveSubTreeRelative(g, node, dx, dy);
 		}
 		endUpdate();
 	}
 
 	@Override
-	public void moveNode(Graph g, Node node, int dx, int dy)
+	public void moveNode(Graph g, Node node, double dx, double dy, boolean isExanded)
 	{
 		beginUpdate();
 		if (node != null)
 		{
-			Rectangle r = new Rectangle(getBounds(node));
-			dirty(r);
-			r.translate(dx, dy);
-			dirty(r);
-			setShape(node, r);
-			updateTreeArea(node);
+			Rectangle2D.Float r = new Rectangle2D.Float();
+			r.setRect(getBounds(node));
+			Geometry.translate(r, dx, dy);
+			setBounds(node, r, isExanded);
 		}
 		endUpdate();
 	}
 
-	protected void updateTreeArea(Node node)
+	protected void moveSubTreeRelative(Graph g, Node node, double dx, double dy)
 	{
-		Rectangle r = new Rectangle(getBounds(node));
-		for (Iterator<Node> c = node.children(); c.hasNext(); )
-		{
-			GeometryState state = getGeometryState(c.next());
-			if (state.visible && state.treeArea != null)
-				Geometry.union(r, state.treeArea);
-		}
-		setTreeArea(node, r);
-	}
+		Rectangle2D.Float ot = getBounds(node);
+		Rectangle2D.Float o = new Rectangle2D.Float();
+		o.setRect(ot);
 
-	protected void updateParentTreeArea(Node node)
-	{
-		for (Iterator<Node> p = node.parents(); p.hasNext(); )
-		{
-			Node parent = p.next();
-			updateTreeArea(parent);
-		}
-	}
+		final float ox2 = o.x + o.width - 1;
+		final float oy2 = o.y + o.height - 1;
 
-	protected void moveSubTreeRelative(Graph g, Node node, int dx, int dy)
-	{
-		Rectangle ot = getBounds(node);
-		Rectangle o = new Rectangle(ot);
-
-		final int ox2 = o.x + o.width - 1;
-		final int oy2 = o.y + o.height - 1;
-
-		Rectangle r = new Rectangle(o);
-		r.translate(dx, dy);
+		Rectangle2D.Float r = new Rectangle2D.Float();
+		r.setRect(o);
+		Geometry.translate(r, dx, dy);
 		Node in;
 		int tryc = 0;
 		ot.width = -1;
 		while ((in = getIntersectingNode(g, r)) != null && (++tryc) < 5)
 		{
-			Rectangle inR = getBounds(in);
+			Rectangle2D.Float inR = getBounds(in);
 
-			int inRx2 = inR.x + inR.width - 1;
-			int inRy2 = inR.y + inR.height - 1;
+			float inRx2 = inR.x + inR.width - 1;
+			float inRy2 = inR.y + inR.height - 1;
 
 			if (o.x > inRx2 && r.x <= inRx2)
 				r.x = inRx2 + 1;
@@ -153,49 +132,39 @@ public class TreeRectangleGeometry implements Geometry
 		ot.width = o.width;
 		if (in == null)
 		{
-			setBounds(node, r);
+			setBounds(node, r, false);
 		}
 		for (Iterator<Node> c = node.children(); c.hasNext(); )
 			moveSubTreeRelative(g, c.next(), dx, dy);
-		updateTreeArea(node);
 	}
 
 	@Override
-	public Shape getShape(Node node)
+	public Rectangle2D.Float getBounds(Node node)
 	{
-		return getGeometryState(node).shape;
+		return getGeometryState(node).boundingBox;
 	}
 
 	@Override
-	public Rectangle getBounds(Node node)
-	{
-		return (Rectangle) getGeometryState(node).shape;
-	}
-
-
-	@Override
-	public void setShape(Node node, Shape s)
-	{
-		setBounds(node, s == null ? null : s.getBounds());
-	}
-
-	public void setBounds(Node node, Rectangle r)
+	public void setBounds(Node node, Rectangle2D.Float r, boolean isExpanded)
 	{
 		GeometryState s = getGeometryState(node);
-		Rectangle o = (Rectangle) s.shape;
-		s.shape = r;
-		if (o != null)
+		Rectangle2D.Float o = s.boundingBox;
+		if (o == null)
+			s.boundingBox = new Rectangle2D.Float();
+		else
 			dirty(o);
+		s.boundingBox.setRect(r);
 		dirty(r);
+		for (Edge e : node.edges)
+		{
+			if ( e.source != node)
+				dirty( getBounds(e.source));
+			if ( isExpanded && e.target != node)
+				dirty( getBounds(e.target));
+		}
 		notifyDependencies(node);
 	}
 
-
-	@Override
-	public Rectangle getTreeArea(Node node)
-	{
-		return getGeometryState(node).treeArea;
-	}
 
 	@Override
 	public List<Point> getTreePoints(Node node)
@@ -225,13 +194,13 @@ public class TreeRectangleGeometry implements Geometry
 		GeometryState s = getGeometryState(node);
 		if (s.visible)
 		{
-			if (s.shape != null)
+			if (s.boundingBox != null)
 			{
-				Rectangle r = (Rectangle) s.shape;
-				final int x0 = r.x;
-				final int y0 = r.y;
-				final int x1 = r.x + r.width - 1;
-				final int y1 = r.y + r.height - 1;
+				final Rectangle2D.Float r = s.boundingBox;
+				final int x0 = (int) r.x;
+				final int y0 = (int) r.y;
+				final int x1 = (int) (r.x + r.width - 1);
+				final int y1 = (int) (r.y + r.height - 1);
 
 				points.add(new Point(x0, y0));
 				points.add(new Point(x1, y0));
@@ -244,31 +213,6 @@ public class TreeRectangleGeometry implements Geometry
 
 	}
 
-
-	@Override
-	public void setTreeArea(Node node, Rectangle r)
-	{
-		GeometryState s = getGeometryState(node);
-		Rectangle or = s.treeArea;
-		s.treeArea = r;
-		if (or == null)
-		{
-			beginUpdate();
-			dirty(r);
-			updateParentTreeArea(node);
-			notifyDependencies(node);
-			endUpdate();
-		}
-		else if (!or.equals(r))
-		{
-			beginUpdate();
-			dirty(or);
-			dirty(r);
-			updateParentTreeArea(node);
-			notifyDependencies(node);
-			endUpdate();
-		}
-	}
 
 	@Override
 	public void remove(GraphElement e)
@@ -415,7 +359,7 @@ public class TreeRectangleGeometry implements Geometry
 
 
 	@Override
-	public Rectangle getDirtyArea()
+	public Rectangle2D getDirtyArea()
 	{
 		return dirtyArea;
 	}
@@ -427,21 +371,24 @@ public class TreeRectangleGeometry implements Geometry
 	}
 
 	@Override
-	public void dirty(Rectangle r)
+	public void dirty(Rectangle2D r)
 	{
 		if (dirtyArea == null)
-			dirtyArea = new Rectangle(r);
+		{
+			dirtyArea = new Rectangle2D.Float();
+			dirtyArea.setRect(r);
+		}
 		else
-			Geometry.union(dirtyArea, r);
+			Rectangle2D.union(dirtyArea, r, dirtyArea);
 	}
 
-	public Node getIntersectingNode(Graph g, Rectangle r)
+	public Node getIntersectingNode(Graph g, Rectangle2D r)
 	{
 		Node root = g.getRoot();
 		if (root != null)
 		{
 			GeometryState s = getGeometryState(root);
-			if (s.visible && s.treeArea != null && s.treeArea.intersects(r))
+			if (s.visible)
 			{
 				return getIntersectingNode(root, r);
 			}
@@ -449,14 +396,14 @@ public class TreeRectangleGeometry implements Geometry
 		return null;
 	}
 
-	public Node getIntersectingNode(Node tree, Rectangle r)
+	public Node getIntersectingNode(Node tree, Rectangle2D r)
 	{
 		if (getBounds(tree).intersects(r)) return tree;
 		for (Iterator<Node> it = tree.children(); it.hasNext(); )
 		{
 			tree = it.next();
 			GeometryState s = getGeometryState(tree);
-			if (s.visible && s.treeArea != null && s.treeArea.intersects(r))
+			if (s.visible)
 			{
 				Node m = getIntersectingNode(tree, r);
 				if (m != null) return m;
@@ -464,4 +411,21 @@ public class TreeRectangleGeometry implements Geometry
 		}
 		return null;
 	}
+
+	@Override
+	public Rectangle2D.Float getGraphBounds(Node root)
+	{
+		Rectangle2D.Float r = getGeometryState(root).boundingBox;
+		if (r != null)
+		{
+			Rectangle2D.Float nr = new Rectangle2D.Float();
+			nr.setRect(r);
+			for (Node c : root.getTreeDescendantNodes())
+			{
+				Rectangle2D.union(nr, getGeometryState(c).boundingBox, nr);
+			}
+		}
+		return r;
+	}
+
 }

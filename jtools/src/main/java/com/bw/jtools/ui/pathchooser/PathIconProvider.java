@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.ui.pathchooser;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 /**
  * Provider for path icons.<br>

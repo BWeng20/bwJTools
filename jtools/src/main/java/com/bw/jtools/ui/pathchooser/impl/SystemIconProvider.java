@@ -23,7 +23,7 @@ package com.bw.jtools.ui.pathchooser.impl;
 
 import com.bw.jtools.ui.pathchooser.PathInfo;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import javax.swing.filechooser.FileSystemView;
 
 /**

@@ -1,8 +1,13 @@
 package com.bw.jtools.ui;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.DefaultButtonModel;
+import javax.swing.Icon;
 import javax.swing.plaf.basic.BasicButtonListener;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 /**
  * A button that shows an icon, nothing more and is identical across all LAFs.

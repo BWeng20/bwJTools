@@ -23,10 +23,11 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.persistence.Store;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 /**
  * Collection of methods to store or load settings for Swing elements.<br>

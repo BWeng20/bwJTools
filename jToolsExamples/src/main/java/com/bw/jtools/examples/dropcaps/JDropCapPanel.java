@@ -1,14 +1,20 @@
 package com.bw.jtools.examples.dropcaps;
 
 import com.bw.jtools.ui.JCardBorder;
+import com.bw.jtools.ui.JIconButton;
 import com.bw.jtools.ui.dropcaps.JDropCapsLabel;
 import com.bw.jtools.ui.dropcaps.JDropCharConfig;
 import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.JIconButton;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GradientPaint;
 
 /**
  * Demonstrates use of {@link com.bw.jtools.ui.dropcaps.JDropCapsLabel} together with some configuration controls.

@@ -24,7 +24,7 @@ package com.bw.jtools.ui.filechooserpreview;
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.I18N;
 
-import java.awt.*;
+import java.awt.Image;
 import java.awt.image.ImageObserver;
 
 /**

@@ -23,8 +23,9 @@ package com.bw.jtools.ui.properties.table;
 
 import com.bw.jtools.ui.properties.PropertyEditorComponents;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractCellEditor;
+import javax.swing.JTable;
+import java.awt.Component;
 
 /**
  * Custom Cell Editor to support different value types in one column. Detection

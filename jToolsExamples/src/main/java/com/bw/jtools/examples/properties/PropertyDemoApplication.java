@@ -1,9 +1,9 @@
 package com.bw.jtools.examples.properties;
 
 import com.bw.jtools.Application;
-import com.bw.jtools.properties.*;
+import com.bw.jtools.properties.PropertyGroup;
 
-import javax.swing.*;
+import javax.swing.UIManager;
 import java.util.List;
 
 /**

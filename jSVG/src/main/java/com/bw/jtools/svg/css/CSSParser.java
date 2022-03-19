@@ -153,21 +153,6 @@ public class CSSParser
 						}
 					}
 					break;
-				case NUMBER:
-					if (attribute != null)
-					{
-						if (lastLexType != LexerSymbolType.SEPARATOR)
-							attribute.append(' ');
-						attribute.append(symbol.value_);
-
-					}
-					else if (declaration != null)
-					{
-						if (lastLexType != LexerSymbolType.SEPARATOR)
-							declaration.append(' ');
-						declaration.append(symbol.value_);
-					}
-					break;
 				case IDENTIFIER:
 					if (attribute != null)
 					{

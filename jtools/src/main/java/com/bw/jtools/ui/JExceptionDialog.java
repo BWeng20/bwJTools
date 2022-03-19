@@ -25,8 +25,10 @@ import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
 import com.bw.jtools.ui.icon.IconTool;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.WindowEvent;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

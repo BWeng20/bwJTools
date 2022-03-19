@@ -22,15 +22,23 @@
 package com.bw.jtools.ui.pathchooser.impl;
 
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.pathchooser.*;
+import com.bw.jtools.ui.pathchooser.FileSystemInfo;
+import com.bw.jtools.ui.pathchooser.FileSystemListener;
+import com.bw.jtools.ui.pathchooser.PathIconProvider;
+import com.bw.jtools.ui.pathchooser.PathInfo;
+import com.bw.jtools.ui.pathchooser.PathInfoProvider;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Abstract base for PathInfoProvider with some base functionality.

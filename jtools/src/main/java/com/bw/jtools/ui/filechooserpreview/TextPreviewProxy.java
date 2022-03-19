@@ -21,12 +21,6 @@
  */
 package com.bw.jtools.ui.filechooserpreview;
 
-import com.bw.jtools.Log;
-import com.bw.jtools.ui.I18N;
-
-import java.awt.*;
-import java.awt.image.ImageObserver;
-
 /**
  * Helper class to track the loading state of a preview for text files.<br>
  */

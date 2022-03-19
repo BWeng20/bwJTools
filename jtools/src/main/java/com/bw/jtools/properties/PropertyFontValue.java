@@ -21,7 +21,7 @@
  */
 package com.bw.jtools.properties;
 
-import java.awt.*;
+import java.awt.Font;
 
 /**
  * Convenience wrapper for a property with Font content.

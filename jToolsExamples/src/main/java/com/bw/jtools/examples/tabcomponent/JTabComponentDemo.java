@@ -26,23 +26,24 @@ package com.bw.jtools.examples.tabcomponent;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.I18N;
-import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.icon.JColorIcon;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.JTabComponent;
 import com.bw.jtools.ui.SettingsUI;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
+import com.bw.jtools.ui.icon.IconTool;
+import com.bw.jtools.ui.icon.JColorIcon;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 
 /**
  * Demonstrates usage of JTabComponent.

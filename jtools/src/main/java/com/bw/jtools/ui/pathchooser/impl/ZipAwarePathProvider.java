@@ -26,7 +26,7 @@ import com.bw.jtools.ui.pathchooser.JPathChooser;
 import com.bw.jtools.ui.pathchooser.PathIconProvider;
 import com.bw.jtools.ui.pathchooser.PathInfo;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;

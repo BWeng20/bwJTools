@@ -22,7 +22,14 @@
 package com.bw.jtools.ui;
 
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
 
 /**
  * A border to display card/tile-like panels.<br>

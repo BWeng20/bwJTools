@@ -21,7 +21,11 @@
  */
 package com.bw.jtools;
 
-import com.bw.jtools.log.*;
+import com.bw.jtools.log.CollectorLogger;
+import com.bw.jtools.log.CollectorThreadLogger;
+import com.bw.jtools.log.ConsoleLogger;
+import com.bw.jtools.log.MulticastLogger;
+import com.bw.jtools.log.NullLogger;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

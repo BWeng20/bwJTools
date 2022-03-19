@@ -20,7 +20,7 @@
  */
 package com.bw.jtools.ui.datatable;
 
-import javax.swing.*;
+import javax.swing.RowFilter;
 
 /**
  *

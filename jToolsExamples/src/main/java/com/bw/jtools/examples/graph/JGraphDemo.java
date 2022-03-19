@@ -4,14 +4,32 @@ import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.Graph;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
-import com.bw.jtools.ui.graph.*;
-import com.bw.jtools.ui.graph.impl.*;
+import com.bw.jtools.ui.graph.GraphOptionDialog;
+import com.bw.jtools.ui.graph.GraphPanel;
+import com.bw.jtools.ui.graph.Layout;
+import com.bw.jtools.ui.graph.VisualSettings;
+import com.bw.jtools.ui.graph.impl.CloudNodeDecorator;
+import com.bw.jtools.ui.graph.impl.DecoratorNodeVisual;
+import com.bw.jtools.ui.graph.impl.DecoratorShape;
+import com.bw.jtools.ui.graph.impl.NodeLabelVisual;
+import com.bw.jtools.ui.graph.impl.ShapeEdgeVisual;
+import com.bw.jtools.ui.graph.impl.ShapeNodeDecorator;
+import com.bw.jtools.ui.graph.impl.TextData;
+import com.bw.jtools.ui.graph.impl.TreeLayout;
+import com.bw.jtools.ui.graph.impl.TreeRectangleGeometry;
+import com.bw.jtools.ui.icon.IconTool;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URL;
@@ -21,6 +39,7 @@ public class JGraphDemo
 	JFrame frame;
 	JButton optionButton;
 	final GraphPanel gpanel = new GraphPanel();
+	VisualSettings settings = new VisualSettings();
 
 	static public void main( String args[] )
 	{
@@ -46,9 +65,13 @@ public class JGraphDemo
 		JPanel mainPanel = new JPanel( new BorderLayout() );
 		frame.setContentPane(mainPanel);
 
-		DecoratorVisual v = new DecoratorVisual( new DefaultVisual( new TreeLayout( new TreeRectangleGeometry() )) );
+		Layout layout = new TreeLayout( new TreeRectangleGeometry() );
 
-		gpanel.setVisual(v);
+		DecoratorNodeVisual v = new DecoratorNodeVisual( new NodeLabelVisual( layout, settings));
+		ShapeEdgeVisual ev = new ShapeEdgeVisual(layout,settings);
+
+		gpanel.setNodeVisual(v);
+		gpanel.setEdgeVisual(ev);
 		Graph g = gpanel.getGraph();
 
 		URL urlHugo = JGraphDemo.class.getResource("icons/Hugo.png");
@@ -74,7 +97,8 @@ public class JGraphDemo
 		g.addEdge( father , new Node( new TextData("Grandmother")));
 		g.addEdge( father , new Node( new TextData("Grandfather")));
 
-		v.addDecorator(son, new CloudDecorator());
+		v.addDecorator(son, new CloudNodeDecorator(v.getGeometry()));
+		v.addDecorator(mother, new ShapeNodeDecorator(v.getGeometry(), DecoratorShape.LEAVES));
 
 		JScrollPane graphPanel = new JScrollPane( gpanel );
 		graphPanel.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );

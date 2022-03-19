@@ -23,19 +23,39 @@ package com.bw.jtools.ui.pathchooser;
 
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.UIToolSwing;
-import com.bw.jtools.ui.pathchooser.impl.*;
+import com.bw.jtools.ui.pathchooser.impl.FileSystemNode;
+import com.bw.jtools.ui.pathchooser.impl.PathInfoFolderNode;
+import com.bw.jtools.ui.pathchooser.impl.PathInfoTreeCellRenderer;
+import com.bw.jtools.ui.pathchooser.impl.SystemTreeNode;
+import com.bw.jtools.ui.pathchooser.impl.TreeFileSystemInfo;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Icon;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
-import javax.swing.tree.*;
-import java.awt.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**

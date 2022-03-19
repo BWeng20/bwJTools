@@ -21,8 +21,14 @@
  */
 package com.bw.jtools.ui.fontchooser;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 
 /**
  * A List Cell renderer that renders Font items.

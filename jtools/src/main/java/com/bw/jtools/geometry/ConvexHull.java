@@ -1,6 +1,6 @@
 package com.bw.jtools.geometry;
 
-import java.awt.*;
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Collection;

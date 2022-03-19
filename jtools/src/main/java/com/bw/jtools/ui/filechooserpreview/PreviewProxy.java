@@ -23,8 +23,6 @@ package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
 
-import javax.swing.*;
-import java.awt.*;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.ArrayList;

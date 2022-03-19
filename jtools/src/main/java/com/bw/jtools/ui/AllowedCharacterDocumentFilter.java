@@ -21,7 +21,11 @@
  */
 package com.bw.jtools.ui;
 
-import javax.swing.text.*;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.JTextComponent;
 import java.util.HashSet;
 import java.util.Set;
 

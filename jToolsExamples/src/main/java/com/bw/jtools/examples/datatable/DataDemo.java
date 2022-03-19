@@ -22,17 +22,18 @@ package com.bw.jtools.examples.datatable;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
-import com.bw.jtools.ui.datatable.LoggerDataModel;
 import com.bw.jtools.ui.datatable.DataTablePanel;
-import java.awt.BorderLayout;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import com.bw.jtools.ui.datatable.LoggerDataModel;
+import com.bw.jtools.ui.icon.IconTool;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class DataDemo extends JFrame
 {

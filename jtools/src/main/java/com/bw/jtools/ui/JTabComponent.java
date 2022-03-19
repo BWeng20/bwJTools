@@ -23,8 +23,15 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.ui.icon.IconTool;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 /**
  * Panel to work as Tab-Component in a JTabbedPane.<br>

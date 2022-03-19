@@ -33,7 +33,6 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 public final class CssStyleSelector
 {
@@ -88,21 +87,10 @@ public final class CssStyleSelector
 					break;
 				case CLASS:
 					specificity.addClassMatch();
-					Stack<Node> unvisited = new Stack<>();
-					unvisited.add(n);
-					while (!unvisited.isEmpty())
-					{
-						n = unvisited.pop();
-						w = cache.getElementWrapper(n);
-						if (w != null && w.hasClass(s.id_))
-							apply(rule, s.combinate_, w.getNode(), cache, specificity);
-						n = n.getFirstChild();
-						while (n != null)
-						{
-							unvisited.push(n);
-							n = n.getNextSibling();
-						}
-					}
+					cache.forSubTree(n,elementWrapper -> {
+						if (elementWrapper.hasClass(s.id_))
+							apply(rule, s.combinate_, elementWrapper.getNode(), cache, specificity);
+					});
 					break;
 				case TAG:
 					while (n != null && !(n instanceof Element || n instanceof Document))

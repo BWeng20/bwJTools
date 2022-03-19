@@ -23,8 +23,10 @@ package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.nio.file.Path;
 
 /**

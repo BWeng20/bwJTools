@@ -23,16 +23,13 @@ package com.bw.jtools.examples.properties;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.properties.PropertyGroup;
-import com.bw.jtools.properties.PropertyValue;
-import com.bw.jtools.ui.JCardBorder;
 import com.bw.jtools.ui.properties.sheet.PropertyGroupCard;
-import com.bw.jtools.ui.properties.sheet.PropertyGroupSheet;
 
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.util.List;
 
 /**

@@ -21,16 +21,31 @@
  */
 package com.bw.jtools.ui.dropcaps;
 
+import com.bw.jtools.image.BlendComposite;
 import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.JIconButton;
 import com.bw.jtools.ui.UITool;
 import com.bw.jtools.ui.fontchooser.JFontChooser;
 import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.icon.JColorIcon;
-import com.bw.jtools.ui.image.BlendComposite;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+import java.awt.AlphaComposite;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Dialog;
+import java.awt.Font;
+import java.awt.Window;
 import java.util.LinkedHashMap;
 
 public class JDropCharConfig extends JPanel

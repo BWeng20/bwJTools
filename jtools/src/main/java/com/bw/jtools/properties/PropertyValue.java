@@ -23,7 +23,11 @@ package com.bw.jtools.properties;
 
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Base of all type specific properties.<br>
@@ -130,6 +134,8 @@ public class PropertyValue
 
 	/**
 	 * Adds a change listener.
+	 * The listeners are stored vias weak reference.
+	 * If lambdas are used, the caller has to hold a strong reference.
 	 *
 	 * @param l The listener.
 	 */

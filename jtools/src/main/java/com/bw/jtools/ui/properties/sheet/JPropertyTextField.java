@@ -2,7 +2,7 @@ package com.bw.jtools.ui.properties.sheet;
 
 import com.bw.jtools.properties.PropertyValue;
 
-import javax.swing.*;
+import javax.swing.JTextField;
 import java.awt.event.FocusEvent;
 import java.text.NumberFormat;
 import java.text.ParseException;

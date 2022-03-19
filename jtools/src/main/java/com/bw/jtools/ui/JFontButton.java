@@ -23,8 +23,8 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.ui.fontchooser.JFontChooser;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import java.awt.Font;
 
 /**
  * Button to show and change some font setting.

@@ -5,6 +5,7 @@ import com.bw.jtools.collections.TransformedIterator;
 import com.bw.jtools.collections.Transformer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -84,7 +85,7 @@ public class Node extends GraphElement
 		return tree;
 	}
 
-	public void getTreeNodes(List<Node> tree)
+	public void getTreeNodes(Collection<Node> tree)
 	{
 		tree.add(this);
 		getTreeDescendantNodes(tree);
@@ -98,7 +99,7 @@ public class Node extends GraphElement
 	}
 
 
-	public void getTreeDescendantNodes(List<Node> tree)
+	public void getTreeDescendantNodes(Collection<Node> tree)
 	{
 		for (Iterator<Node> it = children(); it.hasNext(); )
 		{

@@ -25,8 +25,6 @@ package com.bw.jtools.svg.css;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Lexer: reads characters and returns token,
@@ -50,8 +48,6 @@ public class Lexer
 
 	private LexerSymbol reused_;
 	private int stringDelimiter = -100;
-	private boolean number = false;
-	private final static Pattern numberpattern = Pattern.compile("[+-]?\\d+(\\.\\d*)?([eE]?[+-]?\\d+)");
 
 	public Lexer(Reader reader, boolean reUseSymbol)
 	{
@@ -65,7 +61,6 @@ public class Lexer
 	public LexerSymbol nextSymbol()
 	{
 		LexerSymbol result = reused_ == null ? new LexerSymbol() : reused_;
-		number = false;
 
 		// at start of new symbol, eat all spaces
 		eatSpace();
@@ -96,9 +91,6 @@ public class Lexer
 
 		if (result.value_.isEmpty())
 			result.type_ = LexerSymbolType.EOF;
-		else if (numberpattern.matcher(result.value_)
-							  .matches())
-			result.type_ = LexerSymbolType.NUMBER;
 		else if (result.value_.length() > 1)
 			result.type_ = LexerSymbolType.IDENTIFIER;
 		else
@@ -113,22 +105,6 @@ public class Lexer
 	{
 		if (c < 0)
 			return true;
-		else if (buffer.length() == 0)
-		{
-			buffer.append((char) c);
-			number = checkForNumber();
-			buffer.setLength(0);
-			if (number)
-				return false;
-		}
-		else if (number)
-		{
-			int oldLength = buffer.length();
-			buffer.append((char) c);
-			boolean numberStop = !checkForNumber();
-			buffer.setLength(oldLength);
-			return numberStop;
-		}
 
 		if (stringDelimiter > 0)
 		{
@@ -192,16 +168,6 @@ public class Lexer
 			else if (c > 0)
 				pushBack(c);
 		}
-	}
-
-	/**
-	 * Check if the current buffer is possibly start of a number
-	 */
-	private boolean checkForNumber()
-	{
-		Matcher m = numberpattern.matcher(buffer);
-		m.matches();
-		return m.hitEnd();
 	}
 
 	/**

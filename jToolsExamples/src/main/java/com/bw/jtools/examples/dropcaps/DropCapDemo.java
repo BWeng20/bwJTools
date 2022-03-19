@@ -2,12 +2,21 @@ package com.bw.jtools.examples.dropcaps;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
+import com.bw.jtools.image.BlendComposite;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.image.BlendComposite;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GradientPaint;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 

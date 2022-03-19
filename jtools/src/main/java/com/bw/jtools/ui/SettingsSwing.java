@@ -24,7 +24,7 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.persistence.Store;
 
-import javax.swing.*;
+import javax.swing.JSplitPane;
 
 /**
  * Collection of methods to store or load settings for Swing elements.

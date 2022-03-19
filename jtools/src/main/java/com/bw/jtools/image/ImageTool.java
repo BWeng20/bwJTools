@@ -1,5 +1,5 @@
 /*
- * (c) copyright Bernd Wengenroth
+ * (c) copyright 2022 Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,14 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.ui.image;
+package com.bw.jtools.image;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.ui.UITool;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Paint;
+import java.awt.Transparency;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;

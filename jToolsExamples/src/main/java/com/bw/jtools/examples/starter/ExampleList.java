@@ -21,18 +21,24 @@
  */
 package com.bw.jtools.examples.starter;
 
-import com.bw.jtools.Application;
-import com.bw.jtools.examples.graph.JGraphDemo;
 import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.JExceptionDialog;
 
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.lang.reflect.Method;
 import java.util.Locale;
-import javax.swing.*;
 
 /**
  * Main for Example Jar with Demo-selection.

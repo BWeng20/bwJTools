@@ -24,9 +24,14 @@ package com.bw.jtools.ui.pathchooser.impl;
 import com.bw.jtools.ui.pathchooser.PathInfo;
 import com.bw.jtools.ui.pathchooser.PathInfoProvider;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Font;
 
 /**
  * Renderer for file list items.<br>

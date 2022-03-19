@@ -23,8 +23,14 @@ package com.bw.jtools.ui.icon;
 
 import com.bw.jtools.ui.UITool;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.RenderingHints;
 
 /**
  * An icon-implementation to show a filled rectangle with a small border.<br>

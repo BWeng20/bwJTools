@@ -22,16 +22,17 @@ package com.bw.jtools.examples.exceptiondialog;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.JExceptionDialog;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import com.bw.jtools.ui.icon.IconTool;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 /**
  * Demonstrates usage of JExceptionDialog.

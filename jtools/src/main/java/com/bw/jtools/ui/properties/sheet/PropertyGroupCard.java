@@ -24,9 +24,12 @@ package com.bw.jtools.ui.properties.sheet;
 import com.bw.jtools.properties.PropertyGroup;
 import com.bw.jtools.ui.JCardBorder;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
 
 /**
  * A convenience wrapper for a property sheet with a card-border and (optionally) a title.<br>

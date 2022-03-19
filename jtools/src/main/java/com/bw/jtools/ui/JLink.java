@@ -23,8 +23,8 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.Log;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URI;

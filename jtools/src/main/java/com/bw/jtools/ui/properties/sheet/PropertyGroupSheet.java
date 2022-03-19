@@ -25,9 +25,13 @@ import com.bw.jtools.properties.PropertyGroup;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.properties.PropertyEditorComponents;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 /**
  * A panel to show and edit properties of a group.<br>

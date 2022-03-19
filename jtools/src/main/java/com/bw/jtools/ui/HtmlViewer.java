@@ -24,7 +24,7 @@ package com.bw.jtools.ui;
 import com.bw.jtools.Application;
 import com.bw.jtools.ui.icon.IconTool;
 
-import java.awt.*;
+import java.awt.Dimension;
 
 /**
  * Frame to show an internal html document.

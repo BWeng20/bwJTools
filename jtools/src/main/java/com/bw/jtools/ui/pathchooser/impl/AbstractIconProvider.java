@@ -26,7 +26,8 @@ import com.bw.jtools.ui.pathchooser.JPathChooser;
 import com.bw.jtools.ui.pathchooser.PathIconProvider;
 import com.bw.jtools.ui.pathchooser.PathInfo;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.UIManager;
 
 /**
  * Abstract base of the Icon-Cache for path icons.<br>

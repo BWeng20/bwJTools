@@ -27,9 +27,8 @@ import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.properties.table.PropertyGroupNode;
 import com.bw.jtools.ui.properties.table.PropertyTable;
 
-import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
+import javax.swing.JScrollPane;
+import javax.swing.UIManager;
 import java.text.NumberFormat;
 import java.util.List;
 
