@@ -9,7 +9,7 @@ public interface NodeDecorator
 {
 	public void decorate(Context ctx, Node node);
 
-	public Rectangle2D getBounds(Node node);
+	public Rectangle2D.Float getBounds(Node node);
 
 	public void install(Node node);
 

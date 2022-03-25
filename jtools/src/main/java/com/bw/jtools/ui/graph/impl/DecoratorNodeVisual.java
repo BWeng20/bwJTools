@@ -16,7 +16,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DecoratorNodeVisual implements NodeVisual
+public class DecoratorNodeVisual extends NodeVisualBase
 {
 	final Map<Integer, NodeDecorator> decorators = new HashMap<>();
 	final NodeVisual nodeVisual;
@@ -37,15 +37,15 @@ public class DecoratorNodeVisual implements NodeVisual
 	}
 
 	@Override
-	public Rectangle2D getVisualBounds(Node node)
+	public Rectangle2D.Float getVisualBounds(Node node)
 	{
-		Rectangle2D r = nodeVisual.getVisualBounds(node);
+		Rectangle2D.Float r = nodeVisual.getVisualBounds(node);
 		if (!Geometry.isEmpty(r))
 		{
 			NodeDecorator d = decorators.get(node.id);
 			if (d != null)
 			{
-				Rectangle2D r2 = d.getBounds(node);
+				Rectangle2D.Float r2 = d.getBounds(node);
 				if (r2 != null)
 				{
 					Rectangle2D.Float rn = new Rectangle2D.Float();
@@ -138,6 +138,7 @@ public class DecoratorNodeVisual implements NodeVisual
 
 	public DecoratorNodeVisual(NodeVisual nodeVisual)
 	{
+		super(nodeVisual.getLayout(), nodeVisual.getVisualSettings());
 		this.nodeVisual = nodeVisual;
 	}
 

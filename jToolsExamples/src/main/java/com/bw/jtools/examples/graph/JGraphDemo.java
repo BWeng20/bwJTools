@@ -2,6 +2,7 @@ package com.bw.jtools.examples.graph;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
+import com.bw.jtools.graph.Attribute;
 import com.bw.jtools.graph.Graph;
 import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.JLAFComboBox;
@@ -16,7 +17,7 @@ import com.bw.jtools.ui.graph.impl.DecoratorShape;
 import com.bw.jtools.ui.graph.impl.NodeLabelVisual;
 import com.bw.jtools.ui.graph.impl.ShapeEdgeVisual;
 import com.bw.jtools.ui.graph.impl.ShapeNodeDecorator;
-import com.bw.jtools.ui.graph.impl.TextData;
+import com.bw.jtools.graph.TextData;
 import com.bw.jtools.ui.graph.impl.TreeLayout;
 import com.bw.jtools.ui.graph.impl.TreeRectangleGeometry;
 import com.bw.jtools.ui.icon.IconTool;
@@ -47,6 +48,15 @@ public class JGraphDemo
 	}
 
 	int count_ = 1;
+
+	static Attribute textAttribute = Attribute.getAttribute("text");
+
+	static Node node( String text )
+	{
+		Node n = new Node();
+		n.setAttribute(textAttribute, new TextData(text));
+		return n;
+	}
 
 	public JGraphDemo()
 	{
@@ -82,20 +92,20 @@ public class JGraphDemo
 
 		v.getGeometry().beginUpdate();
 
-		Node root = new Node( new TextData("Grandson"));
+		Node root = node("Grandson");
 
 		g.setRoot(root);
-		Node son = new Node( new TextData("<html><b>Son</b><br><p style='color:Blue;'>Brotie <img  height=\"123\" width=\"139\" src=\""+urlBrotie+"\" alt=\"Img\"></p></html>"));
-		Node father = new Node( new TextData("Father"));
-		Node mother =new Node( new TextData("<html><b>Mother</b><br><p style='color:Blue;'>Gitte <img  height=\"200\" width=\"196\" src=\""+urlGitte+"\" alt=\"Img\"></p></html>"));
+		Node son = node( "<html><b>Son</b><br><p style='color:Blue;'>Brotie <img  height=\"123\" width=\"139\" src=\""+urlBrotie+"\" alt=\"Img\"></p></html>");
+		Node father = node( "Father");
+		Node mother =node( "<html><b>Mother</b><br><p style='color:Blue;'>Gitte <img  height=\"200\" width=\"196\" src=\""+urlGitte+"\" alt=\"Img\"></p></html>");
 
 		g.addEdge(root, son );
 		g.addEdge(son, father );
 		g.addEdge(son, mother );
-		g.addEdge( mother , new Node( new TextData("<html><b>Grandmother</b><br><p style='color:Blue;'>Ursel<img  height=\"220\" width=\"97\" src=\""+urlUrsel+"\" alt=\"Img\"></p></html>")));
-		g.addEdge( mother , new Node( new TextData("<html><b>Grandfather</b><br><p style='color:Blue;'>Hugo<img  height=\"135\" width=\"198\" src=\""+urlHugo+"\" alt=\"Img\"></p></html>")));
-		g.addEdge( father , new Node( new TextData("Grandmother")));
-		g.addEdge( father , new Node( new TextData("Grandfather")));
+		g.addEdge( mother , node("<html><b>Grandmother</b><br><p style='color:Blue;'>Ursel<img  height=\"220\" width=\"97\" src=\""+urlUrsel+"\" alt=\"Img\"></p></html>"));
+		g.addEdge( mother , node("<html><b>Grandfather</b><br><p style='color:Blue;'>Hugo<img  height=\"135\" width=\"198\" src=\""+urlHugo+"\" alt=\"Img\"></p></html>"));
+		g.addEdge( father , node("Grandmother"));
+		g.addEdge( father , node("Grandfather"));
 
 		v.addDecorator(son, new CloudNodeDecorator(v.getGeometry()));
 		v.addDecorator(mother, new ShapeNodeDecorator(v.getGeometry(), DecoratorShape.LEAVES));
@@ -131,11 +141,11 @@ public class JGraphDemo
 
 		Timer fpsTimer = new Timer(1000, e ->
 		{
-			if ( gpanel.paintCount > 0 )
-				fps.setText( String.valueOf(gpanel.paintCount)+" fps");
+			if ( gpanel.paintCount_ > 0 )
+				fps.setText( String.valueOf(gpanel.paintCount_)+" fps");
 			else
 				fps.setText( "..." );
-			gpanel.paintCount = 0;
+			gpanel.paintCount_ = 0;
 		});
 		fpsTimer.start();
 

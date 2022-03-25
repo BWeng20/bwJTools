@@ -51,4 +51,12 @@ public class Graph
 		}
 	}
 
+	@Override
+	public String toString()
+	{
+		if ( root == null)
+			return "null";
+		else
+			return root.toString();
+	}
 }

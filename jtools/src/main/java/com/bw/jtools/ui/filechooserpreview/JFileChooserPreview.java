@@ -89,7 +89,6 @@ import java.util.List;
  * preview.install(fileChooser);
  * // Now show it.
  * File file = fileChooser.showDialog(null, "DEMO");
- * <p>
  * </code>
  */
 public class JFileChooserPreview extends JPanel

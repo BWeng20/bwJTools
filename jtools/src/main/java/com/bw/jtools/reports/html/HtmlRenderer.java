@@ -76,7 +76,7 @@ public class HtmlRenderer extends ReportRenderer
 					sb.append("&apos;");
 					break;
 				case '\n':
-					sb.append("<br/>");
+					sb.append("<br>");
 					break;
 				default:
 					sb.append(c);

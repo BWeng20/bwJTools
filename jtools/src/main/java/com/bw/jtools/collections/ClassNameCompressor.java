@@ -5,7 +5,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * A simple Class-Name compressor for streaming binary class-related data
+ * A simple Class-Name compressor for streaming binary class-related data.
+ * Basic idea is to reference already written package-prefixes instead of writing
+ * common prefixes again and again.<br>
+ * For this the output of the compressor is a binary format that mix ids as reference
+ * to previous written prefixes and the byte (utf8) format of the strings.<br>
+ * Main usage is streaming/storage of serialized java data which need to include class-names.
+ * E.g. see {@link com.bw.jtools.io.data.DataInput}/{@link com.bw.jtools.io.data.DataOutput}
  */
 public class ClassNameCompressor extends StringPool
 {
@@ -16,8 +22,28 @@ public class ClassNameCompressor extends StringPool
 	private final byte intTag = (byte) 0xFF;
 	private static final byte[] emptyData = new byte[0];
 
+	public ClassNameCompressor()
+	{
+		reset();
+	}
+
+	@Override
+	public void reset()
+	{
+		synchronized (stringpool)
+		{
+			super.reset();
+			// Predefined prefixes.
+			// If changed, previous written data may no longer be valid
+			addString("com.bw.jtools");
+			addString("java.lang");
+			addString("java.util");
+		}
+	}
+
+
 	/**
-	 * Get the cumulative compressed representation of the string.</br>
+	 * Get the cumulative compressed representation of the string.<br>
 	 *
 	 * @param str The string.
 	 * @return The Id.
@@ -93,7 +119,7 @@ public class ClassNameCompressor extends StringPool
 	}
 
 	/**
-	 * Get the string for a cumulative compressed representation.</br>
+	 * Get the string for a cumulative compressed representation.<br>
 	 *
 	 * @param data Data Package.
 	 * @return The re-constructed string.
@@ -106,7 +132,7 @@ public class ClassNameCompressor extends StringPool
 
 
 	/**
-	 * Get the string for a cumulative compressed representation.</br>
+	 * Get the string for a cumulative compressed representation.<br>
 	 *
 	 * @param data   Data Package.
 	 * @param offset The offset to start with.

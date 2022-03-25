@@ -17,14 +17,14 @@ public interface EdgeVisual
 
 	/**
 	 * Paint the end point.<br>/
-	 * Needed for decorated edges to paint a pretty connection/overlapping.<br/>
+	 * Needed for decorated edges to paint a pretty connection/overlapping.<br>
 	 * This method is called <i>after</i> all nodes are painted.
 	 */
 	public void paintEndPoint(Context ctx, Edge edge);
 
 	/**
 	 * Paint the start point.<br>/
-	 * Needed for decorated point to paint a pretty connection/overlapping.<br/>
+	 * Needed for decorated point to paint a pretty connection/overlapping.<br>
 	 * This method is called <i>after</i> all nodes are painted.
 	 */
 	public void paintStartPoint(Context ctx, Edge edge);

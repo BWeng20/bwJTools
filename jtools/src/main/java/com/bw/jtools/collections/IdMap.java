@@ -33,8 +33,6 @@ import java.util.List;
  * As the key is a primitive type, the common interfaces of maps are not implemented (as this would involve auto-boxing).
  * <p>
  * "AbstractCollection.add" is not supported, the base class will throw exceptions if you try.
- *
- * @author Bernd Wengenroth
  */
 public final class IdMap<E> extends AbstractCollection<E>
 {

@@ -69,8 +69,8 @@ import java.util.stream.Collectors;
 import static com.bw.jtools.svg.ElementWrapper.isNotEmpty;
 
 /**
- * Parses and converts a SVG document into Java2D-shapes plus bacis style-information (see {@link StyledShape}).</br>
- * </br>
+ * Parses and converts a SVG document into Java2D-shapes plus bacis style-information (see {@link StyledShape}).<br>
+ * <br>
  * Currently supported features:
  * <ul>
  * <li>g</li>
@@ -89,11 +89,11 @@ import static com.bw.jtools.svg.ElementWrapper.isNotEmpty;
  * <li>filter (partial and only simple scenarios)</li>
  * </ul>
  * As the svg elements are simply converted to Shapes, complex stuff that needs offline-rendering (like blur) can't work.
- * Some complex use-case will not work as specified. </br>
- * The SVG specification contains a lot of such case with some amounts of hints how agents should render it correctly.</br>
+ * Some complex use-case will not work as specified. <br>
+ * The SVG specification contains a lot of such case with some amounts of hints how agents should render it correctly.<br>
  * Most svg graphics doesn't use such stuff, so the conversion to Java2D shapes is the most efficient way to draw
- * simple scalable graphics (see {@link com.bw.jtools.shape.ShapePainter} and {@link com.bw.jtools.shape.ShapeIcon}).</br>
- * The basic need for thos lib was to draw icons that will look good also on high-res-screens.</br>
+ * simple scalable graphics (see {@link com.bw.jtools.shape.ShapePainter} and {@link com.bw.jtools.shape.ShapeIcon}).<br>
+ * The basic need for thos lib was to draw icons that will look good also on high-res-screens.<br>
  * If you need a feature-complete renderer, use batik or (also not complete) SVG Salamander.
  */
 public class SVGConverter
@@ -148,7 +148,7 @@ public class SVGConverter
 
 	/**
 	 * Parse a SVG document and creates shapes.
-	 * After creation call {@link #getShapes()} to retrieve the resulting shapes.</br>
+	 * After creation call {@link #getShapes()} to retrieve the resulting shapes.<br>
 	 *
 	 * @param xml The svg document.
 	 */

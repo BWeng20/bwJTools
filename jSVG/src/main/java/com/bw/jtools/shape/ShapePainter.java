@@ -36,7 +36,6 @@ public final class ShapePainter
 {
 	private Rectangle2D.Double area_ = null;
 	private final List<AbstractShape> shapes_ = new ArrayList<>();
-	private final static BasicStroke defaultStroke_ = new BasicStroke(1f);
 	private double scaleX_ = 1.0f;
 	private double scaleY_ = 1.0f;
 	private boolean adaptOffset_ = true;

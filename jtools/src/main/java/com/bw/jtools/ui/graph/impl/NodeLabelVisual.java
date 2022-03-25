@@ -1,6 +1,7 @@
 package com.bw.jtools.ui.graph.impl;
 
 import com.bw.jtools.graph.Node;
+import com.bw.jtools.graph.TextData;
 import com.bw.jtools.shape.Context;
 import com.bw.jtools.ui.graph.Layout;
 import com.bw.jtools.ui.graph.VisualSettings;
@@ -37,10 +38,13 @@ public class NodeLabelVisual extends NodeVisualBase
 		final Graphics2D g = ctx.g2D_;
 		if (ctx.debug_)
 		{
-			g.setColor(Color.RED);
-			g.setStroke(debugStroke);
-			Rectangle2D tr = geo.getGraphBounds(node);
-			g.draw(tr);
+			Rectangle2D tr = getVisualBounds(node);
+			if( tr != null )
+			{
+				g.setPaint(ctx.debugPaint_);
+				g.setStroke(ctx.debugStroke_);
+				g.draw(tr);
+			}
 		}
 
 		paintBorder(ctx, node, r);
@@ -48,7 +52,7 @@ public class NodeLabelVisual extends NodeVisualBase
 		JLabel l = renderer.get(node.id);
 		if (l != null)
 		{
-			String text = ((TextData) node.data).text;
+			String text = ((TextData) node.getAttribute(NODE_TEXT)).text;
 			if (!text.equals(l.getText()))
 			{
 				l.setText(text);
@@ -79,7 +83,7 @@ public class NodeLabelVisual extends NodeVisualBase
 	{
 		geo.beginUpdate();
 
-		String text = ((TextData) node.data).text;
+		String text = ((TextData) node.getAttribute(NODE_TEXT)).text;
 
 		JLabel l = renderer.get(node.id);
 		if (l == null)

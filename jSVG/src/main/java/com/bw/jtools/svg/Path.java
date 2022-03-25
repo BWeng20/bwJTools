@@ -172,7 +172,7 @@ public final class Path extends Parser
 	 * we need to calculate an arc, rotate it and append it to the path manually.<br>
 	 * Used as reference:
 	 * <ol>
-	 * <li>Implementation notes for "arc" in https://www.w3.org/TR/SVG11/implnote.html#PathElementImplementationNotes.</li><br>
+	 * <li>Implementation notes for "arc" in https://www.w3.org/TR/SVG11/implnote.html#PathElementImplementationNotes.</li>
 	 * <li>SVG Salamander Project (com.kitfox.svg.pathcmd.Arc). </li>
 	 * <li>Apache Batik (org.apache.batik.ext.awt.geom.ExtendedGeneralPath).</li>
 	 * </ol>

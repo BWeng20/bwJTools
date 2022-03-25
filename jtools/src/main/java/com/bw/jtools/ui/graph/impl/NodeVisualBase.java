@@ -2,6 +2,7 @@ package com.bw.jtools.ui.graph.impl;
 
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.Node;
+import com.bw.jtools.graph.TextData;
 import com.bw.jtools.shape.Context;
 import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.Layout;
@@ -35,6 +36,7 @@ public class NodeVisualBase implements NodeVisual
 	protected int margin_x = 5;
 	protected int margin_y2 = 10;
 	protected int margin_x2 = 10;
+	protected int clickMargin_ = 10;
 	protected Geometry geo;
 	protected Layout layout;
 
@@ -52,8 +54,6 @@ public class NodeVisualBase implements NodeVisual
 
 	protected Stroke borderStroke;
 	protected Stroke focusStroke;
-
-	protected final static Stroke debugStroke;
 
 	protected VisualSettings settings;
 
@@ -79,9 +79,9 @@ public class NodeVisualBase implements NodeVisual
 	}
 
 	@Override
-	public Rectangle2D getVisualBounds(Node n)
+	public Rectangle2D.Float getVisualBounds(Node n)
 	{
-		Rectangle2D r = geo.getBounds(n);
+		Rectangle2D.Float r = geo.getBounds(n);
 		if (r == null)
 			r = new Rectangle2D.Float();
 		return r;
@@ -136,9 +136,6 @@ public class NodeVisualBase implements NodeVisual
 
 			NodeVisualBase.defaultCollapseImage = collapseImage;
 		}
-
-		debugStroke = new BasicStroke(1);
-
 	}
 
 	public NodeVisualBase(Layout layout, VisualSettings settings)
@@ -187,14 +184,21 @@ public class NodeVisualBase implements NodeVisual
 		if (expand != state.expanded)
 		{
 			geo.beginUpdate();
-			geo.dirty(geo.getGraphBounds(node));
 			state.expanded = expand;
-			for (Iterator<Node> it = node.children(); it.hasNext(); )
-			{
-				geo.setVisibility(it.next(), expand);
-			}
 			if (expand)
+			{
+				for (Iterator<Node> it = node.children(); it.hasNext(); )
+					geo.setVisibility(it.next(), true);
 				layout.placeChildren(node);
+			}
+			else
+			{
+				for (Node n : node.getTreeDescendantNodes() )
+				{
+					geo.setVisibility(n, false);
+					getVisualState(n).expanded = false;
+				}
+			}
 			geo.endUpdate();
 		}
 	}
@@ -215,13 +219,13 @@ public class NodeVisualBase implements NodeVisual
 		boolean focused = (focusedNode == node);
 
 		final Graphics2D g = ctx.g2D_;
-		if (settings.node.opaque)
+		if (settings.node_.opaque)
 		{
-			g.setColor(settings.node.background);
+			g.setColor(settings.node_.background);
 			g.fillRect(bounds.x + margin_x, bounds.y + margin_y, bounds.width - margin_x2, bounds.height - margin_y2);
 		}
 
-		g.setColor(settings.node.border);
+		g.setColor(settings.node_.border);
 		g.setStroke(borderStroke);
 		g.drawRect(bounds.x + margin_x, bounds.y + margin_y, bounds.width - margin_x2, bounds.height - margin_y2);
 		if (focused)
@@ -254,18 +258,18 @@ public class NodeVisualBase implements NodeVisual
 
 		if (ctx.debug_)
 		{
-			Rectangle2D tr = geo.getGraphBounds(node);
+			Rectangle2D tr = getVisualBounds(node);
 			if (tr != null)
 			{
-				g.setColor(Color.RED);
-				g.setStroke(debugStroke);
+				g.setPaint(ctx.debugPaint_);
+				g.setStroke(ctx.debugStroke_);
 				g.draw(tr);
 			}
 		}
 		paintBorder(ctx, node, r);
 
 		final FontMetrics m = g.getFontMetrics();
-		String text = ((TextData) node.data).text;
+		String text = ((TextData) node.getAttribute(NODE_TEXT)).text;
 
 		final int lineHeight = m.getHeight();
 		final int x = r.x + margin_x2;
@@ -285,10 +289,9 @@ public class NodeVisualBase implements NodeVisual
 	@Override
 	public void updateGeometry(Graphics2D g, Node node)
 	{
-
 		geo.beginUpdate();
 		final FontMetrics m = g.getFontMetrics();
-		String text = ((TextData) node.data).text;
+		String text = ((TextData) node.getAttribute(NODE_TEXT)).text;
 
 		Rectangle2D.Float r = new Rectangle2D.Float();
 		int lineHeight = m.getHeight();
@@ -311,9 +314,7 @@ public class NodeVisualBase implements NodeVisual
 
 		geo.setBounds(node, r, isExpanded(node));
 		updateVisibility(node);
-
 		geo.endUpdate();
-
 	}
 
 	/**
@@ -355,9 +356,9 @@ public class NodeVisualBase implements NodeVisual
 			Rectangle2D r = geo.getBounds(node);
 			if (r != null)
 			{
-				Rectangle expandBox = new Rectangle((int) (r.getWidth() - expandImage.getWidth()),
-						(int) ((r.getHeight() - expandImage.getHeight()) / 2), expandImage.getWidth(),
-						expandImage.getHeight());
+				Rectangle expandBox = new Rectangle((int) (r.getWidth() - expandImage.getWidth()-clickMargin_),
+						(int) ((r.getHeight() - clickMargin_ - expandImage.getHeight()) / 2), expandImage.getWidth()+(2*clickMargin_),
+						expandImage.getHeight()+(2*clickMargin_));
 				if (expandBox.contains(p))
 				{
 					expand(node, !isExpanded(node));

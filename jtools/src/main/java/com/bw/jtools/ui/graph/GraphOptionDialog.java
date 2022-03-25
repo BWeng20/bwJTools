@@ -98,59 +98,59 @@ public class GraphOptionDialog extends JDialog
 
 		PropertyGroup p = new PropertyGroup("Visual Settings");
 
-		addProperty(p, new PropertyNumberValue("Zoom", v.getVisualSettings().scale), value ->
+		addProperty(p, new PropertyNumberValue("Zoom", v.getVisualSettings().scale_), value ->
 		{
 			NodeVisual nv = graphPanel.getNodeVisual();
 			Number n = ((PropertyNumberValue)value).getValue();
-			nv.getVisualSettings().scale = (n == null) ? 1 : n.floatValue();
-			if ( nv.getVisualSettings().scale <= 0)
+			nv.getVisualSettings().scale_ = (n == null) ? 1 : n.floatValue();
+			if ( nv.getVisualSettings().scale_ <= 0)
 			{
-				nv.getVisualSettings().scale = 1;
-				((PropertyNumberValue) value).setValue(nv.getVisualSettings().scale);
+				nv.getVisualSettings().scale_ = 1;
+				((PropertyNumberValue) value).setValue(nv.getVisualSettings().scale_);
 			}
 			graphPanel.repaint();
 		});
 
 
-		addProperty(p, new PropertyColorValue("Edge", v.getVisualSettings().edge.color), value ->
+		addProperty(p, new PropertyColorValue("Edge", v.getVisualSettings().edge_.color), value ->
 		{
 			NodeVisual nv = graphPanel.getNodeVisual();
 			Color c = ((PropertyColorValue) value).getValue();
-			nv.getVisualSettings().edge.color = (c == null) ? Color.BLACK : c;
+			nv.getVisualSettings().edge_.color = (c == null) ? Color.BLACK : c;
 			graphPanel.repaint();
 		});
 
-		addProperty(p, new PropertyEnumValue<EdgeMode>("Edge Type", v.getVisualSettings().edge.mode), value ->
+		addProperty(p, new PropertyEnumValue<EdgeMode>("Edge Type", v.getVisualSettings().edge_.mode), value ->
 		{
 			NodeVisual nv = graphPanel.getNodeVisual();
 			EdgeMode e = ((PropertyEnumValue<EdgeMode>) value).getValue();
-			nv.getVisualSettings().edge.mode = (e == null) ? EdgeMode.STRAIGHT : e;
+			nv.getVisualSettings().edge_.mode = (e == null) ? EdgeMode.STRAIGHT : e;
 			graphPanel.repaint();
 		});
 
-		addProperty(p, new PropertyBooleanValue("Edge Decorate", v.getVisualSettings().edge.decorate), value ->
+		addProperty(p, new PropertyBooleanValue("Edge Decorate", v.getVisualSettings().edge_.decorate), value ->
 		{
-			getVisualSettings().edge.decorate = getBoolean(value, getVisualSettings().edge.decorate);
+			getVisualSettings().edge_.decorate = getBoolean(value, getVisualSettings().edge_.decorate);
 			graphPanel.repaint();
 		});
 
-		addProperty(p, new PropertyBooleanValue("Node opaque", v.getVisualSettings().node.opaque), value ->
+		addProperty(p, new PropertyBooleanValue("Node opaque", v.getVisualSettings().node_.opaque), value ->
 		{
-			getVisualSettings().node.opaque = getBoolean(value, getVisualSettings().node.opaque);
+			getVisualSettings().node_.opaque = getBoolean(value, getVisualSettings().node_.opaque);
 			graphPanel.repaint();
 		});
 
-		addProperty(p, new PropertyColorValue("Node Border", v.getVisualSettings().node.border), value ->
-		{
-			Color c = ((PropertyColorValue) value).getValue();
-			getVisualSettings().node.border = (c == null) ? Color.LIGHT_GRAY : c;
-			graphPanel.repaint();
-		});
-
-		addProperty(p, new PropertyColorValue("Node Background", v.getVisualSettings().node.background), value ->
+		addProperty(p, new PropertyColorValue("Node Border", v.getVisualSettings().node_.border), value ->
 		{
 			Color c = ((PropertyColorValue) value).getValue();
-			getVisualSettings().node.background = (c == null) ? Color.LIGHT_GRAY : c;
+			getVisualSettings().node_.border = (c == null) ? Color.LIGHT_GRAY : c;
+			graphPanel.repaint();
+		});
+
+		addProperty(p, new PropertyColorValue("Node Background", v.getVisualSettings().node_.background), value ->
+		{
+			Color c = ((PropertyColorValue) value).getValue();
+			getVisualSettings().node_.background = (c == null) ? Color.LIGHT_GRAY : c;
 			graphPanel.repaint();
 		});
 
@@ -168,9 +168,9 @@ public class GraphOptionDialog extends JDialog
 			graphPanel.repaint();
 		});
 
-		addProperty(p, new PropertyBooleanValue("Debug", v.getVisualSettings().debug), value ->
+		addProperty(p, new PropertyBooleanValue("Debug", v.getVisualSettings().debug_), value ->
 		{
-			getVisualSettings().debug = getBoolean(value, getVisualSettings().debug);
+			getVisualSettings().debug_ = getBoolean(value, getVisualSettings().debug_);
 			graphPanel.repaint();
 		});
 

@@ -10,7 +10,6 @@ import com.bw.jtools.ui.graph.VisualSettings;
 
 import java.awt.BasicStroke;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
@@ -19,58 +18,47 @@ import java.awt.geom.Point2D;
 import java.awt.geom.QuadCurve2D;
 
 /**
- * Simple line
+ * Simple line in different modes.
+ * @see com.bw.jtools.ui.graph.EdgeMode
  */
 public class EdgeVisualBase implements EdgeVisual
 {
-	protected int margin_x = 5;
-	protected Geometry geo;
-	protected Layout layout;
-	protected Stroke edgeStroke;
-	protected VisualSettings settings;
-
-	protected final static Stroke debugStroke;
-
-	static
-	{
-		debugStroke = new BasicStroke(1);
-	}
+	protected Geometry geo_;
+	protected Layout layout_;
+	protected Stroke edgeStroke_;
+	protected VisualSettings settings_;
 
 	public EdgeVisualBase(Layout layout, VisualSettings settings)
 	{
-		this.geo = layout.getGeometry();
-		this.layout = layout;
-		this.edgeStroke = new BasicStroke(2f);
-		this.settings = settings;
+		this.geo_ = layout.getGeometry();
+		this.layout_ = layout;
+		this.edgeStroke_ = new BasicStroke(2f);
+		this.settings_ = settings;
 	}
 
 	public VisualEdgeSettings getVisualSettings()
 	{
-		return settings.edge;
+		return settings_.edge_;
 	}
 
-	public Point2D.Double getStartPoint(final Edge edge)
+	public Point2D.Float getStartPoint(final Edge edge)
 	{
-		Rectangle r1 = geo.getBounds(edge.source)
-						  .getBounds();
-		return new Point2D.Double(r1.x + r1.width - margin_x, r1.y + (r1.height / 2));
+		return geo_.getConnectorPoint(edge.getSource(), edge.getTarget() );
 	}
 
-	public Point2D.Double getEndPoint(final Edge edge)
+	public Point2D.Float getEndPoint(final Edge edge)
 	{
-		Rectangle r2 = geo.getBounds(edge.target)
-						  .getBounds();
-		return new Point2D.Double(r2.x + margin_x, r2.y + (r2.height / 2));
+		return geo_.getConnectorPoint(edge.getTarget(), edge.getSource() );
 	}
 
 	protected Shape createCurve(final Edge edge)
 	{
-		final Point2D.Double start = getStartPoint(edge);
-		final Point2D.Double end = getEndPoint(edge);
+		final Point2D.Float start = getStartPoint(edge);
+		final Point2D.Float end = getEndPoint(edge);
 
 		Shape curve;
 
-		switch (settings.edge.mode)
+		switch (settings_.edge_.mode)
 		{
 			case STRAIGHT:
 				curve = new Line2D.Double(start, end);
@@ -96,7 +84,7 @@ public class EdgeVisualBase implements EdgeVisual
 			}
 			case BEZIER_TO_SOURCE:
 			{
-				curve = new QuadCurve2D.Double(start.x, start.y, (start.x + end.x) / 2, end.y, end.x, end.y);
+				curve = new QuadCurve2D.Double(start.x, start.y, (start.x + end.x) / 2, start.y, end.x, end.y);
 				break;
 			}
 			default:

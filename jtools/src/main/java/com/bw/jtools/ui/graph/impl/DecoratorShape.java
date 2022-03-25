@@ -184,8 +184,6 @@ public class DecoratorShape
 			0, 1, 2, 3, 4, 6, 13, 21, 34, 55, 89
 	};
 
-	private static Stroke debugStroke_ = new BasicStroke(0.5f);
-
 	static DecoratorShape createDecoratorShape(String svg[])
 	{
 		ShapePainter painter[] = new ShapePainter[svg.length];
@@ -291,8 +289,8 @@ public class DecoratorShape
 				if (ctx.debug_)
 				{
 					// Debugging: Shows the path
-					gl.g2D_.setColor(Color.RED);
-					gl.g2D_.setStroke(debugStroke_);
+					gl.g2D_.setPaint(ctx.debugPaint_);
+					gl.g2D_.setStroke(ctx.debugStroke_);
 					gl.g2D_.draw(outline.getShape());
 				}
 
@@ -319,8 +317,8 @@ public class DecoratorShape
 
 					if (gl.debug_)
 					{
-						gl.g2D_.setColor(Color.RED);
-						gl.g2D_.setStroke(debugStroke_);
+						gl.g2D_.setPaint(gl.debugPaint_);
+						gl.g2D_.setStroke(gl.debugStroke_);
 						gl.g2D_.draw(painter.getArea());
 						gl.g2D_.drawLine(0, -2, 0, 2);
 					}
@@ -336,7 +334,7 @@ public class DecoratorShape
 		}
 	}
 
-	public void drawAtPoint(Context ctx, Point2D.Double point, int index)
+	public void drawAtPoint(Context ctx, Point2D.Float point, int index)
 	{
 		if (point != null)
 		{
@@ -348,8 +346,8 @@ public class DecoratorShape
 				painter.paintShapes(lctx, false);
 				if (ctx.debug_)
 				{
-					lctx.g2D_.setPaint(Color.RED);
-					lctx.g2D_.setStroke(debugStroke_);
+					lctx.g2D_.setPaint(lctx.debugPaint_);
+					lctx.g2D_.setStroke(lctx.debugStroke_);
 					lctx.g2D_.draw(painter.getArea());
 					lctx.g2D_.drawLine(-2, 0, 2, 0);
 					lctx.g2D_.drawLine(0, -2, 0, 2);

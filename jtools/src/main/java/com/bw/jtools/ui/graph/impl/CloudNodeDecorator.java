@@ -31,7 +31,19 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 	private Stroke stroke = new BasicStroke(2);
 	private Geometry geo;
 
-	private final Map<Integer, Path2D.Float> paths = new HashMap<>();
+	private static final class PathInfo
+	{
+		public Path2D.Float path;
+		public boolean visible;
+
+		PathInfo( Path2D.Float p, boolean v)
+		{
+			path = p;
+			visible = v;
+		}
+	}
+
+	private final Map<Integer, PathInfo> paths = new HashMap<>();
 
 	public CloudNodeDecorator(Geometry geometry)
 	{
@@ -41,9 +53,9 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 	@Override
 	public void install(Node node)
 	{
-		// All sub nodes affect the convex hull so we depend on them
+		// All sub nodes affect the convex hull, so we depend on them
 		geo.addDependency(this, node.getTreeNodes());
-		paths.put(node.id, new Path2D.Float());
+		paths.put(node.id, new PathInfo( new Path2D.Float(), geo.isVisible(node)));
 		geometryUpdated(geo, node);
 	}
 
@@ -58,9 +70,10 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 	@Override
 	public void decorate(Context ctx, Node node)
 	{
-		Path2D.Float p = paths.get(node.id);
-		if (p != null)
+		PathInfo pi = paths.get(node.id);
+		if (pi != null)
 		{
+			Path2D.Float p = pi.path;
 			Graphics2D g2 = (Graphics2D)ctx.g2D_.create();
 			try
 			{
@@ -76,12 +89,12 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 	}
 
 	@Override
-	public Rectangle getBounds(Node node)
+	public Rectangle2D.Float getBounds(Node node)
 	{
-		Path2D.Float p = paths.get(node.id);
-		if (p != null)
+		PathInfo pi = paths.get(node.id);
+		if (pi != null)
 		{
-			return p.getBounds();
+			return (Rectangle2D.Float)pi.path.getBounds2D();
 		}
 		return null;
 	}
@@ -109,106 +122,118 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 
 		for (Node node : toUpdate)
 		{
-			Point[] pts = ConvexHull.convex_hull_graham_andrew(geo.getTreePoints(node));
-
-			if (pts != null && pts.length > 1)
+			PathInfo pi = paths.get(node.id);
+			if (pi != null && pi.visible)
 			{
-				Path2D.Float oldPath = paths.get(node.id);
-				if (oldPath != null)
+				Rectangle2D b = pi.path.getBounds2D();
+				if (!b.isEmpty())
+					geo.dirty(b);
+			}
+			if ( geo.isVisible(node) )
+			{
+				Point[] pts = ConvexHull.convex_hull_graham_andrew(geo.getTreePoints(node));
+				if (pts != null && pts.length > 1)
 				{
-					Rectangle2D b = oldPath.getBounds2D();
-					if (!b.isEmpty())
-						geo.dirty(b);
-				}
+					Path2D.Float path = new Path2D.Float();
 
-				Path2D.Float path = new Path2D.Float();
+					final float offset = pointDistance * 0.1f;
+					final int N = pts.length;
+					float x1, y1, x3, y3, dx, dy, dyy, dxx;
 
-				final float offset = pointDistance * 0.1f;
-				final int N = pts.length;
-				float x1, y1, x3, y3, dx, dy, dyy, dxx;
+					Point next = pts[0];
+					Point last = pts[N - 1];
+					Point tmp;
 
+					float x0 = last.x - offset;
+					float y0 = last.y + offset;
+					float x2 = x0;
+					float y2 = y0;
 
-				Point next = pts[0];
-				Point last = pts[N - 1];
-				Point tmp;
+					path.moveTo(x0, y0);
 
-				float x0 = last.x - offset;
-				float y0 = last.y + offset;
-				float x2 = x0;
-				float y2 = y0;
-
-
-				path.moveTo(x0, y0);
-
-				for (int i = 0; i < N; ++i)
-				{
-					x1 = next.x;
-					y1 = next.y;
-
-					if (i < (N - 1))
+					for (int i = 0; i < N; ++i)
 					{
-						tmp = next;
-						next = pts[i + 1];
-						// To get a pretty flow around the corners, we check the slops of the line thought the neighbor points.
-						dxx = next.x - last.x;
-						dyy = next.y - last.y;
-						last = tmp;
+						x1 = next.x;
+						y1 = next.y;
 
-						if (dxx > 0)
-							y1 -= offset;
-						else if (dxx < 0)
-							y1 += offset;
-						if (dyy < 0)
-							x1 -= offset;
-						else if (dyy > 0)
-							x1 += offset;
-
-					}
-					else
-					{
-						dxx = dyy = 0;
-						x1 -= offset;
-						y1 += offset;
-					}
-
-					dx = x1 - x0;
-					dy = y1 - y0;
-
-					final float length = Math.abs(dx) + Math.abs(dy);
-					if (length > pointDistance)
-					{
-						final int jn = (int) (length / pointDistance);
-						final float xf = pointDistance * (dx / length);
-						final float yf = pointDistance * (dy / length);
-
-						for (int j = 0; j < jn; ++j)
+						if (i < (N - 1))
 						{
-							if ((j + 2) * pointDistance < length)
-							{
-								x3 = x0 + (j + 1) * xf;
-								y3 = y0 + (j + 1) * yf;
-							}
-							else
-							{
-								x3 = x1;
-								y3 = y1;
-							}
-							addQuad(path, x2, y2, x3, y3);
-							x2 = x3;
-							y2 = y3;
+							tmp = next;
+							next = pts[i + 1];
+							// To get a pretty flow around the corners, we check the slops of the line thought the neighbor points.
+							dxx = next.x - last.x;
+							dyy = next.y - last.y;
+							last = tmp;
+
+							if (dxx > 0)
+								y1 -= offset;
+							else if (dxx < 0)
+								y1 += offset;
+							if (dyy < 0)
+								x1 -= offset;
+							else if (dyy > 0)
+								x1 += offset;
+
 						}
+						else
+						{
+							dxx = dyy = 0;
+							x1 -= offset;
+							y1 += offset;
+						}
+
+						dx = x1 - x0;
+						dy = y1 - y0;
+
+						final float length = Math.abs(dx) + Math.abs(dy);
+						if (length > pointDistance)
+						{
+							final int jn = (int) (length / pointDistance);
+							final float xf = pointDistance * (dx / length);
+							final float yf = pointDistance * (dy / length);
+
+							for (int j = 0; j < jn; ++j)
+							{
+								if ((j + 2) * pointDistance < length)
+								{
+									x3 = x0 + (j + 1) * xf;
+									y3 = y0 + (j + 1) * yf;
+								}
+								else
+								{
+									x3 = x1;
+									y3 = y1;
+								}
+								addQuad(path, x2, y2, x3, y3);
+								x2 = x3;
+								y2 = y3;
+							}
+						}
+						else
+						{
+							addQuad(path, x2, y2, x1, y1);
+							x2 = x1;
+							y2 = y1;
+						}
+						x0 = x1;
+						y0 = y1;
+					}
+					if ( pi == null )
+					{
+						pi = new PathInfo(path, true);
+						paths.put(node.id, pi);
 					}
 					else
 					{
-						addQuad(path, x2, y2, x1, y1);
-						x2 = x1;
-						y2 = y1;
+						pi.visible = true;
+						pi.path = path;
 					}
-					x0 = x1;
-					y0 = y1;
+					geo.dirty(path.getBounds2D());
 				}
-				paths.put(node.id, path);
-				geo.dirty(path.getBounds2D());
+			}
+			else if ( pi != null && pi.visible )
+			{
+				pi.visible = false;
 			}
 		}
 	}

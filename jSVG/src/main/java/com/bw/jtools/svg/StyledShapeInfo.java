@@ -41,14 +41,14 @@ public final class StyledShapeInfo extends ElementInfo
 	public Stroke stroke_;
 
 	/**
-	 * The Paint to render the outline.</br>
+	 * The Paint to render the outline.<br>
 	 * Can be null.
 	 */
 	public PaintWrapper paintWrapper_;
 
 
 	/**
-	 * The Paint to fill the shape. </br>
+	 * The Paint to fill the shape. <br>
 	 * Can be null.
 	 */
 	public PaintWrapper fillWrapper_;

@@ -33,6 +33,13 @@ allprojects {
         sourceCompatibility= JavaVersion.VERSION_1_9
         targetCompatibility= JavaVersion.VERSION_1_9
     }
+
+    plugins.withType(JavaPlugin).configureEach {
+        java {
+            modularity.inferModulePath = true
+        }
+    }
+
 }
 
 subprojects {

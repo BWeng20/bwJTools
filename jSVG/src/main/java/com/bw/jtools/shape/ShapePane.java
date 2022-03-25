@@ -31,6 +31,9 @@ import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
+/**
+ * A pane that uses a ShapePainter.
+ */
 public class ShapePane extends JComponent
 {
 	public ShapePane()

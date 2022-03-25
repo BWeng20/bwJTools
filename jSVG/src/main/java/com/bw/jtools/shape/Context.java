@@ -22,9 +22,12 @@
 
 package com.bw.jtools.shape;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -34,8 +37,14 @@ public class Context
 	public AffineTransform aft_;
 	public Paint currentColor_;
 	public Paint currentBackground_;
-	public boolean debug_ = false;
 	private final boolean newContext_;
+
+	public boolean debug_ = false;
+	/** Stroke for debug lines. */
+	public Stroke debugStroke_ = new BasicStroke(0.5f);
+	/** Paint for debug lines. */
+	public Paint debugPaint_ = Color.RED;
+
 
 	public Context(Context ctx)
 	{
@@ -44,12 +53,17 @@ public class Context
 
 	public Context(Context ctx, boolean createNewContext)
 	{
-		this.newContext_ = createNewContext;
-		this.g2D_ = createNewContext ? (Graphics2D)ctx.g2D_.create() : ctx.g2D_;
-		this.aft_ = ctx.aft_;
-		this.currentColor_ = ctx.currentColor_;
-		this.currentBackground_ = ctx.currentBackground_;
-		this.debug_ = ctx.debug_;
+		newContext_ = createNewContext;
+		g2D_ = createNewContext ? (Graphics2D)ctx.g2D_.create() : ctx.g2D_;
+		aft_ = ctx.aft_;
+		currentColor_ = ctx.currentColor_;
+		currentBackground_ = ctx.currentBackground_;
+		debug_ = ctx.debug_;
+		if ( debug_)
+		{
+			debugStroke_ = ctx.debugStroke_;
+			debugPaint_ = ctx.debugPaint_;
+		}
 	}
 
 	public Context(Graphics g2D)
@@ -67,12 +81,17 @@ public class Context
 
 	public Context(BufferedImage source, Context ctx )
 	{
-		this.newContext_ = true;
-		this.g2D_ = source.createGraphics();
-		this.aft_ = ctx.aft_;
-		this.currentColor_ = ctx.currentColor_;
-		this.currentBackground_ = ctx.currentBackground_;
-		this.debug_ = ctx.debug_;
+		newContext_ = true;
+		g2D_ = source.createGraphics();
+		aft_ = ctx.aft_;
+		currentColor_ = ctx.currentColor_;
+		currentBackground_ = ctx.currentBackground_;
+		debug_ = ctx.debug_;
+		if ( debug_ )
+		{
+			debugPaint_ = ctx.debugPaint_;
+			debugStroke_ = ctx.debugStroke_;
+		}
 	}
 
 	public void dispose()

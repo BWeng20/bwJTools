@@ -70,7 +70,7 @@ public abstract class Gradient implements Cloneable
 	}
 
 	/**
-	 * Creates adapted copy if opacity <> 1.
+	 * Creates adapted copy if opacity != 1.
 	 * Returns this instalce if opacity = 1.
 	 */
 	public Gradient adaptOpacity(float opacity)

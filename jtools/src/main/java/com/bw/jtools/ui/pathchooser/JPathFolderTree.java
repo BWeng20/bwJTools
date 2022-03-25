@@ -549,7 +549,7 @@ public class JPathFolderTree extends JPanel
 	 * Adds a file system to the directory tree.<br>
 	 * The root of the file-systems can be shown below a explicit base-node
 	 * or implicit together with other roots on top level.<br>
-	 * To show the roots below an explicit base-node set some name <> null.
+	 * To show the roots below an explicit base-node set some name &lt;&gt; null.
 	 * If name is set, also an icon can be given. If name is null, the icon is ignored.
 	 *
 	 * @param fs   the file-system to show. All roots are added as children.

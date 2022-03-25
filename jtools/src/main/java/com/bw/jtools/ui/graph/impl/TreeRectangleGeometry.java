@@ -7,8 +7,10 @@ import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.GeometryListener;
 import com.bw.jtools.ui.graph.GeometryState;
+import com.bw.jtools.ui.graph.VisualConnector;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,9 +69,34 @@ public class TreeRectangleGeometry implements Geometry
 		{
 			s = new GeometryState();
 			s.visible = true;
+			s.connectors = new HashMap<>();
 			states.put(e.id, s);
 		}
 		return s;
+	}
+
+	@Override
+	public Point2D.Float getConnectorPoint(Node n1, Node n2)
+	{
+		GeometryState gs1 = getGeometryState(n1);
+		VisualConnector vc = gs1.connectors.get(n2.id);
+		if (vc == null)
+		{
+			GeometryState gs2 = getGeometryState(n2);
+
+			final Rectangle2D.Float b1 =gs1.boundingBox;
+			final Rectangle2D.Float b2 =gs2.boundingBox;
+
+			Point2D.Float p = new Point2D.Float();
+			if ( b1.x < b2.x)
+				p.x = b1.x+b1.width;
+			else
+				p.x = b1.x;
+			p.y = b1.y+b1.height/2;
+			return p;
+		}
+		else
+			return new Point2D.Float(gs1.boundingBox.x+vc.xOffset, gs1.boundingBox.y+vc.yOffset);
 	}
 
 	@Override
@@ -151,16 +178,21 @@ public class TreeRectangleGeometry implements Geometry
 		Rectangle2D.Float o = s.boundingBox;
 		if (o == null)
 			s.boundingBox = new Rectangle2D.Float();
-		else
+		else if ( s.visible )
 			dirty(o);
 		s.boundingBox.setRect(r);
-		dirty(r);
-		for (Edge e : node.edges)
+		if ( s.visible )
 		{
-			if ( e.source != node)
-				dirty( getBounds(e.source));
-			if ( isExpanded && e.target != node)
-				dirty( getBounds(e.target));
+			dirty(r);
+			for (Edge e : node.edges)
+			{
+				final Node src = e.getSource();
+				final Node tgt = e.getTarget();
+				if (src != node)
+					dirty(getBounds(src));
+				if (isExpanded && tgt != node)
+					dirty(getBounds(tgt));
+			}
 		}
 		notifyDependencies(node);
 	}
@@ -295,10 +327,7 @@ public class TreeRectangleGeometry implements Geometry
 			if (update > 0)
 			{
 				for (GeometryListenerEntry gle : ll)
-				{
-					List<GraphElement> gl = toUpdate.computeIfAbsent(gle, k -> new ArrayList<>());
-					gl.add(e);
-				}
+					toUpdate.computeIfAbsent(gle, k -> new ArrayList<>()).add(e);
 			}
 			else
 			{
@@ -319,7 +348,6 @@ public class TreeRectangleGeometry implements Geometry
 
 	public void endUpdate()
 	{
-
 		if (update == 1)
 		{
 			int iteration = 0;
@@ -422,10 +450,13 @@ public class TreeRectangleGeometry implements Geometry
 			nr.setRect(r);
 			for (Node c : root.getTreeDescendantNodes())
 			{
-				Rectangle2D.union(nr, getGeometryState(c).boundingBox, nr);
+				GeometryState s = getGeometryState(c);
+				if ( s.visible )
+					Rectangle2D.union(nr, s.boundingBox, nr);
 			}
+			return nr;
 		}
-		return r;
+		return null;
 	}
 
 }

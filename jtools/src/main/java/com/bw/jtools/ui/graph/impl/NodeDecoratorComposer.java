@@ -24,16 +24,16 @@ public class NodeDecoratorComposer implements NodeDecorator
 	}
 
 	@Override
-	public Rectangle2D getBounds(Node node)
+	public Rectangle2D.Float getBounds(Node node)
 	{
-		Rectangle2D r = null;
+		Rectangle2D.Float r = null;
 		for (NodeDecorator d : decorators)
 		{
 			if (r == null)
 				r = d.getBounds(node);
 			else
 			{
-				Rectangle2D r2 = d.getBounds(node);
+				Rectangle2D.Float r2 = d.getBounds(node);
 				if (r2 != null)
 					Rectangle2D.union(r, r2, r);
 			}

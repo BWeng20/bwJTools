@@ -20,26 +20,58 @@
  * SOFTWARE.
  */
 
-package com.bw.jtools.ui.graph;
+package com.bw.jtools.graph;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Paint;
-import java.awt.Stroke;
+import com.bw.jtools.io.data.Data;
+import com.bw.jtools.io.data.DataInput;
+import com.bw.jtools.io.data.DataOutput;
 
-public class VisualSettings
+import java.io.IOException;
+
+public class TextData implements Data
 {
-	public float scale_ = 1;
-	public Color background_;
+	private static final String EMPTY = "";
 
-	public VisualEdgeSettings edge_ = new VisualEdgeSettings();
-	public VisualNodeSettings node_ = new VisualNodeSettings();
+	public String text;
 
-	public boolean debug_ = false;
+	public TextData()
+	{
+		text = EMPTY;
+	}
 
-	/** Stroke for debug lines. */
-	public Stroke debugStoke_ = new BasicStroke(0.5f);
-	/** Paint for debug lines. */
-	public Paint debugPaint_ = Color.RED;
+	public TextData(String text)
+	{
+		this.text = text;
+	}
 
+	@Override
+	public void write(DataOutput o, int fieldid) throws IOException
+	{
+		o.writeString(fieldid, text);
+	}
+
+	@Override
+	public void read(DataInput i) throws IOException
+	{
+		text = i.readString();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if ( obj == this )
+			return true;
+		if ( obj instanceof TextData)
+		{
+			TextData ts = (TextData)obj;
+			return ts.text.compareTo( text ) == 0;
+		}
+		return false;
+	}
+
+	@Override
+	public String toString()
+	{
+		return text == null ? "" : text;
+	}
 }

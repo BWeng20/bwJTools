@@ -30,7 +30,7 @@ public enum CombinatorType
 	DESCENDANT,
 
 	/**
-	 * >
+	 * &gt;
 	 */
 	CHILD,
 

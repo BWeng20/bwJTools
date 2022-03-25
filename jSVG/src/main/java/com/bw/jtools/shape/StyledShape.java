@@ -37,8 +37,7 @@ import java.awt.geom.Rectangle2D;
 public final class StyledShape extends AbstractShape
 {
 
-
-	public static final BasicStroke defaultStroke_ = new BasicStroke(1f);
+	public static final BasicStroke DEFAULT_STROKE = new BasicStroke(1f);
 
 	/**
 	 * The shape.
@@ -51,19 +50,19 @@ public final class StyledShape extends AbstractShape
 	public Stroke stroke_;
 
 	/**
-	 * The Paint to render the outline.</br>
+	 * The Paint to render the outline.<br>
 	 * Can be null.
 	 */
 	public final Paint paint_;
 
 	/**
-	 * The Paint to fill the shape. </br>
+	 * The Paint to fill the shape. <br>
 	 * Can be null.
 	 */
 	public final Paint fill_;
 
 	/**
-	 * Transform to be applied to the graphics context.</br>
+	 * Transform to be applied to the graphics context.<br>
 	 * Never null.
 	 */
 	public AffineTransform aft_;
@@ -96,7 +95,7 @@ public final class StyledShape extends AbstractShape
 	{
 		if ( transformedBounds_ == null )
 		{
-			final double lw = ((stroke_ instanceof BasicStroke) ? (BasicStroke) stroke_ : defaultStroke_).getLineWidth();
+			final double lw = ((stroke_ instanceof BasicStroke) ? (BasicStroke) stroke_ : DEFAULT_STROKE).getLineWidth();
 			Rectangle2D r = shape_.getBounds2D();
 			r = new Rectangle2D.Double(r.getX() - lw, r.getY() - lw, r.getWidth() + 2 * lw, r.getHeight() + 2 * lw);
 			transformedBounds_ = aft_.createTransformedShape(r).getBounds2D();

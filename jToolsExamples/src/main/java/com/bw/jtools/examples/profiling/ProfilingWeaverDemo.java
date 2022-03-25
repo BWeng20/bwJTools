@@ -30,8 +30,6 @@ import java.text.NumberFormat;
  * <h2>A test target for profiling via Weaving.</h2>
  * The profiles methods are configured via the ini file below "resources/com/bw/jtools/examples/profiling/Weaver.properties".<br>
  * Check Gradle tasks "runProfilingWeaverDemo" and "runProfilingWeaverDemoVerbose" how ProfileWeaver is used..
-
- * @see com.bw.jtools.profiling.weaving.ProfilingWeaver
  */
 public class ProfilingWeaverDemo
 {

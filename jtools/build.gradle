@@ -43,6 +43,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 compileJava {
+
     doFirst {
         println "Gradle version $project.gradle.gradleVersion"
 
@@ -50,7 +51,6 @@ compileJava {
                 '--module-path', classpath.asPath,
                 '--add-exports', 'java.desktop/sun.awt.shell=com.bw.jtools'
         ]
-        classpath = files()
     }
 }
 
@@ -67,6 +67,10 @@ check.dependsOn intTest
 
 processResources {
     duplicatesStrategy = 'exclude'
+}
+
+javadoc {
+    options.modulePath = classpath.asList()
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

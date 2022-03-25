@@ -1,14 +1,17 @@
 package com.bw.jtools.ui.graph;
 
+import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.Graph;
 import com.bw.jtools.graph.GraphElement;
 import com.bw.jtools.graph.Node;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public interface Geometry
 {
@@ -17,6 +20,8 @@ public interface Geometry
 	public void endUpdate();
 
 	public GeometryState getGeometryState(GraphElement e);
+
+	public Point2D.Float getConnectorPoint(Node node1, Node node2);
 
 	/**
 	 * Check if node is visible.
@@ -32,7 +37,7 @@ public interface Geometry
 	public void setVisibility(GraphElement e, boolean visible);
 
 	/**
-	 * Gets the bounding rectangle of the node.<br/>
+	 * Gets the bounding rectangle of the node.<br>
 	 * Returned object shall NOT be modified.
 	 */
 	public Rectangle2D.Float getBounds(Node node);

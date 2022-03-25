@@ -34,7 +34,7 @@ public class GraphMouseHandler extends MouseAdapter
 			if (Log.isDebugEnabled()) Log.debug("Click on Node " + nodeDragged.id + " " + org.x + "," + org.y);
 
 			Point2D.Float p = gpanel.getNodeLocation(nodeDragged);
-			float scale = gpanel.getNodeVisual().getVisualSettings().scale;
+			float scale = gpanel.getNodeVisual().getVisualSettings().scale_;
 			p.x = (e.getX() - p.x) / scale;
 			p.y = (e.getY() - p.y) / scale;
 			System.out.println("mousePressed at "+p);
@@ -109,7 +109,7 @@ public class GraphMouseHandler extends MouseAdapter
 			Point2D.Float p = gpanel.getNodeLocation(node);
 			if (p != null)
 			{
-				float scale = gpanel.getNodeVisual().getVisualSettings().scale;
+				float scale = gpanel.getNodeVisual().getVisualSettings().scale_;
 				p.x = (e.getX() - p.x) / scale;
 				p.y = (e.getY() - p.y) / scale;
 				gpanel.getNodeVisual().click(node, p);

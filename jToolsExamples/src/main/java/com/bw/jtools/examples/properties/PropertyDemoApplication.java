@@ -13,8 +13,8 @@ public class PropertyDemoApplication
 {
     public static final String[][] DESCRIPTION =
     {
-            { "en", "Demonstrates parallel usage of multiple property<br/>sheets/tables/tiles." },
-            { "de", "Demonstriert die Verwendung von mehreren<br/>parallelen Property-Fenstern." }
+            { "en", "Demonstrates parallel usage of multiple property<br>sheets/tables/tiles." },
+            { "de", "Demonstriert die Verwendung von mehreren<br>parallelen Property-Fenstern." }
     };
 
     public static void main(String[] args)

@@ -14,7 +14,6 @@ import java.awt.geom.Point2D;
  */
 public class ShapeEdgeVisual extends EdgeVisualBase
 {
-
 	DecoratorShape shape = DecoratorShape.LEAVES_BW;
 
 	public ShapeEdgeVisual(Layout layout, VisualSettings settings)
@@ -25,9 +24,9 @@ public class ShapeEdgeVisual extends EdgeVisualBase
 	@Override
 	public void paintEndPoint(Context ctx, Edge edge)
 	{
-		if (settings.edge.decorate)
+		if (settings_.edge_.decorate)
 		{
-			Point2D.Double p = getEndPoint(edge);
+			Point2D.Float p = getEndPoint(edge);
 			p.x -= 0.25 * shape.getWidth();
 			shape.drawAtPoint(ctx, p, shape.getNumberOfVariants()-1);
 		}
@@ -36,7 +35,7 @@ public class ShapeEdgeVisual extends EdgeVisualBase
 	@Override
 	public void paintStartPoint(Context ctx, Edge edge)
 	{
-		if (settings.edge.decorate)
+		if (settings_.edge_.decorate)
 		{
 			// Not yet
 		}
@@ -46,13 +45,13 @@ public class ShapeEdgeVisual extends EdgeVisualBase
 	@Override
 	public void paint(Context ctx, Edge edge)
 	{
-		if (settings.edge.decorate)
+		if (settings_.edge_.decorate)
 		{
 			Shape curve = createCurve(edge);
 			if (curve != null)
 			{
-				ctx.g2D_.setColor(settings.edge.color);
-				ctx.g2D_.setStroke(edgeStroke);
+				ctx.g2D_.setColor(settings_.edge_.color);
+				ctx.g2D_.setStroke(edgeStroke_);
 				shape.paintAlong(ctx, new ShapeHelper(curve),
 						0, -shape.getWidth()*0.5, 0, -2 );
 			}

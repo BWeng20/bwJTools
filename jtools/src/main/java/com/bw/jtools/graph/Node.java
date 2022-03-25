@@ -10,16 +10,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * A node of the graph.<br>
+ * A node owns attributes (via GraphElement) and directed edges.
+ */
 public class Node extends GraphElement
 {
-	public Data data;
-
 	public List<Edge> edges = new ArrayList<>();
-
-	public Node(Data data)
-	{
-		this.data = data;
-	}
 
 	/**
 	 * Iterate across all linked parent (via incoming edges).
@@ -27,7 +24,7 @@ public class Node extends GraphElement
 	public Iterator<Node> parents()
 	{
 		return new TransformedIterator<Edge, Node>(incoming(),
-				(Transformer<Edge, Node>) edge -> edge.source
+				(Transformer<Edge, Node>) edge -> edge.getSource()
 		);
 	}
 
@@ -37,7 +34,7 @@ public class Node extends GraphElement
 	public Iterator<Node> children()
 	{
 		return new TransformedIterator<Edge, Node>(outgoing(false),
-				(Transformer<Edge, Node>) edge -> edge.target
+				(Transformer<Edge, Node>) edge -> edge.getTarget()
 		);
 	}
 
@@ -47,7 +44,7 @@ public class Node extends GraphElement
 	public Iterator<Edge> incoming()
 	{
 		return new FilteredIterator<Edge>(edges.iterator(),
-				(Predicate<Edge>) edge -> edge.source != Node.this);
+				(Predicate<Edge>) edge -> edge.getSource() != Node.this);
 	}
 
 	/**
@@ -58,7 +55,7 @@ public class Node extends GraphElement
 	public Iterator<Edge> outgoing(boolean cyclic)
 	{
 		return new FilteredIterator<Edge>(edges.iterator(),
-				(Predicate<Edge>) edge -> edge.target != Node.this && (cyclic || !edge.cylic));
+				(Predicate<Edge>) edge -> edge.getTarget() != Node.this && (cyclic || !edge.isCyclic()));
 	}
 
 
@@ -103,9 +100,31 @@ public class Node extends GraphElement
 	{
 		for (Iterator<Node> it = children(); it.hasNext(); )
 		{
-			it.next()
-			  .getTreeNodes(tree);
+			Node n = it.next();
+			if ( n != null )
+				n.getTreeNodes(tree);
 		}
 	}
 
+	/**
+	 * Compares node attributes.<br>
+	 * Edges are not compared.
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if ( this == obj )
+			return true;
+		if ( obj instanceof Node)
+		{
+			return super.equals(obj);
+		}
+		return false;
+	}
+
+	@Override
+	public String toString()
+	{
+		return super.appendTo(new StringBuilder().append("Node ") ).toString();
+	}
 }

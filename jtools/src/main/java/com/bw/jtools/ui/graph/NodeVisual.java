@@ -1,5 +1,6 @@
 package com.bw.jtools.ui.graph;
 
+import com.bw.jtools.graph.Attribute;
 import com.bw.jtools.graph.Node;
 import com.bw.jtools.shape.Context;
 
@@ -9,6 +10,8 @@ import java.awt.geom.Rectangle2D;
 
 public interface NodeVisual
 {
+	public static final Attribute NODE_TEXT = Attribute.getAttribute("text");
+
 	public void paint(Context ctx, Node node);
 
 	/**
@@ -31,10 +34,10 @@ public interface NodeVisual
 	public VisualState getVisualState(Node node);
 
 	/**
-	 * Get the rectangle that covers all visuals of it.<br/>
+	 * Get the rectangle that covers all visuals of it.<br>
 	 * Returned object shall NOT be modified.
 	 */
-	public Rectangle2D getVisualBounds(Node n);
+	public Rectangle2D.Float getVisualBounds(Node n);
 
 	/**
 	 * Expand or collapse the node.

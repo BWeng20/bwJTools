@@ -37,7 +37,7 @@ public class ShapeNodeDecorator implements NodeDecorator
 	}
 
 	@Override
-	public Rectangle2D getBounds(Node node)
+	public Rectangle2D.Float getBounds(Node node)
 	{
 		Rectangle2D.Float r = new Rectangle2D.Float();
 		r.setRect(geo.getBounds(node));

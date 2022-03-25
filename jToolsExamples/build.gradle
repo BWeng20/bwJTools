@@ -49,7 +49,7 @@ jar {
     // duplicatesStrategy = 'exclude'
     includeEmptyDirs = false
     from "${rootProject.projectDir}/licenses" 
-    from sourceSets.main.runtimeClasspath.filter( {! (it.name=~/log4j.*jar/)}).collect  { it.isDirectory() ? it : zipTree(it) }
+    from sourceSets.main.runtimeClasspath.filter( {! (it.name=~/log4j.*jar/)}).collect  { (!it.exists() || it.isDirectory()) ? it : zipTree(it) }
     excludes = [ '**/META-INF/**', '/module-info.*' ]
     
     doLast { task ->
