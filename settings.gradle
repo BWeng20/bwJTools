@@ -1,9 +1,9 @@
 rootProject.name = 'bwJTools'
 
-include 'jtools', 'jProfiling'
+include 'jSVG'
+include 'jtools'
+include 'jProfiling'
 include 'jProfilingAgent'
 include 'jProfilingUI'
 include 'jToolsExamples'
-include 'jSVG'
-
 

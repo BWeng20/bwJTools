@@ -1,14 +1,5 @@
 plugins {
-    id 'java'
-    id 'maven-publish'
-    id 'signing'
-}
-
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-
-repositories {
-    mavenCentral()
+    id 'java-library'
 }
 
 sourceSets {
@@ -25,17 +16,7 @@ dependencies {
     implementation project(':jtools')
     implementation group:'javax.interceptor', name:'javax.interceptor-api', version:'1.2'
     implementation group:'javax.json', name:'javax.json-api', version:'1.1.4'
-    implementation group: 'org.apache.openejb', name: 'javaee-api', version: '6.0-4'    
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier = 'javadoc'
-    from javadoc.destinationDir
+    implementation group: 'org.apache.openejb', name: 'javaee-api', version: '6.0-6'    
 }
 
 jar {

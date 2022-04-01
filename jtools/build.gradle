@@ -1,14 +1,6 @@
 plugins {
-    id 'java'
-    id 'maven-publish'
-    id 'signing'
-}
-
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-
-repositories {
-    mavenCentral()
+    id 'java-library'
+    id 'de.jjohannes.extra-java-module-info' version '0.11'
 }
 
 sourceSets {
@@ -23,38 +15,49 @@ sourceSets {
     }
 }
 
+// extraJavaModuleInfo from plugin de.jjohannes.extra-java-module-info
+// Transforms unnamed modules
+extraJavaModuleInfo {
+    module("commons-csv-1.8.jar", "commons.csv", "1.8") {
+        exports("org.apache.commons.csv")
+        requires("java.sql")
+    }
+
+    module("javax.interceptor-api-1.2.jar", "javax.interceptor.api", "1.2") {
+        exports("javax.interceptor.api")
+    }
+
+    module("org-netbeans-swing-outline-RELEASE121.jar", "org.netbeans.swing.outline", "121") {
+        exports("org.netbeans.swing")
+        exports("org.netbeans.swing.outline")
+        requires("java.desktop")
+    }
+}
+
+
 dependencies {
     implementation project(':jSVG')
     implementation 'org.apache.logging.log4j:log4j-api:2.12.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.12.0'
     implementation 'javax.json:javax.json-api:1.1.4'
+    implementation 'org.glassfish:javax.json:1.1.4'
     implementation 'org.apache.commons:commons-csv:1.8'
     implementation 'javax.interceptor:javax.interceptor-api:1.2'
-    implementation 'org.glassfish:javax.json:1.1.4'
-    implementation 'org.netbeans.api:org-netbeans-swing-outline:RELEASE121'
+    api 'org.netbeans.api:org-netbeans-swing-outline:RELEASE121'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
 compileJava {
-
     doFirst {
-        println "Gradle version $project.gradle.gradleVersion"
-
         options.compilerArgs = [
-                '--module-path', classpath.asPath,
                 '--add-exports', 'java.desktop/sun.awt.shell=com.bw.jtools'
         ]
     }
 }
 
-task intTest(type: Test) {
+task jToolsTest(type: Test) {
     description = 'Runs tests.'
     group = 'verification'
     testClassesDirs = sourceSets.test.output.classesDirs
@@ -63,19 +66,13 @@ task intTest(type: Test) {
     useJUnitPlatform()
 }
 
-check.dependsOn intTest
+check.dependsOn jToolsTest
 
 processResources {
     duplicatesStrategy = 'exclude'
 }
 
 javadoc {
-    options.modulePath = classpath.asList()
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier = 'javadoc'
-    from javadoc.destinationDir
 }
 
 jar {
@@ -139,16 +136,4 @@ publishing {
     
 signing {
     sign publishing.publications.jtools
-}
-
-task runJPathChooser(type: Exec) {
-    dependsOn build
-    dependsOn ":jtools:jar"
-    group = "Examples"
-    description = "Runs JPathChooser"
-
-    commandLine "java",
-            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:8000",
-            "-classpath", "${buildPath}/../../jtools/build/libs/jtools-${project.version}.jar",
-            "com.bw.jtools.ui.pathchooser.JPathChooser"
 }
