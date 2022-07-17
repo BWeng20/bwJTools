@@ -26,7 +26,7 @@ import java.awt.Color;
 /**
  * Convenience wrapper for a property with Color content.
  */
-public class PropertyColorValue extends PropertyValue
+public class PropertyColorValue extends PropertyValue<Color>
 {
 	/**
 	 * Variable serialVersionUID of long
@@ -36,46 +36,13 @@ public class PropertyColorValue extends PropertyValue
 	/**
 	 * Creates a "color"-value with name and value.
 	 *
-	 * @param name  Name of the property.
+	 * @param key Key of the property.
 	 * @param value The value. Can be null.
 	 */
-	public PropertyColorValue(String name, Color value)
+	public PropertyColorValue(String key, Color value)
 	{
-		super(name, Color.class);
-		setPayload(value);
-	}
-
-	/**
-	 * Convenience getter.
-	 * Same as (Color)getUserObject().
-	 *
-	 * @return The Color of null.
-	 */
-	public Color getValue()
-	{
-		return (Color) getPayload();
-	}
-
-	/**
-	 * Convenience setter.
-	 * Same as "setUserObject(v)".
-	 *
-	 * @param v The value to set. Can be null.
-	 */
-	public void setValue(Color v)
-	{
-		setPayload(v);
-	}
-
-	/**
-	 * Convenience setter.
-	 * Same as "setUserObject(new Color(v))".
-	 *
-	 * @param v The value to set.
-	 */
-	public void setValue(int v)
-	{
-		setPayload(new Color(v));
+		super(key, Color.class);
+		setValue(value);
 	}
 
 	/**
@@ -83,7 +50,7 @@ public class PropertyColorValue extends PropertyValue
 	 */
 	public String toString()
 	{
-		return toString((Color) getPayload());
+		return toString(getValue());
 	}
 
 	/**

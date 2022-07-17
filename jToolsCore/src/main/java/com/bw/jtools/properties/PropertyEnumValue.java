@@ -22,53 +22,51 @@
 package com.bw.jtools.properties;
 
 /**
- * Convenience wrapper for a property with string content.<br>
+ * Convenience wrapper for a property with an enumeration content.<br>
  * <br>
  * <i>Examples:</i><br>
  * <pre>
  * {@code
- *  PropertyStringValue propValue = new PropertyStringValue( "My Name", "Alf" );
+ *  enum MyEnum { ONE, TWO, THREE, FOUR }
+ *
+ *  PropertyEnumValue<MyEnum> myEnumByValue
+ *           = new PropertyEnumValue<>( "My Enum", MyEnum.ONE );
+ *
+ *  PropertyEnumValue<MyEnum> myEnumByClass
+ *           = new PropertyEnumValue<>( "My Enum", MyEnum.class );
+ *  myEnumByClass.setValue( MyEnum.ONE );
  * }
  * </pre>
  */
-public class PropertyStringValue extends PropertyValue
+public class PropertyEnumValue<E extends Enum<?>> extends PropertyValue<E>
 {
 	/**
 	 * Generated Serial Version
 	 */
-	private static final long serialVersionUID = 5599878965239413140L;
+	private static final long serialVersionUID = 7637301669504922709L;
 
 	/**
-	 * Creates a string property with name and value.
+	 * Constructs a property by declaring class. Value must not be null.
 	 *
-	 * @param name  Name of the property.
-	 * @param value The number-value. Can be null.
+	 * @param key  Key of the property that is displayed.
+	 * @param clazz Value class, in this case an Enum.
 	 */
-	public PropertyStringValue(String name, String value)
+	public PropertyEnumValue(String key, Class<E> clazz)
 	{
-		super(name, String.class);
-		setPayload(value);
+		super(key, clazz);
 	}
 
 	/**
-	 * Convenience setter.
-	 * Same as "setUserObject(v)".
+	 * Constructs a property by value.
+	 * Value has to be not null.
 	 *
-	 * @param v The new value to use.
+	 * @param key  Key name.
+	 * @param value Initial value.
 	 */
-	public void setValue(String v)
+	public PropertyEnumValue(String key, E value)
 	{
-		setPayload(v);
+		super(key, (Class<? extends E>) value.getDeclaringClass());
+		setValue(value);
 	}
 
-	/**
-	 * Convenience getter.
-	 * Same as "(String)getUserObject".
-	 *
-	 * @return The current value.
-	 */
-	public String getValue()
-	{
-		return (String) getPayload();
-	}
 }

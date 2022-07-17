@@ -25,8 +25,8 @@ package com.bw.jtools.properties;
  * Interface to inform client that the user changed some property.<br>
  * For more general notification the event of the table model can be used.
  */
-public interface PropertyChangeListener
+public interface PropertyChangeListener<T>
 {
-	public void propertyChanged(PropertyValue value);
+	void propertyChanged(PropertyValue<T> value);
 
 }

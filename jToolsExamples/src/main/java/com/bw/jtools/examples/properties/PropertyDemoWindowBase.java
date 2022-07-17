@@ -119,20 +119,20 @@ public abstract class PropertyDemoWindowBase
 
         pg1.addProperty(new PropertyNumberValue("PropertyNumberNode(12234)", 12234 ) );
 
-        PropertyValue nb2 = new PropertyValue("PropertyNode(Double.class) and own NumberFormat", Double.class );
+        PropertyValue<Double> nb2 = new PropertyValue("PropertyNode(Double.class) and own NumberFormat", Double.class );
         // Use more fraction digits by specifying a dedicated NumberFormat.
         nb2.nf_ = NumberFormat.getNumberInstance();
         nb2.nf_.setMaximumFractionDigits(10);
-        nb2.setPayload( 123.4567 );
+        nb2.setValue( 123.4567 );
         pg1.addProperty( nb2 );
 
-        PropertyValue nb3 = new PropertyValue("PropertyNode(Double.class) with default fraction", Double.class );
+        PropertyValue<Double> nb3 = new PropertyValue("PropertyNode(Double.class) with default fraction", Double.class );
 
         // Because the values have more fraction-digits than the default decimal format,
         // the table will change the value to "123.456" if leaving the edit-mode,
         // even if user changed nothing! This could be avoided by specifying a number-format -
         // as shown above.
-        nb3.setPayload( 123.4567 );
+        nb3.setValue( 123.4567 );
         pg1.addProperty( nb3 );
 
         // Normally you will not simply add properties. You will store a reference to the "ProperyValue" instance
@@ -177,7 +177,7 @@ public abstract class PropertyDemoWindowBase
     protected void propertyChanged( PropertyValue v )
     {
         ++counter_;
-        SwingUtilities.invokeLater(() ->  status_.setText( ""+counter_+" propertyChanged '"+v.displayName_+"' \u21C9 "+v.getPayload()) );
+        SwingUtilities.invokeLater(() ->  status_.setText( ""+counter_+" propertyChanged '"+v.displayName_+"' \u21C9 "+v.getValue()) );
     }
 
 

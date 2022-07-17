@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 /**
  * A Property-Group.<br>
  */
-public class PropertyGroup implements Iterable<PropertyValue>
+public class PropertyGroup implements Iterable<PropertyValue<?>>
 {
 	/**
 	 * Generated Serial Version
@@ -45,12 +45,12 @@ public class PropertyGroup implements Iterable<PropertyValue>
 	/**
 	 * The properties of this group.
 	 */
-	protected List<PropertyValue> values_ = new ArrayList<>();
+	protected List<PropertyValue<?>> values_ = new ArrayList<>();
 
 	/**
 	 * List of change listeners that are handled via group.<br>
 	 */
-	private List<PropertyChangeListener> propertyChangeListener_;
+	private List<PropertyChangeListener<?>> propertyChangeListener_;
 
 
 	/**
@@ -71,10 +71,10 @@ public class PropertyGroup implements Iterable<PropertyValue>
 	 * @param value The value to show. Has to be not null.
 	 * @return The created node.
 	 */
-	public PropertyValue addProperty(String name, Object value)
+	public <T> PropertyValue<T> addProperty(String name, T value)
 	{
-		PropertyValue prop = new PropertyValue(name, value.getClass());
-		prop.setPayload(value);
+		PropertyValue<T> prop = new PropertyValue<T>(name, (Class<T>)value.getClass());
+		prop.setValue(value);
 		addProperty(prop);
 		return prop;
 	}
@@ -87,9 +87,9 @@ public class PropertyGroup implements Iterable<PropertyValue>
 	 *                   The value will initial be null.
 	 * @return The created node.
 	 */
-	public PropertyValue addProperty(String name, Class<?> valueClazz)
+	public <T> PropertyValue<T> addProperty(String name, Class<T> valueClazz)
 	{
-		PropertyValue value = new PropertyValue(name, valueClazz);
+		PropertyValue<T> value = new PropertyValue<T>(name, valueClazz);
 		addProperty(value);
 		return value;
 	}
@@ -112,10 +112,10 @@ public class PropertyGroup implements Iterable<PropertyValue>
 	 *
 	 * @param value The value to remove.
 	 */
-	public void removeProperty(PropertyValue value)
+	public void removeProperty(PropertyValue<?> value)
 	{
 		if (values_.remove(value) && (propertyChangeListener_ != null))
-			for (PropertyChangeListener l : propertyChangeListener_)
+			for (PropertyChangeListener<?> l : propertyChangeListener_)
 				value.removePropertyChangeListener(l);
 	}
 
@@ -123,14 +123,14 @@ public class PropertyGroup implements Iterable<PropertyValue>
 	 * Gets a property by display name.
 	 * Please avoid usage as it is possibly expensive.
 	 *
-	 * @param name Display name of the property to search.
+	 * @param key Key name of the property to search.
 	 * @return The property or null.
 	 */
-	public PropertyValue getProperty(String name)
+	public PropertyValue<?> getProperty(String key)
 	{
-		for (PropertyValue value : values_)
+		for (PropertyValue<?> value : values_)
 		{
-			if (value.displayName_.equals(name))
+			if (value.key_.equals(key))
 			{
 				return value;
 			}
@@ -154,7 +154,7 @@ public class PropertyGroup implements Iterable<PropertyValue>
 	 *
 	 * @param l The listener.
 	 */
-	public void addPropertyChangeListener(PropertyChangeListener l)
+	public void addPropertyChangeListener(PropertyChangeListener<?> l)
 	{
 		removePropertyChangeListener(l);
 		if (propertyChangeListener_ == null)
@@ -193,19 +193,19 @@ public class PropertyGroup implements Iterable<PropertyValue>
 	}
 
 	@Override
-	public Iterator<PropertyValue> iterator()
+	public Iterator<PropertyValue<?>> iterator()
 	{
 		return values_.iterator();
 	}
 
 	@Override
-	public Spliterator<PropertyValue> spliterator()
+	public Spliterator<PropertyValue<?>> spliterator()
 	{
 		return values_.spliterator();
 	}
 
 	@Override
-	public void forEach(Consumer<? super PropertyValue> action)
+	public void forEach(Consumer<? super PropertyValue<?>> action)
 	{
 		values_.forEach(action);
 	}

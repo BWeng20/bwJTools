@@ -26,7 +26,7 @@ import java.awt.Font;
 /**
  * Convenience wrapper for a property with Font content.
  */
-public class PropertyFontValue extends PropertyValue
+public class PropertyFontValue extends PropertyValue<Font>
 {
 	/**
 	 * Variable serialVersionUID of long
@@ -36,35 +36,13 @@ public class PropertyFontValue extends PropertyValue
 	/**
 	 * Creates a "font"-value with name and value.
 	 *
-	 * @param name  Name of the property.
+	 * @param key  Key of the property.
 	 * @param value The value. Can be null.
 	 */
-	public PropertyFontValue(String name, Font value)
+	public PropertyFontValue(String key, Font value)
 	{
-		super(name, Font.class);
-		setPayload(value);
-	}
-
-	/**
-	 * Convenience getter.
-	 * Same as (Font)getUserObject().
-	 *
-	 * @return The Color of null.
-	 */
-	public Font getValue()
-	{
-		return (Font) getPayload();
-	}
-
-	/**
-	 * Convenience setter.
-	 * Same as "setUserObject(v)".
-	 *
-	 * @param v The value to set. Can be null.
-	 */
-	public void setValue(Font v)
-	{
-		setPayload(v);
+		super(key, Font.class);
+		setValue(value);
 	}
 
 	/**
@@ -72,7 +50,7 @@ public class PropertyFontValue extends PropertyValue
 	 */
 	public String toString()
 	{
-		return toString((Font) getPayload());
+		return toString(getValue());
 	}
 
 	/**

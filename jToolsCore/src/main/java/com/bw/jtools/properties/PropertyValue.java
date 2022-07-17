@@ -21,6 +21,7 @@
  */
 package com.bw.jtools.properties;
 
+import javax.swing.Icon;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ import java.util.Objects;
  * }
  * </pre>
  */
-public class PropertyValue
+public class PropertyValue<T>
 {
 	/**
 	 * Generated Serial Version
@@ -53,23 +54,33 @@ public class PropertyValue
 	/**
 	 * The payload.
 	 */
-	private Object payload_;
+	private T payload_;
 
 	/**
-	 * The name of the property.
+	 * The key of the property.
+	 */
+	public final String key_;
+
+	/**
+	 * The display name of the property.
 	 */
 	public String displayName_;
 
 	/**
+	 * The optional Icon of the property.
+	 */
+	public Icon diplayIcon_;
+
+	/**
 	 * Values restrictions.
 	 */
-	public Map<String, Object> possibleValues_;
+	public Map<String, T> possibleValues_;
 
 
 	/**
 	 * The value-class of this property.
 	 */
-	public Class<?> valueClazz_;
+	public Class<? extends T> valueClazz_;
 
 	/**
 	 * The format to display numbers.
@@ -92,19 +103,31 @@ public class PropertyValue
 	 * Constructs a new property by name and value-clazz.
 	 * The value will initially be null.
 	 *
-	 * @param name       The name of the property to show.
+	 * @param key       The key (and initial display name) of the property to show.
 	 * @param valueClazz The value-class of the property.
 	 */
-	public PropertyValue(String name, Class<?> valueClazz)
+	public PropertyValue(String key, Class<? extends T> valueClazz)
+	{
+		this.displayName_ = key;
+		this.key_ = key;
+		this.valueClazz_ = valueClazz;
+	}
+
+	public void setDisplayName( String name)
 	{
 		this.displayName_ = name;
-		this.valueClazz_ = valueClazz;
+	}
+
+
+	public void setIcon( Icon icon)
+	{
+		this.diplayIcon_ = icon;
 	}
 
 	/**
 	 * Gets the payload.
 	 */
-	public final Object getPayload()
+	public T getValue()
 	{
 		return payload_;
 	}
@@ -112,7 +135,7 @@ public class PropertyValue
 	/**
 	 * Sets the payload.
 	 */
-	public final void setPayload(Object payload)
+	public void setValue(T payload)
 	{
 		if (!Objects.equals(payload, payload_))
 		{
@@ -139,7 +162,7 @@ public class PropertyValue
 	 *
 	 * @param l The listener.
 	 */
-	public void addPropertyChangeListener(PropertyChangeListener l)
+	public void addPropertyChangeListener(PropertyChangeListener<T> l)
 	{
 		removePropertyChangeListener(l);
 		if (propertyChangeListener_ == null)

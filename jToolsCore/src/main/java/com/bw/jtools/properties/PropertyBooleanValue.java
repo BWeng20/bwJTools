@@ -26,7 +26,7 @@ package com.bw.jtools.properties;
  * Boolean values are shown as combo-box or as checkbox, depending
  * on "nullability".
  */
-public class PropertyBooleanValue extends PropertyValue
+public class PropertyBooleanValue extends PropertyValue<Boolean>
 {
 	/**
 	 * Generated Serial Version
@@ -42,22 +42,12 @@ public class PropertyBooleanValue extends PropertyValue
 	public PropertyBooleanValue(String name, Boolean value)
 	{
 		super(name, Boolean.class);
-		setPayload(value);
-	}
-
-	/**
-	 * Convenience setter. Same as setUserObject(v).
-	 *
-	 * @param v The new value.
-	 */
-	public void setValue(Boolean v)
-	{
-		setPayload(v);
+		setValue(value);
 	}
 
 	/**
 	 * Convenience getter.
-	 * Same as "(Boolean)getUserObject".
+	 * Same as "getValue".
 	 * If node is not nullable, Boolean.FALSE is returned in case the
 	 * internal value is still null.
 	 *
@@ -65,7 +55,7 @@ public class PropertyBooleanValue extends PropertyValue
 	 */
 	public Boolean getValue()
 	{
-		Boolean bv = (Boolean) getPayload();
+		Boolean bv = super.getValue();
 		if (nullable_ || bv != null)
 			return bv;
 		else
