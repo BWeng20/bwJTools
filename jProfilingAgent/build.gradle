@@ -14,13 +14,13 @@ sourceSets {
 }
 
 dependencies {
-    implementation project(':jtools')
+    implementation project(':jToolsCore')
     implementation project(':jProfiling')
     implementation group:'net.bytebuddy', name:'byte-buddy', version:'1.10.6'
 }
 
 jar {
-    dependsOn ':jtools:jar'
+    dependsOn ':jToolsCore:jar'
     dependsOn ':jProfiling:jar'
     
     manifest {

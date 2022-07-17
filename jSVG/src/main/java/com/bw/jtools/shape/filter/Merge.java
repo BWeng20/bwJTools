@@ -27,6 +27,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Merges sources by painting them in the specified order to the target buffer.
+ */
 public class Merge extends FilterBase
 {
 	public final List<String> sources_ = new ArrayList<>();

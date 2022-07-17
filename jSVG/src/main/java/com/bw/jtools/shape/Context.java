@@ -31,6 +31,10 @@ import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
+/**
+ * The drawing context.
+ * THis class provides logic for dynamic calculation of colors and transformations.
+ */
 public class Context
 {
 	public Graphics2D g2D_;

@@ -29,6 +29,9 @@ import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.util.Collection;
 
+/**
+ * Icon that use a ShapePainter to render.
+ */
 public class ShapeIcon implements Icon
 {
 	private boolean drawFrame_ = true;

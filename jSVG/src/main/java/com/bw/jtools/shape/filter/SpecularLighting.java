@@ -42,6 +42,7 @@ public class SpecularLighting extends FilterBaseSingleSource
 	protected void render(PainterBuffers buffers, String targetName, BufferedImage src, BufferedImage target, double scaleX, double scaleY)
 	{
 
+		// @TODO: implement this crazy filter. Ask mathematically gifted relatives for this!
 		src.copyData(target.getRaster());
 	}
 

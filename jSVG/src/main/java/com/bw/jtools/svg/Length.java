@@ -24,6 +24,9 @@ package com.bw.jtools.svg;
 
 import java.awt.Toolkit;
 
+/**
+ * A length with unit.
+ */
 public final class Length
 {
 	public double value_;

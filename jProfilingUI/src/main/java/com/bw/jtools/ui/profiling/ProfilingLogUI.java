@@ -198,7 +198,6 @@ public class ProfilingLogUI extends JPanel implements Tail.TailListener
 
 		fileMonitorOpen.addActionListener((ev) ->
 		{
-
 			File selectedLogFile = IOTool.selectFile(this, preference_prefix_ + "select.selectlogfile", I18N.getText("callgraph.dialog.log.open"), IOTool.OPEN, IOTool.getFileFilterLog(), null);
 			if (selectedLogFile != null)
 			{

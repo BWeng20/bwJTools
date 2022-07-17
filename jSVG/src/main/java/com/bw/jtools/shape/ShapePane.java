@@ -116,7 +116,6 @@ public class ShapePane extends JComponent
 		refresh();
 	}
 
-
 	@Override
 	public Dimension getPreferredSize()
 	{

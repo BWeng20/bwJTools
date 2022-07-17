@@ -36,7 +36,6 @@ import java.awt.geom.Rectangle2D;
  */
 public final class StyledShape extends AbstractShape
 {
-
 	public static final BasicStroke DEFAULT_STROKE = new BasicStroke(1f);
 
 	/**

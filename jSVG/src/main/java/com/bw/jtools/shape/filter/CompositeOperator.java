@@ -24,6 +24,9 @@ package com.bw.jtools.shape.filter;
 
 import com.bw.jtools.CaseInsensitiveEnum;
 
+/**
+ * Porter-Duff compositing mode.
+ */
 public enum CompositeOperator
 {
 	over,

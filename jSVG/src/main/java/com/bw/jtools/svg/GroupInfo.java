@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Collects all information about a shape that are needed to produce a final shape.
+ * Collects all information about a group of shapes.
+ * Used in case a group of shapes has a common filter.
  */
 public final class GroupInfo extends ElementInfo
 {

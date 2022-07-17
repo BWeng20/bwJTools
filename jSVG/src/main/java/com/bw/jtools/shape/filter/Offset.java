@@ -25,6 +25,9 @@ package com.bw.jtools.shape.filter;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
+/**
+ * Moves the source.
+ */
 public class Offset extends FilterBaseSingleSource
 {
 	public double dx_;

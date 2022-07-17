@@ -26,6 +26,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.Raster;
 
+/**
+ * Calculates bump-map-data from an image.<br/>
+ * Will be used in Specular Lighting filters.
+ */
 public class BumpImage
 {
 

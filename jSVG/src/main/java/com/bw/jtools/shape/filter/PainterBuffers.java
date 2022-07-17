@@ -31,10 +31,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Internal buffer-system to chain filters.<br/>
+ * Very memory consuming, ugly and slow. One reason against usage of filter at all.
+*/
 public class PainterBuffers
 {
-	private Map<String, BufferedImage> buffers_ = new HashMap<>();
-	private Map<String, BufferedImage> tempBuffers_ = new HashMap<>();
+	private final Map<String, BufferedImage> buffers_ = new HashMap<>();
+	private final Map<String, BufferedImage> tempBuffers_ = new HashMap<>();
 	private GraphicsConfiguration cfg_;
 	public static long buffersCreated_;
 

@@ -24,6 +24,9 @@ package com.bw.jtools.svg;
 
 import java.util.List;
 
+/**
+ * Declaration of a filter.
+ */
 public class Filter
 {
 	public final String id_;

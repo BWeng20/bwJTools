@@ -14,12 +14,12 @@ sourceSets {
 }
 
 dependencies {
-    implementation project(':jtools')
+    implementation project(':jToolsCore')
     implementation project(':jProfiling')
 }
 
 jar {
-    dependsOn ':jtools:jar'
+    dependsOn ':jToolsCore:jar'
     dependsOn ':jProfiling:jar'
 
     manifest {

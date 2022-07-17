@@ -14,13 +14,13 @@ sourceSets {
 }
 
 dependencies {
-    implementation project(':jtools')
+    implementation project(':jToolsCore')
     implementation project(':jProfiling')
     implementation project(':jSVG')
 }
 
 jar {
-    dependsOn ':jtools:jar'
+    dependsOn ':jToolsCore:jar'
     dependsOn ':jProfiling:jar'
     dependsOn ':jSVG:jar'
 

@@ -13,14 +13,15 @@ sourceSets {
 }
 
 dependencies {
-    implementation project(':jtools')
+    implementation project(':jToolsCore')
     implementation group:'javax.interceptor', name:'javax.interceptor-api', version:'1.2'
     implementation group:'javax.json', name:'javax.json-api', version:'1.1.4'
     implementation group: 'org.apache.openejb', name: 'javaee-api', version: '6.0-6'    
 }
 
 jar {
-   
+    dependsOn ':jToolsCore:jar'
+
     manifest {
         attributes 'Implementation-Title': 'A minimalistic long term profiling framework',  
         	   'Implementation-Version': project.version,
@@ -33,7 +34,7 @@ jar {
     duplicatesStrategy = 'exclude'
 
     from "${rootProject.projectDir}/licenses" 
-    from { project(':jtools').sourceSets.main.runtimeClasspath.collect()  { (!it.exists() || it.isDirectory()) ? it : zipTree(it) } }
+    from { project(':jToolsCore').sourceSets.main.runtimeClasspath.collect()  { (!it.exists() || it.isDirectory()) ? it : zipTree(it) } }
     includes = [ '**/com/bw/jtools/Log*', '**/com/bw/jtools/log/*', 
                  '**/com/bw/jtools/io/JsonTool*',
                  '**/com/bw/jtools/profiling/**', 

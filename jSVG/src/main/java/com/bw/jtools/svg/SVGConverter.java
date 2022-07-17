@@ -642,6 +642,7 @@ public class SVGConverter
 
 			f.primitives_ = new ArrayList<>();
 
+			// Collect all Sub-Primitives of the filter.
 			elementCache_.forSubTree(w.getNode(), e ->
 			{
 				FilterPrimitive fp = filterPrimitive(e);

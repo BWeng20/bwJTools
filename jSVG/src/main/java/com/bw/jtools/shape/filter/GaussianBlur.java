@@ -30,6 +30,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 
+/**
+ * Gaussian blur filter.
+ */
 public class GaussianBlur extends FilterBaseSingleSource
 {
 	double stdDeviationX_;

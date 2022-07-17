@@ -1,4 +1,4 @@
-/jtools/build/
+/jToolsCore/build/
 /jProfiling/build/
 /jProfilingAgent/build/
 /gradle/
@@ -10,3 +10,4 @@
 /gradlew.bat
 /build/
 /jSVG/build/
+/jSVG/src/test/svg/
