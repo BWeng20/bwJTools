@@ -77,7 +77,7 @@ public class DropCapDemo
 		// Use a set of letter-images for the drop-caps.
 		dropCap.getDropCap().setInitialSet("goudy", 55, 95, true);
 		// Colorized the drop-caps images with red (we can re-use the same images for all colors).
-		dropCap.getDropCap().setDropCapColor(new Color( 100, 5, 5));
+		dropCap.getDropCap().setImageBasePaint(new Color( 100, 5, 5));
 		// The same texture as for the normal text will be used to mask the image and
 		// give the image the same structure.
 		dropCap.getDropCap().setDropCapPaint(dcp,new BlendComposite(BlendComposite.Mode.MASK_GRAY));
