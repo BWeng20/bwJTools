@@ -4,8 +4,9 @@ import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.examples.applicationicons.ApplicationIconsDemo;
 import com.bw.jtools.ui.SettingsUI;
+import com.bw.jtools.ui.UITool;
 import com.bw.jtools.ui.icon.DummyIcon;
-import com.bw.jtools.ui.icon.JColorIcon;
+import com.bw.jtools.ui.icon.JPaintIcon;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -95,10 +96,10 @@ public class UIDefaults
 	static class ColorListCellRenderer extends DefaultListCellRenderer {
 
 		private JLabel label;
-		private JColorIcon icon;
+		private JPaintIcon icon;
 
 		ColorListCellRenderer() {
-			icon = new JColorIcon();
+			icon = new JPaintIcon();
 			label = new JLabel();
 			label.setOpaque(true);
 			label.setIconTextGap(10);
@@ -117,8 +118,8 @@ public class UIDefaults
 
 			ColorWrapper cw = (ColorWrapper)value;
 
-			icon.setColor(cw.color);
-			label.setText(cw.color.getRed()+","+cw.color.getGreen()+","+cw.color.getBlue()+" "+cw.name);
+			icon.setPaint(cw.color);
+			label.setText(UITool.paintToString(cw.color));
 
 			if (selected) {
 				label.setBackground(list.getSelectionBackground());

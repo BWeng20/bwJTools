@@ -30,7 +30,7 @@ import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.JTabComponent;
 import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.icon.JColorIcon;
+import com.bw.jtools.ui.icon.JPaintIcon;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -106,7 +106,7 @@ public class JTabComponentDemo
         // setTabComponentAt call.
         tpane.insertTab( "", null, tabpanel, null, atIndex );
 
-        JColorIcon icon = new JColorIcon(14,14, colors[ idx ]);
+        JPaintIcon icon = new JPaintIcon(14,14, colors[ idx ]);
         icon.setBorderPainted(false);
 
         tpane.setTabComponentAt(atIndex, new JTabComponent(name,

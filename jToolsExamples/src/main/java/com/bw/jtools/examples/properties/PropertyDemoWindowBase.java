@@ -24,7 +24,7 @@ package com.bw.jtools.examples.properties;
 import com.bw.jtools.Log;
 import com.bw.jtools.properties.PropertyBooleanValue;
 import com.bw.jtools.properties.PropertyChangeListener;
-import com.bw.jtools.properties.PropertyColorValue;
+import com.bw.jtools.properties.PropertyPaintValue;
 import com.bw.jtools.properties.PropertyEnumValue;
 import com.bw.jtools.properties.PropertyGroup;
 import com.bw.jtools.properties.PropertyNumberValue;
@@ -148,7 +148,7 @@ public abstract class PropertyDemoWindowBase
         pg1.addProperty(choiceVal);
 
         pg1.addProperty(new PropertyBooleanValue("PropertyBooleanNode(null)", null ) );
-        pg1.addProperty(new PropertyColorValue("PropertyColorNode(new Color(200,200,200 ))", new Color(200,200,200 )) );
+        pg1.addProperty(new PropertyPaintValue("PropertyColorNode(new Color(200,200,200 ))", new Color(200,200,200 )) );
         pg1.addProperty(new PropertyStringValue("PropertyStringNode(null)", null ) );
 
         groups.add(pg1);

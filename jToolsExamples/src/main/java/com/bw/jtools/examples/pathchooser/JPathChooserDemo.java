@@ -50,19 +50,9 @@ public class JPathChooserDemo
 		d.addButton(large);
 		d.addButton(new JLAFComboBox());
 
-		// Try to locate the jar we are running from and add it as file-system.
-		FileSystem jarFS = IOTool.getFileSystemForClass(JPathChooser.class);
-		if (jarFS != null)
-		{
-			d.addFileSystem(jarFS, "Application", null);
-		}
-
-		// Add jdk file-system. Since java 9 jrt file system should be used here.
-		FileSystem swingFS = IOTool.getFileSystemForClass(JComponent.class);
-		if (swingFS != null)
-		{
-			d.addFileSystem(swingFS, "Jdk", null);
-		}
+		d.showJreFileSystems();
+		JFileChooserPreview preview = new JFileChooserPreview(300, "Preview", 5, 5, JFileChooserPreview.defaultHandlers());
+		preview.install(d);
 
 		d.setFileSelectionMode(PathChooserMode.FILES_ONLY);
 		final JCheckBox files = new JCheckBox("Files");
@@ -108,13 +98,9 @@ public class JPathChooserDemo
 		d.addButton(files);
 		d.addButton(folders);
 
-		JFileChooserPreview preview = new JFileChooserPreview(300, "Preview", 5, 5, JFileChooserPreview.defaultHandlers());
-		preview.install(d);
-
 		d.setDirectory(IOTool.getPath(System.getProperty("user.home")));
 		d.setFileSelectionMode(PathChooserMode.FILES_AND_FOLDERS);
 		d.showDialog(null, "Select Some Folder or File", "Select");
-
 
 		Path p = d.getSelectedPath();
 

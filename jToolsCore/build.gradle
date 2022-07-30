@@ -1,6 +1,5 @@
 plugins {
     id 'java-library'
-    id 'de.jjohannes.extra-java-module-info' version '0.11'
 }
 
 sourceSets {
@@ -15,44 +14,24 @@ sourceSets {
     }
 }
 
-// extraJavaModuleInfo from plugin de.jjohannes.extra-java-module-info
-// Transforms unnamed modules
-extraJavaModuleInfo {
-    module("commons-csv-1.8.jar", "commons.csv", "1.8") {
-        exports("org.apache.commons.csv")
-        requires("java.sql")
-    }
-
-    module("javax.interceptor-api-1.2.jar", "javax.interceptor.api", "1.2") {
-        exports("javax.interceptor.api")
-    }
-
-    module("org-netbeans-swing-outline-RELEASE121.jar", "org.netbeans.swing.outline", "121") {
-        exports("org.netbeans.swing")
-        exports("org.netbeans.swing.outline")
-        requires("java.desktop")
-    }
-}
-
-
 dependencies {
     implementation project(':jSVG')
-    implementation 'org.apache.logging.log4j:log4j-api:2.12.0'
-    implementation 'org.apache.logging.log4j:log4j-core:2.12.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.2'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.2'
     implementation 'javax.json:javax.json-api:1.1.4'
     implementation 'org.glassfish:javax.json:1.1.4'
-    implementation 'org.apache.commons:commons-csv:1.8'
-    implementation 'javax.interceptor:javax.interceptor-api:1.2'
+    implementation 'org.apache.commons:commons-csv:1.9.0'
+    implementation 'javax.interceptor:javax.interceptor-api:1.2.2'
     api 'org.netbeans.api:org-netbeans-swing-outline:RELEASE121'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 }
 
 compileJava {
     doFirst {
         options.compilerArgs = [
-                '--add-exports', 'java.desktop/sun.awt.shell=com.bw.jtools'
+                '--add-exports', 'java.desktop/sun.awt.shell=ALL-UNNAMED'
         ]
     }
 }
