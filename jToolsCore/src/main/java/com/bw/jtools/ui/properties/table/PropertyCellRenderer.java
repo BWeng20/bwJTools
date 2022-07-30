@@ -21,11 +21,11 @@
  */
 package com.bw.jtools.ui.properties.table;
 
-import com.bw.jtools.properties.PropertyColorValue;
 import com.bw.jtools.properties.PropertyFontValue;
 import com.bw.jtools.properties.PropertyValue;
+import com.bw.jtools.ui.UITool;
 import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.icon.JColorIcon;
+import com.bw.jtools.ui.icon.JPaintIcon;
 import org.netbeans.swing.outline.Outline;
 
 import javax.swing.BorderFactory;
@@ -42,6 +42,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Paint;
 import java.text.NumberFormat;
 import java.util.Map;
 import java.util.Objects;
@@ -65,8 +66,8 @@ public class PropertyCellRenderer implements TableCellRenderer
 	protected final Color groupBackground_;
 	protected final JCheckBox booleanBox_;
 
-	protected final JLabel color_;
-	protected final JColorIcon colorIcon_;
+	protected final JLabel paint_;
+	protected final JPaintIcon paintIcon_;
 
 
 	protected final NumberFormat nf_;
@@ -93,12 +94,12 @@ public class PropertyCellRenderer implements TableCellRenderer
 		booleanBox_.setOpaque(true);
 		booleanBox_.setFont(font_);
 
-		colorIcon_ = new JColorIcon(13, 13, null);
+		paintIcon_ = new JPaintIcon(13, 13, null);
 
-		color_ = new JLabel();
-		color_.setIcon(colorIcon_);
-		color_.setOpaque(true);
-		color_.setFont(font_);
+		paint_ = new JLabel();
+		paint_.setIcon(paintIcon_);
+		paint_.setOpaque(true);
+		paint_.setFont(font_);
 
 		fontLabel_ = new JLabel();
 		fontLabel_.setOpaque(false);
@@ -179,13 +180,13 @@ public class PropertyCellRenderer implements TableCellRenderer
 					text_.setText((propVal.nf_ == null ? nf_ : propVal.nf_).format(val));
 					comp = text_;
 				}
-				else if (Color.class.isAssignableFrom(propVal.valueClazz_))
+				else if (Paint.class.isAssignableFrom(propVal.valueClazz_))
 				{
-					Color c = (Color) val;
+					Paint c = (Paint) val;
 					if (c == null) c = Color.BLACK;
-					colorIcon_.setColor(c);
-					color_.setText(PropertyColorValue.toString(c));
-					comp = color_;
+					paintIcon_.setPaint(c);
+					paint_.setText(UITool.paintToString(c));
+					comp = paint_;
 				}
 				else if (Font.class.isAssignableFrom(propVal.valueClazz_))
 				{

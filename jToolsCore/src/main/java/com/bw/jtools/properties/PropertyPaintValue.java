@@ -21,12 +21,15 @@
  */
 package com.bw.jtools.properties;
 
+import com.bw.jtools.ui.UITool;
+
 import java.awt.Color;
+import java.awt.Paint;
 
 /**
- * Convenience wrapper for a property with Color content.
+ * Convenience wrapper for a property with Paint content.
  */
-public class PropertyColorValue extends PropertyValue<Color>
+public class PropertyPaintValue extends PropertyValue<Paint>
 {
 	/**
 	 * Variable serialVersionUID of long
@@ -34,39 +37,31 @@ public class PropertyColorValue extends PropertyValue<Color>
 	private static final long serialVersionUID = 8880872805669539218L;
 
 	/**
-	 * Creates a "color"-value with name and value.
+	 * Creates a "paint"-value with name and value.
 	 *
-	 * @param key Key of the property.
+	 * @param key   Key of the property.
 	 * @param value The value. Can be null.
 	 */
-	public PropertyColorValue(String key, Color value)
+	public PropertyPaintValue(String key, Paint value)
 	{
-		super(key, Color.class);
+		super(key, Paint.class);
 		setValue(value);
 	}
 
 	/**
-	 * Gets the color as RGB: "R,G,B"
+	 * Convenience method to cast the paint to color.
 	 */
-	public String toString()
+	public Color getColorValue()
 	{
-		return toString(getValue());
+		return (Color) getValue();
 	}
 
 	/**
-	 * Gets the color as RGB: "R,G,B"
+	 * Gets the paint value as string. E.g. a color as RGB: "R,G,B"
 	 */
-	public static String toString(Color col)
+	public String toString()
 	{
-		if (col == null)
-			return "";
-
-		StringBuilder sb = new StringBuilder(20);
-		sb.append(col.getRed())
-		  .append(",");
-		sb.append(col.getGreen())
-		  .append(",");
-		sb.append(col.getBlue());
-		return sb.toString();
+		return UITool.paintToString(getValue());
 	}
+
 }

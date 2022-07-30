@@ -52,34 +52,43 @@ public class JPathInput extends JPanel
 			fireSelectionChanged(true);
 		});
 
-		add( this.input_, BorderLayout.CENTER );
+		add(this.input_, BorderLayout.CENTER);
 	}
 
-	public void setPath( PathInfo pi )
+	public void setPath(PathInfo pi)
 	{
 		final Path p = pi.getPath();
 
-		if ( p.getFileSystem() == FileSystems.getDefault() )
+		if (p.getFileSystem() == FileSystems.getDefault())
 		{
-			input_.setText( p.toString() );
+			input_.setText(p.toString());
 		}
 		else
 		{
-			input_.setText( p.toUri().toString() );
+			input_.setText(p.toUri()
+							.toString());
 		}
 	}
 
 	public Path getSelectedPath()
 	{
-		String i = input_.getText().trim();
+		String i = input_.getText()
+						 .trim();
 		return IOTool.getPath(i);
 	}
+
+	public PathInfo getSelectedPathInfo()
+	{
+		Path p = getSelectedPath();
+		return p == null ? null : pathInfoProvider_.createPathInfo(p);
+	}
+
 
 	protected void fireSelectionChanged(boolean finalSelection)
 	{
 		PathInfo selectedValue = pathInfoProvider_.createPathInfo(getSelectedPath());
 
-		if ( selectedValue != null )
+		if (selectedValue != null)
 		{
 			Object[] listeners = listenerList.getListenerList();
 			PathSelectionEvent ev = new PathSelectionEvent(selectedValue, finalSelection);

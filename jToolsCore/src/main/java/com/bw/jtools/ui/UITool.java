@@ -21,13 +21,18 @@
  */
 package com.bw.jtools.ui;
 
+import com.bw.jtools.image.ImageTool;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.TexturePaint;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.text.NumberFormat;
@@ -126,12 +131,20 @@ public final class UITool
 	 * Calculates a color with hight contrast.<br>
 	 * Should be used to calculate e.g. a front-color based on a dynamic background-color.
 	 *
-	 * @param col Color to use as reference.
+	 * @param paint Color to use as reference.
 	 * @return Block or White, depending on input.
 	 */
-	public static Color calculateContrastColor(Color col)
+	public static Color calculateContrastColor(Paint paint)
 	{
-		return calculateContrastColor(col, Color.WHITE, Color.BLACK);
+		if (paint instanceof Color)
+			return calculateContrastColor((Color) paint, Color.WHITE, Color.BLACK);
+		else if (paint instanceof GradientPaint)
+		{
+			GradientPaint g = (GradientPaint) paint;
+			return calculateContrastColor(blendColors(g.getColor1(), g.getColor2(), 0.5f),
+					Color.WHITE, Color.BLACK);
+		}
+		return Color.BLACK;
 	}
 
 	/**
@@ -219,6 +232,37 @@ public final class UITool
 		toPlace.setLocation(target);
 	}
 
+	/**
+	 * Blend two colors with some ratio.<br>
+	 * First color proportion is "ration", second color
+	 * proportion is "1-ration".
+	 *
+	 * @param col1  First color
+	 * @param col2  Second Color
+	 * @param ratio The ratio.
+	 * @return
+	 */
+	public static Color blendColors(Color col1, Color col2, float ratio)
+	{
+
+		if (ratio < 0f)
+		{
+			ratio = 0;
+		}
+		else if (ratio > 1.0f)
+		{
+			ratio = 1.0f;
+		}
+
+		float secRatio = 1.0f - ratio;
+
+		final int r = (int) ((ratio * col2.getRed()) + (secRatio * col2.getRed()));
+		final int g = (int) ((ratio * col2.getGreen()) + (secRatio * col2.getGreen()));
+		final int b = (int) ((ratio * col2.getBlue()) + (secRatio * col2.getBlue()));
+
+		return new Color(r, g, b);
+	}
+
 	public static String formatStorageSizeBinary(NumberFormat nf, long size)
 	{
 		return formatStorageSize(nf, size, 1024, " B", " KiB", " MiB", " GiB", " TiB", " PiB", " EiB");
@@ -266,20 +310,49 @@ public final class UITool
 	/**
 	 * Adds the font render hints from guest desktop.
 	 */
-	public static void addDesktopFontHints( Graphics2D g2 )
+	public static void addDesktopFontHints(Graphics2D g2)
 	{
 		Toolkit tk = Toolkit.getDefaultToolkit();
 
-		if ( fontRenderHints_ == null )
+		if (fontRenderHints_ == null)
 		{
 			fontRenderHints_ = (Map) (tk.getDesktopProperty("awt.font.desktophints"));
-			if ( fontRenderHints_ == null )
+			if (fontRenderHints_ == null)
 			{
 				fontRenderHints_ = new HashMap();
-				fontRenderHints_.put( RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.	VALUE_TEXT_ANTIALIAS_GASP );
+				fontRenderHints_.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
 
 			}
 		}
 		g2.addRenderingHints(fontRenderHints_);
+	}
+
+	/**
+	 * Gets the paint as string.<br>
+	 * E.g. a color as RGB: "R,G,B"
+	 */
+	public static String paintToString(Paint paint)
+	{
+		if (paint == null)
+			return "";
+
+		if (paint instanceof Color)
+		{
+			Color col = (Color) paint;
+			StringBuilder sb = new StringBuilder(20);
+			sb.append(col.getRed())
+			  .append(",");
+			sb.append(col.getGreen())
+			  .append(",");
+			sb.append(col.getBlue());
+			return sb.toString();
+		}
+		else if (paint instanceof TexturePaint)
+		{
+			TexturePaint t = (TexturePaint) paint;
+			return ImageTool.getImageName(t.getImage());
+		}
+		else
+			return paint.toString();
 	}
 }

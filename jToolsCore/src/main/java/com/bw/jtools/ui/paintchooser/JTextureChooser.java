@@ -1,11 +1,16 @@
 package com.bw.jtools.ui.paintchooser;
 
 import com.bw.jtools.ui.I18N;
+import com.bw.jtools.ui.JPaintViewport;
+import com.bw.jtools.ui.filechooserpreview.ImagePreviewHandler;
+import com.bw.jtools.ui.filechooserpreview.JFileChooserPreview;
+import com.bw.jtools.ui.pathchooser.JPathChooser;
+import com.bw.jtools.ui.pathchooser.PathChooserMode;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
@@ -21,22 +26,23 @@ import java.awt.TexturePaint;
 import java.awt.Window;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 
 public class JTextureChooser extends JPanel
 {
-	protected Rectangle2D chosenAnchorRect_;
-	protected int chosenTransparency_ = 0;
-	protected BufferedImage chosenImage_;
-
+	protected TexturePaint currentPaint_;
+	protected Rectangle2D currentAnchorRect_;
 	protected TexturePaint chosenPaint_;
+
+	protected JPathChooser pathChooser_;
+	protected JPaintViewport paintViewPort;
 
 	public JTextureChooser()
 	{
 		setLayout(new GridBagLayout());
 
-		JLabel image = new JLabel();
-		JButton browseRessources = new JButton("Ressource");
-		JButton browseFiles = new JButton("File");
+		JButton browse = new JButton("Select Image");
 
 		GridBagConstraints gc = new GridBagConstraints();
 
@@ -47,7 +53,12 @@ public class JTextureChooser extends JPanel
 		gc.weighty = 1;
 		gc.gridheight = GridBagConstraints.REMAINDER;
 		gc.fill = GridBagConstraints.BOTH;
-		add(new JScrollPane(image), gc);
+
+		JScrollPane sp = new JScrollPane();
+		add(sp, gc);
+
+		paintViewPort = new JPaintViewport();
+		sp.setViewport(paintViewPort);
 
 		gc.anchor = GridBagConstraints.NORTHWEST;
 		gc.fill = GridBagConstraints.HORIZONTAL;
@@ -55,35 +66,70 @@ public class JTextureChooser extends JPanel
 		gc.weighty = 0;
 		gc.gridheight = 1;
 		++gc.gridx;
-		add(browseRessources, gc);
+		add(browse, gc);
 		++gc.gridy;
-		add(browseFiles, gc);
+
+		browse.addActionListener(e ->
+		{
+			if (pathChooser_ == null)
+			{
+				pathChooser_ = new JPathChooser();
+				pathChooser_.showJreFileSystems();
+				pathChooser_.setFileSelectionMode(PathChooserMode.FILES_ONLY);
+				JFileChooserPreview preview = new JFileChooserPreview(300, "Preview", 5, 5,
+						new ImagePreviewHandler());
+				preview.install(pathChooser_);
+			}
+			if (pathChooser_.showDialog(this, "Select Image", "Select"))
+			{
+				try
+				{
+					URL url = pathChooser_.getSelectedPath()
+										  .toUri()
+										  .toURL();
+					BufferedImage image = ImageIO.read(url);
+					Rectangle2D r = currentAnchorRect_;
+					if (r == null)
+						r = new Rectangle2D.Double(0, 0, (double) image.getWidth(),
+								(double) image.getHeight());
+					currentPaint_ = new TexturePaint(image, r);
+					updateViewport();
+
+				}
+				catch (IOException ex)
+				{
+					ex.printStackTrace();
+				}
+			}
+
+		});
 
 	}
 
 	public TexturePaint getSelectedPaint()
 	{
-		if (chosenImage_ != null)
-		{
-			return new TexturePaint(chosenImage_, chosenAnchorRect_);
-		}
-		else
-			return null;
+		return chosenPaint_;
 	}
 
 	public void setSelectedPaint(TexturePaint p)
 	{
-		if (p == null)
+		currentPaint_ = p;
+		if (p != null)
 		{
-			chosenAnchorRect_ = null;
-			chosenImage_ = null;
-		}
-		else
-		{
-			chosenAnchorRect_ = p.getAnchorRect();
-			chosenImage_ = p.getImage();
+			currentAnchorRect_ = p.getAnchorRect();
+			// rectX.setText( Double.toString(currentAnchorRect_.getX()));
 		}
 		chosenPaint_ = null;
+		updateViewport();
+	}
+
+	protected void updateViewport()
+	{
+		if (currentPaint_ == null)
+			paintViewPort.setBackgroundPaint(getBackground());
+		else
+			paintViewPort.setBackgroundPaint(currentPaint_);
+		repaint();
 	}
 
 
@@ -113,7 +159,7 @@ public class JTextureChooser extends JPanel
 		JButton ok = new JButton(I18N.getText("button.ok"));
 		ok.addActionListener(e ->
 		{
-			chooserPane.chosenPaint_ = chooserPane.getSelectedPaint();
+			chooserPane.chosenPaint_ = chooserPane.currentPaint_;
 			chooserDialog.setVisible(false);
 		});
 

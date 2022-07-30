@@ -57,6 +57,13 @@ public class JFontButton extends JChooserButtonBase<Font>
 		setBorderPainted(true);
 	}
 
+	@Override
+	public void setValue(Font v)
+	{
+		super.setValue(v);
+		setFont((v == null) ? getDefaultFont() : v);
+	}
+
 	protected Font showChooserDialog()
 	{
 		return JFontChooser.showDialog(this, getDialogTitle(), getValue());

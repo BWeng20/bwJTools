@@ -19,59 +19,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.ui;
+package com.bw.jtools.ui.paintchooser;
 
+import com.bw.jtools.ui.I18N;
+import com.bw.jtools.ui.JChooserButtonBase;
+import com.bw.jtools.ui.UITool;
 import com.bw.jtools.ui.icon.JPaintIcon;
 
 import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
+import java.awt.Paint;
 
 /**
- * Convenience button to show a color chooser.
+ * Convenience button to show a paint chooser.
  */
-public class JColorChooserButton extends JChooserButtonBase<Color>
+public class JPaintChooserButton extends JChooserButtonBase<Paint>
 {
-	private JPaintIcon colorIcon_;
+	private JPaintIcon paintIcon_;
 	private boolean showValue_ = true;
 
 	/**
-	 * Gets the color icon.
+	 * Gets the paint icon.
 	 *
 	 * @return The icon.
 	 */
-	public JPaintIcon getColorIcon()
+	public JPaintIcon getPaintIcon()
 	{
-		if (colorIcon_ == null)
+		if (paintIcon_ == null)
 		{
-			colorIcon_ = new JPaintIcon(13, 13, null);
+			paintIcon_ = new JPaintIcon(13, 13, null);
 		}
-		return colorIcon_;
+		return paintIcon_;
 	}
 
 	/**
-	 * Sets the color.
+	 * Sets the paint.
 	 *
-	 * @param c The new color
+	 * @param p The new paint
 	 */
 	@Override
-	public void setValue(Color c)
+	public void setValue(Paint p)
 	{
-		super.setValue(c);
+		super.setValue(p);
 		updateText();
-		getColorIcon().setPaint(c);
+		getPaintIcon().setPaint(p);
 	}
 
 	protected void updateText()
 	{
-		Color c = getValue();
+		Paint c = getValue();
 		if (c != null && showValue_)
 		{
-			setText(UITool.paintToString(c));
+			setText( UITool.paintToString(c));
 		}
 		else
 			setText(null);
@@ -81,10 +83,10 @@ public class JColorChooserButton extends JChooserButtonBase<Color>
 	/**
 	 * Creates a new Color-Button
 	 */
-	public JColorChooserButton()
+	public JPaintChooserButton()
 	{
 		super(I18N.getText("colorchooser.defaultDialogTitle"));
-		setIcon(getColorIcon());
+		setIcon(getPaintIcon());
 		setIconTextGap(5);
 		setOpaque(false);
 		setBorderPainted(true);
@@ -132,9 +134,9 @@ public class JColorChooserButton extends JChooserButtonBase<Color>
 	}
 
 	@Override
-	protected Color showChooserDialog()
+	protected Paint showChooserDialog()
 	{
-		return JColorChooser.showDialog(this,
+		return JPaintChooser.showDialog(this,
 				getDialogTitle(),
 				getValue());
 	}

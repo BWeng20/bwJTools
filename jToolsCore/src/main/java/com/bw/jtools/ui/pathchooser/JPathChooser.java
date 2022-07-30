@@ -22,6 +22,7 @@
 package com.bw.jtools.ui.pathchooser;
 
 import com.bw.jtools.Log;
+import com.bw.jtools.io.IOTool;
 import com.bw.jtools.ui.pathchooser.impl.ShellIconProvider;
 import com.bw.jtools.ui.pathchooser.impl.SystemIconProvider;
 import com.bw.jtools.ui.pathchooser.impl.ZipAwarePathProvider;
@@ -117,7 +118,7 @@ public class JPathChooser extends JComponent
 		okButton_ = new JButton("");
 		okButton_.addActionListener(e ->
 		{
-			if (dialog_ != null) dialog_.setVisible(false);
+			doSelection(input_.getSelectedPathInfo());
 		});
 
 
@@ -132,14 +133,15 @@ public class JPathChooser extends JComponent
 		buttons_.add(okButton_);
 		buttons_.add(cancelButton_);
 
-		forcedBackground_ = new Color(UIManager.getColor("List.background").getRGB());
+		forcedBackground_ = new Color(UIManager.getColor("List.background")
+											   .getRGB());
 		buttons_.setBackground(forcedBackground_);
 
 		JSplitPane splitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
 		JPanel left = new JPanel(new BorderLayout());
-		left.add(fileList_, BorderLayout.CENTER );
-		left.add(input_,BorderLayout.SOUTH);
+		left.add(fileList_, BorderLayout.CENTER);
+		left.add(input_, BorderLayout.SOUTH);
 
 		splitter.setRightComponent(left);
 		splitter.setLeftComponent(systemTree_);
@@ -159,7 +161,7 @@ public class JPathChooser extends JComponent
 			fireSelectionChanged(newPath, ev.isFinalSelection());
 			if (newPath != null)
 			{
-				if ( ! ( ev.isFinalSelection() && doSelection(newPath)) )
+				if (!(ev.isFinalSelection() && doSelection(newPath)))
 				{
 					fileList_.setDirectory(newPath);
 					input_.setPath(newPath);
@@ -173,9 +175,9 @@ public class JPathChooser extends JComponent
 			fireSelectionChanged(newPath, ev.isFinalSelection());
 			if (newPath != null)
 			{
-				if ( ev.isFinalSelection() )
+				if (ev.isFinalSelection())
 				{
-					if ( !doSelection(newPath))
+					if (!doSelection(newPath))
 					{
 						if (newPath.isTraversable())
 						{
@@ -194,7 +196,7 @@ public class JPathChooser extends JComponent
 			fireSelectionChanged(newPath, ev.isFinalSelection());
 			if (newPath != null)
 			{
-				if (!( ev.isFinalSelection() && doSelection(newPath)) )
+				if (!(ev.isFinalSelection() && doSelection(newPath)))
 				{
 					if (newPath.isTraversable())
 					{
@@ -202,7 +204,7 @@ public class JPathChooser extends JComponent
 						fileList_.setDirectory(newPath);
 					}
 					else
-						fileList_.setPath( newPath );
+						fileList_.setPath(newPath);
 				}
 			}
 		});
@@ -315,7 +317,8 @@ public class JPathChooser extends JComponent
 		super.updateUI();
 		icons_.updateUIIcons();
 
-		forcedBackground_ = new Color(UIManager.getColor("List.background").getRGB());
+		forcedBackground_ = new Color(UIManager.getColor("List.background")
+											   .getRGB());
 
 		buttons_.setBackground(forcedBackground_);
 		systemTree_.setBackground(forcedBackground_);
@@ -323,8 +326,9 @@ public class JPathChooser extends JComponent
 		{
 			accessories_.setBackground(forcedBackground_);
 			int N = accessories_.getComponentCount();
-			for ( int ci = 0 ; ci < N; ++ci )
-				accessories_.getComponent(ci).setBackground(forcedBackground_);
+			for (int ci = 0; ci < N; ++ci)
+				accessories_.getComponent(ci)
+							.setBackground(forcedBackground_);
 
 		}
 	}
@@ -451,7 +455,7 @@ public class JPathChooser extends JComponent
 	{
 		if (accessories_ == null)
 		{
-			accessories_ = new JPanel(new GridLayout(0,1));
+			accessories_ = new JPanel(new GridLayout(0, 1));
 			accessories_.setBackground(forcedBackground_);
 			add(accessories_, BorderLayout.EAST);
 		}
@@ -489,4 +493,25 @@ public class JPathChooser extends JComponent
 		systemTree_.addFileSystem(fs, name, icon);
 	}
 
+	/**
+	 * Tries to locate the jar the app is running from and add it as file-system.<br>
+	 * Also tries to add the jdk file-system. Since java 9 jrt file system should be used here.
+	 */
+	public void showJreFileSystems()
+	{
+		// Try to locate the jar we are running from and add it as file-system.
+		FileSystem jarFS = IOTool.getFileSystemForClass(JPathChooser.class);
+		if (jarFS != null)
+		{
+			addFileSystem(jarFS, "Application", null);
+		}
+
+		// Add jdk file-system. Since java 9 jrt file system should be used here.
+		FileSystem swingFS = IOTool.getFileSystemForClass(JComponent.class);
+		if (swingFS != null)
+		{
+			addFileSystem(swingFS, "Jdk", null);
+		}
+
+	}
 }

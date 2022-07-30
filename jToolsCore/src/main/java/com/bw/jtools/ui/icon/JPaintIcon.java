@@ -34,9 +34,9 @@ import java.awt.RenderingHints;
 
 /**
  * An icon-implementation to show a filled rectangle with a small border.<br>
- * Designed to work as indicator for a color value. The default icon size is 13x13.
+ * Designed to work as indicator for a paint/color value. The default icon size is 13x13.
  */
-public final class JColorIcon implements Icon
+public final class JPaintIcon implements Icon
 {
 	/**
 	 * The width of the icon area.
@@ -51,7 +51,7 @@ public final class JColorIcon implements Icon
 	/**
 	 * The color of the inner area.
 	 */
-	protected Paint color_;
+	protected Paint paint_;
 
 	/**
 	 * Border is drawn if true.
@@ -65,13 +65,13 @@ public final class JColorIcon implements Icon
 	 *
 	 * @param width  The width of the icon to show.
 	 * @param height The height of the icon to show.
-	 * @param color  The color to show. Can be null.
+	 * @param paint  The paint to show. Can be null.
 	 */
-	public JColorIcon(int width, int height, Paint color)
+	public JPaintIcon(int width, int height, Paint paint)
 	{
 		this.width_ = width;
 		this.height_ = height;
-		setColor(color);
+		setPaint(paint);
 	}
 
 	/**
@@ -90,34 +90,34 @@ public final class JColorIcon implements Icon
 	/**
 	 * Creates a new (and empty) icon with size 13x13.
 	 */
-	public JColorIcon()
+	public JPaintIcon()
 	{
-		this.color_ = Color.WHITE;
+		this.paint_ = Color.WHITE;
 		this.width_ = 13;
 		this.height_ = 13;
 	}
 
 	/**
-	 * Sets the shown color.The icon will not automatically be redrawn.
+	 * Sets the shown paint.The icon will not automatically be redrawn.
 	 * Called needs to redraw the containing component if needed.<br>
 	 * The border color is calculated via
-	 * {@link com.bw.jtools.ui.UITool#calculateContrastColor(java.awt.Color) UITool.calculateContrastColor}.
+	 * {@link com.bw.jtools.ui.UITool#calculateContrastColor(java.awt.Paint) UITool.calculateContrastColor}.
 	 *
-	 * @param color The color to show.
+	 * @param paint The paint to show.
 	 */
-	public void setColor(Paint color)
+	public void setPaint(Paint paint)
 	{
-		this.color_ = (color == null) ? Color.WHITE : color;
+		this.paint_ = (paint == null) ? Color.WHITE : paint;
 	}
 
 	/**
-	 * Gets the currently shown color.
+	 * Gets the currently shown paint.
 	 *
-	 * @return The currently set color.
+	 * @return The currently set paint.
 	 */
-	public Paint getColor()
+	public Paint getPaint()
 	{
-		return color_;
+		return paint_;
 	}
 
 	/**
@@ -128,7 +128,7 @@ public final class JColorIcon implements Icon
 	{
 		Graphics2D g2D = (Graphics2D) g.create();
 
-		g2D.setPaint(color_);
+		g2D.setPaint(paint_);
 		g2D.fillRect(x, y, width_, height_);
 
 		if (borderPainted_)
@@ -136,17 +136,17 @@ public final class JColorIcon implements Icon
 			g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 			Paint borderColor;
-			if (this.color_ instanceof Color)
+			if (this.paint_ instanceof Color)
 			{
-				Color bc = UITool.calculateContrastColor((Color) this.color_);
+				Color bc = UITool.calculateContrastColor(this.paint_);
 				if (Math.abs(UITool.calculateLumiance(bc) - UITool.calculateLumiance(c.getBackground())) < 20)
 				{
-					bc = (Color) this.color_;
+					bc = (Color) this.paint_;
 				}
 				borderColor = bc;
 			}
 			else
-				borderColor = this.color_;
+				borderColor = this.paint_;
 			g2D.setPaint(borderColor);
 			g2D.setStroke(stroke_);
 			g2D.drawRect(x, y, width_, height_);

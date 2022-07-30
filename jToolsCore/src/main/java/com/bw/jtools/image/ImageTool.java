@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Tools for Image manipulation
@@ -383,17 +384,18 @@ public class ImageTool
 
 		g2.setPaint(paint);
 		g2.setFont(font);
-		UITool.addDesktopFontHints( g2 );
+		UITool.addDesktopFontHints(g2);
 		final Rectangle2D bounds = font.getStringBounds(text, g2.getFontRenderContext());
-		g2.drawString(text, (int) (((width - bounds.getWidth()) / 2 )+0.5),
-				(int) (((height - bounds.getHeight()) / 2) + g2.getFontMetrics().getAscent()+0.5));
+		g2.drawString(text, (int) (((width - bounds.getWidth()) / 2) + 0.5),
+				(int) (((height - bounds.getHeight()) / 2) + g2.getFontMetrics()
+															   .getAscent() + 0.5));
 		g2.dispose();
 	}
 
 	/**
 	 * Create a checkerboard paint where each field is width x height.
 	 */
-	public static BufferedImage createCheckerboardImage(Color c1, Color c2, int width, int height )
+	public static BufferedImage createCheckerboardImage(Color c1, Color c2, int width, int height)
 	{
 		return createCheckerboardImage(c1, c2, width, height, 2, 2);
 	}
@@ -402,11 +404,12 @@ public class ImageTool
 	 * Create a checkerboard paint where each field is width x height.
 	 * Number of fields in each direction can be specified with column and rows.
 	 */
-	public static BufferedImage createCheckerboardImage(Color c1, Color c2, int width, int height, int columns, int rows ) {
-		final BufferedImage img = createImage(columns*width, rows*height, false);
+	public static BufferedImage createCheckerboardImage(Color c1, Color c2, int width, int height, int columns, int rows)
+	{
+		final BufferedImage img = createImage(columns * width, rows * height, false);
 		Graphics2D g2 = img.createGraphics();
 		Color tmp;
-		for ( int r = 0 ; r<rows; ++r)
+		for (int r = 0; r < rows; ++r)
 		{
 			for (int c = 0; c < columns; ++c)
 			{
@@ -425,5 +428,25 @@ public class ImageTool
 		return img;
 	}
 
-
+	public static String getImageName(Image img)
+	{
+		synchronized (images_)
+		{
+			for (Map.Entry<String, BufferedImage> bi : images_.entrySet())
+			{
+				if (bi.getValue() == img)
+				{
+					String key = bi.getKey();
+					String[] keyParts = key.split(":");
+					if (keyParts.length > 2)
+					{
+						// Get the file name
+						return keyParts[1];
+					}
+					break;
+				}
+			}
+		}
+		return null;
+	}
 }

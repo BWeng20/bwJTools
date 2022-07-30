@@ -103,7 +103,7 @@ public class PropertyValue<T>
 	 * Constructs a new property by name and value-clazz.
 	 * The value will initially be null.
 	 *
-	 * @param key       The key (and initial display name) of the property to show.
+	 * @param key        The key (and initial display name) of the property to show.
 	 * @param valueClazz The value-class of the property.
 	 */
 	public PropertyValue(String key, Class<? extends T> valueClazz)
@@ -113,13 +113,13 @@ public class PropertyValue<T>
 		this.valueClazz_ = valueClazz;
 	}
 
-	public void setDisplayName( String name)
+	public void setDisplayName(String name)
 	{
 		this.displayName_ = name;
 	}
 
 
-	public void setIcon( Icon icon)
+	public void setIcon(Icon icon)
 	{
 		this.diplayIcon_ = icon;
 	}
@@ -231,6 +231,18 @@ public class PropertyValue<T>
 				return nb.floatValue();
 		}
 		return nb;
+	}
+
+	/**
+	 * Returns the string representation of the value.
+	 */
+	@Override
+	public String toString()
+	{
+		if (hasContent())
+			return String.valueOf(getValue());
+		else
+			return "";
 	}
 
 }

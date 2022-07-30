@@ -22,43 +22,28 @@
 package com.bw.jtools.ui.dropcaps;
 
 import com.bw.jtools.image.BlendComposite;
-import com.bw.jtools.properties.PropertyColorValue;
-import com.bw.jtools.properties.PropertyEnumValue;
 import com.bw.jtools.properties.PropertyFontValue;
-import com.bw.jtools.properties.PropertyGroup;
+import com.bw.jtools.properties.PropertyPaintValue;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.I18N;
-import com.bw.jtools.ui.JIconButton;
 import com.bw.jtools.ui.UITool;
-import com.bw.jtools.ui.fontchooser.JFontChooser;
 import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.icon.JColorIcon;
-import com.bw.jtools.ui.properties.sheet.PropertyGroupSheet;
 import com.bw.jtools.ui.properties.table.PropertyGroupNode;
 import com.bw.jtools.ui.properties.table.PropertyTable;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Composite;
 import java.awt.Dialog;
-import java.awt.Font;
 import java.awt.Window;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 public class JDropCharConfig extends JPanel
 {
@@ -110,29 +95,29 @@ public class JDropCharConfig extends JPanel
 		PropertyTable props = new PropertyTable();
 		PropertyGroupNode root = new PropertyGroupNode(null);
 
-		PropertyFontValue fontProp = new PropertyFontValue( "font", dropCap_.getFont() );
+		PropertyFontValue fontProp = new PropertyFontValue("font", dropCap_.getFont());
 		fontProp.setDisplayName(I18N.getText("dropcapconfig.textFont"));
 		Icon fontIcon = IconTool.getIcon(JDropCharConfig.class, "font.png");
-		fontProp.setIcon( fontIcon );
-		fontProp.addPropertyChangeListener( v ->
+		fontProp.setIcon(fontIcon);
+		fontProp.addPropertyChangeListener(v ->
 		{
 			dropCap_.setFont(v.getValue());
 		});
-		root.addProperty( fontProp );
+		root.addProperty(fontProp);
 
-		// Color-chooser to select the text-color.
-		PropertyColorValue textColorProp = new PropertyColorValue("textColor", (Color)dropCap_.getForegroundPaint() );
+		// Paint-chooser to select the text-color.
+		PropertyPaintValue textColorProp = new PropertyPaintValue("textColor", dropCap_.getForegroundPaint());
 		textColorProp.setDisplayName(I18N.getText("dropcapconfig.textColor"));
-		textColorProp.addPropertyChangeListener( v ->
+		textColorProp.addPropertyChangeListener(v ->
 		{
 			dropCap_.setForegroundPaint(v.getValue());
 		});
 		root.addProperty(textColorProp);
 
 		// Add a color-button to select the image-base-color.
-		PropertyColorValue imageBaseColorProp = new PropertyColorValue("imageBaseColor", (Color)dropCap_.getForegroundPaint() );
+		PropertyPaintValue imageBaseColorProp = new PropertyPaintValue("imageBaseColor", dropCap_.getImageBasePaint());
 		imageBaseColorProp.setDisplayName(I18N.getText("dropcapconfig.imageBaseColor"));
-		imageBaseColorProp.addPropertyChangeListener( v ->
+		imageBaseColorProp.addPropertyChangeListener(v ->
 		{
 			dropCap_.setImageBasePaint(v.getValue());
 		});
@@ -140,9 +125,9 @@ public class JDropCharConfig extends JPanel
 
 
 		// Add a color-button to select the drop-caps-color.
-		PropertyColorValue dropCapColorProp = new PropertyColorValue("dropCapColor", (Color)dropCap_.getForegroundPaint() );
+		PropertyPaintValue dropCapColorProp = new PropertyPaintValue("dropCapColor", dropCap_.getDropCapPaint());
 		dropCapColorProp.setDisplayName(I18N.getText("dropcapconfig.dropCapColor"));
-		dropCapColorProp.addPropertyChangeListener( v ->
+		dropCapColorProp.addPropertyChangeListener(v ->
 		{
 			dropCap_.setDropCapPaint(v.getValue());
 		});
@@ -159,21 +144,22 @@ public class JDropCharConfig extends JPanel
 				AlphaComposite.SrcOver, AlphaComposite.Src, AlphaComposite.SrcIn,
 				AlphaComposite.SrcOut))
 		{
-			map.put( getNameOfComposite(cp), cp);
+			map.put(getNameOfComposite(cp), cp);
 		}
 
 		PropertyValue<Composite> dropCapModeProp = new PropertyValue("dropCapMode", Composite.class);
 		dropCapModeProp.possibleValues_ = map;
 		dropCapModeProp.setValue(dropCap_.getDropCapPaintComposite());
-		dropCapModeProp.addPropertyChangeListener( v ->
+		dropCapModeProp.addPropertyChangeListener(v ->
 		{
-			dropCap_.setDropCapPaint( dropCap_.getDropCapPaint(),v.getValue() );
+			dropCap_.setDropCapPaint(dropCap_.getDropCapPaint(), v.getValue());
 		});
 		root.addProperty(dropCapModeProp);
 
-		props.getTreeModel().setRoot(root);
+		props.getTreeModel()
+			 .setRoot(root);
 		props.expandAll();
-		add( BorderLayout.CENTER, props );
+		add(BorderLayout.CENTER, props);
 
 
 	}

@@ -104,7 +104,6 @@ public class JPropertyTextField extends JTextField
 
 	protected String getEditValue()
 	{
-
 		if (Number.class.isAssignableFrom(value_.valueClazz_))
 		{
 			Number i = (Number) value_.getValue();
@@ -117,12 +116,11 @@ public class JPropertyTextField extends JTextField
 				if (gu) nf.setGroupingUsed(true);
 				return v;
 			}
+			return "";
 		}
 		else
 		{
-			if (value_.hasContent())
-				return String.valueOf(value_.getValue());
+			return value_.toString();
 		}
-		return "";
 	}
 }

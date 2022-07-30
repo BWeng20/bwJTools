@@ -3,7 +3,6 @@ package com.bw.jtools.ui.paintchooser;
 import com.bw.jtools.ui.I18N;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
@@ -11,7 +10,6 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
@@ -21,6 +19,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.FlowLayout;
+import java.awt.GradientPaint;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Paint;
@@ -108,7 +107,6 @@ public class JPaintChooser extends JPanel
 
 	protected void updateMode()
 	{
-		JTabbedPane p;
 		SwingUtilities.invokeLater(() ->
 		{
 			String name = (String) mode.getSelectedItem();
@@ -145,10 +143,13 @@ public class JPaintChooser extends JPanel
 			mode.setSelectedItem(colorName_);
 			colorChooser_.setColor((Color) p);
 		}
+		else if (p instanceof GradientPaint)
+		{
+			mode.setSelectedItem(gradientName_);
+		}
 		else if (p instanceof TexturePaint)
 		{
 			mode.setSelectedItem(textureName_);
-			ImageIcon ic = new ImageIcon(((TexturePaint) p).getImage());
 		}
 		else
 			throw new IllegalArgumentException("Paint of type " + p.getClass()
@@ -169,7 +170,7 @@ public class JPaintChooser extends JPanel
 	public static Paint showDialog(Component component,
 								   String title, Paint initialPaint)
 	{
-		// Initialization of font list may take several seconds.
+		// Initialization may take several seconds.
 		// Show a wait-cursor.
 		Window w = component == null ? null : component instanceof Window ? (Window) component : SwingUtilities.getWindowAncestor(component);
 		Cursor cur = null;
