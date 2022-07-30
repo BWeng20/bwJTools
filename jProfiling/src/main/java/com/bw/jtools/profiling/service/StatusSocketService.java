@@ -10,10 +10,10 @@ import com.bw.jtools.profiling.callgraph.AbstractCallGraphRenderer;
 import com.bw.jtools.profiling.callgraph.JSONCallGraphRenderer;
 import com.bw.jtools.profiling.callgraph.Options;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;

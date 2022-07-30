@@ -3,12 +3,12 @@ plugins {
 }
 
 sourceSets {
-    main{
+    main {
         java {
-            srcDir 'src/main/java' 
+            srcDir 'src/main/java'
         }
         resources {
-            srcDir 'src/main/resources' 
+            srcDir 'src/main/resources'
         }
     }
 }
@@ -27,21 +27,21 @@ jar {
     duplicatesStrategy = 'exclude'
     manifest {
         attributes 'Implementation-Title': 'Examples for usage of jtools',
-        	    'Implementation-Version': archiveVersion,
+                'Implementation-Version': archiveVersion,
                 'Build-Timestamp': new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
-                'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
-        	    'Main-Class': "com.bw.jtools.examples.starter.ExampleList"
+                'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Main-Class': "com.bw.jtools.examples.starter.ExampleList"
     }
 
     archiveBaseName = 'jToolsExamples'
     // duplicatesStrategy = 'exclude'
     includeEmptyDirs = false
-    from "${rootProject.projectDir}/licenses" 
-    from sourceSets.main.runtimeClasspath.filter( {! (it.name=~/log4j.*jar/)}).collect  { (!it.exists() || it.isDirectory()) ? it : zipTree(it) }
-    excludes = [ '**/META-INF/**', '/module-info.*' ]
-    
+    from "${rootProject.projectDir}/licenses"
+    from sourceSets.main.runtimeClasspath.filter({ !(it.name =~ /log4j.*jar/) }).collect { (!it.exists() || it.isDirectory()) ? it : zipTree(it) }
+    excludes = ['**/META-INF/**', '/module-info.*']
+
     doLast { task ->
-            println "Added infos from ${rootProject.projectDir}/resources/licenses/**"
+        println "Added infos from ${rootProject.projectDir}/resources/licenses/**"
     }
 }
 
@@ -54,12 +54,12 @@ task runProfilingWeaverDemo(type: Exec) {
     //   profiling.weaver.regex    RegExp to match class/method-names.
     //   profiling.weaver.verbose  'true' or 'false'
 
-    def p = file( "${buildPath}/../../jProfilingAgent/build/libs/jProfilingAgent-${project.version}.jar")
+    def p = file("${buildPath}/../../jProfilingAgent/build/libs/jProfilingAgent-${project.version}.jar")
 
     commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(),
             "--add-opens", "java.base/java.lang=ALL-UNNAMED", "--illegal-access=deny",
             "-Dprofiling.weaver.regex=.*ProfilingWeaverDemo:.*",
             "-Dprofiling.weaver.verbose=false",
             "-javaagent:${p}",
-            "com.bw.jtools.examples.profiling.ProfilingWeaverDemo", "-mmFile=build/Test.mm", "-jsonFile=build/Test.json" , "-workLoop=10000", "-repeat=20"
+            "com.bw.jtools.examples.profiling.ProfilingWeaverDemo", "-mmFile=build/Test.mm", "-jsonFile=build/Test.json", "-workLoop=10000", "-repeat=20"
 }

@@ -101,8 +101,8 @@ public class JFileChooserPreview extends JPanel
 	 */
 	protected final List<PreviewHandler> previewHandler_ = new ArrayList<>();
 	protected final InfoPreviewHandler infoPreviewHandler_ = new InfoPreviewHandler();
-	protected final InfoPreviewProxy infoPreviewProxy_ ;
-	protected final PreviewHandler resolvePreviewHandler = new  ResolvePreviewHandler();
+	protected final InfoPreviewProxy infoPreviewProxy_;
+	protected final PreviewHandler resolvePreviewHandler = new ResolvePreviewHandler();
 
 
 	/**
@@ -226,11 +226,11 @@ public class JFileChooserPreview extends JPanel
 	 * After creation, use {@link #install(JFileChooser)} to connect it with a file-chooser.
 	 *
 	 * @param previewWidth The width of the image preview. Resulting area will be previewSize + 10 pixel border.
-	 * @param handlers The handlers to use.
+	 * @param handlers     The handlers to use.
 	 */
 	public JFileChooserPreview(int previewWidth, PreviewHandler... handlers)
 	{
-		this( previewWidth, null, LEFT_BORDER_WIDTH, 0, handlers);
+		this(previewWidth, null, LEFT_BORDER_WIDTH, 0, handlers);
 	}
 
 	/**
@@ -245,7 +245,8 @@ public class JFileChooserPreview extends JPanel
 		if (leftBorder > 0)
 			setBorder(BorderFactory.createEmptyBorder(0, leftBorder, 0, rightBorder));
 
-		defaultBackgroundColor_ = UIManager.getDefaults().getColor("Label.background");
+		defaultBackgroundColor_ = UIManager.getDefaults()
+										   .getColor("Label.background");
 		super.setBackground(defaultBackgroundColor_);
 
 		Font f = getFont();
@@ -271,18 +272,18 @@ public class JFileChooserPreview extends JPanel
 		attributeLabel_Size_ = new JLabel(I18N.getText("filechooser.preview.size"));
 		attribute_Size_ = createAttributeTextComponent();
 
-		if ( title != null )
+		if (title != null)
 		{
 			JLabel titleLabel = new JLabel(title);
-			titleLabel.setFont( f.deriveFont(Font.PLAIN, f.getSize()*2));
-			add( titleLabel, BorderLayout.NORTH);
+			titleLabel.setFont(f.deriveFont(Font.PLAIN, f.getSize() * 2));
+			add(titleLabel, BorderLayout.NORTH);
 		}
 
 		for (PreviewHandler h : handlers)
 			addPreviewHandler(h);
 
 		infoPreviewHandler_.setConfiguration(previewConfig_);
-		infoPreviewProxy_ = infoPreviewHandler_.createPreviewProxy(null,null);
+		infoPreviewProxy_ = infoPreviewHandler_.createPreviewProxy(null, null);
 
 		resolvePreviewHandler.setConfiguration(previewConfig_);
 
@@ -339,7 +340,7 @@ public class JFileChooserPreview extends JPanel
 			pathChooser_.removeAccessory(this);
 		}
 		pathChooser_ = null;
-		setPreview(null, null );
+		setPreview(null, null);
 	}
 
 
@@ -475,11 +476,11 @@ public class JFileChooserPreview extends JPanel
 		return t;
 	}
 
-    @Override
-	public void setBackground(Color col )
+	@Override
+	public void setBackground(Color col)
 	{
 		// Ignored calls from super-ctor.
-		if ( defaultBackgroundColor_ != null )
+		if (defaultBackgroundColor_ != null)
 		{
 			if (col == null)
 			{
@@ -545,10 +546,11 @@ public class JFileChooserPreview extends JPanel
 				}
 				else
 				{
-					for ( int i=0 ; i<previewHandler_.size(); ++i)
+					for (int i = 0; i < previewHandler_.size(); ++i)
 					{
 						ph = previewHandler_.get(i);
-						proxy = ph.getPreviewProxy(path, normalizedFile.toUri().toString());
+						proxy = ph.getPreviewProxy(path, normalizedFile.toUri()
+																	   .toString());
 						if (proxy != null)
 						{
 							handler = ph;
@@ -558,7 +560,7 @@ public class JFileChooserPreview extends JPanel
 				}
 				if (null != proxy)
 				{
-					if ( proxy.needsUpdate())
+					if (proxy.needsUpdate())
 					{
 						if (Log.isDebugEnabled())
 							Log.debug("updatePreview " + proxy);

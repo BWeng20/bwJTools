@@ -1,7 +1,6 @@
 package com.bw.jtools.ui.graph;
 
 import java.awt.geom.Point2D;
-
 import java.awt.geom.Rectangle2D;
 import java.util.Map;
 

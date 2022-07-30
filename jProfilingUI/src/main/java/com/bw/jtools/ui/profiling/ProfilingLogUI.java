@@ -23,26 +23,45 @@
  */
 package com.bw.jtools.ui.profiling;
 
-import com.bw.jtools.io.ServiceRunner;
-import com.bw.jtools.ui.*;
-import com.bw.jtools.ui.TextFieldSettingAdapter;
-import com.bw.jtools.ui.icon.IconTool;
-import com.bw.jtools.ui.profiling.calltree.ProfilingCallTree;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.io.IOTool;
+import com.bw.jtools.io.ServiceRunner;
 import com.bw.jtools.io.Tail;
 import com.bw.jtools.profiling.callgraph.FreeMindGraphRenderer;
 import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
 import com.bw.jtools.profiling.callgraph.JSONCallGraphRenderer;
 import com.bw.jtools.profiling.callgraph.Options;
+import com.bw.jtools.ui.I18N;
+import com.bw.jtools.ui.JExceptionDialog;
+import com.bw.jtools.ui.SettingsUI;
+import com.bw.jtools.ui.TextFieldSettingAdapter;
+import com.bw.jtools.ui.UITool;
+import com.bw.jtools.ui.UIToolSwing;
+import com.bw.jtools.ui.icon.IconTool;
+import com.bw.jtools.ui.profiling.calltree.ProfilingCallTree;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -50,12 +69,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Pattern;
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * Panel to scan logs for call graphs.

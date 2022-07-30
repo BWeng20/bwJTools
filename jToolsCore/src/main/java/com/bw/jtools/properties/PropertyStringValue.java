@@ -41,7 +41,7 @@ public class PropertyStringValue extends PropertyValue<String>
 	/**
 	 * Creates a string property with name and value.
 	 *
-	 * @param key  Key of the property.
+	 * @param key   Key of the property.
 	 * @param value The number-value. Can be null.
 	 */
 	public PropertyStringValue(String key, String value)

@@ -102,21 +102,21 @@ public class JDropCapsLabel extends JComponent
 		}
 		else
 		{
-			if ( (initialImage_colorize_ == false || imageBasePaint_ == null || imageBasePaint_ instanceof Color) &&
-					(dropCapPaint_ == null  || dropCapPaint_ instanceof  Color) )
+			if ((initialImage_colorize_ == false || imageBasePaint_ == null || imageBasePaint_ instanceof Color) &&
+					(dropCapPaint_ == null || dropCapPaint_ instanceof Color))
 			{
 				// Image depends on set, size and possibly paints, but can be cached globally.
 				initialImage_CacheGlobal_ = true;
 				initialImage_Key_ = initialImage_Set_ + ":" + initialImage_Width_ + ":" + initialImage_Height_;
 
-				if ( initialImage_colorize_ && imageBasePaint_ != null)
+				if (initialImage_colorize_ && imageBasePaint_ != null)
 				{
 					Color kc = (Color) imageBasePaint_;
 					initialImage_Key_ += ":" + kc.getRGB();
 				}
-				if ( dropCapPaint_ != null )
+				if (dropCapPaint_ != null)
 				{
-					Color kc = (Color)dropCapPaint_;
+					Color kc = (Color) dropCapPaint_;
 					initialImage_Key_ += ":" + kc.getRGB();
 				}
 			}
@@ -130,7 +130,7 @@ public class JDropCapsLabel extends JComponent
 						&& initialImage_LocalCache_Width == initialImage_Width_
 						&& initialImage_LocalCache_Height == initialImage_Height_
 						&& Objects.equals(imageBasePaint_, initialImage_LocalCache_imagePaint_)
-						&& Objects.equals( dropCapPaint_, initialImage_LocalCache_dropCapPaint_)
+						&& Objects.equals(dropCapPaint_, initialImage_LocalCache_dropCapPaint_)
 						&& Objects.equals(initialImage_LocalCache_Composite, dropCapComposite_)))
 				{
 					initialImage_LocalCache_Set = initialImage_Set_;
@@ -269,7 +269,7 @@ public class JDropCapsLabel extends JComponent
 	 */
 	public void setDropCapPaint(Paint cp, Composite comp)
 	{
-		System.out.println("Compo "+comp);
+		System.out.println("Compo " + comp);
 		dropCapPaint_ = cp;
 		dropCapComposite_ = comp;
 		if (dropCapPaint_ != null && dropCapComposite_ == null)
@@ -311,6 +311,7 @@ public class JDropCapsLabel extends JComponent
 	/**
 	 * Sets the base color for the letter-images.<br/>
 	 * If a letter image set is used, the images are colorized with this paint before they are painted with drop-casp-paint and composite.
+	 *
 	 * @param imagePaint
 	 */
 	public void setImageBasePaint(Paint imagePaint)

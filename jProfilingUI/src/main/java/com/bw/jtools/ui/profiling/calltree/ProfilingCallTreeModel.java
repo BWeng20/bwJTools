@@ -25,6 +25,7 @@ package com.bw.jtools.ui.profiling.calltree;
 
 import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
 import com.bw.jtools.ui.UITool;
+
 import javax.swing.tree.DefaultTreeModel;
 import java.text.NumberFormat;
 import java.util.regex.Matcher;

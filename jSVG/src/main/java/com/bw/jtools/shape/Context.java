@@ -44,26 +44,30 @@ public class Context
 	private final boolean newContext_;
 
 	public boolean debug_ = false;
-	/** Stroke for debug lines. */
+	/**
+	 * Stroke for debug lines.
+	 */
 	public Stroke debugStroke_ = new BasicStroke(0.5f);
-	/** Paint for debug lines. */
+	/**
+	 * Paint for debug lines.
+	 */
 	public Paint debugPaint_ = Color.RED;
 
 
 	public Context(Context ctx)
 	{
-		this( ctx, true );
+		this(ctx, true);
 	}
 
 	public Context(Context ctx, boolean createNewContext)
 	{
 		newContext_ = createNewContext;
-		g2D_ = createNewContext ? (Graphics2D)ctx.g2D_.create() : ctx.g2D_;
+		g2D_ = createNewContext ? (Graphics2D) ctx.g2D_.create() : ctx.g2D_;
 		aft_ = ctx.aft_;
 		currentColor_ = ctx.currentColor_;
 		currentBackground_ = ctx.currentBackground_;
 		debug_ = ctx.debug_;
-		if ( debug_)
+		if (debug_)
 		{
 			debugStroke_ = ctx.debugStroke_;
 			debugPaint_ = ctx.debugPaint_;
@@ -72,18 +76,18 @@ public class Context
 
 	public Context(Graphics g2D)
 	{
-		this( g2D, true );
+		this(g2D, true);
 	}
 
 	public Context(Graphics g2D, boolean createNewContext)
 	{
 		this.newContext_ = createNewContext;
-		this.g2D_ = (Graphics2D)(createNewContext ? g2D.create() : g2D);
+		this.g2D_ = (Graphics2D) (createNewContext ? g2D.create() : g2D);
 		this.aft_ = this.g2D_.getTransform();
 		this.currentColor_ = this.g2D_.getPaint();
 	}
 
-	public Context(BufferedImage source, Context ctx )
+	public Context(BufferedImage source, Context ctx)
 	{
 		newContext_ = true;
 		g2D_ = source.createGraphics();
@@ -91,7 +95,7 @@ public class Context
 		currentColor_ = ctx.currentColor_;
 		currentBackground_ = ctx.currentBackground_;
 		debug_ = ctx.debug_;
-		if ( debug_ )
+		if (debug_)
 		{
 			debugPaint_ = ctx.debugPaint_;
 			debugStroke_ = ctx.debugStroke_;
@@ -100,7 +104,7 @@ public class Context
 
 	public void dispose()
 	{
-		if ( newContext_ )
+		if (newContext_)
 		{
 			g2D_.dispose();
 			g2D_ = null;

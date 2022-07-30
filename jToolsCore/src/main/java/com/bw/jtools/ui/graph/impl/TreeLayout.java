@@ -3,8 +3,8 @@ package com.bw.jtools.ui.graph.impl;
 import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.graph.Connector;
 import com.bw.jtools.ui.graph.Geometry;
-import com.bw.jtools.ui.graph.VisualState;
 import com.bw.jtools.ui.graph.Layout;
+import com.bw.jtools.ui.graph.VisualState;
 
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;

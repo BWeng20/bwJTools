@@ -33,18 +33,19 @@ public class DropCapDemo
 		try
 		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 
-		JFrame frame = new JFrame( "Drop Cap Label Demonstration" );
+		JFrame frame = new JFrame("Drop Cap Label Demonstration");
 
-		JPanel contentPanel = new JPanel( new BorderLayout() );
+		JPanel contentPanel = new JPanel(new BorderLayout());
 		frame.setContentPane(contentPanel);
 
-		JPanel mainPanel = new JPanel( new FlowLayout(FlowLayout.CENTER) );
-		mainPanel.setBackground(new Color(215,235, 190));
+		JPanel mainPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		mainPanel.setBackground(new Color(215, 235, 190));
 
 		contentPanel.add(new JScrollPane(mainPanel), BorderLayout.CENTER);
 
@@ -57,9 +58,10 @@ public class DropCapDemo
 				"At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
 
 		// The text will use a simple gradient paint.
-		dropCap.getDropCap().setForegroundPaint(new GradientPaint(-5,-5, new Color(120, 25, 25) , 400,300,new Color(0,50, 0)));
+		dropCap.getDropCap()
+			   .setForegroundPaint(new GradientPaint(-5, -5, new Color(120, 25, 25), 400, 300, new Color(0, 50, 0)));
 
-		mainPanel.add( dropCap );
+		mainPanel.add(dropCap);
 
 		dropCap =
 				new JDropCapPanel("Morem ipsum dolor sit amet, consetetur sadipscing elitr, " +
@@ -71,26 +73,30 @@ public class DropCapDemo
 
 		// Paint the text with a image to give them some fancy structure
 		BufferedImage paintImage = IconTool.getImage(DropCapDemo.class, "Paint.png");
-		Paint dcp = new TexturePaint(paintImage, new Rectangle(0,0,100,100));
-		dropCap.getDropCap().setForegroundPaint(new TexturePaint(paintImage, new Rectangle(0,0,100,100)));
+		Paint dcp = new TexturePaint(paintImage, new Rectangle(0, 0, 100, 100));
+		dropCap.getDropCap()
+			   .setForegroundPaint(new TexturePaint(paintImage, new Rectangle(0, 0, 100, 100)));
 
 		// Use a set of letter-images for the drop-caps.
-		dropCap.getDropCap().setInitialSet("goudy", 55, 95, true);
+		dropCap.getDropCap()
+			   .setInitialSet("goudy", 55, 95, true);
 		// Colorized the drop-caps images with red (we can re-use the same images for all colors).
-		dropCap.getDropCap().setImageBasePaint(new Color( 100, 5, 5));
+		dropCap.getDropCap()
+			   .setImageBasePaint(new Color(100, 5, 5));
 		// The same texture as for the normal text will be used to mask the image and
 		// give the image the same structure.
-		dropCap.getDropCap().setDropCapPaint(dcp,new BlendComposite(BlendComposite.Mode.MASK_GRAY));
+		dropCap.getDropCap()
+			   .setDropCapPaint(dcp, new BlendComposite(BlendComposite.Mode.MASK_GRAY));
 		// dropCap.getDropCap().setOpaque(true);
 
-		mainPanel.add( dropCap);
+		mainPanel.add(dropCap);
 
 		JPanel status = new JPanel(new FlowLayout(FlowLayout.LEADING));
-		status.add( new JLAFComboBox());
-		contentPanel.add( status, BorderLayout.SOUTH);
+		status.add(new JLAFComboBox());
+		contentPanel.add(status, BorderLayout.SOUTH);
 
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setIconImages( IconTool.getAppIconImages() );
+		frame.setIconImages(IconTool.getAppIconImages());
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);

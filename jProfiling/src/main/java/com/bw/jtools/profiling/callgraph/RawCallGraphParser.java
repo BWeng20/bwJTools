@@ -24,10 +24,10 @@
 package com.bw.jtools.profiling.callgraph;
 
 import com.bw.jtools.collections.ClassNameCompressor;
-import com.bw.jtools.collections.StringPool;
 import com.bw.jtools.profiling.measurement.MeasurementValue;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**

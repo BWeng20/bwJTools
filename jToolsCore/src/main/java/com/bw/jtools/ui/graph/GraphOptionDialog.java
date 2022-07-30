@@ -3,10 +3,10 @@ package com.bw.jtools.ui.graph;
 import com.bw.jtools.graph.Graph;
 import com.bw.jtools.properties.PropertyBooleanValue;
 import com.bw.jtools.properties.PropertyChangeListener;
-import com.bw.jtools.properties.PropertyColorValue;
 import com.bw.jtools.properties.PropertyEnumValue;
 import com.bw.jtools.properties.PropertyGroup;
 import com.bw.jtools.properties.PropertyNumberValue;
+import com.bw.jtools.properties.PropertyPaintValue;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.properties.table.PropertyGroupNode;
 import com.bw.jtools.ui.properties.table.PropertyTable;
@@ -101,9 +101,9 @@ public class GraphOptionDialog extends JDialog
 		addProperty(p, new PropertyNumberValue("Zoom", v.getVisualSettings().scale_), value ->
 		{
 			NodeVisual nv = graphPanel.getNodeVisual();
-			Number n = ((PropertyNumberValue)value).getValue();
+			Number n = ((PropertyNumberValue) value).getValue();
 			nv.getVisualSettings().scale_ = (n == null) ? 1 : n.floatValue();
-			if ( nv.getVisualSettings().scale_ <= 0)
+			if (nv.getVisualSettings().scale_ <= 0)
 			{
 				nv.getVisualSettings().scale_ = 1;
 				((PropertyNumberValue) value).setValue(nv.getVisualSettings().scale_);
@@ -112,15 +112,15 @@ public class GraphOptionDialog extends JDialog
 		});
 
 
-		addProperty(p, new PropertyColorValue("Edge", v.getVisualSettings().edge_.color), value ->
+		addProperty(p, new PropertyPaintValue("Edge", v.getVisualSettings().edge_.color), value ->
 		{
 			NodeVisual nv = graphPanel.getNodeVisual();
-			Color c = ((PropertyColorValue) value).getValue();
+			Color c = ((PropertyPaintValue) value).getColorValue();
 			nv.getVisualSettings().edge_.color = (c == null) ? Color.BLACK : c;
 			graphPanel.repaint();
 		});
 
-                addProperty(p, new PropertyNumberValue("Edge Width", v.getVisualSettings().edge_.width), value ->
+		addProperty(p, new PropertyNumberValue("Edge Width", v.getVisualSettings().edge_.width), value ->
 		{
 			NodeVisual nv = graphPanel.getNodeVisual();
 			Number w = ((PropertyNumberValue) value).getValue();
@@ -155,16 +155,16 @@ public class GraphOptionDialog extends JDialog
 			graphPanel.repaint();
 		});
 
-		addProperty(p, new PropertyColorValue("Node Border", v.getVisualSettings().node_.border), value ->
+		addProperty(p, new PropertyPaintValue("Node Border", v.getVisualSettings().node_.border), value ->
 		{
-			Color c = ((PropertyColorValue) value).getValue();
+			Color c = ((PropertyPaintValue) value).getColorValue();
 			getVisualSettings().node_.border = (c == null) ? Color.LIGHT_GRAY : c;
 			graphPanel.repaint();
 		});
 
-		addProperty(p, new PropertyColorValue("Node Background", v.getVisualSettings().node_.background), value ->
+		addProperty(p, new PropertyPaintValue("Node Background", v.getVisualSettings().node_.background), value ->
 		{
-			Color c = ((PropertyColorValue) value).getValue();
+			Color c = ((PropertyPaintValue) value).getColorValue();
 			getVisualSettings().node_.background = (c == null) ? Color.LIGHT_GRAY : c;
 			graphPanel.repaint();
 		});

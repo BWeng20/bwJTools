@@ -33,12 +33,12 @@ import java.awt.image.Raster;
 public class BumpImage
 {
 
-	public BumpImage( BufferedImage i )
+	public BumpImage(BufferedImage i)
 	{
 		this.img = i;
 		cm = i.getColorModel();
 		r = i.getData();
-		outData = r.getDataElements(0,0,null);
+		outData = r.getDataElements(0, 0, null);
 	}
 
 	private final BufferedImage img;
@@ -48,7 +48,7 @@ public class BumpImage
 
 	public int alphaAt(int x, int y)
 	{
-		return cm.getAlpha( r.getDataElements(x, y,outData));
+		return cm.getAlpha(r.getDataElements(x, y, outData));
 	}
 
 	static final int X = 0;
@@ -73,7 +73,7 @@ public class BumpImage
 				double p01 = alphaAt(x, y + 1);
 				double p11 = alphaAt(x + 1, y + 1);
 				normal[X] = -2.0 * p00 + 2.0 * p10 - 1.0 * p01 + 1.0 * p11;
-				normal[Y] =	-2.0 * p00 - 1.0 * p10 + 2.0 * p01 + 1.0 * p11;
+				normal[Y] = -2.0 * p00 - 1.0 * p10 + 2.0 * p01 + 1.0 * p11;
 			}
 			else if (y == (_h - 1))
 			{
@@ -97,7 +97,7 @@ public class BumpImage
 				double p02 = alphaAt(x, y + 1);
 				double p12 = alphaAt(x + 1, y + 1);
 				normal[X] = -1.0 * p00 + 1.0 * p10 - 2.0 * p01 + 2.0 * p11 - 1.0 * p02 + 1.0 * p12;
-				normal[Y] =	-2.0 * p00 - 1.0 * p10 + 0.0 * p01 + 0.0 * p11 + 2.0 * p02 + 1.0 * p12;
+				normal[Y] = -2.0 * p00 - 1.0 * p10 + 0.0 * p01 + 0.0 * p11 + 2.0 * p02 + 1.0 * p12;
 			}
 		}
 		else if (x == (_w - 1))

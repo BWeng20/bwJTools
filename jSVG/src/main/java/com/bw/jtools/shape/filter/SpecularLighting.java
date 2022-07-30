@@ -64,7 +64,6 @@ public class SpecularLighting extends FilterBaseSingleSource
 	}
 
 
-
 }
 
 

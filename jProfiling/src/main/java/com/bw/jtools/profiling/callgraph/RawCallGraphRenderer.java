@@ -24,20 +24,11 @@
 package com.bw.jtools.profiling.callgraph;
 
 import com.bw.jtools.collections.ClassNameCompressor;
-import com.bw.jtools.collections.StringPool;
 import com.bw.jtools.profiling.measurement.MeasurementValue;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 /**
  * Call graph renderer to create binary output.<br>

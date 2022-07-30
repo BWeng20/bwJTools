@@ -38,15 +38,15 @@ public class Composite extends FilterBaseSingleSource
 	@Override
 	protected void render(PainterBuffers buffers, String targetName, BufferedImage src, BufferedImage target, double scaleX, double scaleY)
 	{
-		Graphics2D g2d = (Graphics2D)target.getGraphics();
+		Graphics2D g2d = (Graphics2D) target.getGraphics();
 		try
 		{
 			// @TODO Implement this filter
-			g2d.drawImage( src,0,0, null);
+			g2d.drawImage(src, 0, 0, null);
 
 			// @TODO Removed debugging stuff if finished.
 			g2d.setColor(Color.ORANGE);
-			g2d.drawRect(0,0, src.getWidth(), src.getHeight());
+			g2d.drawRect(0, 0, src.getWidth(), src.getHeight());
 
 		}
 		finally

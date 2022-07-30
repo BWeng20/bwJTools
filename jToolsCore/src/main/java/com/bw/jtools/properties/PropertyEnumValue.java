@@ -48,7 +48,7 @@ public class PropertyEnumValue<E extends Enum<?>> extends PropertyValue<E>
 	/**
 	 * Constructs a property by declaring class. Value must not be null.
 	 *
-	 * @param key  Key of the property that is displayed.
+	 * @param key   Key of the property that is displayed.
 	 * @param clazz Value class, in this case an Enum.
 	 */
 	public PropertyEnumValue(String key, Class<E> clazz)
@@ -60,7 +60,7 @@ public class PropertyEnumValue<E extends Enum<?>> extends PropertyValue<E>
 	 * Constructs a property by value.
 	 * Value has to be not null.
 	 *
-	 * @param key  Key name.
+	 * @param key   Key name.
 	 * @param value Initial value.
 	 */
 	public PropertyEnumValue(String key, E value)

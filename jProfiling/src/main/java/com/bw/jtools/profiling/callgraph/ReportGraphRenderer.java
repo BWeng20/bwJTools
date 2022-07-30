@@ -23,13 +23,13 @@
  */
 package com.bw.jtools.profiling.callgraph;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.bw.jtools.reports.ReportElement;
 import com.bw.jtools.reports.ReportList;
 import com.bw.jtools.reports.ReportListElement;
+
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Call graph renderer to create a html output.<br>

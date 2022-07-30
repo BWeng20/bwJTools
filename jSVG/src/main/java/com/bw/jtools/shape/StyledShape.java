@@ -77,7 +77,7 @@ public final class StyledShape extends AbstractShape
 	public StyledShape(String id, Shape shape, Stroke stroke, Paint paint, Paint fill,
 					   Shape clipping, AffineTransform aft)
 	{
-		super( id );
+		super(id);
 		this.shape_ = shape;
 		this.stroke_ = stroke;
 		this.paint_ = paint;
@@ -92,21 +92,22 @@ public final class StyledShape extends AbstractShape
 	@Override
 	public Rectangle2D getTransformedBounds()
 	{
-		if ( transformedBounds_ == null )
+		if (transformedBounds_ == null)
 		{
 			final double lw = ((stroke_ instanceof BasicStroke) ? (BasicStroke) stroke_ : DEFAULT_STROKE).getLineWidth();
 			Rectangle2D r = shape_.getBounds2D();
 			r = new Rectangle2D.Double(r.getX() - lw, r.getY() - lw, r.getWidth() + 2 * lw, r.getHeight() + 2 * lw);
-			transformedBounds_ = aft_.createTransformedShape(r).getBounds2D();
+			transformedBounds_ = aft_.createTransformedShape(r)
+									 .getBounds2D();
 		}
 		return transformedBounds_;
 	}
 
-	protected  AffineTransform aftTemp_ = new AffineTransform();
+	protected AffineTransform aftTemp_ = new AffineTransform();
 
 
 	@Override
-	public void paint( Context ctx)
+	public void paint(Context ctx)
 	{
 		aftTemp_.setTransform(ctx.aft_);
 		aftTemp_.concatenate(aft_);
@@ -116,7 +117,7 @@ public final class StyledShape extends AbstractShape
 		g3D.setTransform(aftTemp_);
 		g3D.setClip(clipping_);
 
-		Paint p = transatePaint( ctx, fill_ );
+		Paint p = transatePaint(ctx, fill_);
 		if (p != null)
 		{
 			g3D.setPaint(p);
@@ -127,8 +128,8 @@ public final class StyledShape extends AbstractShape
 
 		if (paint_ != null)
 		{
-			p = transatePaint( ctx, paint_ );
-			if ( p != null )
+			p = transatePaint(ctx, paint_);
+			if (p != null)
 			{
 				g3D.setPaint(p);
 				g3D.setStroke(stroke_);

@@ -41,10 +41,15 @@ public class BlendComposite implements Composite
 		return new BlendCompositeContext(srcColorModel, dstColorModel, mode_);
 	}
 
-	public enum Mode {
-		/** mask the destination by the gray- and alpha-value of the source. */
+	public enum Mode
+	{
+		/**
+		 * mask the destination by the gray- and alpha-value of the source.
+		 */
 		MASK_GRAY,
-		/** Overlays source on destination. */
+		/**
+		 * Overlays source on destination.
+		 */
 		OVERLAY,
 		/*** Multiply */
 		MULTIPLY
@@ -89,8 +94,8 @@ public class BlendComposite implements Composite
 			Object dstPixel = null;
 			Object data = null;
 
-			int a1,r1,g1,b1;
-			int a2,r2,g2,b2;
+			int a1, r1, g1, b1;
+			int a2, r2, g2, b2;
 			int rgb1, rgb2;
 			int gray;
 
@@ -111,7 +116,8 @@ public class BlendComposite implements Composite
 					g2 = (rgb2 >> 8) & 0xFF;
 					b2 = (rgb2) & 0xFF;
 
-					switch (mode_) {
+					switch (mode_)
+					{
 						case MASK_GRAY:
 							gray = (int) (0.2989 * r1 + 0.5870 * g1 + 0.1140 * b1);
 							a2 = gray > 255 ? 0 : (((a1 * (255 - gray)) / 255) * a2) / 255;
@@ -121,14 +127,14 @@ public class BlendComposite implements Composite
 							g2 = g2 < 128 ? g2 * g1 >> 7 : 255 - ((255 - g2) * (255 - g2) >> 7);
 							b2 = b2 < 128 ? b2 * b1 >> 7 : 255 - ((255 - b2) * (255 - b1) >> 7);
 							a2 = a1 + a2 - (a1 * a2) / 255;
-							if ( a2 > 255 ) a2 = 255;
+							if (a2 > 255) a2 = 255;
 							break;
 						case MULTIPLY:
 							r2 = (r1 * r2) >> 8;
 							g2 = (g1 * g2) >> 8;
 							b2 = (b1 * b2) >> 8;
 							a2 = a1 + a2 - (a1 * a2) / 255;
-							if ( a2 > 255 ) a2 = 255;
+							if (a2 > 255) a2 = 255;
 							break;
 					}
 					rgb2 = (a2 << 24) | (r2 << 16) | (g2 << 8) | b2;

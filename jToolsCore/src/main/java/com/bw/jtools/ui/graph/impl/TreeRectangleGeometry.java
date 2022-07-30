@@ -4,10 +4,10 @@ import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.Graph;
 import com.bw.jtools.graph.GraphElement;
 import com.bw.jtools.graph.Node;
+import com.bw.jtools.ui.graph.Connector;
 import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.GeometryListener;
 import com.bw.jtools.ui.graph.VisualState;
-import com.bw.jtools.ui.graph.Connector;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;

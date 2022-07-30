@@ -36,7 +36,7 @@ public class PropertyFontValue extends PropertyValue<Font>
 	/**
 	 * Creates a "font"-value with name and value.
 	 *
-	 * @param key  Key of the property.
+	 * @param key   Key of the property.
 	 * @param value The value. Can be null.
 	 */
 	public PropertyFontValue(String key, Font value)

@@ -39,32 +39,36 @@ public class UIDefaults
 {
 
 	public static final String[][] DESCRIPTION =
-	{
-		{ "en", "Shows Swing Default Icons and Color" },
-		{ "de", "Zeigt Swings Standard-Icons und -Farben an" }
-	};
+			{
+					{"en", "Shows Swing Default Icons and Color"},
+					{"de", "Zeigt Swings Standard-Icons und -Farben an"}
+			};
 
 	static JFrame frame;
 	static Icon dummy_ = new DummyIcon();
 
-	static class ColorWrapper {
+	static class ColorWrapper
+	{
 
 		String name;
-		Color  color;
+		Color color;
 
-		ColorWrapper( String name, Color color) {
+		ColorWrapper(String name, Color color)
+		{
 			this.name = name;
 			this.color = color;
 		}
 	}
 
-	static class IconWrapper implements Icon {
+	static class IconWrapper implements Icon
+	{
 
 		Icon icon;
 
-		IconWrapper(  Icon icon) {
+		IconWrapper(Icon icon)
+		{
 			this.icon = icon;
-			if ( icon == null ) this.icon = new DummyIcon();
+			if (icon == null) this.icon = new DummyIcon();
 		}
 
 		@Override
@@ -93,19 +97,21 @@ public class UIDefaults
 		}
 	}
 
-	static class ColorListCellRenderer extends DefaultListCellRenderer {
+	static class ColorListCellRenderer extends DefaultListCellRenderer
+	{
 
 		private JLabel label;
 		private JPaintIcon icon;
 
-		ColorListCellRenderer() {
+		ColorListCellRenderer()
+		{
 			icon = new JPaintIcon();
 			label = new JLabel();
 			label.setOpaque(true);
 			label.setIconTextGap(10);
 			label.setIcon(icon);
 			Font f = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
-			label.setFont( f );
+			label.setFont(f);
 		}
 
 		@Override
@@ -114,17 +120,21 @@ public class UIDefaults
 				Object value,
 				int index,
 				boolean selected,
-				boolean expanded) {
+				boolean expanded)
+		{
 
-			ColorWrapper cw = (ColorWrapper)value;
+			ColorWrapper cw = (ColorWrapper) value;
 
 			icon.setPaint(cw.color);
 			label.setText(UITool.paintToString(cw.color));
 
-			if (selected) {
+			if (selected)
+			{
 				label.setBackground(list.getSelectionBackground());
 				label.setForeground(list.getSelectionForeground());
-			} else {
+			}
+			else
+			{
 				label.setBackground(list.getBackground());
 				label.setForeground(list.getForeground());
 			}
@@ -137,32 +147,35 @@ public class UIDefaults
 	{
 		DefaultListModel listModel = new DefaultListModel();
 
-		HashMap<Object,Object> def2 = new HashMap(UIManager.getLookAndFeelDefaults());
+		HashMap<Object, Object> def2 = new HashMap(UIManager.getLookAndFeelDefaults());
 
 		List<ColorWrapper> w = new ArrayList<>();
 		for (Map.Entry<Object, Object> entry : def2.entrySet())
 		{
 			String k = String.valueOf(entry.getKey());
-			try {
+			try
+			{
 				Object v = entry.getValue();
-				if ( v instanceof Color)
+				if (v instanceof Color)
 				{
 					Color c = (Color) v;
 					w.add(new ColorWrapper(k, c));
 				}
 			}
-			catch ( Exception e) {
+			catch (Exception e)
+			{
 			}
 		}
-		w.sort((c1, c2) -> {
+		w.sort((c1, c2) ->
+		{
 			return c1.name.compareTo(c2.name);
 		});
-		for ( ColorWrapper cw : w)
+		for (ColorWrapper cw : w)
 			listModel.addElement(cw);
 		return listModel;
 	}
 
-	static public void main( String args[] )
+	static public void main(String args[])
 	{
 		// Initialize library.
 		Application.initialize(ApplicationIconsDemo.class);
@@ -178,24 +191,25 @@ public class UIDefaults
 		JPanel iconTab = new JPanel(new BorderLayout());
 
 		JLabel label = new JLabel(
-				"<html><body><b>"+
-						"The list contain all UIDefaults Icons. Some may not work outside their component! In this case a red X is shown."+
-						"</b></body></html>" );
-		label.setBorder(BorderFactory.createEmptyBorder(20,5,20,20));
-		iconTab.add( label, BorderLayout.NORTH );
+				"<html><body><b>" +
+						"The list contain all UIDefaults Icons. Some may not work outside their component! In this case a red X is shown." +
+						"</b></body></html>");
+		label.setBorder(BorderFactory.createEmptyBorder(20, 5, 20, 20));
+		iconTab.add(label, BorderLayout.NORTH);
 
-		JPanel defaultIcons = new JPanel( new GridLayout(0,2));
- 		defaultIcons.setBackground(Color.WHITE);
+		JPanel defaultIcons = new JPanel(new GridLayout(0, 2));
+		defaultIcons.setBackground(Color.WHITE);
 		JList defaultColors = new JList();
 
- 		SwingUtilities.invokeLater(() -> {
-			HashMap<Object,Object> def2 = new HashMap();
+		SwingUtilities.invokeLater(() ->
+		{
+			HashMap<Object, Object> def2 = new HashMap();
 
 			javax.swing.UIDefaults d = UIManager.getLookAndFeelDefaults();
 
 			// We can't iterate via the UIDefauls directly, because the gets call modify the hashmap.
-			Set<Object> keys = new HashSet<>( d.keySet() );
-			for ( Object k : keys )
+			Set<Object> keys = new HashSet<>(d.keySet());
+			for (Object k : keys)
 			{
 				def2.put(k, d.get(k));
 			}
@@ -203,12 +217,13 @@ public class UIDefaults
 			Font f = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
 			for (Map.Entry<Object, Object> entry : def2.entrySet())
 			{
-				try {
+				try
+				{
 					Object v = entry.getValue();
-					if ( v instanceof Icon)
+					if (v instanceof Icon)
 					{
 						String k = String.valueOf(entry.getKey());
-						Icon i = (Icon)v;
+						Icon i = (Icon) v;
 
 						JPanel p = new JPanel(new FlowLayout(FlowLayout.LEADING));
 						p.setBackground(Color.WHITE);
@@ -218,26 +233,28 @@ public class UIDefaults
 
 						JLabel textlabel = new JLabel();
 						textlabel.setText(k);
-						textlabel.setFont( f);
+						textlabel.setFont(f);
 
 						p.add(textlabel);
-						p.add( iconlabel );
+						p.add(iconlabel);
 
-						defaultIcons.add( p );
+						defaultIcons.add(p);
 					}
 				}
-				catch ( Exception e) {
+				catch (Exception e)
+				{
 				}
 
-				defaultColors.setModel( createDefaultColorModel() );
+				defaultColors.setModel(createDefaultColorModel());
 
-			} });
-		iconTab.add(new JScrollPane(defaultIcons), BorderLayout.CENTER );
-		tabs.addTab( "Icons", iconTab);
+			}
+		});
+		iconTab.add(new JScrollPane(defaultIcons), BorderLayout.CENTER);
+		tabs.addTab("Icons", iconTab);
 
-		defaultColors.setCellRenderer(new ColorListCellRenderer() );
+		defaultColors.setCellRenderer(new ColorListCellRenderer());
 
-		tabs.addTab( "Colors", new JScrollPane(defaultColors) );
+		tabs.addTab("Colors", new JScrollPane(defaultColors));
 
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -246,7 +263,7 @@ public class UIDefaults
 
 		// Restore window-position and dimension from prefences.
 		SettingsUI.loadWindowPosition(frame);
-		SettingsUI.storePositionAndFlushOnClose( frame );
+		SettingsUI.storePositionAndFlushOnClose(frame);
 		frame.setVisible(true);
 
 		Log.info("Started");

@@ -8,10 +8,10 @@ import com.bw.jtools.graph.TextData;
 import com.bw.jtools.shape.Context;
 import com.bw.jtools.ui.graph.Connector;
 import com.bw.jtools.ui.graph.Geometry;
-import com.bw.jtools.ui.graph.VisualState;
 import com.bw.jtools.ui.graph.Layout;
 import com.bw.jtools.ui.graph.NodeVisual;
 import com.bw.jtools.ui.graph.VisualSettings;
+import com.bw.jtools.ui.graph.VisualState;
 import com.bw.jtools.ui.icon.IconTool;
 
 import java.awt.BasicStroke;
@@ -26,9 +26,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Shows only raw text.

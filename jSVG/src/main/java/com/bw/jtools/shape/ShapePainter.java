@@ -22,7 +22,6 @@
 
 package com.bw.jtools.shape;
 
-import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;

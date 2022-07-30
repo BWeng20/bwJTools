@@ -8,19 +8,17 @@ import com.bw.jtools.ui.pathchooser.JPathChooser;
 import com.bw.jtools.ui.pathchooser.PathChooserMode;
 
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
 public class JPathChooserDemo
 {
 	public static final String[][] DESCRIPTION =
-	{
-			{ "en", "Demonstrates usage of <b>com.bw.jtools.ui.pathchooser.JPathChooser</b>." },
-			{ "de", "Demonstriert die Verwendung von <b>com.bw.jtools.ui.pathchooser.JPathChooser</b>." }
-	};
+			{
+					{"en", "Demonstrates usage of <b>com.bw.jtools.ui.pathchooser.JPathChooser</b>."},
+					{"de", "Demonstriert die Verwendung von <b>com.bw.jtools.ui.pathchooser.JPathChooser</b>."}
+			};
 
 
 	/**
@@ -58,23 +56,26 @@ public class JPathChooserDemo
 		final JCheckBox files = new JCheckBox("Files");
 		final JCheckBox folders = new JCheckBox("Folders");
 
-		files.setSelected( true );
-		folders.setSelected( true );
+		files.setSelected(true);
+		folders.setSelected(true);
 
 		files.addItemListener(e ->
 		{
 			boolean filesChecked = files.isSelected();
 			boolean foldersChecked = folders.isSelected();
-			if ( !(filesChecked || foldersChecked ) )
+			if (!(filesChecked || foldersChecked))
 			{
-				SwingUtilities.invokeLater( () -> { folders.setSelected(true); } );
+				SwingUtilities.invokeLater(() ->
+				{
+					folders.setSelected(true);
+				});
 			}
 			else
 			{
 				d.setFileSelectionMode(
 						filesChecked
 								? foldersChecked ? PathChooserMode.FILES_AND_FOLDERS : PathChooserMode.FILES_ONLY
-								: PathChooserMode.FOLDERS );
+								: PathChooserMode.FOLDERS);
 			}
 		});
 
@@ -82,16 +83,19 @@ public class JPathChooserDemo
 		{
 			boolean filesChecked = files.isSelected();
 			boolean foldersChecked = folders.isSelected();
-			if ( !(filesChecked || foldersChecked ) )
+			if (!(filesChecked || foldersChecked))
 			{
-				SwingUtilities.invokeLater( () -> { files.setSelected(true); } );
+				SwingUtilities.invokeLater(() ->
+				{
+					files.setSelected(true);
+				});
 			}
 			else
 			{
 				d.setFileSelectionMode(
 						filesChecked
 								? foldersChecked ? PathChooserMode.FILES_AND_FOLDERS : PathChooserMode.FILES_ONLY
-								: PathChooserMode.FOLDERS );
+								: PathChooserMode.FOLDERS);
 			}
 		});
 

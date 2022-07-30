@@ -27,19 +27,19 @@ import com.bw.jtools.profiling.callgraph.CallNode;
 import com.bw.jtools.profiling.callgraph.NodeDetail;
 import com.bw.jtools.profiling.measurement.AbstractMeasurementSource;
 import com.bw.jtools.ui.I18N;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTree;
+import javax.swing.border.Border;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import javax.swing.JTree;
-import javax.swing.JPanel;
-import javax.swing.tree.DefaultTreeCellRenderer;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.border.Border;
 
 /**
  *

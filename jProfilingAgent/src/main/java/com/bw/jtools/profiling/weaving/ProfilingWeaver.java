@@ -26,6 +26,10 @@ package com.bw.jtools.profiling.weaving;
 import com.bw.jtools.Log;
 import com.bw.jtools.log.ConsoleLogger;
 import com.bw.jtools.log.FileLogger;
+import net.bytebuddy.agent.builder.AgentBuilder;
+import net.bytebuddy.asm.Advice;
+import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
 
 import java.io.InputStreamReader;
 import java.lang.instrument.Instrumentation;
@@ -36,10 +40,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
-import net.bytebuddy.agent.builder.AgentBuilder;
-import net.bytebuddy.asm.Advice;
-import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatchers;
+
 import static net.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
 
 /**

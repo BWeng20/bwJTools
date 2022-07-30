@@ -43,18 +43,18 @@ public class PropertyNumberValue extends PropertyValue<Number>
 	 * Creates a numeric property with name and value.
 	 *
 	 * @param key Key of the property.
-	 * @param nb   The number-value. Must not be null.
+	 * @param nb  The number-value. Must not be null.
 	 */
 	public PropertyNumberValue(String key, Number nb)
 	{
-		super(key, nb.getClass() );
+		super(key, nb.getClass());
 		setValue(nb);
 	}
 
 	/**
 	 * Creates a numeric property with name and class.
 	 *
-	 * @param key  Key of the property.
+	 * @param key   Key of the property.
 	 * @param clazz The number-class.
 	 */
 	public PropertyNumberValue(String key, Class<? extends Number> clazz)

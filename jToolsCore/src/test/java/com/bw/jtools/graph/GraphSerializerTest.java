@@ -26,9 +26,7 @@ import com.bw.jtools.io.data.Data;
 import com.bw.jtools.io.data.DataDump;
 import com.bw.jtools.io.data.DataInputStream;
 import com.bw.jtools.io.data.DataOutputStream;
-import com.bw.jtools.io.data.TestData;
 import com.bw.jtools.io.data.TestDataGenerator;
-import com.bw.jtools.ui.graph.NodeVisual;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -36,7 +34,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class GraphSerializerTest
 {

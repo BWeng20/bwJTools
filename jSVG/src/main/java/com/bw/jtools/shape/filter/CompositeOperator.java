@@ -35,7 +35,7 @@ public enum CompositeOperator
 	xor,
 	arithmetic;
 
-	private static final CaseInsensitiveEnum<CompositeOperator> mapper_ = new CaseInsensitiveEnum( CompositeOperator.values() );
+	private static final CaseInsensitiveEnum<CompositeOperator> mapper_ = new CaseInsensitiveEnum(CompositeOperator.values());
 
 	public static CompositeOperator fromString(String val)
 	{

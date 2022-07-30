@@ -28,13 +28,13 @@ import com.bw.jtools.io.JsonTool;
 import com.bw.jtools.profiling.measurement.DateTimeValue;
 import com.bw.jtools.profiling.measurement.MeasurementValue;
 
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-import javax.json.JsonNumber;
 
 /**
  * Parser that reads output from {@link JSONCallGraphRenderer}.<br>

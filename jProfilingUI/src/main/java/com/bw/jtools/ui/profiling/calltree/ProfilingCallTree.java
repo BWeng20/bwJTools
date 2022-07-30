@@ -24,9 +24,10 @@
 package com.bw.jtools.ui.profiling.calltree;
 
 import com.bw.jtools.profiling.callgraph.JSONCallGraphParser;
+
+import javax.swing.JTree;
 import java.text.NumberFormat;
 import java.util.regex.Pattern;
-import javax.swing.JTree;
 
 /**
  * Component to show call graphs.

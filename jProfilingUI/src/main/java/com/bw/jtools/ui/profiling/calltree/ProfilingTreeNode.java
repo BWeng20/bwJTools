@@ -25,9 +25,10 @@ package com.bw.jtools.ui.profiling.calltree;
 
 import com.bw.jtools.profiling.callgraph.CallEdge;
 import com.bw.jtools.profiling.callgraph.CallNode;
+
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.text.NumberFormat;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * Tree node for Call Tree.

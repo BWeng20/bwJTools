@@ -34,22 +34,22 @@ public class Merge extends FilterBase
 {
 	public final List<String> sources_ = new ArrayList<>();
 
-	public Merge( List<String> src, String target)
+	public Merge(List<String> src, String target)
 	{
 		super(src.get(0), target);
-		if ( src.size() > 1)
-			sources_.addAll(src.subList(1,src.size()));
+		if (src.size() > 1)
+			sources_.addAll(src.subList(1, src.size()));
 	}
 
 	@Override
 	protected void render(PainterBuffers buffers, String targetName, List<BufferedImage> src, BufferedImage target, double scaleX, double scaleY)
 	{
-		Graphics2D g2d = (Graphics2D)target.getGraphics();
+		Graphics2D g2d = (Graphics2D) target.getGraphics();
 		try
 		{
-			for ( BufferedImage s : src)
+			for (BufferedImage s : src)
 			{
-				g2d.drawImage( s, 0,0, null);
+				g2d.drawImage(s, 0, 0, null);
 			}
 		}
 		finally

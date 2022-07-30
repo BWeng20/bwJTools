@@ -2,11 +2,23 @@ package com.bw.jtools.examples.graph;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.graph.*;
-import com.bw.jtools.ui.graph.*;
-import com.bw.jtools.ui.graph.impl.*;
+import com.bw.jtools.graph.Graph;
+import com.bw.jtools.graph.GraphUtil;
+import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
+import com.bw.jtools.ui.graph.DecoratorShape;
+import com.bw.jtools.ui.graph.GraphOptionDialog;
+import com.bw.jtools.ui.graph.GraphPanel;
+import com.bw.jtools.ui.graph.Layout;
+import com.bw.jtools.ui.graph.VisualSettings;
+import com.bw.jtools.ui.graph.impl.CloudNodeDecorator;
+import com.bw.jtools.ui.graph.impl.DecoratorNodeVisual;
+import com.bw.jtools.ui.graph.impl.NodeLabelVisual;
+import com.bw.jtools.ui.graph.impl.ShapeEdgeVisual;
+import com.bw.jtools.ui.graph.impl.ShapeNodeDecorator;
+import com.bw.jtools.ui.graph.impl.TreeLayout;
+import com.bw.jtools.ui.graph.impl.TreeRectangleGeometry;
 import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.JButton;

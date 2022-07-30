@@ -73,7 +73,7 @@ public class PropertyGroup implements Iterable<PropertyValue<?>>
 	 */
 	public <T> PropertyValue<T> addProperty(String name, T value)
 	{
-		PropertyValue<T> prop = new PropertyValue<T>(name, (Class<T>)value.getClass());
+		PropertyValue<T> prop = new PropertyValue<T>(name, (Class<T>) value.getClass());
 		prop.setValue(value);
 		addProperty(prop);
 		return prop;

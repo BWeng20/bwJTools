@@ -36,7 +36,7 @@ public class Offset extends FilterBaseSingleSource
 	@Override
 	protected Point2D.Double getOffset(double scaleX, double scaleY)
 	{
-		return new Point2D.Double(dx_*scaleX, dy_*scaleY );
+		return new Point2D.Double(dx_ * scaleX, dy_ * scaleY);
 	}
 
 	@Override
