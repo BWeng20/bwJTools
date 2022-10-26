@@ -24,16 +24,14 @@ package com.bw.jtools.ui.graph;
 
 import com.bw.jtools.graph.GraphElement;
 
-public class Connector extends GraphElement
-{
-        public Connector(int parentId)
-        {
-            this.parentId = parentId;
-        }
-    
-    
-        public int   parentId;
-	public float xOffset;
-	public float yOffset;
-        public boolean expanded = false;
+public class Connector extends GraphElement {
+    public Connector(int parentId) {
+        this.parentId = parentId;
+    }
+
+
+    public int parentId;
+    public float xOffset;
+    public float yOffset;
+    public boolean expanded = false;
 }
