@@ -21,7 +21,8 @@
  */
 
 /**
- * Implements a property-editor via the Netbeans Outline widget.
+ * Implements a property-editor via the Netbeans Outline widget.<br/>
+ * The editor is
  * <p>
  * <img src="doc-files/PropertyTable_Screenshot.jpg" alt="Screenshot">
  */

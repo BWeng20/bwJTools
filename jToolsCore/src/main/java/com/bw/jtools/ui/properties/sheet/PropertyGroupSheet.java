@@ -25,6 +25,7 @@ import com.bw.jtools.properties.PropertyChangeListener;
 import com.bw.jtools.properties.PropertyGroup;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.properties.PropertyEditorComponents;
+import com.bw.jtools.ui.properties.valuetypehandler.ValueTypeHandler;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -46,7 +47,8 @@ public class PropertyGroupSheet extends JPanel
 	protected static Insets labelInsets_ = new Insets(3, 0, 0, 0);
 	protected static Insets fieldInsets_ = new Insets(3, 5, 0, 5);
 
-	protected HashMap<String, PropertyEditorComponents> propertyEditors_ = new HashMap<>();
+	PropertyEditorComponents pc_ = new PropertyEditorComponents();
+	protected HashMap<String, ValueTypeHandler> propertyEditHandler_ = new HashMap<>();
 
 	/**
 	 * Creates a property sheet for a property-group.
@@ -79,10 +81,10 @@ public class PropertyGroupSheet extends JPanel
 	PropertyChangeListener changeListener_ = property ->
 	{
 
-		PropertyEditorComponents pe = propertyEditors_.get(property.key_);
+		ValueTypeHandler pe = propertyEditHandler_.get(property.key_);
 		if (pe != null)
 		{
-			pe.updateEditorComponent();
+			pe.updateEditorFromProperty();
 		}
 
 	};
@@ -103,9 +105,9 @@ public class PropertyGroupSheet extends JPanel
 		gbc.gridx = 1;
 		gbc.anchor = GridBagConstraints.NORTHWEST;
 
-		PropertyEditorComponents pc = new PropertyEditorComponents();
-		propertyEditors_.put(v.key_, pc);
-		Component component = pc.getEditorComponent(v);
+		ValueTypeHandler th = pc_.getHandler(v, true);
+		propertyEditHandler_.put(v.key_, th);
+		Component component = th.getComponent();
 		if (component instanceof JTextComponent)
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 		else

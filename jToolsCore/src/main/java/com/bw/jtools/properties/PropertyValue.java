@@ -208,32 +208,6 @@ public class PropertyValue<T>
 	}
 
 	/**
-	 * Force scale of the number to the value-class of this property<br>
-	 * E.g. is value-class is byte, the returned number is nb.byteValue().
-	 *
-	 * @return The scaled number of the unchanged nb if the value-class is not numeric.
-	 */
-	public Number scaleNumber(Number nb)
-	{
-		if (nb != null)
-		{
-			if (valueClazz_ == Integer.class)
-				return nb.intValue();
-			else if (valueClazz_ == Double.class)
-				return nb.doubleValue();
-			else if (valueClazz_ == Long.class)
-				return nb.longValue();
-			else if (valueClazz_ == Short.class)
-				return nb.shortValue();
-			else if (valueClazz_ == Byte.class)
-				return nb.byteValue();
-			else if (valueClazz_ == Float.class)
-				return nb.floatValue();
-		}
-		return nb;
-	}
-
-	/**
 	 * Returns the string representation of the value.
 	 */
 	@Override

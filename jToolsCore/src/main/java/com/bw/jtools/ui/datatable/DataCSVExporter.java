@@ -34,8 +34,8 @@ public class DataCSVExporter implements IDataExporter
 {
 	public DataCSVExporter()
 	{
-		// Ensure that we can use CSV functionality.
 		@SuppressWarnings("unused")
+		// Ensure that we can use CSV functionality.
 		CSVFormat f = CSVFormat.EXCEL;
 	}
 
@@ -49,20 +49,22 @@ public class DataCSVExporter implements IDataExporter
 		for (int ci = 0; ci < CN; ++ci)
 			columns[ci] = model.getColumnName(ci);
 
-		CSVFormat csvFormat = CSVFormat.RFC4180.withHeader(columns);
+		CSVFormat csvFormat = CSVFormat.Builder.create(CSVFormat.RFC4180)
+											   .setHeader(columns)
+											   .build();
 
-		CSVPrinter printer = csvFormat.print(writer);
-
-		final int rowCount = model.getRowCount();
-		Object[] row = new Object[CN];
-		for (int rIdx = 0; rIdx < rowCount; ++rIdx)
+		try (CSVPrinter printer = csvFormat.print(writer))
 		{
-			for (int ci = 0; ci < CN; ++ci)
-				row[ci] = model.getValueAt(rIdx, ci);
+			final int rowCount = model.getRowCount();
+			Object[] row = new Object[CN];
+			for (int rIdx = 0; rIdx < rowCount; ++rIdx)
+			{
+				for (int ci = 0; ci < CN; ++ci)
+					row[ci] = model.getValueAt(rIdx, ci);
 
-			printer.printRecord(row);
+				printer.printRecord(row);
+			}
+			printer.flush();
 		}
-		printer.flush();
-		printer.close();
 	}
 }

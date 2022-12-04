@@ -22,26 +22,15 @@
 package com.bw.jtools.ui.properties;
 
 import com.bw.jtools.properties.PropertyValue;
-import com.bw.jtools.ui.JColorChooserButton;
-import com.bw.jtools.ui.JFontButton;
-import com.bw.jtools.ui.paintchooser.JPaintChooserButton;
+import com.bw.jtools.ui.properties.valuetypehandler.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JTextField;
-import javax.swing.border.Border;
-import javax.swing.text.JTextComponent;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.Paint;
-import java.awt.event.ItemListener;
 import java.text.NumberFormat;
-import java.text.ParseException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Factory to create and configure editor-components for property-values.<br>
@@ -57,158 +46,108 @@ import java.util.Objects;
 public class PropertyEditorComponents
 {
 	private static NumberFormat nf_;
-	private static Border empty_border_ = BorderFactory.createEmptyBorder();
 	private static Font font_ = new Font("SansSerif", Font.PLAIN, 11);
 
-	private JComboBox<String> choice_;
-	private JComboBox<Object> enums_;
-	private JComboBox<Boolean> booleanNullable_;
-	private JCheckBox booleanCheckbox_;
-	private ItemListener itemListener_;
-	private JTextField text_;
-	private JFontButton fontb_;
-	private JColorChooserButton color_;
-	private JPaintChooserButton paint_;
-	private PropertyValue currentValue_;
-	private Object currentUserObject_;
+	private final Map<Class<?>,Class<? extends ValueTypeHandler>>
+			typeEditorHandlersClasses_ = new HashMap<>();
+
+	private final Map<String, ValueTypeHandler>
+			typeEditorHandlersInstances_ = new HashMap<>();
+
+	public PropertyEditorComponents()
+	{
+		typeEditorHandlersClasses_.put( String.class, StringHandler.class );
+		typeEditorHandlersClasses_.put( Color.class, ColorHandler.class );
+		typeEditorHandlersClasses_.put( Paint.class, PaintHandler.class );
+		typeEditorHandlersClasses_.put( Boolean.class, BooleanHandler.class );
+		typeEditorHandlersClasses_.put( Font.class, FontHandler.class );
+		typeEditorHandlersClasses_.put( Number.class, NumberHandler.class );
+		typeEditorHandlersClasses_.put( List.class, ChoiceHandler.class );
+		typeEditorHandlersClasses_.put( Enum.class, EnumHandler.class );
+	}
+
+	protected ValueTypeHandler createHandlerForType(Class<?> clazz, boolean choice)
+	{
+		Class<? extends ValueTypeHandler> teClazz ;
+		if ( choice )
+		{
+			teClazz = typeEditorHandlersClasses_.get(List.class);
+		}
+		else if ( clazz.isEnum() )
+		{
+			teClazz = typeEditorHandlersClasses_.get(Enum.class);
+		}
+		else
+		{
+			teClazz = typeEditorHandlersClasses_.get(clazz);
+
+			if (teClazz == null)
+			{
+				// Classloader-mess or no direct match.
+				// Search for best match.
+				Class<?> bestTeValueClazz = null;
+				// Get the closed value class (e.g. Integer instead of Number)
+				for (Map.Entry<Class<?>, Class<? extends ValueTypeHandler>> teC : typeEditorHandlersClasses_.entrySet())
+				{
+					Class<?> teValueClazz = teC.getKey();
+					if (teValueClazz.isAssignableFrom(clazz) && (
+							bestTeValueClazz == null || bestTeValueClazz.isAssignableFrom(teValueClazz)))
+					{
+						bestTeValueClazz = teValueClazz;
+						teClazz = teC.getValue();
+					}
+				}
+
+			}
+		}
+		if (teClazz != null)
+		{
+			try
+			{
+				return teClazz.getDeclaredConstructor().newInstance();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+
+	protected ValueTypeHandler getHandlerForType(Class<?> clazz,  boolean choice)
+	{
+		String valueClassName = choice ? List.class.getName() : clazz.getName();
+
+		ValueTypeHandler th = typeEditorHandlersInstances_.get(valueClassName);
+		if ( th == null )
+		{
+			th = createHandlerForType(clazz, choice);
+			typeEditorHandlersInstances_.put( valueClassName, th );
+		}
+		return th;
+	}
 
 	static
 	{
 		nf_ = NumberFormat.getInstance();
 		nf_.setGroupingUsed(false);
-
 	}
 
-	private Border getEmptyBorder()
+	public Font getFont()
 	{
-		return empty_border_;
+		return font_;
 	}
 
-	private JTextField getTextField()
+	/**
+	 * Get the common NumberFormat.
+	 * Can be overwritten in each property by field {@link PropertyValue#nf_}
+	 */
+	public NumberFormat getNumberFormat()
 	{
-		if (text_ == null)
-		{
-			text_ = new JTextField();
-			text_.setFont(font_);
-			text_.addActionListener((actionEvent) -> updateCurrentValue()
-			);
-		}
-		return text_;
+		return nf_;
 	}
 
-	private ItemListener getItemListener()
-	{
-		if (itemListener_ == null)
-		{
-			itemListener_ = (evt) -> updateCurrentValue();
-		}
-		return itemListener_;
-	}
-
-	private JComboBox<Object> getEnumCombo()
-	{
-		if (enums_ == null)
-		{
-			enums_ = new JComboBox<>();
-			enums_.setFont(font_);
-			// Force UI to act as Cell editor (mainly to use a different selection/focus
-			// handling)
-			enums_.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-			enums_.addItemListener(getItemListener());
-
-		}
-		return enums_;
-	}
-
-	private JComboBox<String> getChoiceCombo()
-	{
-		if (choice_ == null)
-		{
-			choice_ = new JComboBox<>();
-			choice_.setFont(font_);
-			// Force UI to act as Cell editor (mainly to use a different selection/focus
-			// handling)
-			choice_.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
-			choice_.addItemListener(getItemListener());
-		}
-		return choice_;
-	}
-
-
-	private JComboBox<Boolean> getBooleanNullableCombo()
-	{
-		if (booleanNullable_ == null)
-		{
-			booleanNullable_ = new JComboBox<>();
-			booleanNullable_.addItem(null);
-			booleanNullable_.addItem(Boolean.TRUE);
-			booleanNullable_.addItem(Boolean.FALSE);
-			booleanNullable_.setFont(font_);
-			booleanNullable_.addItemListener(getItemListener());
-		}
-		return booleanNullable_;
-	}
-
-	private JCheckBox getBooleanCheckbox()
-	{
-		if (booleanCheckbox_ == null)
-		{
-			booleanCheckbox_ = new JCheckBox();
-			booleanCheckbox_.setFont(font_);
-			booleanCheckbox_.setOpaque(false);
-			booleanCheckbox_.addItemListener(getItemListener());
-		}
-		return booleanCheckbox_;
-	}
-
-	private JFontButton getFontButton()
-	{
-		if (fontb_ == null)
-		{
-			fontb_ = new JFontButton();
-			fontb_.setFont(font_);
-			fontb_.addItemListener(getItemListener());
-		}
-		return fontb_;
-	}
-
-	private JPaintChooserButton getPaintButton()
-	{
-		if (paint_ == null)
-		{
-			paint_ = new JPaintChooserButton();
-			paint_.setFont(font_);
-			paint_.addItemListener((ie) ->
-					{
-						Paint newPaint = (Paint) ie.getItem();
-						if (currentValue_ != null && Paint.class.isAssignableFrom(currentValue_.valueClazz_))
-						{
-							currentValue_.setValue(newPaint);
-						}
-					}
-			);
-		}
-		return paint_;
-	}
-
-	private JColorChooserButton getColorButton()
-	{
-		if (color_ == null)
-		{
-			color_ = new JColorChooserButton();
-			color_.setFont(font_);
-			color_.addItemListener((ie) ->
-					{
-						Color newColor = (Color) ie.getItem();
-						if (currentValue_ != null && Color.class.isAssignableFrom(currentValue_.valueClazz_))
-						{
-							currentValue_.setValue(newColor);
-						}
-					}
-			);
-		}
-		return color_;
-	}
 
 	/**
 	 * Returns a configured component for the value type.<br>
@@ -216,325 +155,20 @@ public class PropertyEditorComponents
 	 * @param value The property value.
 	 * @return The configured component.
 	 */
-	public <T> Component getEditorComponent(PropertyValue<T> value)
+	public <T> ValueTypeHandler getHandler(PropertyValue<T> value, boolean newInstance)
 	{
-		currentValue_ = value;
-
-		boolean useGenericText = false;
-		JComponent ed = null;
-
-		if (value.possibleValues_ != null)
+		ValueTypeHandler h;
+		boolean choice = value.possibleValues_ != null && !value.possibleValues_.isEmpty();
+		if ( newInstance )
 		{
-			JComboBox<String> choice = getChoiceCombo();
-			choice.removeAllItems();
-
-			Object v = value.getValue();
-			if (value.nullable_)
-			{
-				choice.addItem(null);
-				if (v == null)
-					choice.setSelectedIndex(0);
-			}
-
-			for (Map.Entry<String, T> entry : value.possibleValues_.entrySet())
-			{
-				choice.addItem(entry.getKey());
-				if (Objects.equals(entry.getValue(), v))
-				{
-					choice.setSelectedIndex(choice.getItemCount() - 1);
-				}
-			}
-			ed = choice;
-		}
-		else if (value.valueClazz_ == String.class)
-		{
-			useGenericText = true;
-		}
-		else if (Number.class.isAssignableFrom(value.valueClazz_))
-		{
-			JTextComponent text = getTextField();
-			ed = text;
-			Number i = (Number) value.getValue();
-			if (i != null)
-			{
-				NumberFormat nf = (value.nf_ == null ? nf_ : value.nf_);
-				boolean gu = nf.isGroupingUsed();
-				if (gu) nf.setGroupingUsed(false);
-				text.setText(nf.format(i));
-				if (gu) nf.setGroupingUsed(true);
-			}
-			else
-				text.setText("");
-		}
-		else if (value.valueClazz_ == Boolean.class)
-		{
-			Boolean val = (Boolean) value.getValue();
-			if (value.nullable_)
-			{
-				JComboBox<Boolean> booleanNullable = getBooleanNullableCombo();
-				booleanNullable.setSelectedItem(val);
-				ed = booleanNullable;
-			}
-			else
-			{
-				JCheckBox booleanCheckbox = getBooleanCheckbox();
-				booleanCheckbox.setSelected(val != null && val);
-				ed = booleanCheckbox;
-
-			}
-		}
-		else if (value.valueClazz_.isEnum())
-		{
-			JComboBox<Object> enums = getEnumCombo();
-			enums.removeAllItems();
-			if (value.nullable_)
-				enums.addItem(null);
-
-			Object[] vals = value.valueClazz_.getEnumConstants();
-			for (Object v : vals)
-				enums.addItem(v);
-			enums.setSelectedItem(value.getValue());
-			ed = enums;
-		}
-		else if (Color.class.isAssignableFrom(value.valueClazz_))
-		{
-			Color c = (Color) value.getValue();
-			if (c == null) c = Color.BLACK;
-
-			JColorChooserButton color = getColorButton();
-			color.setValue(c);
-			ed = color;
-		}
-		else if (Paint.class.isAssignableFrom(value.valueClazz_))
-		{
-			Paint p = (Paint) value.getValue();
-			if (p == null) p = Color.BLACK;
-
-			JPaintChooserButton paint = getPaintButton();
-			paint.setValue(p);
-			ed = paint;
-		}
-		else if (Font.class.isAssignableFrom(value.valueClazz_))
-		{
-			JFontButton fontb = getFontButton();
-			fontb.setValue((Font) value.getValue());
-			ed = fontb;
+			h = createHandlerForType(value.valueClazz_, choice);
 		}
 		else
 		{
-			useGenericText = true;
+			h = getHandlerForType(value.valueClazz_, choice);
 		}
-		if (useGenericText)
-		{
-			JTextComponent text = getTextField();
-			ed = text;
-			if (value.hasContent())
-				text.setText(String.valueOf(value.getValue()));
-			else
-				text.setText("");
-		}
-
-		return ed;
+		h.initEditor(value, this);
+		return h;
 	}
 
-	public Number getNumberValue(PropertyValue value)
-	{
-		try
-		{
-			NumberFormat nf = nf_;
-			if (value != null && value.nf_ != null)
-				nf = value.nf_;
-			return nf.parse(getTextField().getText());
-
-		}
-		catch (ParseException e)
-		{
-		}
-		return null;
-	}
-
-	public boolean updateCurrentValue()
-	{
-		if (currentValue_ == null)
-			return false;
-
-		Object newUserObject = getCurrentValue();
-
-		boolean changed = false;
-		if (newUserObject == null)
-		{
-			changed = currentValue_.getValue() != null;
-		}
-		else
-		{
-			changed = !newUserObject.equals(currentValue_.getValue());
-		}
-		currentValue_.setValue(newUserObject);
-		return changed;
-	}
-
-	/**
-	 * Updates the component from property value.
-	 */
-	public void updateEditorComponent()
-	{
-		if (currentValue_ == null)
-			return;
-
-		boolean useGenericText = false;
-
-		if (currentValue_.possibleValues_ != null)
-		{
-			JComboBox<String> choice = getChoiceCombo();
-			choice.removeAllItems();
-
-			Object v = currentValue_.getValue();
-			if (currentValue_.nullable_ && v == null)
-			{
-				choice.setSelectedIndex(0);
-			}
-			else
-			{
-				Object val = currentValue_.getValue();
-				for (Map.Entry<String, Object> entry : ((Map<String, Object>) currentValue_.possibleValues_).entrySet())
-				{
-					if (Objects.equals(entry.getValue(), val))
-					{
-						choice.setSelectedItem(entry.getKey());
-						break;
-					}
-				}
-			}
-		}
-		else if (currentValue_.valueClazz_ == String.class)
-		{
-			useGenericText = true;
-		}
-		else if (Number.class.isAssignableFrom(currentValue_.valueClazz_))
-		{
-			JTextComponent text = getTextField();
-			Number i = (Number) currentValue_.getValue();
-			if (i != null)
-			{
-				NumberFormat nf = (currentValue_.nf_ == null ? nf_ : currentValue_.nf_);
-				boolean gu = nf.isGroupingUsed();
-				if (gu) nf.setGroupingUsed(false);
-				text.setText(nf.format(i));
-				if (gu) nf.setGroupingUsed(true);
-			}
-			else
-				text.setText("");
-		}
-		else if (currentValue_.valueClazz_ == Boolean.class)
-		{
-			Boolean val = (Boolean) currentValue_.getValue();
-			if (currentValue_.nullable_)
-			{
-				getBooleanNullableCombo().setSelectedItem(val);
-			}
-			else
-			{
-				getBooleanCheckbox().setSelected(val != null && val);
-			}
-		}
-		else if (currentValue_.valueClazz_.isEnum())
-		{
-			JComboBox<Object> enums = getEnumCombo();
-			enums.setSelectedItem(currentValue_.getValue());
-		}
-		else if (Color.class.isAssignableFrom(currentValue_.valueClazz_))
-		{
-			Color c = (Color) currentValue_.getValue();
-			if (c == null) c = Color.BLACK;
-
-			JColorChooserButton color = getColorButton();
-			color.setValue(c);
-		}
-		else if (Paint.class.isAssignableFrom(currentValue_.valueClazz_))
-		{
-			Paint p = (Paint) currentValue_.getValue();
-			if (p == null) p = Color.BLACK;
-
-			getPaintButton().setValue(p);
-		}
-		else if (Font.class.isAssignableFrom(currentValue_.valueClazz_))
-		{
-			getFontButton().setValue((Font) currentValue_.getValue());
-		}
-		else
-		{
-			useGenericText = true;
-		}
-		if (useGenericText)
-		{
-			JTextComponent text = getTextField();
-			if (currentValue_.hasContent())
-				text.setText(String.valueOf(currentValue_.getValue()));
-			else
-				text.setText("");
-		}
-	}
-
-	/**
-	 * Get the current value.
-	 */
-	public Object getCurrentValue()
-	{
-		if (currentValue_ == null)
-			return null;
-
-		currentUserObject_ = currentValue_.getValue();
-
-		if (currentValue_.possibleValues_ != null)
-		{
-			String v = (String) getChoiceCombo().getSelectedItem();
-			currentUserObject_ = v == null ? null : currentValue_.possibleValues_.get(v);
-		}
-		else if (currentValue_.valueClazz_ == String.class)
-		{
-			String text = getTextField().getText();
-			if (text.isEmpty() && currentValue_.nullable_)
-				currentUserObject_ = null;
-			else
-				currentUserObject_ = text;
-		}
-		else if (Number.class.isAssignableFrom(currentValue_.valueClazz_))
-		{
-			Number nb = getNumberValue(currentValue_);
-			if (nb != null)
-			{
-				currentUserObject_ = currentValue_.scaleNumber(nb);
-			}
-			else if (currentValue_.nullable_)
-			{
-				currentUserObject_ = null;
-			}
-		}
-		else if (currentValue_.valueClazz_ == Boolean.class)
-		{
-			Boolean newBool;
-			if (currentValue_.nullable_)
-			{
-				newBool = (Boolean) getBooleanNullableCombo().getSelectedItem();
-			}
-			else
-			{
-				newBool = getBooleanCheckbox().isSelected();
-			}
-			currentUserObject_ = newBool;
-		}
-		else if (currentValue_.valueClazz_.isEnum())
-		{
-			currentUserObject_ = getEnumCombo().getSelectedItem();
-		}
-		else if (Color.class.isAssignableFrom(currentValue_.valueClazz_))
-		{
-			currentUserObject_ = getColorButton().getValue();
-		}
-		else if (Font.class.isAssignableFrom(currentValue_.valueClazz_))
-		{
-			currentUserObject_ = getFontButton().getValue();
-		}
-		return currentUserObject_;
-	}
 }

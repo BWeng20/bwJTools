@@ -22,20 +22,22 @@
 package com.bw.jtools.ui.properties.table;
 
 import com.bw.jtools.ui.properties.PropertyEditorComponents;
+import com.bw.jtools.ui.properties.valuetypehandler.ValueTypeHandler;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import java.awt.Component;
 
 /**
- * Custom Cell Editor to support different value types in one column. Detection
- * of the value-type is retrieved from PropertyNode.valueClazz_.
+ * Custom Cell Editor to support different value types in one column. The value-type is
+ * detected from PropertyNode.valueClazz_.
  * <ul>
- * <li>Enum-types: A combo-box with all possible values is shown.
- * <li>Number-types: A text-field with local dependent number format is shown.
- * <li>Color: A colorized icon and the RGB-value is shown. A click opens the jdk
+ * <li>Enum-types: A combo-box with all possible values is used.
+ * <li>Number-types: A text-field with local dependent number format is used.
+ * <li>Color: A colorized icon and the RGB-value is used. A click opens the jdk
  * color-chooser.
- * <li>Boolean: A combo-box with "true", "false" and an empty entry is shown.
+ * <li>Boolean: If nullable, a combo-box with "true", "false" and an empty entry is used.
+ *              If not nullable a checkbox is used.
  * </ul>
  */
 public class PropertyCellEditor extends AbstractCellEditor implements javax.swing.table.TableCellEditor
@@ -46,7 +48,7 @@ public class PropertyCellEditor extends AbstractCellEditor implements javax.swin
 	private static final long serialVersionUID = 2666866100515133280L;
 
 	protected final PropertyEditorComponents components_ = new PropertyEditorComponents();
-
+	protected ValueTypeHandler currentHandler_ = null;
 	protected final PropertyTable table_;
 
 
@@ -59,14 +61,15 @@ public class PropertyCellEditor extends AbstractCellEditor implements javax.swin
 	public Object getCellEditorValue()
 	{
 		// We use this call only to handle the update after a stopEdit,
-		components_.updateCurrentValue();
+		if ( currentHandler_ != null )
+			currentHandler_.updatePropertyFromEditor();
 		return null;
 	}
 
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
 	{
-		Component comp = null;
+		currentHandler_ = null;
 
 		if (table_.isCellEditable(row, column))
 		{
@@ -79,13 +82,13 @@ public class PropertyCellEditor extends AbstractCellEditor implements javax.swin
 			switch (column)
 			{
 				case PropertyTable.COLUMN_VALUE + 1:
-					comp = components_.getEditorComponent(pv.property_);
+					currentHandler_ = components_.getHandler(pv.property_, false);
 				default:
 					break;
 			}
 
 		}
-		return comp;
+		return currentHandler_ == null ? null : currentHandler_.getComponent();
 	}
 
 }
