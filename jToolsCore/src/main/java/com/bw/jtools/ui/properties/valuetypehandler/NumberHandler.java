@@ -13,7 +13,6 @@ public class NumberHandler extends ValueTypeHandler
 
 	NumberFormat nf_;
 	JTextField text_;
-	PropertyValue value_;
 
 	@Override
 	public void initEditor(PropertyValue value, PropertyEditorComponents pec)

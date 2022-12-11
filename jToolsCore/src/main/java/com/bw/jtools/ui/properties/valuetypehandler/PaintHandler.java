@@ -10,8 +10,6 @@ import java.awt.Paint;
 
 public class PaintHandler extends ValueTypeHandler
 {
-
-	PropertyValue value_;
 	JPaintChooserButton paint_;
 
 	@Override

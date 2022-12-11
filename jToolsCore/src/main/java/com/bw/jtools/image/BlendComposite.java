@@ -150,5 +150,15 @@ public class BlendComposite implements Composite
 		}
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if ( obj instanceof BlendComposite)
+		{
+			return (((BlendComposite)obj).getMode() == mode_);
+		}
+		return super.equals(obj);
+	}
+
 
 }

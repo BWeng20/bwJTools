@@ -269,7 +269,6 @@ public class JDropCapsLabel extends JComponent
 	 */
 	public void setDropCapPaint(Paint cp, Composite comp)
 	{
-		System.out.println("Compo " + comp);
 		dropCapPaint_ = cp;
 		dropCapComposite_ = comp;
 		if (dropCapPaint_ != null && dropCapComposite_ == null)
@@ -317,6 +316,8 @@ public class JDropCapsLabel extends JComponent
 	public void setImageBasePaint(Paint imagePaint)
 	{
 		imageBasePaint_ = imagePaint;
+		calculateInitialImageCaching();
+		repaint();
 	}
 
 	/**

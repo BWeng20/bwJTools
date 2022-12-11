@@ -19,55 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.ui;
+package com.bw.jtools.properties;
 
-import com.bw.jtools.ui.fontchooser.JFontChooser;
-
-import javax.swing.JButton;
-import java.awt.Font;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Button to show and change some font setting.
+ * Client for property changes, manages strong references for local change listener if needed.
  */
-public class JFontButton extends JChooserButtonBase<Font>
+public class PropertyChangeClient
 {
-	protected static Font getDefaultFont()
+	List<PropertyChangeListener> propertyChangeListener_ = new ArrayList<>();
+
+	public <T> void addProperty(PropertyGroup group, PropertyValue<T> value, PropertyChangeListener<T> pcl)
 	{
-		return javax.swing.UIManager.getDefaults()
-									.getFont("TextField.font");
+		// Add the lamdas via strong reference, since they are deleted otherwise.
+		propertyChangeListener_.add(pcl);
+		value.addPropertyChangeListener(pcl);
+		group.addProperty(value);
 	}
 
-	public JFontButton()
-	{
-		this(getDefaultFont());
-	}
-
-	public JFontButton(Font font)
-	{
-		this(font, I18N.getText("fontchooser.defaultDialogTitle"));
-	}
-
-	public JFontButton(Font font, String dialogTitle)
-	{
-		super(dialogTitle);
-		setValue(font);
-		setText(I18N.getText("fontchooser.button"));
-		setHorizontalAlignment(JButton.CENTER);
-		setOpaque(false);
-		setBorderPainted(true);
-	}
-
-	@Override
-	public void setValue(Font v)
-	{
-		super.setValue(v);
-		setFont((v == null) ? getDefaultFont() : v);
-		setText(v.getFontName());
-	}
-
-	protected Font showChooserDialog()
-	{
-		return JFontChooser.showDialog(this, getDialogTitle(), getValue());
+	public void removePropertyChangeListener(PropertyValue value, PropertyChangeListener pcl) {
+		propertyChangeListener_.remove(pcl);
+		value.removePropertyChangeListener(pcl);
 	}
 
 }

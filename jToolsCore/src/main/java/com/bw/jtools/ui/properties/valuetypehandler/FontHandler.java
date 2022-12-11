@@ -10,7 +10,6 @@ import java.awt.Font;
 public class FontHandler extends ValueTypeHandler
 {
 
-	PropertyValue value_;
 	JFontButton fontb_;
 
 	@Override

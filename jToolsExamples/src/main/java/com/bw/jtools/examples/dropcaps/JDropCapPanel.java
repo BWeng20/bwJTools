@@ -3,7 +3,7 @@ package com.bw.jtools.examples.dropcaps;
 import com.bw.jtools.ui.JCardBorder;
 import com.bw.jtools.ui.JIconButton;
 import com.bw.jtools.ui.dropcaps.JDropCapsLabel;
-import com.bw.jtools.ui.dropcaps.JDropCharConfig;
+import com.bw.jtools.ui.dropcaps.JDropCapsConfig;
 import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.BorderFactory;
@@ -58,7 +58,7 @@ public class JDropCapPanel extends JPanel
 
         Icon ic = IconTool.getIcon("Settings.png");
         JIconButton settings = new JIconButton(ic);
-        settings.addActionListener( e -> JDropCharConfig.showDialog(dropCap_,"Config"));
+        settings.addActionListener( e -> JDropCapsConfig.showDialog(dropCap_,"Config"));
         dropCardButtons.add(settings);
         dropCardButtons.add(Box.createHorizontalGlue());
 

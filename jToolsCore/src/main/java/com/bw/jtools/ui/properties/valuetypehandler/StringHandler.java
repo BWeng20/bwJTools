@@ -8,8 +8,6 @@ import java.awt.Component;
 
 public class StringHandler extends ValueTypeHandler
 {
-
-	PropertyValue value_;
 	JTextField text_;
 
 	@Override

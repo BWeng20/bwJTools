@@ -2,6 +2,7 @@ package com.bw.jtools.ui.graph;
 
 import com.bw.jtools.graph.Graph;
 import com.bw.jtools.properties.PropertyBooleanValue;
+import com.bw.jtools.properties.PropertyChangeClient;
 import com.bw.jtools.properties.PropertyChangeListener;
 import com.bw.jtools.properties.PropertyEnumValue;
 import com.bw.jtools.properties.PropertyGroup;
@@ -26,7 +27,7 @@ public class GraphOptionDialog extends JDialog
 	PropertyTable table = new PropertyTable();
 	GraphPanel graphPanel;
 
-	List<PropertyChangeListener> propertyChangeListener = new ArrayList<>();
+	PropertyChangeClient propClient_ = new PropertyChangeClient();
 
 	public GraphOptionDialog(GraphPanel graphPanel)
 	{
@@ -47,11 +48,8 @@ public class GraphOptionDialog extends JDialog
 
 	protected void addProperty(PropertyGroup group, PropertyValue value, PropertyChangeListener pcl)
 	{
-		// Add the lamdas via strong reference, since they are deleted otherwise.
-		propertyChangeListener.add(pcl);
-		value.addPropertyChangeListener(pcl);
 		value.nullable_ = false;
-		group.addProperty(value);
+		propClient_.addProperty(group, value, pcl);
 	}
 
 	protected int getInt(PropertyValue value, int defaultValue)
