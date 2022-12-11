@@ -31,7 +31,7 @@ import java.io.FileNotFoundException;
 
 /**
  * Implementation via sun.Shell. May break in future jre versions.<br>
- * Before use call "isSupported" to verify that the current java version is supported the the used
+ * Before use call "isSupported" to verify that the current java version is supported and the used
  * classes are accessible.<br>
  */
 public class ShellIconProvider extends AbstractIconProvider
@@ -91,6 +91,7 @@ public class ShellIconProvider extends AbstractIconProvider
 
 	/**
 	 * Checks if ShellFolder sub.awt.shell.ShellFolder is available and accessible.
+         * @return true if access to shell icons via sun.awt.shell is supported.
 	 */
 	static public boolean isSupported()
 	{

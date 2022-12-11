@@ -965,7 +965,7 @@ public final class IOTool
      * This method use internal jdk classes it may break with future jdk
      * releases.<br>
      * It seems that the native call took several seconds from UI Thread if the
-     * target file doesn't exist sp calling this method should be done from some
+     * target file doesn't exist so calling this method should be done from some
      * worker tread.
      *
      * @param link The link file to resolve
