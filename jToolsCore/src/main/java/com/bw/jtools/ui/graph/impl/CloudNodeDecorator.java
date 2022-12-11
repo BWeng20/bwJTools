@@ -93,7 +93,9 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 		PathInfo pi = paths.get(node.id);
 		if (pi != null)
 		{
-			return (Rectangle2D.Float)pi.path.getBounds2D();
+			Rectangle2D.Float r = new Rectangle2D.Float();
+			r.setRect(pi.path.getBounds2D());
+			return r;
 		}
 		return null;
 	}
