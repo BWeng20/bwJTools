@@ -7,29 +7,12 @@ import com.bw.jtools.graph.GraphUtil;
 import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
-import com.bw.jtools.ui.graph.DecoratorShape;
-import com.bw.jtools.ui.graph.GraphOptionDialog;
-import com.bw.jtools.ui.graph.GraphPanel;
-import com.bw.jtools.ui.graph.Layout;
-import com.bw.jtools.ui.graph.VisualSettings;
-import com.bw.jtools.ui.graph.impl.CloudNodeDecorator;
-import com.bw.jtools.ui.graph.impl.DecoratorNodeVisual;
-import com.bw.jtools.ui.graph.impl.NodeLabelVisual;
-import com.bw.jtools.ui.graph.impl.ShapeEdgeVisual;
-import com.bw.jtools.ui.graph.impl.ShapeNodeDecorator;
-import com.bw.jtools.ui.graph.impl.TreeLayout;
-import com.bw.jtools.ui.graph.impl.TreeRectangleGeometry;
+import com.bw.jtools.ui.graph.*;
+import com.bw.jtools.ui.graph.impl.*;
 import com.bw.jtools.ui.icon.IconTool;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.Timer;
-import javax.swing.UIManager;
-import java.awt.BorderLayout;
-import java.awt.Point;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URL;
@@ -42,7 +25,7 @@ public class JGraphDemo
     final GraphPanel gpanel = new GraphPanel();
     VisualSettings settings = new VisualSettings();
 
-    static public void main(String args[])
+    static public void main(String[] args)
     {
         new JGraphDemo();
     }
@@ -51,7 +34,7 @@ public class JGraphDemo
 
     static Node node(String text)
     {
-        return GraphUtil.createTextNode( text );
+        return GraphUtil.createTextNode(text);
     }
 
     public JGraphDemo()
@@ -138,7 +121,7 @@ public class JGraphDemo
         {
             if (gpanel.paintCount_ > 0)
             {
-                fps.setText(String.valueOf(gpanel.paintCount_) + " fps");
+                fps.setText(gpanel.paintCount_ + " fps");
             } else
             {
                 fps.setText("...");
@@ -177,11 +160,7 @@ public class JGraphDemo
             if (options == null)
             {
                 options = new GraphOptionDialog(gpanel);
-                options.init();
                 options.pack();
-            } else
-            {
-                options.init();
             }
 
             Point l = optionButton.getLocationOnScreen();

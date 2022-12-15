@@ -30,22 +30,26 @@ import java.util.Stack;
 /**
  * Implements a Lindenmayer System to rewrite paths.
  */
-public class LSystem {
+public class LSystem
+{
     private String current_;
     private final double angle_;
     private final Map<Character, String> rules_;
     private final StringBuilder sb = new StringBuilder();
 
-    public LSystem(String axiom, double angle, Map<Character, String> rules) {
+    public LSystem(String axiom, double angle, Map<Character, String> rules)
+    {
         current_ = axiom;
         angle_ = angle;
         rules_ = rules;
     }
 
-    public void generation() {
+    public void generation()
+    {
         sb.setLength(0);
         final int N = current_.length();
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < N; ++i)
+        {
             final Character c = current_.charAt(i);
             final String m = rules_.get(c);
             if (m == null)
@@ -56,22 +60,26 @@ public class LSystem {
         current_ = sb.toString();
     }
 
-    public Path2D.Double getPath(Point2D.Double start) {
+    public Path2D.Double getPath(Point2D.Double start)
+    {
         return getPath(start.x, start.y);
     }
 
-    public Path2D.Double getPath(double startX, double startY) {
+    public Path2D.Double getPath(double startX, double startY)
+    {
         Path2D.Double p = new Path2D.Double();
         p.moveTo(startX, startY);
-        double deltaX = 20;
+        double deltaX = 10;
         double deltaT;
-        double deltaY = 0;
+        double deltaY = 10;
         double theta = Math.toRadians(90);
         Stack<double[]> stack = new Stack<>();
-        for (char c : current_.toCharArray()) {
+        for (char c : current_.toCharArray())
+        {
             startX = Math.round(startX);
             startY = Math.round(startY);
-            switch (c) {
+            switch (c)
+            {
                 case 'F':
                     startX += deltaX;
                     startY += deltaY;
@@ -82,8 +90,7 @@ public class LSystem {
                     startY += deltaY;
                     p.moveTo(startX, startY);
                     break;
-                case '-':
-                    // Rotate counterclockwise
+                case '-': // Rotate counterclockwise
                 {
                     final double cos = Math.cos(theta);
                     final double sin = Math.sin(theta);
@@ -92,7 +99,8 @@ public class LSystem {
                     deltaX = deltaT;
                 }
                 break;
-                case '+': {
+                case '+': // Rotate clockwise
+                {
                     final double cos = Math.cos(theta);
                     final double sin = Math.sin(theta);
                     deltaT = (deltaX * cos) + (deltaY * sin);
@@ -116,4 +124,8 @@ public class LSystem {
         return p;
     }
 
+    public String getCurrent()
+    {
+        return current_;
+    }
 }

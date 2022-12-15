@@ -22,18 +22,17 @@
 package com.bw.jtools.ui.lsystem;
 
 import com.bw.jtools.graph.LSystem;
-import com.bw.jtools.graph.Node;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
 /**
  * Panel to show a l-system.
  */
-public class LSystemPanel extends JPanel {
+public class LSystemPanel extends JPanel
+{
 
     /**
      * Counts paint calls. Can be used to show some fps indicator.
@@ -41,67 +40,80 @@ public class LSystemPanel extends JPanel {
     public int paintCount_ = 0;
 
     private double scale_ = 1;
-    private Point2D.Double graphOrigin_ = new Point2D.Double(0,0);
 
-    public LSystem getLSystem() {
+    public boolean isDrawBorder()
+    {
+        return drawBorder_;
+    }
+
+    /**
+     * Draws a border around the L-system to indicate current bounds.
+     */
+    public void setDrawBorder(boolean drawBorder_)
+    {
+        if (this.isDrawBorder() != drawBorder_)
+        {
+            this.drawBorder_ = drawBorder_;
+            SwingUtilities.invokeLater(this::repaint);
+        }
+    }
+
+    private boolean drawBorder_ = false;
+    private boolean autoScale_ = true;
+
+    public LSystem getLSystem()
+    {
         return lsystem;
     }
 
-    public void setLSystem(LSystem lsystem) {
+    public void setLSystem(LSystem lsystem)
+    {
         this.lsystem = lsystem;
     }
 
     private LSystem lsystem;
 
+    public LSystemPanel()
+    {
+        setOpaque(false);
+    }
 
     @Override
     protected void paintComponent(Graphics g)
     {
-            try
-            {
-                final Graphics2D g2 = (Graphics2D)g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.scale(scale_, scale_);
-
-                final Rectangle clipping = g2.getClipBounds();
-                g2.setPaint(getBackground());
-                g2.fillRect(clipping.x, clipping.y, clipping.width, clipping.height);
-                g2.setPaint(Color.BLUE);
-
-                if ( lsystem != null ) {
-                    Path2D.Double p = lsystem.getPath(0, 0);
-                    Rectangle r = p.getBounds();
-                    g.translate( r.x + (int)(graphOrigin_.x),
-                            r.y + (int)(graphOrigin_.y) );
-                    g2.draw(p);
-                }
-
-            } finally
-            {
-                ++paintCount_;
-            }
-
-    }
-
-    @Override
-    public Dimension getPreferredSize()
-    {
-        Dimension d;
-        if (isPreferredSizeSet())
+        try
         {
-            d = super.getPreferredSize();
-        } else
-        {
+            final Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
             if (lsystem != null)
             {
-                Rectangle r = lsystem.getPath( 0, 0).
-                        getBounds();
-                return new Dimension(r.width+20, r.height+20);
-            } else
-            {
-                d = getMinimumSize();
+                Path2D.Double p = lsystem.getPath(0, 0);
+                Rectangle r = p.getBounds();
+                Dimension d = getSize();
+                if (autoScale_)
+                {
+                    double xf = (d.width - 20) / r.getWidth();
+                    double yf = (d.height - 20) / r.getHeight();
+                    scale_ = Math.min(xf, yf);
+                }
+                g2.translate(10, 10);
+                AffineTransform a = AffineTransform.getScaleInstance(scale_, scale_);
+                a.translate(-r.x, -r.y);
+                g2.setPaint(Color.BLUE);
+                g2.draw(a.createTransformedShape(p));
+                if (drawBorder_)
+                {
+                    g2.setPaint(Color.RED);
+                    g2.draw(a.createTransformedShape(r));
+                }
             }
+
+        } finally
+        {
+            ++paintCount_;
         }
-        return d;
+
     }
+
 }

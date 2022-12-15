@@ -2,7 +2,6 @@ package com.bw.jtools.examples.lsystem;
 
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
-import com.bw.jtools.examples.graph.JGraphDemo;
 import com.bw.jtools.graph.LSystem;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
@@ -15,9 +14,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Map;
 
-public class LSystemDemo {
+public class LSystemDemo
+{
     JFrame frame;
     JButton optionButton;
+    LSystemPanel lpanel;
 
     public LSystemDemo()
     {
@@ -36,14 +37,14 @@ public class LSystemDemo {
         JPanel mainPanel = new JPanel(new BorderLayout());
         frame.setContentPane(mainPanel);
 
-        LSystemPanel lpanel = new LSystemPanel();
+        lpanel = new LSystemPanel();
 
         LSystem lsys = new LSystem("X",
                 0, Map.of('X', "YF-", 'Y', "YX-"));
 
         lpanel.setLSystem(lsys);
 
-        lpanel.setMinimumSize(new Dimension(100,100));
+        lpanel.setMinimumSize(new Dimension(100, 100));
         JScrollPane graphPanel = new JScrollPane(lpanel);
         graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -57,6 +58,9 @@ public class LSystemDemo {
         JButton gen = new JButton("+");
         gen.addActionListener(e -> {
             lsys.generation();
+            System.out.println("==================");
+            System.out.println(lsys.getCurrent());
+            System.out.println("==================");
             graphPanel.revalidate();
             graphPanel.repaint();
         });
@@ -66,7 +70,7 @@ public class LSystemDemo {
         optionButton.addActionListener(e -> showOptions());
         ctrl.add(optionButton);
 
-        statusLine.add( ctrl, BorderLayout.EAST);
+        statusLine.add(ctrl, BorderLayout.EAST);
 
         JLabel fps = new JLabel("...");
         statusLine.add(fps, BorderLayout.CENTER);
@@ -87,7 +91,7 @@ public class LSystemDemo {
         {
             if (lpanel.paintCount_ > 0)
             {
-                fps.setText(String.valueOf(lpanel.paintCount_) + " fps");
+                fps.setText(lpanel.paintCount_ + " fps");
             } else
             {
                 fps.setText("...");
@@ -101,7 +105,12 @@ public class LSystemDemo {
             @Override
             public void windowClosing(WindowEvent e)
             {
-
+                if (options != null)
+                {
+                    options.setVisible(false);
+                    options.dispose();
+                    options = null;
+                }
                 fpsTimer.stop();
             }
         });
@@ -109,10 +118,30 @@ public class LSystemDemo {
         Log.info("Started");
     }
 
-    private void showOptions() {
+    LSystemConfigDialog options;
+
+    public void showOptions()
+    {
+        if (options != null && options.isVisible())
+        {
+            options.setVisible(false);
+        } else
+        {
+            if (options == null)
+            {
+                options = new LSystemConfigDialog(lpanel);
+                options.pack();
+            }
+
+            Point l = optionButton.getLocationOnScreen();
+            l.x -= options.getWidth() / 2;
+            l.y -= options.getHeight() / 2;
+            options.setLocation(l);
+            options.setVisible(true);
+        }
     }
 
-    static public void main(String args[])
+    static public void main(String[] args)
     {
         new LSystemDemo();
     }
