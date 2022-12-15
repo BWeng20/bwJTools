@@ -29,7 +29,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 
 /**
- * Panel to show a l-system.
+ * Panel to show an l-system.
  */
 public class LSystemPanel extends JPanel
 {
@@ -59,6 +59,17 @@ public class LSystemPanel extends JPanel
     }
 
     private boolean drawBorder_ = false;
+
+    public boolean isAutoScale()
+    {
+        return autoScale_;
+    }
+
+    public void setAutoScale(boolean autoScale)
+    {
+        this.autoScale_ = autoScale;
+    }
+
     private boolean autoScale_ = true;
 
     public LSystem getLSystem()
