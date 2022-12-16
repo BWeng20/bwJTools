@@ -103,9 +103,9 @@ public class LSystemPanel extends JPanel
     @Override
     protected void paintComponent(Graphics g)
     {
+        final Graphics2D g2 = (Graphics2D)g.create();
         try
         {
-            final Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             if (lsystem != null)
@@ -135,6 +135,7 @@ public class LSystemPanel extends JPanel
             }
         } finally
         {
+            g2.dispose();
             ++paintCount_;
         }
 

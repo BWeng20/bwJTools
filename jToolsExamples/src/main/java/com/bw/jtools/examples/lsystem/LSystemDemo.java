@@ -24,6 +24,7 @@ package com.bw.jtools.examples.lsystem;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.LSystem;
+import com.bw.jtools.graph.LSystemGraphicCommand;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.icon.IconTool;
@@ -73,9 +74,24 @@ public class LSystemDemo
 
 		lsysPanel_ = new LSystemPanel();
 
+		/*
 		LSystem lsys = new LSystem("X",
 				Math.toRadians(90), Map.of('X', "YF-", 'Y', "YX-"));
+		 */
 
+		/* Sierpinski triangle
+		LSystem lsys = new LSystem("A",
+				Math.toRadians(60), Map.of('A', "B-A-B", 'B', "A+B+A"));
+		lsys.setCommand('A', LSystemGraphicCommand.DRAW_FORWARD);
+		lsys.setCommand('B', LSystemGraphicCommand.DRAW_FORWARD);
+		*/
+
+		/** Fractal plant */
+		LSystem lsys = new LSystem("X",
+				Math.toRadians(25),
+				Map.of('X', "F+[[X]-X]-F[-FX]+X", 'F', "FF"));
+
+		lsys.setDelta(5,-8);
 		lsysPanel_.setLSystem(lsys);
 
 		lsysPanel_.setMinimumSize(new Dimension(100, 100));

@@ -24,6 +24,7 @@ package com.bw.jtools.graph;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -40,6 +41,7 @@ public class LSystem
     private double deltaY_ = 5;
     private final Map<Character, String> rules_;
     private final StringBuilder sb = new StringBuilder();
+    private final Map<Character, LSystemGraphicCommand> commands_;
 
     /**
      * Creates a new L-System.
@@ -53,6 +55,14 @@ public class LSystem
         angle_ = angle;
         rules_ = rules;
         axiom_ = axiom;
+        commands_ = new HashMap<>();
+
+        commands_.put('F', LSystemGraphicCommand.DRAW_FORWARD);
+        commands_.put('f', LSystemGraphicCommand.MOVE_FORWARD);
+        commands_.put('-', LSystemGraphicCommand.TURN_COUNTERCLOCKWISE);
+        commands_.put('+', LSystemGraphicCommand.TURN_CLOCKWISE);
+        commands_.put('[', LSystemGraphicCommand.PUSH_ON_STACK);
+        commands_.put(']', LSystemGraphicCommand.POP_FROM_STACK);
     }
 
     /**
@@ -109,6 +119,11 @@ public class LSystem
         deltaY_ = y;
     }
 
+    public void setCommand( char cmdChar, LSystemGraphicCommand cmd)
+    {
+        commands_.put(cmdChar, cmd);
+    }
+
     /**
      * Resets the system to generation 0
      */
@@ -142,46 +157,51 @@ public class LSystem
         {
             startX = Math.round(startX);
             startY = Math.round(startY);
-            switch (c)
+            LSystemGraphicCommand cmd = commands_.get(c);
+            if ( cmd != null )
             {
-                case 'F':
-                    startX += deltaX;
-                    startY += deltaY;
-                    p.lineTo(startX, startY);
-                    break;
-                case 'f':
-                    startX += deltaX;
-                    startY += deltaY;
-                    p.moveTo(startX, startY);
-                    break;
-                case '-': // Rotate counterclockwise
+                switch (cmd)
                 {
-                    final double cos = Math.cos(theta);
-                    final double sin = Math.sin(theta);
-                    deltaT = (deltaX * cos) - (deltaY * sin);
-                    deltaY = (deltaX * sin) + (deltaY * cos);
-                    deltaX = deltaT;
-                }
-                break;
-                case '+': // Rotate clockwise
-                {
-                    final double cos = Math.cos(theta);
-                    final double sin = Math.sin(theta);
-                    deltaT = (deltaX * cos) + (deltaY * sin);
-                    deltaY = (deltaY * cos) - (deltaX * sin);
-                    deltaX = deltaT;
-                }
-                break;
-                case '[':
-                    stack.add(new double[]{startX, startY, deltaX, deltaY});
+                    case DRAW_FORWARD:
+                        startX += deltaX;
+                        startY += deltaY;
+                        p.lineTo(startX, startY);
+                        break;
+                    case MOVE_FORWARD:
+                        startX += deltaX;
+                        startY += deltaY;
+                        p.moveTo(startX, startY);
+                        break;
+                    case TURN_COUNTERCLOCKWISE:
+                    {
+                        final double cos = Math.cos(theta);
+                        final double sin = Math.sin(theta);
+                        deltaT = (deltaX * cos) - (deltaY * sin);
+                        deltaY = (deltaX * sin) + (deltaY * cos);
+                        deltaX = deltaT;
+                    }
                     break;
-                case ']':
-                    double[] s = stack.pop();
-                    startX = s[0];
-                    startY = s[1];
-                    deltaX = s[2];
-                    deltaY = s[3];
+                    case TURN_CLOCKWISE:
+                    {
+                        final double cos = Math.cos(theta);
+                        final double sin = Math.sin(theta);
+                        deltaT = (deltaX * cos) + (deltaY * sin);
+                        deltaY = (deltaY * cos) - (deltaX * sin);
+                        deltaX = deltaT;
+                    }
                     break;
+                    case PUSH_ON_STACK:
+                        stack.add(new double[]{startX, startY, deltaX, deltaY});
+                        break;
+                    case POP_FROM_STACK:
+                        double[] s = stack.pop();
+                        startX = s[0];
+                        startY = s[1];
+                        deltaX = s[2];
+                        deltaY = s[3];
+                        p.moveTo(startX, startY);
+                        break;
+                }
             }
         }
         return p;
