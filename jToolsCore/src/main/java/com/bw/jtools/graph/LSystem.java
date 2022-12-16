@@ -24,7 +24,6 @@ package com.bw.jtools.graph;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -33,15 +32,10 @@ import java.util.Stack;
  */
 public class LSystem
 {
-    private final String axiom_;
+    private final LSystemConfig config_;
     private int generations_ = 0;
     private String current_;
-    private double angle_;
-    private double deltaX_ = 5;
-    private double deltaY_ = 5;
-    private final Map<Character, String> rules_;
     private final StringBuilder sb = new StringBuilder();
-    private final Map<Character, LSystemGraphicCommand> commands_;
 
     /**
      * Creates a new L-System.
@@ -52,17 +46,8 @@ public class LSystem
     public LSystem(String axiom, double angle, Map<Character, String> rules)
     {
         current_ = axiom;
-        angle_ = angle;
-        rules_ = rules;
-        axiom_ = axiom;
-        commands_ = new HashMap<>();
+        config_ = new LSystemConfig(axiom, angle, rules);
 
-        commands_.put('F', LSystemGraphicCommand.DRAW_FORWARD);
-        commands_.put('f', LSystemGraphicCommand.MOVE_FORWARD);
-        commands_.put('-', LSystemGraphicCommand.TURN_COUNTERCLOCKWISE);
-        commands_.put('+', LSystemGraphicCommand.TURN_CLOCKWISE);
-        commands_.put('[', LSystemGraphicCommand.PUSH_ON_STACK);
-        commands_.put(']', LSystemGraphicCommand.POP_FROM_STACK);
     }
 
     /**
@@ -75,7 +60,7 @@ public class LSystem
         for (int i = 0; i < N; ++i)
         {
             final Character c = current_.charAt(i);
-            final String m = rules_.get(c);
+            final String m = config_.rules_.get(c);
             if (m == null)
                 sb.append(c);
             else
@@ -90,7 +75,7 @@ public class LSystem
      */
     public double getAngle()
     {
-        return angle_;
+        return config_.angle_;
     }
 
     /**
@@ -99,7 +84,7 @@ public class LSystem
      */
     public void setAngle(double angle)
     {
-        angle_ = angle;
+        config_.angle_ = angle;
     }
 
     /**
@@ -107,7 +92,7 @@ public class LSystem
      */
     public Point2D.Double getDelta()
     {
-        return new Point2D.Double(deltaX_,deltaY_);
+        return new Point2D.Double(config_.deltaX_,config_.deltaY_);
     }
 
     /**
@@ -115,13 +100,13 @@ public class LSystem
      */
     public void setDelta(double x, double y)
     {
-        deltaX_ = x;
-        deltaY_ = y;
+        config_.deltaX_ = x;
+        config_.deltaY_ = y;
     }
 
     public void setCommand( char cmdChar, LSystemGraphicCommand cmd)
     {
-        commands_.put(cmdChar, cmd);
+        config_.commands_.put(cmdChar, cmd);
     }
 
     /**
@@ -129,7 +114,7 @@ public class LSystem
      */
     public void reset()
     {
-        current_ = axiom_;
+        current_ = config_.axiom_;
         generations_ = 0;
     }
 
@@ -148,16 +133,16 @@ public class LSystem
     {
         Path2D.Double p = new Path2D.Double();
         p.moveTo(startX, startY);
-        double deltaX = deltaX_;
+        double deltaX = config_.deltaX_;
         double deltaT;
-        double deltaY = deltaY_;
-        double theta = angle_;
+        double deltaY = config_.deltaY_;
+        double theta = config_.angle_;
         Stack<double[]> stack = new Stack<>();
         for (char c : current_.toCharArray())
         {
             startX = Math.round(startX);
             startY = Math.round(startY);
-            LSystemGraphicCommand cmd = commands_.get(c);
+            LSystemGraphicCommand cmd = config_.commands_.get(c);
             if ( cmd != null )
             {
                 switch (cmd)
