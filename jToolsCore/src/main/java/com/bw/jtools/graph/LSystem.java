@@ -28,22 +28,36 @@ import java.util.Map;
 import java.util.Stack;
 
 /**
- * Implements a Lindenmayer System to rewrite paths.
+ * Implements a Lindenmayer (L-) System to generate or rewrite paths.
  */
 public class LSystem
 {
+    private final String axiom_;
+    private int generations_ = 0;
     private String current_;
-    private final double angle_;
+    private double angle_;
+    private double deltaX_ = 5;
+    private double deltaY_ = 5;
     private final Map<Character, String> rules_;
     private final StringBuilder sb = new StringBuilder();
 
+    /**
+     * Creates a new L-System.
+     * @param axiom Initial axiom.
+     * @param angle Angle in radians
+     * @param rules Set of production rules
+     */
     public LSystem(String axiom, double angle, Map<Character, String> rules)
     {
         current_ = axiom;
         angle_ = angle;
         rules_ = rules;
+        axiom_ = axiom;
     }
 
+    /**
+     * Run one generation
+     */
     public void generation()
     {
         sb.setLength(0);
@@ -58,21 +72,71 @@ public class LSystem
                 sb.append(m);
         }
         current_ = sb.toString();
+        ++generations_;
     }
 
+    /**
+     * Gets the current angle in radians used to generate the path.
+     */
+    public double getAngle()
+    {
+        return angle_;
+    }
+
+    /**
+     * Sets the current angle used to generate the path.
+     * @param angle in Radians
+     */
+    public void setAngle(double angle)
+    {
+        angle_ = angle;
+    }
+
+    /**
+     * Get the delta distance used to create the path.
+     */
+    public Point2D.Double getDelta()
+    {
+        return new Point2D.Double(deltaX_,deltaY_);
+    }
+
+    /**
+     * Set the delta distance used to create the path.
+     */
+    public void setDelta(double x, double y)
+    {
+        deltaX_ = x;
+        deltaY_ = y;
+    }
+
+    /**
+     * Resets the system to generation 0
+     */
+    public void reset()
+    {
+        current_ = axiom_;
+        generations_ = 0;
+    }
+
+    /**
+     * Creates a path from current state, starting at the given point.
+     */
     public Path2D.Double getPath(Point2D.Double start)
     {
         return getPath(start.x, start.y);
     }
 
+    /**
+     * Creates a path from current state, starting at the given point.
+     */
     public Path2D.Double getPath(double startX, double startY)
     {
         Path2D.Double p = new Path2D.Double();
         p.moveTo(startX, startY);
-        double deltaX = 10;
+        double deltaX = deltaX_;
         double deltaT;
-        double deltaY = 10;
-        double theta = Math.toRadians(90);
+        double deltaY = deltaY_;
+        double theta = angle_;
         Stack<double[]> stack = new Stack<>();
         for (char c : current_.toCharArray())
         {
@@ -120,7 +184,6 @@ public class LSystem
                     break;
             }
         }
-        //@TODO
         return p;
     }
 
@@ -128,4 +191,14 @@ public class LSystem
     {
         return current_;
     }
+
+    /**
+     * Number of calls to {@link #generation()} since last reset.
+     */
+    public int getGenerations()
+    {
+        return generations_;
+    }
+
+
 }

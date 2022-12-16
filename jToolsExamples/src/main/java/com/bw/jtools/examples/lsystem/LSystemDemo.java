@@ -1,3 +1,24 @@
+/*
+ * (c) copyright Bernd Wengenroth
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.bw.jtools.examples.lsystem;
 
 import com.bw.jtools.Application;
@@ -6,143 +27,174 @@ import com.bw.jtools.graph.LSystem;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.icon.IconTool;
+import com.bw.jtools.ui.lsystem.LSystemConfigDialog;
 import com.bw.jtools.ui.lsystem.LSystemPanel;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Map;
 
 public class LSystemDemo
 {
-    JFrame frame;
-    JButton optionButton;
-    LSystemPanel lpanel;
+	JFrame frame_;
+	JButton optionButton_;
+	LSystemPanel lsysPanel_;
 
-    public LSystemDemo()
-    {
-        Application.initialize(LSystemDemo.class);
+	boolean debug_ = false;
 
-        try
-        {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+	public LSystemDemo()
+	{
+		Application.initialize(LSystemDemo.class);
 
-        frame = new JFrame("L-System Demonstration");
+		try
+		{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        frame.setContentPane(mainPanel);
+		frame_ = new JFrame("L-System Demonstration");
 
-        lpanel = new LSystemPanel();
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		frame_.setContentPane(mainPanel);
 
-        LSystem lsys = new LSystem("X",
-                0, Map.of('X', "YF-", 'Y', "YX-"));
+		lsysPanel_ = new LSystemPanel();
 
-        lpanel.setLSystem(lsys);
+		LSystem lsys = new LSystem("X",
+				Math.toRadians(90), Map.of('X', "YF-", 'Y', "YX-"));
 
-        lpanel.setMinimumSize(new Dimension(100, 100));
-        JScrollPane graphPanel = new JScrollPane(lpanel);
-        graphPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        graphPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        mainPanel.add(graphPanel, BorderLayout.CENTER);
+		lsysPanel_.setLSystem(lsys);
 
-        JPanel statusLine = new JPanel(new BorderLayout(10, 0));
-        statusLine.add(new JLAFComboBox(), BorderLayout.WEST);
+		lsysPanel_.setMinimumSize(new Dimension(100, 100));
+		JScrollPane lsysScrollPanel = new JScrollPane(lsysPanel_);
+		lsysScrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		lsysScrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		mainPanel.add(lsysScrollPanel, BorderLayout.CENTER);
 
-        JPanel ctrl = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel statusLine = new JPanel(new BorderLayout(10, 0));
+		statusLine.add(new JLAFComboBox(), BorderLayout.WEST);
 
-        JButton gen = new JButton("+");
-        gen.addActionListener(e -> {
-            lsys.generation();
-            System.out.println("==================");
-            System.out.println(lsys.getCurrent());
-            System.out.println("==================");
-            graphPanel.revalidate();
-            graphPanel.repaint();
-        });
-        ctrl.add(gen);
+		JPanel ctrl = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        optionButton = new JButton("\u270E"); // Unicode Pencil
-        optionButton.addActionListener(e -> showOptions());
-        ctrl.add(optionButton);
+		JButton gen = new JButton("Gen+");
+		gen.addActionListener(e ->
+		{
+			lsys.generation();
+			if (debug_)
+			{
+				System.out.println("==================");
+				System.out.println(lsys.getCurrent());
+				System.out.println("==================");
+			}
+			lsysPanel_.updateLSystem();
+		});
+		ctrl.add(gen);
 
-        statusLine.add(ctrl, BorderLayout.EAST);
+		JButton reset = new JButton("<html>Gen<b>0</b></html>");
+		reset.addActionListener(e ->
+		{
+			lsys.reset();
+			lsysPanel_.updateLSystem();
+		});
+		ctrl.add(reset);
 
-        JLabel fps = new JLabel("...");
-        statusLine.add(fps, BorderLayout.CENTER);
+		optionButton_ = new JButton("\u270E"); // Unicode Pencil
+		optionButton_.addActionListener(e -> showOptions());
+		ctrl.add(optionButton_);
 
-        mainPanel.add(statusLine, BorderLayout.SOUTH);
+		statusLine.add(ctrl, BorderLayout.EAST);
 
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setIconImages(IconTool.getAppIconImages());
-        frame.pack();
+		JLabel fps = new JLabel("...");
+		statusLine.add(fps, BorderLayout.CENTER);
 
-        // Restore window-position and dimension from preferences.
-        SettingsUI.loadWindowPosition(frame);
-        SettingsUI.storePositionAndFlushOnClose(frame);
+		mainPanel.add(statusLine, BorderLayout.SOUTH);
 
-        frame.setVisible(true);
+		frame_.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame_.setIconImages(IconTool.getAppIconImages());
+		frame_.pack();
 
-        Timer fpsTimer = new Timer(1000, e ->
-        {
-            if (lpanel.paintCount_ > 0)
-            {
-                fps.setText(lpanel.paintCount_ + " fps");
-            } else
-            {
-                fps.setText("...");
-            }
-            lpanel.paintCount_ = 0;
-        });
-        fpsTimer.start();
+		// Restore window-position and dimension from preferences.
+		SettingsUI.loadWindowPosition(frame_);
+		SettingsUI.storePositionAndFlushOnClose(frame_);
 
-        frame.addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent e)
-            {
-                if (options != null)
-                {
-                    options.setVisible(false);
-                    options.dispose();
-                    options = null;
-                }
-                fpsTimer.stop();
-            }
-        });
+		frame_.setVisible(true);
 
-        Log.info("Started");
-    }
+		Timer fpsTimer = new Timer(1000, e ->
+		{
+			StringBuilder sb = new StringBuilder();
+			if (lsysPanel_.paintCount_ > 0)
+			{
+				sb.append(lsysPanel_.paintCount_)
+				  .append(" fps ");
+			}
+			sb.append(" Gen ")
+			  .append(lsys.getGenerations());
+			sb.append(" (")
+			  .append(lsys.getCurrent()
+						  .length())
+			  .append(" chars)");
+			fps.setText(sb.toString());
+			lsysPanel_.paintCount_ = 0;
+		});
+		fpsTimer.start();
 
-    LSystemConfigDialog options;
+		frame_.addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				if (options != null)
+				{
+					options.setVisible(false);
+					options.dispose();
+					options = null;
+				}
+				fpsTimer.stop();
+			}
+		});
 
-    public void showOptions()
-    {
-        if (options != null && options.isVisible())
-        {
-            options.setVisible(false);
-        } else
-        {
-            if (options == null)
-            {
-                options = new LSystemConfigDialog(lpanel);
-                options.pack();
-            }
+		Log.info("Started");
+	}
 
-            Point l = optionButton.getLocationOnScreen();
-            l.x -= options.getWidth() / 2;
-            l.y -= options.getHeight() / 2;
-            options.setLocation(l);
-            options.setVisible(true);
-        }
-    }
+	LSystemConfigDialog options;
 
-    static public void main(String[] args)
-    {
-        new LSystemDemo();
-    }
+	public void showOptions()
+	{
+		if (options != null && options.isVisible())
+		{
+			options.setVisible(false);
+		}
+		else
+		{
+			if (options == null)
+			{
+				options = new LSystemConfigDialog(lsysPanel_);
+				options.pack();
+			}
+
+			Point l = optionButton_.getLocationOnScreen();
+			l.x -= options.getWidth() / 2;
+			l.y -= options.getHeight() / 2;
+			options.setLocation(l);
+			options.setVisible(true);
+		}
+	}
+
+	static public void main(String[] args)
+	{
+		new LSystemDemo();
+	}
 }

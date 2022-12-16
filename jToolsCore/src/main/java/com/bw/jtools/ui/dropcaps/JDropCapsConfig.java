@@ -22,19 +22,16 @@
 package com.bw.jtools.ui.dropcaps;
 
 import com.bw.jtools.image.BlendComposite;
-import com.bw.jtools.properties.PropertyChangeClient;
 import com.bw.jtools.properties.PropertyFontValue;
 import com.bw.jtools.properties.PropertyGroup;
 import com.bw.jtools.properties.PropertyPaintValue;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.I18N;
 import com.bw.jtools.ui.UITool;
-import com.bw.jtools.ui.icon.IconTool;
+import com.bw.jtools.ui.properties.PropertyPanelBase;
 import com.bw.jtools.ui.properties.table.PropertyGroupNode;
-import com.bw.jtools.ui.properties.table.PropertyTable;
 
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -43,15 +40,13 @@ import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Composite;
 import java.awt.Dialog;
-import java.awt.Font;
 import java.awt.Window;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 
-public class JDropCapsConfig extends JPanel
+public class JDropCapsConfig extends PropertyPanelBase
 {
 	JDropCapsLabel dropCap_;
-	PropertyChangeClient propClient_ = new PropertyChangeClient();
 
 	private static String getNameOfComposite(Composite c)
 	{
@@ -94,24 +89,20 @@ public class JDropCapsConfig extends JPanel
 	{
 		dropCap_ = dropCap;
 
-		setLayout(new BorderLayout());
-
-		PropertyTable props = new PropertyTable();
 		PropertyGroup root = new PropertyGroup(null);
 
-		PropertyFontValue fontProp = new PropertyFontValue("font", dropCap_.getFont());
-		propClient_.addProperty(root, fontProp,
-				v -> dropCap_.setFont(v.getValue()) );
+		addProperty( root, new PropertyFontValue("font", dropCap_.getFont() ),
+			v -> dropCap_.setFont(v.getValue()) );
 
 		// Paint-chooser to select the text-color.
 		PropertyPaintValue textColorProp = new PropertyPaintValue("textColor", dropCap_.getForegroundPaint());
 		textColorProp.setDisplayName(I18N.getText("dropcapconfig.textColor"));
-		propClient_.addProperty(root, textColorProp, v -> dropCap_.setForegroundPaint(v.getValue() ));
+		addProperty(root, textColorProp, v -> dropCap_.setForegroundPaint(v.getValue() ));
 
 		// Add a color-button to select the image-base-color.
 		PropertyPaintValue imageBaseColorProp = new PropertyPaintValue("imageBaseColor", dropCap_.getImageBasePaint());
 		imageBaseColorProp.setDisplayName(I18N.getText("dropcapconfig.imageBaseColor"));
-		propClient_.addProperty(root, imageBaseColorProp, v -> {
+		addProperty(root, imageBaseColorProp, v -> {
 			dropCap_.setImageBasePaint(v.getValue());
 			dropCap_.repaint();
 		});
@@ -119,7 +110,7 @@ public class JDropCapsConfig extends JPanel
 		// Add a color-button to select the drop-caps-color.
 		PropertyPaintValue dropCapColorProp = new PropertyPaintValue("dropCapColor", dropCap_.getDropCapPaint());
 		dropCapColorProp.setDisplayName(I18N.getText("dropcapconfig.dropCapColor"));
-		propClient_.addProperty(root, dropCapColorProp, v -> dropCap_.setDropCapPaint(v.getValue()) );
+		addProperty(root, dropCapColorProp, v -> dropCap_.setDropCapPaint(v.getValue()) );
 
 		LinkedHashMap<String, Composite> map = new LinkedHashMap<>();
 		map.put("None", null);
@@ -138,17 +129,14 @@ public class JDropCapsConfig extends JPanel
 		PropertyValue<Composite> dropCapModeProp = new PropertyValue("dropCapMode", Composite.class);
 		dropCapModeProp.possibleValues_ = map;
 		dropCapModeProp.setValue(dropCap_.getDropCapPaintComposite());
-		propClient_.addProperty(root, dropCapModeProp, v -> dropCap_.setDropCapPaint(dropCap_.getDropCapPaint(), v.getValue()));
+		addProperty(root, dropCapModeProp, v -> dropCap_.setDropCapPaint(dropCap_.getDropCapPaint(), v.getValue()));
 
 		PropertyGroupNode rootNode = new PropertyGroupNode(null);
 		rootNode.add(new PropertyGroupNode(root));
 
-		props.getTreeModel()
+		table_.getTreeModel()
 			 .setRoot(rootNode);
-		props.expandAll();
-		add(BorderLayout.CENTER, props);
-
-
+		table_.expandAll();
 	}
 
 	public static void showDialog(JDropCapsLabel dropCap, String title)

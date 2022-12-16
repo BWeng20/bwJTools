@@ -21,14 +21,10 @@
  */
 package com.bw.jtools.ui.properties;
 
-import com.bw.jtools.properties.PropertyChangeClient;
-import com.bw.jtools.properties.PropertyChangeListener;
-import com.bw.jtools.properties.PropertyGroup;
-import com.bw.jtools.properties.PropertyValue;
-import com.bw.jtools.ui.properties.table.PropertyTable;
-
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JDialog;
+import javax.swing.WindowConstants;
+import java.awt.BorderLayout;
+import java.awt.Window;
 
 /**
  * Helper base class for property dialogs.
@@ -36,33 +32,15 @@ import java.awt.*;
 public class PropertyDialogBase extends JDialog
 {
 
-    protected PropertyTable table_ = new PropertyTable();
-    protected PropertyChangeClient propClient_ = new PropertyChangeClient();
+    protected final PropertyPanelBase panel_;
 
-    public PropertyDialogBase(Window windowAncestor, ModalityType mtype)
+    public PropertyDialogBase(Window windowAncestor, ModalityType mtype, PropertyPanelBase panel)
     {
         super(windowAncestor, mtype);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        panel_ = panel;
         setLayout(new BorderLayout());
-        add(table_, BorderLayout.CENTER);
+        add( panel_, BorderLayout.CENTER);
     }
 
-    protected <T> void addProperty(PropertyGroup group, PropertyValue<T> value, PropertyChangeListener<T> pcl)
-    {
-        value.nullable_ = false;
-        propClient_.addProperty(group, value, pcl);
-    }
-
-    @Override
-    public Dimension getPreferredSize()
-    {
-        Dimension d = super.getPreferredSize();
-
-        int h = table_.getTableModel()
-                .getRowCount() * table_.getRowHeight();
-        int w = table_.getFontMetrics(table_.getFont())
-                .charWidth('A') * 50;
-
-        return new Dimension(Math.max(w, d.width), Math.max(h, d.height));
-    }
 }

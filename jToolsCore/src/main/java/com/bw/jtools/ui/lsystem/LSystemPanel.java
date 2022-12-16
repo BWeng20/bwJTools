@@ -1,5 +1,5 @@
 /*
- * (c) copyright 2022 Bernd Wengenroth
+ * (c) copyright Bernd Wengenroth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,14 +33,19 @@ import java.awt.geom.Path2D;
  */
 public class LSystemPanel extends JPanel
 {
-
     /**
      * Counts paint calls. Can be used to show some fps indicator.
      */
     public int paintCount_ = 0;
-
     private double scale_ = 1;
+    private Path2D.Double path_;
+    private boolean autoScale_ = true;
+    private boolean drawBorder_ = false;
+    private LSystem lsystem;
 
+    /**
+     * Gets true if l-system border is drawn.
+     */
     public boolean isDrawBorder()
     {
         return drawBorder_;
@@ -58,7 +63,11 @@ public class LSystemPanel extends JPanel
         }
     }
 
-    private boolean drawBorder_ = false;
+    public void updateLSystem()
+    {
+        path_ = null;
+        SwingUtilities.invokeLater(this::repaint);
+    }
 
     public boolean isAutoScale()
     {
@@ -68,10 +77,12 @@ public class LSystemPanel extends JPanel
     public void setAutoScale(boolean autoScale)
     {
         this.autoScale_ = autoScale;
+        SwingUtilities.invokeLater(this::repaint);
     }
 
-    private boolean autoScale_ = true;
-
+    /**
+     * Gets the l-system
+     */
     public LSystem getLSystem()
     {
         return lsystem;
@@ -80,9 +91,9 @@ public class LSystemPanel extends JPanel
     public void setLSystem(LSystem lsystem)
     {
         this.lsystem = lsystem;
+        path_ = null;
+        SwingUtilities.invokeLater(this::repaint);
     }
-
-    private LSystem lsystem;
 
     public LSystemPanel()
     {
@@ -99,8 +110,11 @@ public class LSystemPanel extends JPanel
 
             if (lsystem != null)
             {
-                Path2D.Double p = lsystem.getPath(0, 0);
-                Rectangle r = p.getBounds();
+                if ( path_ == null )
+                {
+                    path_ = lsystem.getPath(0, 0);
+                }
+                Rectangle r = path_.getBounds();
                 Dimension d = getSize();
                 if (autoScale_)
                 {
@@ -112,19 +126,17 @@ public class LSystemPanel extends JPanel
                 AffineTransform a = AffineTransform.getScaleInstance(scale_, scale_);
                 a.translate(-r.x, -r.y);
                 g2.setPaint(Color.BLUE);
-                g2.draw(a.createTransformedShape(p));
+                g2.draw(a.createTransformedShape(path_));
                 if (drawBorder_)
                 {
                     g2.setPaint(Color.RED);
                     g2.draw(a.createTransformedShape(r));
                 }
             }
-
         } finally
         {
             ++paintCount_;
         }
 
     }
-
 }
