@@ -24,7 +24,8 @@ public class EnumHandler extends ValueTypeHandler
 			enums_.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
 			enums_.addItemListener(e -> updatePropertyFromEditor());
 		}
-
+		boolean oldIsInitializing = isInitializing;
+		isInitializing = true;
 		enums_.removeAllItems();
 		if (value.nullable_)
 			enums_.addItem(null);
@@ -33,6 +34,7 @@ public class EnumHandler extends ValueTypeHandler
 		for (Object v : vals)
 			enums_.addItem(v);
 		enums_.setSelectedItem(value.getValue());
+		isInitializing = oldIsInitializing;
 	}
 
 	public Object getCurrentValueFromEditor()

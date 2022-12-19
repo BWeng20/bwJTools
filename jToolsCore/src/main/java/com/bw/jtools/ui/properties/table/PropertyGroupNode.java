@@ -61,9 +61,12 @@ public class PropertyGroupNode extends DefaultMutableTreeNode implements Iterabl
 	 *
 	 * @param value The new value to add.
 	 */
-	public void addProperty(PropertyValue value)
+	public PropertyNode addProperty(PropertyValue value)
 	{
-		add(new PropertyNode(value));
+
+		PropertyNode n = new PropertyNode(value);
+		add(n);
+		return n;
 	}
 
 	/**
@@ -106,5 +109,10 @@ public class PropertyGroupNode extends DefaultMutableTreeNode implements Iterabl
 	public Iterator<PropertyValue> values()
 	{
 		return new TransformedIterator<TreeNode, PropertyValue>(children.iterator(), item -> ((PropertyNode) item).property_);
+	}
+
+	public PropertyNode addProperty(String name, Object value)
+	{
+		return addProperty(group_.addProperty(name, value) ) ;
 	}
 }

@@ -19,56 +19,64 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.bw.jtools.ui;
+package com.bw.jtools.properties;
 
-import com.bw.jtools.ui.fontchooser.JFontChooser;
-
-import javax.swing.JButton;
-import java.awt.Font;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
- * Button to show and change some font setting.
+ * Convenience wrapper for a property with map content.
  */
-public class JFontButton extends JChooserButtonBase<Font>
+public class PropertyMapValue<K, V> extends PropertyValue<Map<K, V>>
 {
-	protected static Font getDefaultFont()
+	public Class<K> getKeyClass_()
 	{
-		return javax.swing.UIManager.getDefaults()
-									.getFont("TextField.font");
+		return keyClass_;
 	}
 
-	public JFontButton()
+	public Class<V> getValueClass_()
 	{
-		this(getDefaultFont());
+		return valueClass_;
 	}
 
-	public JFontButton(Font font)
+	private final Class<K> keyClass_;
+	private final Class<V> valueClass_;
+
+	/**
+	 * Creates a map value.
+	 *
+	 * @param key Key of the property.
+	 */
+	public PropertyMapValue(String key, Class<K> keyClass, Class<V> valueClass)
 	{
-		this(font, I18N.getText("fontchooser.defaultDialogTitle"));
+		super(key, (Class<? extends Map<K, V>>) Map.class);
+		keyClass_ = keyClass;
+		valueClass_ = valueClass;
+		setValue(new LinkedHashMap<>());
 	}
 
-	public JFontButton(Font font, String dialogTitle)
+	public void put(K key, V value)
 	{
-		super(dialogTitle);
-		setValue(font);
-		setText(I18N.getText("fontchooser.button"));
-		setHorizontalAlignment(JButton.CENTER);
-		setOpaque(false);
-		setBorderPainted(true);
+		getValue().put(key, value);
 	}
 
-	@Override
-	public void setValue(Font v)
+	public void putAll(Map<K, V> m)
 	{
-		super.setValue(v);
-		if (v == null) v = getDefaultFont();
-		setFont(v);
-		setText(v.getFontName());
+		getValue().putAll(m);
 	}
 
-	protected Font showChooserDialog()
+
+	public V get(K key)
 	{
-		return JFontChooser.showDialog(this, getDialogTitle(), getValue());
+		return getValue().get(key);
+	}
+
+	/**
+	 * Gets the value as string.
+	 */
+	public String toString()
+	{
+		return String.valueOf(getValue());
 	}
 
 }

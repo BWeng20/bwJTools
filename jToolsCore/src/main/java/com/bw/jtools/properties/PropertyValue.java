@@ -32,15 +32,13 @@ import java.util.Objects;
 
 /**
  * Base of all type specific properties.<br>
- * This class can be used directly without the custom "PropertyXXXValue" classes,
- * but in this case the caller has to ensure that the value-class is compatible with
- * the content of the user-object.<br>
+ * This class can be used directly without the custom "PropertyXXXValue" classes.<br>
  * <br>
  * <i>Example:</i><br>
  * <pre>
  * {@code
- *  PropertyValue property = new PropertyValue( "My Number", Integer.class );
- *  property.setUserObject( 10 );
+ *  PropertyValue<Integer> property = new PropertyValue( "My Number", Integer.class );
+ *  property.setValue( 10 );
  * }
  * </pre>
  */
@@ -106,7 +104,7 @@ public class PropertyValue<T>
 	 * @param key        The key (and initial display name) of the property to show.
 	 * @param valueClazz The value-class of the property.
 	 */
-	public PropertyValue(String key, Class<? extends T> valueClazz)
+	public PropertyValue(String key, Class<T> valueClazz)
 	{
 		this.displayName_ = key;
 		this.key_ = key;

@@ -63,7 +63,8 @@ public class PropertyEditorComponents
 		typeEditorHandlersClasses_.put( Font.class, FontHandler.class );
 		typeEditorHandlersClasses_.put( Number.class, NumberHandler.class );
 		typeEditorHandlersClasses_.put( List.class, ChoiceHandler.class );
-		typeEditorHandlersClasses_.put( Enum.class, EnumHandler.class );
+		typeEditorHandlersClasses_.put(Enum.class, EnumHandler.class);
+		typeEditorHandlersClasses_.put(Map.class, MapHandler.class);
 	}
 
 	protected ValueTypeHandler createHandlerForType(Class<?> clazz, boolean choice)

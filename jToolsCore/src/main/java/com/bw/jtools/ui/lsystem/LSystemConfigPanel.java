@@ -21,63 +21,103 @@
  */
 package com.bw.jtools.ui.lsystem;
 
+import com.bw.jtools.graph.LSystemConfig;
+import com.bw.jtools.graph.LSystemGraphicCommand;
 import com.bw.jtools.properties.PropertyBooleanValue;
 import com.bw.jtools.properties.PropertyGroup;
+import com.bw.jtools.properties.PropertyMapValue;
 import com.bw.jtools.properties.PropertyNumberValue;
+import com.bw.jtools.properties.PropertyStringValue;
 import com.bw.jtools.ui.properties.PropertyPanelBase;
 import com.bw.jtools.ui.properties.table.PropertyGroupNode;
 
 import javax.swing.tree.DefaultTreeModel;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class LSystemConfigPanel extends PropertyPanelBase
 {
-    private LSystemPanel lSystemPanel_;
+	private LSystemPanel lSystemPanel_;
+	private LSystemConfig lSystemConfig_;
 
-    public LSystemConfigPanel(LSystemPanel lpanel)
-    {
-        this.lSystemPanel_ = lpanel;
-        init();
-    }
+	public LSystemConfigPanel(LSystemPanel lpanel)
+	{
+		this.lSystemPanel_ = lpanel;
+		this.lSystemConfig_ = lpanel.getLSystem()
+									.getConfig();
+		init();
+	}
 
-    protected void init()
-    {
-        DefaultTreeModel model = table_.getTreeModel();
+	protected void init()
+	{
+		DefaultTreeModel model = table_.getTreeModel();
 
-        PropertyGroup p = new PropertyGroup("Visual Settings");
+		PropertyGroup visualSettings = new PropertyGroup("Visual Settings");
 
-        addProperty(p, new PropertyBooleanValue("Border", lSystemPanel_.isDrawBorder()), value ->
-        {
-            Boolean n = value.getValue();
-            lSystemPanel_.setDrawBorder(n);
-        });
+		addProperty(visualSettings, new PropertyBooleanValue("Border", lSystemPanel_.isDrawBorder()), value ->
+		{
+			Boolean n = value.getValue();
+			lSystemPanel_.setDrawBorder(n);
+		});
 
-        addProperty(p, new PropertyNumberValue("Angel (degree)",
-                Math.toDegrees(lSystemPanel_.getLSystem().getAngle())), value ->
-        {
-            double d = Math.toRadians(value.getValue().doubleValue());
-            lSystemPanel_.getLSystem().setAngle(d);
-            lSystemPanel_.updateLSystem();
-        });
+		addProperty(visualSettings, new PropertyNumberValue("Angel (degree)",
+				Math.toDegrees(lSystemConfig_.angle_)), value ->
+		{
+			double d = Math.toRadians(value.getValue()
+										   .doubleValue());
+			lSystemPanel_.getLSystem()
+						 .getConfig().angle_ = d;
+			lSystemPanel_.updateLSystem();
+		});
 
-        addProperty(p, new PropertyNumberValue("Delta X", lSystemPanel_.getLSystem().getDelta().getX()), value ->
-        {
-            double d = value.getValue().doubleValue();
-            lSystemPanel_.getLSystem().setDelta(d, lSystemPanel_.getLSystem().getDelta().getY());
-            lSystemPanel_.updateLSystem();
-        });
+		addProperty(visualSettings, new PropertyNumberValue("Delta X", lSystemConfig_.deltaX_), value ->
+		{
+			double d = value.getValue()
+							.doubleValue();
+			lSystemPanel_.getLSystem()
+						 .getConfig().deltaX_ = d;
+			lSystemPanel_.updateLSystem();
+		});
 
-        addProperty(p, new PropertyNumberValue("Delta Y", lSystemPanel_.getLSystem().getDelta().getY()), value ->
-        {
-            double d = value.getValue().doubleValue();
-            lSystemPanel_.getLSystem().setDelta(lSystemPanel_.getLSystem().getDelta().getX(), d);
-            lSystemPanel_.updateLSystem();
-        });
+		addProperty(visualSettings, new PropertyNumberValue("Delta Y", lSystemConfig_.deltaY_), value ->
+		{
+			double d = value.getValue()
+							.doubleValue();
+			lSystemPanel_.getLSystem()
+						 .getConfig().deltaY_ = d;
+			lSystemPanel_.updateLSystem();
+		});
 
-        PropertyGroupNode root = new PropertyGroupNode(null);
-        root.add(new PropertyGroupNode(p));
+		PropertyGroup definition = new PropertyGroup("Definition");
+		addProperty(definition, new PropertyStringValue("Axiom", lSystemConfig_.axiom_), value ->
+		{
+			lSystemPanel_.getLSystem()
+						 .getConfig().axiom_ = value.getValue();
+			lSystemPanel_.updateLSystem();
+		});
+		PropertyMapValue pRules = new PropertyMapValue("Rules", Character.class, String.class);
+		pRules.putAll(lSystemConfig_.rules_);
+		addProperty(definition, pRules, value ->
+		{
+			lSystemConfig_.rules_.clear();
+			lSystemConfig_.rules_.putAll((Map) value.getValue());
+			lSystemPanel_.updateLSystem();
+		});
+		PropertyMapValue pCommands = new PropertyMapValue("Commands", Character.class, LSystemGraphicCommand.class);
+		pCommands.putAll(lSystemConfig_.commands_);
+		addProperty(definition, pCommands, value ->
+		{
+			lSystemConfig_.commands_.clear();
+			lSystemConfig_.commands_.putAll((Map) value.getValue());
+			lSystemPanel_.updateLSystem();
+		});
 
-        model.setRoot(root);
-        table_.expandAll();
-    }
+		PropertyGroupNode root = new PropertyGroupNode(null);
+		root.add(new PropertyGroupNode(visualSettings));
+		root.add(new PropertyGroupNode(definition));
+
+		model.setRoot(root);
+		table_.expandAll();
+	}
 
 }

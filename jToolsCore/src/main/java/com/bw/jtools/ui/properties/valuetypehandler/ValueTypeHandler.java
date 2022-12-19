@@ -9,6 +9,7 @@ import java.util.Objects;
 public abstract class ValueTypeHandler
 {
 	protected PropertyValue value_;
+	protected boolean isInitializing = false;
 
 	public abstract void initEditor(PropertyValue value, PropertyEditorComponents pec);
 
@@ -20,7 +21,7 @@ public abstract class ValueTypeHandler
 
 	public void updatePropertyFromEditor()
 	{
-		if (value_ != null)
+		if (value_ != null && !isInitializing)
 		{
 			Object newUserObject = getCurrentValueFromEditor();
 

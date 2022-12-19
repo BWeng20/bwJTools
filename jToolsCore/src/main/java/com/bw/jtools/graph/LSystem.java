@@ -39,14 +39,13 @@ public class LSystem
 
     /**
      * Creates a new L-System.
-     * @param axiom Initial axiom.
-     * @param angle Angle in radians
-     * @param rules Set of production rules
+     *
+     * @param config Configuration.
      */
-    public LSystem(String axiom, double angle, Map<Character, String> rules)
+    public LSystem(LSystemConfig config)
     {
-        current_ = axiom;
-        config_ = new LSystemConfig(axiom, angle, rules);
+        current_ = config.axiom_;
+        config_ = config;
 
     }
 
@@ -70,43 +69,9 @@ public class LSystem
         ++generations_;
     }
 
-    /**
-     * Gets the current angle in radians used to generate the path.
-     */
-    public double getAngle()
+    public LSystemConfig getConfig()
     {
-        return config_.angle_;
-    }
-
-    /**
-     * Sets the current angle used to generate the path.
-     * @param angle in Radians
-     */
-    public void setAngle(double angle)
-    {
-        config_.angle_ = angle;
-    }
-
-    /**
-     * Get the delta distance used to create the path.
-     */
-    public Point2D.Double getDelta()
-    {
-        return new Point2D.Double(config_.deltaX_,config_.deltaY_);
-    }
-
-    /**
-     * Set the delta distance used to create the path.
-     */
-    public void setDelta(double x, double y)
-    {
-        config_.deltaX_ = x;
-        config_.deltaY_ = y;
-    }
-
-    public void setCommand( char cmdChar, LSystemGraphicCommand cmd)
-    {
-        config_.commands_.put(cmdChar, cmd);
+        return config_;
     }
 
     /**

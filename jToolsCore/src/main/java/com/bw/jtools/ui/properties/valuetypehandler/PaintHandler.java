@@ -27,9 +27,9 @@ public class PaintHandler extends ValueTypeHandler
 			paint_.addItemListener((ie) ->
 					{
 						Paint newPaint = (Paint) ie.getItem();
-						if (value != null)
+						if (value_ != null)
 						{
-							value.setValue(newPaint);
+							value_.setValue(newPaint);
 						}
 					}
 			);

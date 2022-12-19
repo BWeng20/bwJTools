@@ -65,7 +65,7 @@ public class PropertyEnumValue<E extends Enum<?>> extends PropertyValue<E>
 	 */
 	public PropertyEnumValue(String key, E value)
 	{
-		super(key, (Class<? extends E>) value.getDeclaringClass());
+		super(key, (Class<E>) value.getDeclaringClass());
 		setValue(value);
 	}
 

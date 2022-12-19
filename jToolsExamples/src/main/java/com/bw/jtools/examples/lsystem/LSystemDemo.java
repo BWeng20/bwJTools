@@ -24,6 +24,7 @@ package com.bw.jtools.examples.lsystem;
 import com.bw.jtools.Application;
 import com.bw.jtools.Log;
 import com.bw.jtools.graph.LSystem;
+import com.bw.jtools.graph.LSystemConfig;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.icon.IconTool;
@@ -77,11 +78,12 @@ public class LSystemDemo
 		*/
 
 		/** Fractal plant */
-		LSystem lsys = new LSystem("X",
+		LSystem lsys = new LSystem(new LSystemConfig("X",
 				Math.toRadians(25),
-				Map.of('X', "F+[[X]-X]-F[-FX]+X", 'F', "FF"));
+				Map.of('X', "F+[[X]-X]-F[-FX]+X", 'F', "FF")));
 
-		lsys.setDelta(5,-8);
+		lsys.getConfig().deltaX_ = 5;
+		lsys.getConfig().deltaX_ = -8;
 		lsysPanel_.setLSystem(lsys);
 
 		lsysPanel_.setMinimumSize(new Dimension(100, 100));
