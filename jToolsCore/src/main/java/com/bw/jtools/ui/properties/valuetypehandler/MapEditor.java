@@ -167,8 +167,16 @@ public class MapEditor<K, V> extends JScrollPane
                 {
                     K key = mapPane.propertyNameToKey.remove(node.property_.key_);
                     mapPane.value_.remove(key);
+                    int idx = mapPane.props_.getSelectionModel().getMinSelectionIndex();
                     mapPane.props_.getTreeModel()
                             .removeNodeFromParent(node);
+                    if ( idx >= 0 ) {
+                        idx = Math.min( idx , mapPane.value_.size()-1);
+                        if ( idx >= 0 )
+                        {
+                            mapPane.props_.getSelectionModel().setSelectionInterval(idx, idx);
+                        }
+                    }
                 }
             });
             remove.setEnabled(false);
