@@ -8,14 +8,14 @@ import java.awt.Component;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
-public class NumberHandler extends ValueTypeHandler
+public class NumberHandler extends ValueTypeHandler<Number>
 {
 
 	NumberFormat nf_;
 	JTextField text_;
 
 	@Override
-	public void initEditor(PropertyValue value, PropertyEditorComponents pec)
+	public void initEditor(PropertyValue<Number> value, PropertyEditorComponents pec)
 	{
 		value_ = value;
 
@@ -26,7 +26,7 @@ public class NumberHandler extends ValueTypeHandler
 			text_.addActionListener((actionEvent) -> updatePropertyFromEditor());
 		}
 		nf_ = (value.nf_ == null ? pec.getNumberFormat() : value.nf_);
-		Number i = (Number) value.getValue();
+		Number i = value.getValue();
 		if (i != null)
 		{
 			boolean gu = nf_.isGroupingUsed();
@@ -38,7 +38,7 @@ public class NumberHandler extends ValueTypeHandler
 			text_.setText("");
 	}
 
-	public Object getCurrentValueFromEditor()
+	public Number getCurrentValueFromEditor()
 	{
 		try
 		{
@@ -74,7 +74,7 @@ public class NumberHandler extends ValueTypeHandler
 
 	public void updateEditorFromProperty()
 	{
-		Number i = (Number) value_.getValue();
+		Number i = value_.getValue();
 		if (i != null)
 		{
 			NumberFormat nf = (value_.nf_ == null ? nf_ : value_.nf_);

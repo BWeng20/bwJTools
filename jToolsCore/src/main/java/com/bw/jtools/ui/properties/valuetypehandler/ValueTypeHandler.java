@@ -6,14 +6,14 @@ import com.bw.jtools.ui.properties.PropertyEditorComponents;
 import java.awt.Component;
 import java.util.Objects;
 
-public abstract class ValueTypeHandler
+public abstract  class ValueTypeHandler<T>
 {
-	protected PropertyValue value_;
+	protected PropertyValue<T> value_;
 	protected boolean isInitializing = false;
 
-	public abstract void initEditor(PropertyValue value, PropertyEditorComponents pec);
+	public abstract void initEditor(PropertyValue<T> value, PropertyEditorComponents pec);
 
-	public abstract Object getCurrentValueFromEditor();
+	public abstract T getCurrentValueFromEditor();
 
 	public abstract void updateEditorFromProperty();
 
@@ -23,7 +23,7 @@ public abstract class ValueTypeHandler
 	{
 		if (value_ != null && !isInitializing)
 		{
-			Object newUserObject = getCurrentValueFromEditor();
+			T newUserObject = getCurrentValueFromEditor();
 
 			if (value_.nullable_ || newUserObject != null)
 			{

@@ -6,12 +6,12 @@ import com.bw.jtools.ui.properties.PropertyEditorComponents;
 import javax.swing.JComboBox;
 import java.awt.Component;
 
-public class EnumHandler extends ValueTypeHandler
+public class EnumHandler extends ValueTypeHandler<Enum<?>>
 {
-	JComboBox<Object> enums_;
+	JComboBox<Enum> enums_;
 
 	@Override
-	public void initEditor(PropertyValue value, PropertyEditorComponents pec)
+	public void initEditor(PropertyValue<Enum<?>> value, PropertyEditorComponents pec)
 	{
 		value_ = value;
 
@@ -30,16 +30,16 @@ public class EnumHandler extends ValueTypeHandler
 		if (value.nullable_)
 			enums_.addItem(null);
 
-		Object[] vals = value.valueClazz_.getEnumConstants();
-		for (Object v : vals)
+		Enum[] vals = value.valueClazz_.getEnumConstants();
+		for (Enum v : vals)
 			enums_.addItem(v);
 		enums_.setSelectedItem(value.getValue());
 		isInitializing = oldIsInitializing;
 	}
 
-	public Object getCurrentValueFromEditor()
+	public Enum getCurrentValueFromEditor()
 	{
-		return enums_.getSelectedItem();
+		return (Enum)enums_.getSelectedItem();
 
 	}
 

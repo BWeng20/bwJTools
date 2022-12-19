@@ -8,16 +8,16 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Paint;
 
-public class PaintHandler extends ValueTypeHandler
+public class PaintHandler extends ValueTypeHandler<Paint>
 {
 	JPaintChooserButton paint_;
 
 	@Override
-	public void initEditor(PropertyValue value, PropertyEditorComponents pec)
+	public void initEditor(PropertyValue<Paint> value, PropertyEditorComponents pec)
 	{
 		value_ = value;
 
-		Paint p = (Paint) value.getValue();
+		Paint p = value.getValue();
 		if (p == null) p = Color.BLACK;
 
 		if (paint_ == null)
@@ -37,14 +37,14 @@ public class PaintHandler extends ValueTypeHandler
 		paint_.setValue(p);
 	}
 
-	public Object getCurrentValueFromEditor()
+	public Paint getCurrentValueFromEditor()
 	{
 		return paint_.getValue();
 	}
 
 	public void updateEditorFromProperty()
 	{
-		Paint p = (Paint) value_.getValue();
+		Paint p = value_.getValue();
 		if (p == null) p = Color.BLACK;
 		paint_.setValue(p);
 	}

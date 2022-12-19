@@ -112,10 +112,10 @@ public class PropertyGroup implements Iterable<PropertyValue<?>>
 	 *
 	 * @param value The value to remove.
 	 */
-	public void removeProperty(PropertyValue<?> value)
+	public void removeProperty(PropertyValue value)
 	{
 		if (values_.remove(value) && (propertyChangeListener_ != null))
-			for (PropertyChangeListener<?> l : propertyChangeListener_)
+			for (PropertyChangeListener l : propertyChangeListener_)
 				value.removePropertyChangeListener(l);
 	}
 

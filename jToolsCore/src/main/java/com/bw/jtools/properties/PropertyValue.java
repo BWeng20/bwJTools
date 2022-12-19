@@ -94,7 +94,7 @@ public class PropertyValue<T>
 	/**
 	 * List of change listeners that listen for this property.<br>
 	 */
-	private List<WeakReference<PropertyChangeListener>> propertyChangeListener_;
+	private List<WeakReference<PropertyChangeListener<T>>> propertyChangeListener_;
 
 
 	/**
@@ -104,7 +104,7 @@ public class PropertyValue<T>
 	 * @param key        The key (and initial display name) of the property to show.
 	 * @param valueClazz The value-class of the property.
 	 */
-	public PropertyValue(String key, Class<T> valueClazz)
+	public PropertyValue(String key, Class<? extends T> valueClazz)
 	{
 		this.displayName_ = key;
 		this.key_ = key;
@@ -165,7 +165,7 @@ public class PropertyValue<T>
 		removePropertyChangeListener(l);
 		if (propertyChangeListener_ == null)
 			propertyChangeListener_ = new ArrayList<>();
-		propertyChangeListener_.add(new WeakReference<PropertyChangeListener>(l));
+		propertyChangeListener_.add(new WeakReference<>(l));
 	}
 
 	/**
@@ -173,15 +173,15 @@ public class PropertyValue<T>
 	 *
 	 * @param l The listener.
 	 */
-	public void removePropertyChangeListener(PropertyChangeListener l)
+	public void removePropertyChangeListener(PropertyChangeListener<T> l)
 	{
 		if (propertyChangeListener_ != null)
 		{
-			Iterator<WeakReference<PropertyChangeListener>> it = propertyChangeListener_.iterator();
+			Iterator<WeakReference<PropertyChangeListener<T>>> it = propertyChangeListener_.iterator();
 			while (it.hasNext())
 			{
-				WeakReference<PropertyChangeListener> wl = it.next();
-				PropertyChangeListener pl = wl.get();
+				WeakReference<PropertyChangeListener<T>> wl = it.next();
+				PropertyChangeListener<T> pl = wl.get();
 				if (pl == null || pl == l)
 					it.remove();
 			}
@@ -195,10 +195,10 @@ public class PropertyValue<T>
 	{
 		if (propertyChangeListener_ != null)
 		{
-			List<WeakReference<PropertyChangeListener>> l = new ArrayList<>(propertyChangeListener_);
-			for (WeakReference<PropertyChangeListener> wp : l)
+			List<WeakReference<PropertyChangeListener<T>>> l = new ArrayList<>(propertyChangeListener_);
+			for (WeakReference<PropertyChangeListener<T>> wp : l)
 			{
-				PropertyChangeListener pl = wp.get();
+				PropertyChangeListener<T> pl = wp.get();
 				if (pl != null)
 					pl.propertyChanged(this);
 			}

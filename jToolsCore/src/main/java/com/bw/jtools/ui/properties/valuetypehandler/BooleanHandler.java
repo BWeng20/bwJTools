@@ -7,15 +7,15 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import java.awt.Component;
 
-public class BooleanHandler extends ValueTypeHandler
+public class BooleanHandler extends ValueTypeHandler<Boolean>
 {
 	private JComboBox<Boolean> booleanNullable_;
 	private JCheckBox booleanCheckbox_;
 
 	@Override
-	public void initEditor(PropertyValue value, PropertyEditorComponents pec)
+	public void initEditor(PropertyValue<Boolean> value, PropertyEditorComponents pec)
 	{
-		Boolean val = (Boolean) value.getValue();
+		Boolean val =  value.getValue();
 		value_ = value;
 		if (value.nullable_)
 		{
@@ -45,7 +45,7 @@ public class BooleanHandler extends ValueTypeHandler
 
 	}
 
-	public Object getCurrentValueFromEditor()
+	public Boolean getCurrentValueFromEditor()
 	{
 		Boolean newBool;
 		if (value_.nullable_)
@@ -61,7 +61,7 @@ public class BooleanHandler extends ValueTypeHandler
 
 	public void updateEditorFromProperty()
 	{
-		Boolean val = (Boolean) value_.getValue();
+		Boolean val = value_.getValue();
 		if (value_.nullable_)
 		{
 			booleanNullable_.setSelectedItem(val);

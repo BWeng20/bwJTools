@@ -1,164 +1,202 @@
 package com.bw.jtools.ui.properties.valuetypehandler;
 
 import com.bw.jtools.properties.PropertyGroup;
-import com.bw.jtools.properties.PropertyStringValue;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.I18N;
+import com.bw.jtools.ui.properties.PropertyEditorComponents;
 import com.bw.jtools.ui.properties.table.PropertyGroupNode;
 import com.bw.jtools.ui.properties.table.PropertyNode;
 import com.bw.jtools.ui.properties.table.PropertyTable;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.FlowLayout;
-import java.awt.Window;
+import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.*;
 
-public class MapEditor extends JScrollPane
+public class MapEditor<K, V> extends JScrollPane
 {
-	private Map<String, PropertyValue> value_;
-	private Map choosenMap_;
-	Constructor<? extends Map> mapCtor_;
-	protected PropertyTable props_;
+    private Map<K, PropertyValue<V>> value_;
+    private Map<K, V> chosenMap_;
+    private Constructor<? extends Map<K, V>> mapCtor_;
+    private Map<String, K> propertyNameToKey = new HashMap<>();
+    protected PropertyTable props_;
 
-	public MapEditor()
-	{
-	}
+    public MapEditor()
+    {
+    }
 
-	public void init(Map initialMap) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException
-	{
-		mapCtor_ = initialMap.getClass()
-							 .getDeclaredConstructor();
-		// Use "Linked" to keep original order.
-		value_ = new LinkedHashMap<>();
+    public void init(Map<K, V> initialMap) throws NoSuchMethodException
+    {
+        mapCtor_ = (Constructor<? extends Map<K, V>>) initialMap.getClass()
+                .getDeclaredConstructor();
+        // Use "Linked" to keep original order.
+        value_ = new LinkedHashMap<>();
 
-		PropertyGroup root = new PropertyGroup("");
-		for (Object eo : initialMap.entrySet())
-		{
-			Map.Entry e = (Map.Entry) eo;
-			Object key = e.getKey();
-			if (key instanceof String)
-			{
-				String keys = (String) key;
-				value_.put(keys, root.addProperty(keys, e.getValue()));
-			}
-			else
-				throw new IllegalArgumentException(I18N.getText("property.map.illegalKeyType"));
-		}
+        PropertyGroup root = new PropertyGroup("");
+        for (Map.Entry<K, V> e : initialMap.entrySet())
+        {
+            K key = e.getKey();
+            String keys = String.valueOf(key);
+            propertyNameToKey.put(keys, key);
+            value_.put(key, root.addProperty(keys, e.getValue()));
+        }
 
-		props_ = new PropertyTable();
-		DefaultTreeModel model = props_.getTreeModel();
-		model.setRoot(new PropertyGroupNode(root));
+        props_ = new PropertyTable();
+        DefaultTreeModel model = props_.getTreeModel();
+        model.setRoot(new PropertyGroupNode(root));
 
-		setViewportView(props_);
-	}
+        setViewportView(props_);
+    }
 
-	static MapEditor mapPane;
+    static PropertyEditorComponents newKeyEditorComponents_ = new PropertyEditorComponents();
 
-	public static Map showDialog(Component component,
-								 String title, Map initialMap)
-	{
-		Window w = component == null ? null : component instanceof Window ? (Window) component : SwingUtilities.getWindowAncestor(component);
-		mapPane = new MapEditor();
-		if (initialMap == null) initialMap = new LinkedHashMap();
-		try
-		{
-			// Copy map
-			mapPane.init(initialMap);
+    public static <K, V> Map<K, V> showDialog(Component component,
+                                              String title, Map<K, V> initialMap,
+                                              final Class<K> keyClass, final Class<V> valueClass)
+    {
+        Window w = component == null ? null : component instanceof Window ? (Window) component : SwingUtilities.getWindowAncestor(component);
+        final MapEditor<K, V> mapPane = new MapEditor<>();
+        if (initialMap == null) initialMap = new LinkedHashMap<>();
+        try
+        {
+            // Copy map
+            mapPane.init(initialMap);
 
-			final JDialog dialog = new JDialog(w, title, Dialog.ModalityType.APPLICATION_MODAL);
+            final JDialog dialog = new JDialog(w, title, Dialog.ModalityType.APPLICATION_MODAL);
 
-			JPanel c = new JPanel();
-			c.setLayout(new BorderLayout());
-			c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-			c.add(mapPane, BorderLayout.CENTER);
+            JPanel c = new JPanel();
+            c.setLayout(new BorderLayout());
+            c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            c.add(mapPane, BorderLayout.CENTER);
 
-			JButton ok = new JButton(I18N.getText("button.ok"));
-			ok.addActionListener(ae ->
-			{
-				try
-				{
-					mapPane.choosenMap_ = mapPane.mapCtor_.newInstance();
-					mapPane.choosenMap_.putAll(mapPane.value_);
-				}
-				catch (Exception ex)
-				{
-					ex.printStackTrace();
-				}
-				dialog.setVisible(false);
-			});
+            JButton ok = new JButton(I18N.getText("button.ok"));
+            ok.addActionListener(ae ->
+            {
+                try
+                {
+                    mapPane.chosenMap_ = mapPane.mapCtor_.newInstance();
+                    mapPane.value_.forEach((key, value) -> mapPane.chosenMap_.put(key, value.getValue()));
+                } catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+                dialog.setVisible(false);
+            });
 
-			JButton cancel = new JButton(I18N.getText("button.cancel"));
-			cancel.addActionListener(e -> dialog.setVisible(false));
+            JButton cancel = new JButton(I18N.getText("button.cancel"));
+            cancel.addActionListener(e -> dialog.setVisible(false));
 
-			JButton add = new JButton("+");
-			add.addActionListener(e ->
-			{
-				String newProperty = JOptionPane.showInputDialog(mapPane, I18N.getText("property.map.new_key"));
-				if (newProperty != null && !newProperty.isEmpty())
-				{
-					PropertyGroupNode root = (PropertyGroupNode) mapPane.props_.getTreeModel()
-																			   .getRoot();
-					root.addProperty(newProperty, "");
-					mapPane.props_.getTreeModel()
-								  .nodeStructureChanged(root);
-				}
-			});
+            final JButton add = new JButton("+");
+            add.addActionListener(e ->
+            {
+                final JDialog dlg = new JDialog(
+                        SwingUtilities.getWindowAncestor(add), Dialog.ModalityType.APPLICATION_MODAL);
+                final List<K> input = new ArrayList<>();
+                PropertyValue<K> keyProp = new PropertyValue<>("", keyClass);
+                ValueTypeHandler<K> keyHandler = newKeyEditorComponents_.getHandler(keyProp, false);
 
-			JButton remove = new JButton("-");
-			remove.addActionListener(e ->
-			{
-				PropertyNode node = mapPane.props_.getSelectedNode();
-				if (node != null)
-				{
-					mapPane.value_.remove(node.property_.key_);
-					mapPane.props_.getTreeModel()
-								  .removeNodeFromParent(node);
-				}
-			});
-			remove.setEnabled(false);
+                JPanel inputPane = new JPanel(new BorderLayout());
+                inputPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                JLabel label = new JLabel(I18N.getText("property.map.new_key"));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+                inputPane.add(label, BorderLayout.WEST);
+                Component ct = keyHandler.getComponent();
+                inputPane.add(ct, BorderLayout.CENTER);
+                label.setLabelFor(ct);
+                JPanel buttonPane = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                JButton keyOk = new JButton(I18N.getText("button.ok"));
+                keyOk.addActionListener(e1 -> {
+                    input.add( keyHandler.getCurrentValueFromEditor());
+                    dlg.setVisible(false);
+                });
 
-			mapPane.props_.getSelectionModel()
-						  .addListSelectionListener(e ->
-						  {
-							  remove.setEnabled(mapPane.props_.getSelectedNode() != null);
-						  });
+                JButton keyCancel = new JButton(I18N.getText("button.cancel"));
+                keyCancel.addActionListener(e1 -> {
+                    input.clear();
+                    dlg.setVisible(false);
+                });
+                buttonPane.add(keyOk);
+                buttonPane.add(keyCancel);
 
-			JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-			buttons.add(ok);
-			buttons.add(add);
-			buttons.add(remove);
-			buttons.add(cancel);
-			c.add(buttons, BorderLayout.SOUTH);
+                JPanel keyCPane = new JPanel(new BorderLayout());
+                keyCPane.add(inputPane, BorderLayout.CENTER);
+                keyCPane.add(buttonPane, BorderLayout.SOUTH);
 
-			dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-			dialog.setContentPane(c);
-			dialog.pack();
-			dialog.setLocationRelativeTo(component);
+                dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                dlg.setContentPane(keyCPane);
 
-			dialog.setVisible(true);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		Map r = mapPane.choosenMap_;
-		mapPane = null;
-		return r;
-	}
+                dlg.pack();
+                dlg.setLocationRelativeTo(mapPane);
+                dlg.setVisible(true);
+
+                if (!input.isEmpty() && input.get(0) != null)
+                {
+                    try
+                    {
+                        PropertyGroupNode root = (PropertyGroupNode) mapPane.props_
+                                .getTreeModel()
+                                .getRoot();
+
+                        K key = input.get(0);
+                        String keyS = key.toString();
+                        // @TODO: This will allow only simple types (that work via PropertyValue
+                        //        base class) as values.
+                        //        To enable all value types (e.g. map) with specific property classes
+                        //        we need some property-prototype or -factory for new instances.
+                        PropertyValue<V> prop = new PropertyValue<>(keyS, valueClass);
+                        root.addProperty(prop);
+                        mapPane.propertyNameToKey.put(keyS, key);
+                        mapPane.value_.put(key, prop);
+                        mapPane.props_.getTreeModel()
+                                .nodeStructureChanged(root);
+                    } catch (Exception ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+
+            JButton remove = new JButton("-");
+            remove.addActionListener(e ->
+            {
+                PropertyNode node = mapPane.props_.getSelectedNode();
+                if (node != null)
+                {
+                    K key = mapPane.propertyNameToKey.remove(node.property_.key_);
+                    mapPane.value_.remove(key);
+                    mapPane.props_.getTreeModel()
+                            .removeNodeFromParent(node);
+                }
+            });
+            remove.setEnabled(false);
+
+            mapPane.props_.getSelectionModel()
+                    .addListSelectionListener(e ->
+                            remove.setEnabled(mapPane.props_.getSelectedNode() != null));
+
+            JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            buttons.add(ok);
+            buttons.add(add);
+            buttons.add(remove);
+            buttons.add(cancel);
+            c.add(buttons, BorderLayout.SOUTH);
+
+            dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            dialog.setContentPane(c);
+            dialog.pack();
+            dialog.setLocationRelativeTo(component);
+
+            dialog.setVisible(true);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        Map<K, V> r = mapPane.chosenMap_;
+        mapPane.chosenMap_ = null;
+        return r;
+    }
 
 }

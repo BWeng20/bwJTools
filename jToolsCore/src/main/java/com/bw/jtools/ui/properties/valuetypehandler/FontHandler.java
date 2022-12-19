@@ -7,13 +7,13 @@ import com.bw.jtools.ui.properties.PropertyEditorComponents;
 import java.awt.Component;
 import java.awt.Font;
 
-public class FontHandler extends ValueTypeHandler
+public class FontHandler extends ValueTypeHandler<Font>
 {
 
 	JFontButton fontb_;
 
 	@Override
-	public void initEditor(PropertyValue value, PropertyEditorComponents pec)
+	public void initEditor(PropertyValue<Font> value, PropertyEditorComponents pec)
 	{
 		value_ = value;
 
@@ -25,7 +25,7 @@ public class FontHandler extends ValueTypeHandler
 		fontb_.setValue((Font) value.getValue());
 	}
 
-	public Object getCurrentValueFromEditor()
+	public Font getCurrentValueFromEditor()
 	{
 		return fontb_.getValue();
 
@@ -33,8 +33,7 @@ public class FontHandler extends ValueTypeHandler
 
 	public void updateEditorFromProperty()
 	{
-		fontb_.setValue((Font) value_.getValue());
-
+		fontb_.setValue(value_.getValue());
 	}
 
 	@Override

@@ -21,64 +21,31 @@
  */
 package com.bw.jtools.properties;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
- * Convenience wrapper for a property with map content.
+ * Convenience wrapper for a property with a character content.<br>
+ * <br>
+ * <i>Examples:</i><br>
+ * <pre>
+ * {@code
+ *  PropertyCharacterValue myCharProperty
+ *           = new PropertyCharacterValue( "My Character", 'X' );
+ * }
+ * </pre>
  */
-public class PropertyMapValue<K, V> extends PropertyValue<Map<K, V>>
+public class PropertyCharacterValue extends PropertyValue<Character>
 {
-	public Class<K> getKeyClass()
-	{
-		return keyClass_;
-	}
-
-	public Class<V> getValueClass()
-	{
-		return valueClass_;
-	}
-
-	private final Class<K> keyClass_;
-	private final Class<V> valueClass_;
 
 	/**
-	 * Creates a map value.
+	 * Constructs a property by value.
+	 * Value has to be not null.
 	 *
-	 * @param key Key of the property.
+	 * @param key   Key name.
+	 * @param value Initial value.
 	 */
-	public PropertyMapValue(String key, Class<K> keyClass, Class<V> valueClass)
+	public PropertyCharacterValue(String key, Character value)
 	{
-
-		super(key, (Class<? extends Map<K, V>>) (Class<?>)LinkedHashMap.class);
-		keyClass_ = keyClass;
-		valueClass_ = valueClass;
-		setValue(new LinkedHashMap<>());
-	}
-
-	public void put(K key, V value)
-	{
-		getValue().put(key, value);
-	}
-
-	public void putAll(Map<K, V> m)
-	{
-		getValue().putAll(m);
-	}
-
-
-	public V get(K key)
-	{
-		return getValue().get(key);
-	}
-
-	/**
-	 * Gets the value as string.
-	 */
-	public String toString()
-	{
-		return String.valueOf(getValue());
+		super(key, Character.class );
+		setValue(value);
 	}
 
 }
