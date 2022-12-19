@@ -33,176 +33,197 @@ import com.bw.jtools.ui.lsystem.LSystemPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class LSystemDemo
 {
-	JFrame frame_;
-	JButton optionButton_;
-	LSystemPanel lsysPanel_;
+    JFrame frame_;
+    JButton optionButton_;
+    LSystemPanel lsysPanel_;
+    JComboBox<String> presetCombo_;
 
-	boolean debug_ = false;
+    static Map<String, String> presets_ = new LinkedHashMap<>();
 
-	public LSystemDemo()
-	{
-		Application.initialize(LSystemDemo.class);
+    static
+    {
+        presets_.put("", null);
+        presets_.put("Fractal Binary Tree", "{\"axiom\":\"0\",\"angle\":45.0,\"deltaX\":-1.0,\"deltaY\":-1.0,\"rules\":[{\"char\":\"0\",\"rule\":\"1{0}0\"},{\"char\":\"1\",\"rule\":\"11\"}],\"commands\":[{\"char\":\"0\",\"commands\":[\"DRAW_FORWARD\",\"DRAW_LEAF\"]},{\"char\":\"1\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"F\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"f\",\"commands\":[\"MOVE_FORWARD\"]},{\"char\":\"+\",\"commands\":[\"TURN_CLOCKWISE\"]},{\"char\":\"[\",\"commands\":[\"PUSH_ON_STACK\"]},{\"char\":\"{\",\"commands\":[\"PUSH_ON_STACK\",\"TURN_COUNTERCLOCKWISE\"]},{\"char\":\"-\",\"commands\":[\"TURN_COUNTERCLOCKWISE\"]},{\"char\":\"]\",\"commands\":[\"POP_FROM_STACK\"]},{\"char\":\"}\",\"commands\":[\"POP_FROM_STACK\",\"TURN_CLOCKWISE\"]}]}");
+        presets_.put("Sierpinski Triangle", "{\"axiom\":\"F-G-G\",\"angle\":120,\"deltaX\":-1.0,\"deltaY\":-1.0,\"rules\":[{\"char\":\"F\",\"rule\":\"F-G+F+G-F\"},{\"char\":\"G\",\"rule\":\"GG\"}],\"commands\":[{\"char\":\"F\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"G\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"+\",\"commands\":[\"TURN_CLOCKWISE\"]},{\"char\":\"-\",\"commands\":[\"TURN_COUNTERCLOCKWISE\"]}]}");
+        presets_.put("Sierpinski Arrowhead Curve", "{\"axiom\":\"A\",\"angle\":60,\"deltaX\":1.0,\"deltaY\":1.0,\"rules\":[{\"char\":\"A\",\"rule\":\"B-A-B\"},{\"char\":\"B\",\"rule\":\"A+B+A\"}],\"commands\":[{\"char\":\"A\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"B\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"+\",\"commands\":[\"TURN_COUNTERCLOCKWISE\"]},{\"char\":\"-\",\"commands\":[\"TURN_CLOCKWISE\"]}]}");
+        presets_.put("Fractal Plant", "{\"axiom\":\"X\",\"angle\":25.0,\"deltaX\":-1.0,\"deltaY\":-1.0,\"rules\":[{\"char\":\"X\",\"rule\":\"F+[[X]-X]-F[-FX]+X\"},{\"char\":\"F\",\"rule\":\"FF\"}],\"commands\":[{\"char\":\"F\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"+\",\"commands\":[\"TURN_CLOCKWISE\"]},{\"char\":\"[\",\"commands\":[\"PUSH_ON_STACK\"]},{\"char\":\"-\",\"commands\":[\"TURN_COUNTERCLOCKWISE\"]},{\"char\":\"]\",\"commands\":[\"POP_FROM_STACK\"]}]}");
+        presets_.put("Dragon Curve", "{\"axiom\":\"FX\",\"angle\":90.0,\"deltaX\":1.0,\"deltaY\":-1.0,\"rules\":[{\"char\":\"X\",\"rule\":\"X+YF+\"},{\"char\":\"Y\",\"rule\":\"-FX-Y\"}],\"commands\":[{\"char\":\"F\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"+\",\"commands\":[\"TURN_CLOCKWISE\"]},{\"char\":\"-\",\"commands\":[\"TURN_COUNTERCLOCKWISE\"]}]}");
+        presets_.put("Flower", "{\"axiom\":\"++FX\",\"angle\":15,\"deltaX\":-1.0,\"deltaY\":-1.0,\"rules\":[{\"char\":\"X\",\"rule\":\"[(-FX)]+FX\"}],\"commands\":[{\"char\":\"F\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"(\",\"commands\":[\"PUSH_ON_STACK\"]},{\"char\":\")\",\"commands\":[\"POP_ANGLE_FROM_STACK\"]},{\"char\":\"+\",\"commands\":[\"TURN_COUNTERCLOCKWISE\"]},{\"char\":\"[\",\"commands\":[\"PUSH_ON_STACK\"]},{\"char\":\"-\",\"commands\":[\"TURN_CLOCKWISE\"]},{\"char\":\"]\",\"commands\":[\"POP_POS_FROM_STACK\"]}]}");
+        presets_.put("Town Plan", "{\"axiom\":\"X\",\"angle\":90.0,\"deltaX\":1.0,\"deltaY\":1.0,\"rules\":[{\"char\":\"X\",\"rule\":\"F[+X]F[-X]+X\"},{\"char\":\"F\",\"rule\":\"FF\"}],\"commands\":[{\"char\":\"F\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"X\",\"commands\":[\"DRAW_FORWARD\"]},{\"char\":\"+\",\"commands\":[\"TURN_CLOCKWISE\"]},{\"char\":\"[\",\"commands\":[\"PUSH_ON_STACK\"]},{\"char\":\"-\",\"commands\":[\"TURN_COUNTERCLOCKWISE\"]},{\"char\":\"]\",\"commands\":[\"POP_FROM_STACK\"]}]}");
+    }
 
-		try
-		{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
 
-		frame_ = new JFrame("L-System Demonstration");
+    boolean debug_ = false;
 
-		JPanel mainPanel = new JPanel(new BorderLayout());
-		frame_.setContentPane(mainPanel);
+    public LSystemDemo()
+    {
+        Application.initialize(LSystemDemo.class);
 
-		lsysPanel_ = new LSystemPanel();
+        try
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
-		/*
-		LSystem lsys = new LSystem("X",
-				Math.toRadians(90), Map.of('X', "YF-", 'Y', "YX-"));
-		 */
+        frame_ = new JFrame("L-System Demonstration");
 
-		/* Sierpinski triangle
-		LSystem lsys = new LSystem("A",
-				Math.toRadians(60), Map.of('A', "B-A-B", 'B', "A+B+A"));
-		lsys.setCommand('A', LSystemGraphicCommand.DRAW_FORWARD);
-		lsys.setCommand('B', LSystemGraphicCommand.DRAW_FORWARD);
-		*/
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        frame_.setContentPane(mainPanel);
 
-		/** Fractal plant */
-		LSystem lsys = new LSystem(new LSystemConfig("X",
-				Math.toRadians(25),
-				Map.of('X', "F+[[X]-X]-F[-FX]+X", 'F', "FF")));
+        lsysPanel_ = new LSystemPanel();
 
-		lsys.getConfig().deltaX_ = 5;
-		lsys.getConfig().deltaX_ = -8;
-		lsysPanel_.setLSystem(lsys);
+        LSystem lsys = new LSystem(new LSystemConfig("",
+                Math.toRadians(15), Collections.EMPTY_MAP));
+        lsysPanel_.setLSystem(lsys);
 
-		lsysPanel_.setMinimumSize(new Dimension(100, 100));
-		JScrollPane lsysScrollPanel = new JScrollPane(lsysPanel_);
-		lsysScrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		lsysScrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		mainPanel.add(lsysScrollPanel, BorderLayout.CENTER);
+        lsysPanel_.setMinimumSize(new Dimension(100, 100));
+        JScrollPane lsysScrollPanel = new JScrollPane(lsysPanel_);
+        lsysScrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        lsysScrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        mainPanel.add(lsysScrollPanel, BorderLayout.CENTER);
 
-		JPanel statusLine = new JPanel(new BorderLayout(10, 0));
-		statusLine.add(new JLAFComboBox(), BorderLayout.WEST);
+        JPanel statusLine = new JPanel(new BorderLayout(10, 0));
+        statusLine.add(new JLAFComboBox(), BorderLayout.WEST);
 
-		JPanel ctrl = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel ctrl = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-		JButton gen = new JButton("Gen+");
-		gen.addActionListener(e ->
-		{
-			lsys.generation();
-			if (debug_)
-			{
-				System.out.println("==================");
-				System.out.println(lsys.getCurrent());
-				System.out.println("==================");
-			}
-			lsysPanel_.updateLSystem();
-		});
-		ctrl.add(gen);
+        JButton gen = new JButton("Gen+");
+        gen.addActionListener(e ->
+        {
+            lsys.generation();
+            if (debug_)
+            {
+                System.out.println("==================");
+                System.out.println(lsys.getCurrent());
+                System.out.println("==================");
+            }
+            lsysPanel_.updateLSystem();
+        });
+        ctrl.add(gen);
 
-		JButton reset = new JButton("<html>Gen<b>0</b></html>");
-		reset.addActionListener(e ->
-		{
-			lsys.reset();
-			lsysPanel_.updateLSystem();
-		});
-		ctrl.add(reset);
+        JButton reset = new JButton("<html>Gen<b>0</b></html>");
+        reset.addActionListener(e ->
+        {
+            lsys.reset();
+            lsysPanel_.updateLSystem();
+        });
+        ctrl.add(reset);
 
-		optionButton_ = new JButton("\u270E"); // Unicode Pencil
-		optionButton_.addActionListener(e -> showOptions());
-		ctrl.add(optionButton_);
+        presetCombo_ = new JComboBox<>(presets_.keySet().toArray(new String[0]));
+        presetCombo_.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED)
+            {
+                String cfg = presets_.get((String)e.getItem());
+                if (cfg != null && !cfg.isEmpty())
+                {
+                    lsys.getConfig().fromJSONString(cfg);
+                    lsysPanel_.getLSystem().reset();
+                    lsysPanel_.updateLSystem();
+                }
+            }
+        });
+        presetCombo_.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXXXXX");
+        ctrl.add(presetCombo_);
 
-		statusLine.add(ctrl, BorderLayout.EAST);
+        optionButton_ = new JButton("\u270E"); // Unicode Pencil
+        optionButton_.addActionListener(e -> showOptions());
+        ctrl.add(optionButton_);
 
-		JLabel fps = new JLabel("...");
-		statusLine.add(fps, BorderLayout.CENTER);
+        statusLine.add(ctrl, BorderLayout.EAST);
 
-		mainPanel.add(statusLine, BorderLayout.SOUTH);
+        JLabel fps = new JLabel("...");
+        statusLine.add(fps, BorderLayout.CENTER);
 
-		frame_.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame_.setIconImages(IconTool.getAppIconImages());
-		frame_.pack();
+        mainPanel.add(statusLine, BorderLayout.SOUTH);
 
-		// Restore window-position and dimension from preferences.
-		SettingsUI.loadWindowPosition(frame_);
-		SettingsUI.storePositionAndFlushOnClose(frame_);
+        frame_.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame_.setIconImages(IconTool.getAppIconImages());
+        frame_.pack();
 
-		frame_.setVisible(true);
+        // Restore window-position and dimension from preferences.
+        SettingsUI.loadWindowPosition(frame_);
+        SettingsUI.storePositionAndFlushOnClose(frame_);
 
-		Timer fpsTimer = new Timer(1000, e ->
-		{
-			StringBuilder sb = new StringBuilder();
-			if (lsysPanel_.paintCount_ > 0)
-			{
-				sb.append(lsysPanel_.paintCount_)
-				  .append(" fps ");
-			}
-			sb.append(" Gen ")
-			  .append(lsys.getGenerations());
-			sb.append(" (")
-			  .append(lsys.getCurrent()
-						  .length())
-			  .append(" chars)");
-			fps.setText(sb.toString());
-			lsysPanel_.paintCount_ = 0;
-		});
-		fpsTimer.start();
+        frame_.setVisible(true);
 
-		frame_.addWindowListener(new WindowAdapter()
-		{
-			@Override
-			public void windowClosing(WindowEvent e)
-			{
-				if (options != null)
-				{
-					options.setVisible(false);
-					options.dispose();
-					options = null;
-				}
-				fpsTimer.stop();
-			}
-		});
+        Timer fpsTimer = new Timer(1000, e ->
+        {
+            StringBuilder sb = new StringBuilder();
+            if (lsysPanel_.paintCount_ > 0)
+            {
+                sb.append(lsysPanel_.paintCount_)
+                        .append(" fps ");
+            }
+            sb.append(" Gen ")
+                    .append(lsys.getGenerations());
+            sb.append(" (")
+                    .append(lsys.getCurrent()
+                            .length())
+                    .append(" chars)");
+            fps.setText(sb.toString());
+            lsysPanel_.paintCount_ = 0;
+        });
+        fpsTimer.start();
 
-		Log.info("Started");
-	}
+        frame_.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                if (options != null)
+                {
+                    options.setVisible(false);
+                    options.dispose();
+                    options = null;
+                }
+                fpsTimer.stop();
+            }
+        });
 
-	LSystemConfigDialog options;
+        Log.info("Started");
+    }
 
-	public void showOptions()
-	{
-		if (options != null && options.isVisible())
-		{
-			options.setVisible(false);
-		}
-		else
-		{
-			if (options == null)
-			{
-				options = new LSystemConfigDialog(lsysPanel_);
-				options.pack();
-			}
+    LSystemConfigDialog options;
 
-			Point l = optionButton_.getLocationOnScreen();
-			l.x -= options.getWidth() / 2;
-			l.y -= options.getHeight() / 2;
-			options.setLocation(l);
-			options.setVisible(true);
-		}
-	}
+    public void showOptions()
+    {
+        if (options != null && options.isVisible())
+        {
+            options.setVisible(false);
+        } else
+        {
+            presetCombo_.setSelectedIndex(0);
+            if (options == null)
+            {
+                options = new LSystemConfigDialog(lsysPanel_);
+            } else
+            {
+                // If we reuse the option dialog, we have to force an update.
+                options.updateProperties();
+            }
+            options.pack();
 
-	static public void main(String[] args)
-	{
-		new LSystemDemo();
-	}
+            Point l = optionButton_.getLocationOnScreen();
+            l.x -= options.getWidth() / 2;
+            l.y -= options.getHeight() / 2;
+            options.setLocation(l);
+            options.setVisible(true);
+        }
+    }
+
+    static public void main(String[] args)
+    {
+        new LSystemDemo();
+    }
 }

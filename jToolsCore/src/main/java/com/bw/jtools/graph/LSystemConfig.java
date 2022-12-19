@@ -25,8 +25,9 @@ package com.bw.jtools.graph;
 import com.bw.jtools.io.JsonTool;
 
 import javax.json.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.*;
 
 public class LSystemConfig
 {
@@ -35,70 +36,100 @@ public class LSystemConfig
     public double deltaX_ = 5;
     public double deltaY_ = 5;
     public final Map<Character, String> rules_;
-    public final Map<Character, LSystemGraphicCommand> commands_ = new HashMap<>();
+    public final Map<Character, List<LSystemGraphicCommand>> commands_ = new HashMap<>();
 
-    public LSystemConfig(String axiom, double angle, Map<Character, String> rules ) {
+    public LSystemConfig(String axiom, double angle, Map<Character, String> rules)
+    {
         angle_ = angle;
         rules_ = new HashMap<>(rules);
         axiom_ = axiom;
-        commands_.put('F',LSystemGraphicCommand.DRAW_FORWARD);
-        commands_.put('f',LSystemGraphicCommand.MOVE_FORWARD);
-        commands_.put('-',LSystemGraphicCommand.TURN_COUNTERCLOCKWISE);
-        commands_.put('+',LSystemGraphicCommand.TURN_CLOCKWISE);
-        commands_.put('[',LSystemGraphicCommand.PUSH_ON_STACK);
-        commands_.put(']',LSystemGraphicCommand.POP_FROM_STACK);
     }
 
-    public void fromJSON( JsonObject o)  {
+    public void addDefaultCommands()
+    {
+        commands_.put('F', Collections.singletonList(LSystemGraphicCommand.DRAW_FORWARD));
+        commands_.put('f', Collections.singletonList(LSystemGraphicCommand.MOVE_FORWARD));
+        commands_.put('-', Collections.singletonList(LSystemGraphicCommand.TURN_COUNTERCLOCKWISE));
+        commands_.put('+', Collections.singletonList(LSystemGraphicCommand.TURN_CLOCKWISE));
+        commands_.put('[', Collections.singletonList(LSystemGraphicCommand.PUSH_ON_STACK));
+        commands_.put(']', Collections.singletonList(LSystemGraphicCommand.POP_FROM_STACK));
+    }
+
+    public void fromJSONString(String json)
+    {
+        fromJSON(new StringReader(json));
+    }
+
+    public void fromJSON(Reader r)
+    {
+        JsonReader jsonReader = Json.createReader(r);
+        JsonObject jo = jsonReader.readObject();
+        fromJSON(jo);
+    }
+
+    public void fromJSON(JsonObject o)
+    {
         axiom_ = o.getString("axiom");
-        angle_ = o.getJsonNumber("angle").doubleValue();
+        angle_ = Math.toRadians(o.getJsonNumber("angle").doubleValue());
         deltaX_ = o.getJsonNumber("deltaX").doubleValue();
         deltaY_ = o.getJsonNumber("deltaY").doubleValue();
 
 
         JsonArray ruleAr = o.getJsonArray("rules");
         rules_.clear();
-        for (int i=0 ; i<ruleAr.size(); ++i) {
+        for (int i = 0; i < ruleAr.size(); ++i)
+        {
             JsonObject r = ruleAr.getJsonObject(i);
-            rules_.put( (char)r.getInt("char"), r.getString("rule") );
+            rules_.put(r.getString("char").charAt(0), r.getString("rule"));
         }
 
         JsonArray cmdAr = o.getJsonArray("commands");
         commands_.clear();
-        for (int i=0 ; i<cmdAr.size(); ++i) {
+        for (int i = 0; i < cmdAr.size(); ++i)
+        {
             JsonObject r = cmdAr.getJsonObject(i);
-            commands_.put( (char)r.getInt("char"),
-                    LSystemGraphicCommand.valueOf(r.getString("command")) );
+            char chr = r.getString("char").charAt(0);
+            JsonArray ca = r.getJsonArray("commands");
+            List<LSystemGraphicCommand> cmds = new ArrayList<>();
+            for (int ci = 0; ci < ca.size(); ++ci)
+            {
+                cmds.add(LSystemGraphicCommand.valueOf(ca.getString(ci)));
+            }
+            commands_.put(chr, cmds);
         }
     }
 
-    public JsonObject toJSON()  {
+    public JsonObject toJSON()
+    {
         final JsonBuilderFactory bf = JsonTool.getJsonBuilderFactory();
         final JsonObjectBuilder builder = bf.createObjectBuilder();
 
         builder.add("axiom", axiom_);
-        builder.add("angle", angle_);
+        builder.add("angle", Math.toDegrees(angle_));
         builder.add("deltaX", deltaX_);
         builder.add("deltaY", deltaY_);
 
         JsonArrayBuilder rulesAB = bf.createArrayBuilder();
-        for ( Map.Entry<Character,String> r : rules_.entrySet() )
+        for (Map.Entry<Character, String> r : rules_.entrySet())
         {
             final JsonObjectBuilder ob = bf.createObjectBuilder();
-            ob.add("char", (int)r.getKey() );
-            ob.add("rule", r.getValue() );
-            rulesAB.add( ob );
+            ob.add("char", String.valueOf(r.getKey()));
+            ob.add("rule", r.getValue());
+            rulesAB.add(ob);
         }
-        builder.add("rules", rulesAB );
+        builder.add("rules", rulesAB);
         JsonArrayBuilder commandAB = bf.createArrayBuilder();
-        for ( Map.Entry<Character,LSystemGraphicCommand> r : commands_.entrySet() )
+        for (Map.Entry<Character, List<LSystemGraphicCommand>> r : commands_.entrySet())
         {
             final JsonObjectBuilder ob = bf.createObjectBuilder();
-            ob.add("char", r.getKey() );
-            ob.add("command", r.getValue().name() );
-            commandAB.add( ob );
+            ob.add("char", String.valueOf(r.getKey()));
+            List<LSystemGraphicCommand> cmds = r.getValue();
+            JsonArrayBuilder arrayBuilder = bf.createArrayBuilder();
+            cmds.forEach(cmd -> arrayBuilder.add(cmd.name()));
+            ob.add("commands", arrayBuilder.build());
+            commandAB.add(ob);
         }
-        builder.add("commands", commandAB );
+        builder.add("commands", commandAB);
 
         return builder.build();
     }

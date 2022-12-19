@@ -23,101 +23,160 @@ package com.bw.jtools.ui.lsystem;
 
 import com.bw.jtools.graph.LSystemConfig;
 import com.bw.jtools.graph.LSystemGraphicCommand;
-import com.bw.jtools.properties.PropertyBooleanValue;
-import com.bw.jtools.properties.PropertyGroup;
-import com.bw.jtools.properties.PropertyMapValue;
-import com.bw.jtools.properties.PropertyNumberValue;
-import com.bw.jtools.properties.PropertyStringValue;
+import com.bw.jtools.io.IOTool;
+import com.bw.jtools.properties.*;
 import com.bw.jtools.ui.properties.PropertyPanelBase;
 import com.bw.jtools.ui.properties.table.PropertyGroupNode;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonWriter;
+import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class LSystemConfigPanel extends PropertyPanelBase
 {
-	private LSystemPanel lSystemPanel_;
-	private LSystemConfig lSystemConfig_;
+    private LSystemPanel lSystemPanel_;
+    private LSystemConfig lSystemConfig_;
 
-	public LSystemConfigPanel(LSystemPanel lpanel)
-	{
-		this.lSystemPanel_ = lpanel;
-		this.lSystemConfig_ = lpanel.getLSystem()
-									.getConfig();
-		init();
-	}
+    public LSystemConfigPanel(LSystemPanel lpanel)
+    {
+        this.lSystemPanel_ = lpanel;
+        this.lSystemConfig_ = lpanel.getLSystem()
+                .getConfig();
+        init();
+    }
 
-	protected void init()
-	{
-		DefaultTreeModel model = table_.getTreeModel();
+    protected void init()
+    {
+        updateProperties();
 
-		PropertyGroup visualSettings = new PropertyGroup("Visual Settings");
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton exp = new JButton("Export");
+        JButton imp = new JButton("Import");
 
-		addProperty(visualSettings, new PropertyBooleanValue("Border", lSystemPanel_.isDrawBorder()), value ->
-		{
-			Boolean n = value.getValue();
-			lSystemPanel_.setDrawBorder(n);
-		});
+        exp.addActionListener(e -> {
+            File file = IOTool.selectFile(this, "lsystem.export.lastDir", "Import L-System Config",
+                    IOTool.SAVE, IOTool.getFileFilterJson());
+            if (file != null)
+            {
 
-		addProperty(visualSettings, new PropertyNumberValue("Angel (degree)",
-				Math.toDegrees(lSystemConfig_.angle_)), value ->
-		{
-			double d = Math.toRadians(value.getValue()
-										   .doubleValue());
-			lSystemPanel_.getLSystem()
-						 .getConfig().angle_ = d;
-			lSystemPanel_.updateLSystem();
-		});
+                try (OutputStream os = new FileOutputStream(file))
+                {
+                    OutputStreamWriter w = new OutputStreamWriter(os, StandardCharsets.UTF_8);
+                    JsonWriter jsonWriter = Json.createWriter(w);
+                    JsonObject jo = lSystemPanel_.getLSystem().getConfig().toJSON();
+                    jsonWriter.write(jo);
+                    w.flush();
+                } catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        });
 
-		addProperty(visualSettings, new PropertyNumberValue("Delta X", lSystemConfig_.deltaX_), value ->
-		{
-			double d = value.getValue()
-							.doubleValue();
-			lSystemPanel_.getLSystem()
-						 .getConfig().deltaX_ = d;
-			lSystemPanel_.updateLSystem();
-		});
 
-		addProperty(visualSettings, new PropertyNumberValue("Delta Y", lSystemConfig_.deltaY_), value ->
-		{
-			double d = value.getValue()
-							.doubleValue();
-			lSystemPanel_.getLSystem()
-						 .getConfig().deltaY_ = d;
-			lSystemPanel_.updateLSystem();
-		});
+        imp.addActionListener(e -> {
+            File file = IOTool.selectFile(this, "lsystem.export.lastDir", "Export L-System Config",
+                    IOTool.OPEN, IOTool.getFileFilterJson());
+            if (file != null)
+            {
+                try (InputStream is = new FileInputStream(file))
+                {
+                    InputStreamReader r = new InputStreamReader(is, StandardCharsets.UTF_8);
+                    BufferedReader nr = new BufferedReader(r);
+                    lSystemPanel_.getLSystem().getConfig().fromJSON(nr);
+                    updateProperties();
+                    lSystemPanel_.updateLSystem();
+                } catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        });
 
-		PropertyGroup definition = new PropertyGroup("Definition");
-		addProperty(definition, new PropertyStringValue("Axiom", lSystemConfig_.axiom_), value ->
-		{
-			lSystemPanel_.getLSystem()
-						 .getConfig().axiom_ = value.getValue();
-			lSystemPanel_.updateLSystem();
-		});
-		PropertyMapValue pRules = new PropertyMapValue("Rules", Character.class, String.class);
-		pRules.putAll(lSystemConfig_.rules_);
-		addProperty(definition, pRules, value ->
-		{
-			lSystemConfig_.rules_.clear();
-			lSystemConfig_.rules_.putAll((Map) value.getValue());
-			lSystemPanel_.updateLSystem();
-		});
-		PropertyMapValue pCommands = new PropertyMapValue("Commands", Character.class, LSystemGraphicCommand.class);
-		pCommands.putAll(lSystemConfig_.commands_);
-		addProperty(definition, pCommands, value ->
-		{
-			lSystemConfig_.commands_.clear();
-			lSystemConfig_.commands_.putAll((Map) value.getValue());
-			lSystemPanel_.updateLSystem();
-		});
 
-		PropertyGroupNode root = new PropertyGroupNode(null);
-		root.add(new PropertyGroupNode(visualSettings));
-		root.add(new PropertyGroupNode(definition));
+        buttons.add(imp);
+        buttons.add(exp);
 
-		model.setRoot(root);
-		table_.expandAll();
-	}
+        add(buttons, BorderLayout.SOUTH);
+    }
+
+    public void updateProperties()
+    {
+        DefaultTreeModel model = table_.getTreeModel();
+
+        PropertyGroup visualSettings = new PropertyGroup("Visual Settings");
+
+        addProperty(visualSettings, new PropertyBooleanValue("Border", lSystemPanel_.isDrawBorder()), value ->
+        {
+            Boolean n = value.getValue();
+            lSystemPanel_.setDrawBorder(n);
+        });
+
+        addProperty(visualSettings, new PropertyNumberValue("Angel (degree)",
+                Math.toDegrees(lSystemConfig_.angle_)), value ->
+        {
+            lSystemPanel_.getLSystem()
+                    .getConfig().angle_ = Math.toRadians(value.getValue()
+                    .doubleValue());
+            lSystemPanel_.updateLSystem();
+        });
+
+        addProperty(visualSettings, new PropertyNumberValue("Delta X", lSystemConfig_.deltaX_), value ->
+        {
+            lSystemPanel_.getLSystem()
+                    .getConfig().deltaX_ = value.getValue()
+                    .doubleValue();
+            lSystemPanel_.updateLSystem();
+        });
+
+        addProperty(visualSettings, new PropertyNumberValue("Delta Y", lSystemConfig_.deltaY_), value ->
+        {
+            lSystemPanel_.getLSystem()
+                    .getConfig().deltaY_ = value.getValue()
+                    .doubleValue();
+            lSystemPanel_.updateLSystem();
+        });
+
+        PropertyGroup definition = new PropertyGroup("Definition");
+        addProperty(definition, new PropertyStringValue("Axiom", lSystemConfig_.axiom_), value ->
+        {
+            lSystemPanel_.getLSystem()
+                    .getConfig().axiom_ = value.getValue();
+            lSystemPanel_.updateLSystem();
+        });
+        PropertyMapValue<Character, String> pRules = new PropertyMapValue<>("Rules", Character.class, String.class);
+        pRules.putAll(lSystemConfig_.rules_);
+        addProperty(definition, pRules, value ->
+        {
+            lSystemConfig_.rules_.clear();
+            lSystemConfig_.rules_.putAll(value.getValue());
+            lSystemPanel_.updateLSystem();
+        });
+        PropertyMapValue<Character, List<LSystemGraphicCommand>> pCommands =
+                new PropertyMapValue<>("Commands",
+                        Character.class, (Class<List<LSystemGraphicCommand>>)(Class<?>)List.class);
+        pCommands.putAll(lSystemConfig_.commands_);
+        addProperty(definition, pCommands, value ->
+        {
+            lSystemConfig_.commands_.clear();
+            lSystemConfig_.commands_.putAll(value.getValue());
+            lSystemPanel_.updateLSystem();
+        });
+
+        PropertyGroupNode root = new PropertyGroupNode(null);
+        root.add(new PropertyGroupNode(visualSettings));
+        root.add(new PropertyGroupNode(definition));
+
+        model.setRoot(root);
+        table_.expandAll();
+    }
+
 
 }

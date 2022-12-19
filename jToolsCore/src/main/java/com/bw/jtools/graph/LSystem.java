@@ -24,7 +24,7 @@ package com.bw.jtools.graph;
 
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.util.Map;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -91,6 +91,11 @@ public class LSystem
         return getPath(start.x, start.y);
     }
 
+    private static double normalizeRad(double radians)
+    {
+        return Math.atan2(Math.sin(radians), Math.cos(radians));
+    }
+
     /**
      * Creates a path from current state, starting at the given point.
      */
@@ -98,59 +103,80 @@ public class LSystem
     {
         Path2D.Double p = new Path2D.Double();
         p.moveTo(startX, startY);
-        double deltaX = config_.deltaX_;
-        double deltaT;
+
+        double theta = 0;
+        double deltaX = 0;
         double deltaY = config_.deltaY_;
-        double theta = config_.angle_;
         Stack<double[]> stack = new Stack<>();
         for (char c : current_.toCharArray())
         {
-            startX = Math.round(startX);
-            startY = Math.round(startY);
-            LSystemGraphicCommand cmd = config_.commands_.get(c);
-            if ( cmd != null )
+            List<LSystemGraphicCommand> cmds = config_.commands_.get(c);
+            if (cmds != null)
             {
-                switch (cmd)
+                for (LSystemGraphicCommand cmd : cmds)
                 {
-                    case DRAW_FORWARD:
-                        startX += deltaX;
-                        startY += deltaY;
-                        p.lineTo(startX, startY);
-                        break;
-                    case MOVE_FORWARD:
-                        startX += deltaX;
-                        startY += deltaY;
-                        p.moveTo(startX, startY);
-                        break;
-                    case TURN_COUNTERCLOCKWISE:
+                    switch (cmd)
                     {
-                        final double cos = Math.cos(theta);
-                        final double sin = Math.sin(theta);
-                        deltaT = (deltaX * cos) - (deltaY * sin);
-                        deltaY = (deltaX * sin) + (deltaY * cos);
-                        deltaX = deltaT;
-                    }
-                    break;
-                    case TURN_CLOCKWISE:
-                    {
-                        final double cos = Math.cos(theta);
-                        final double sin = Math.sin(theta);
-                        deltaT = (deltaX * cos) + (deltaY * sin);
-                        deltaY = (deltaY * cos) - (deltaX * sin);
-                        deltaX = deltaT;
-                    }
-                    break;
-                    case PUSH_ON_STACK:
-                        stack.add(new double[]{startX, startY, deltaX, deltaY});
+                        case DRAW_FORWARD:
+                            startX = startX + deltaX;
+                            startY = startY + deltaY;
+                            p.lineTo(startX, startY);
+                            break;
+                        case DRAW_LEAF:
+                            p.curveTo(startX - deltaX / 2, startY + deltaY / 2,
+                                    startX + deltaX / 2, startY + deltaY / 2,
+                                    startX, startY);
+                            break;
+                        case MOVE_FORWARD:
+                            startX = startX + deltaX;
+                            startY = startY + deltaY;
+                            p.moveTo(startX, startY);
+                            break;
+                        case TURN_COUNTERCLOCKWISE:
+                        {
+                            theta = normalizeRad(theta - config_.angle_);
+                            deltaX = Math.sin(theta) * config_.deltaX_;
+                            deltaY = Math.cos(theta) * config_.deltaY_;
+                        }
                         break;
-                    case POP_FROM_STACK:
-                        double[] s = stack.pop();
-                        startX = s[0];
-                        startY = s[1];
-                        deltaX = s[2];
-                        deltaY = s[3];
-                        p.moveTo(startX, startY);
+                        case TURN_CLOCKWISE:
+                        {
+                            theta = normalizeRad(theta + config_.angle_);
+                            deltaX = Math.sin(theta) * config_.deltaX_;
+                            deltaY = Math.cos(theta) * config_.deltaY_;
+                        }
                         break;
+                        case PUSH_ON_STACK:
+                            stack.add(new double[]{startX, startY, theta});
+                            break;
+                        case POP_FROM_STACK:
+                        {
+                            double[] s = stack.pop();
+                            startX = s[0];
+                            startY = s[1];
+                            theta = s[2];
+                            deltaX = Math.cos(theta) * config_.deltaX_;
+                            deltaY = Math.sin(theta) * config_.deltaY_;
+                            p.moveTo(startX, startY);
+                        }
+                        break;
+                        case POP_ANGLE_FROM_STACK:
+                        {
+                            double[] s = stack.pop();
+                            theta = s[2];
+                            deltaX = Math.cos(theta) * config_.deltaX_;
+                            deltaY = Math.sin(theta) * config_.deltaY_;
+                        }
+                        break;
+                        case POP_POS_FROM_STACK:
+                        {
+                            double[] s = stack.pop();
+                            startX = s[0];
+                            startY = s[1];
+                            p.moveTo(startX, startY);
+                        }
+                        break;
+                    }
                 }
             }
         }
@@ -169,6 +195,5 @@ public class LSystem
     {
         return generations_;
     }
-
 
 }
