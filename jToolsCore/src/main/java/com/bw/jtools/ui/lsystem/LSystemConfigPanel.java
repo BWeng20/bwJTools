@@ -107,6 +107,9 @@ public class LSystemConfigPanel extends PropertyPanelBase
         add(buttons, BorderLayout.SOUTH);
     }
 
+    /**
+     * Updates the property tree from the L-System-Configuration.
+     */
     public void updateProperties()
     {
         DefaultTreeModel model = table_.getTreeModel();
