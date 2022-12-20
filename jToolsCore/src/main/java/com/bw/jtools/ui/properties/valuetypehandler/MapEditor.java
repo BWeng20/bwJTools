@@ -12,7 +12,6 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.*;
 
@@ -41,7 +40,24 @@ public class MapEditor<K, V> extends JScrollPane
             K key = e.getKey();
             String keys = String.valueOf(key);
             propertyNameToKey.put(keys, key);
-            value_.put(key, root.addProperty(keys, e.getValue()));
+            V v = e.getValue();
+            PropertyValue<V> prop;
+            if (v instanceof List<?>)
+            {
+                throw new IllegalArgumentException("Can't handle raw lists inside Properties, use PropertyListValue to provide more type information");
+            } else if (v instanceof Map<?, ?>)
+            {
+                throw new IllegalArgumentException("Can't handle raw maps inside Properties, use PropertyMapValue to provide more type information");
+            } else if (v instanceof PropertyValue)
+            {
+                prop = (PropertyValue<V>) v;
+            } else
+            {
+                prop = new PropertyValue<>(keys, (Class<V>) v.getClass());
+                prop.setValue(v);
+            }
+            root.addProperty(prop);
+            value_.put(key, prop);
         }
 
         props_ = new PropertyTable();
@@ -109,7 +125,7 @@ public class MapEditor<K, V> extends JScrollPane
                 JPanel buttonPane = new JPanel(new FlowLayout(FlowLayout.CENTER));
                 JButton keyOk = new JButton(I18N.getText("button.ok"));
                 keyOk.addActionListener(e1 -> {
-                    input.add( keyHandler.getCurrentValueFromEditor());
+                    input.add(keyHandler.getCurrentValueFromEditor());
                     dlg.setVisible(false);
                 });
 
@@ -170,9 +186,10 @@ public class MapEditor<K, V> extends JScrollPane
                     int idx = mapPane.props_.getSelectionModel().getMinSelectionIndex();
                     mapPane.props_.getTreeModel()
                             .removeNodeFromParent(node);
-                    if ( idx >= 0 ) {
-                        idx = Math.min( idx , mapPane.value_.size()-1);
-                        if ( idx >= 0 )
+                    if (idx >= 0)
+                    {
+                        idx = Math.min(idx, mapPane.value_.size() - 1);
+                        if (idx >= 0)
                         {
                             mapPane.props_.getSelectionModel().setSelectionInterval(idx, idx);
                         }

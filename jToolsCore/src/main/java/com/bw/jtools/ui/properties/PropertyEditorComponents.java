@@ -21,13 +21,13 @@
  */
 package com.bw.jtools.ui.properties;
 
+import com.bw.jtools.properties.PropertyListValue;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.properties.valuetypehandler.*;
 
 import java.awt.*;
 import java.text.NumberFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,6 +51,8 @@ public class PropertyEditorComponents
 
     private final Map<String, ValueTypeHandler<?>>
             typeEditorHandlersInstances_ = new HashMap<>();
+    private ValueTypeHandler<?> choiceHandlersInstance_ = null;
+    private ValueTypeHandler<?> listHandlersInstance_ = null;
 
     public PropertyEditorComponents()
     {
@@ -60,19 +62,25 @@ public class PropertyEditorComponents
         typeEditorHandlersClasses_.put(Boolean.class, BooleanHandler.class);
         typeEditorHandlersClasses_.put(Font.class, FontHandler.class);
         typeEditorHandlersClasses_.put(Number.class, NumberHandler.class);
-        typeEditorHandlersClasses_.put(List.class, ChoiceHandler.class);
         typeEditorHandlersClasses_.put(Enum.class, EnumHandler.class);
         typeEditorHandlersClasses_.put(Map.class, MapHandler.class);
         typeEditorHandlersClasses_.put(Character.class, CharacterHandler.class);
     }
 
-    protected ValueTypeHandler<?> createHandlerForType(Class<?> clazz, boolean choice)
+    protected ValueTypeHandler<?> createChoiceHandler()
+    {
+        return createFromClass(ChoiceHandler.class);
+    }
+
+    protected ValueTypeHandler<?> createListHandler()
+    {
+        return createFromClass(ListHandler.class);
+    }
+
+    protected ValueTypeHandler<?> createHandlerForType(Class<?> clazz)
     {
         Class<? extends ValueTypeHandler<?>> teClazz;
-        if (choice)
-        {
-            teClazz = typeEditorHandlersClasses_.get(List.class);
-        } else if (clazz.isEnum())
+        if (clazz.isEnum())
         {
             teClazz = typeEditorHandlersClasses_.get(Enum.class);
         } else
@@ -98,6 +106,11 @@ public class PropertyEditorComponents
 
             }
         }
+        return createFromClass(teClazz);
+    }
+
+    private ValueTypeHandler<?> createFromClass(Class<? extends ValueTypeHandler<?>> teClazz)
+    {
         if (teClazz != null)
         {
             try
@@ -111,18 +124,35 @@ public class PropertyEditorComponents
         return null;
     }
 
-
-    protected ValueTypeHandler<?> getHandlerForType(Class<?> clazz, boolean choice)
+    protected ValueTypeHandler<?> getHandlerForType(Class<?> clazz)
     {
-        String valueClassName = choice ? List.class.getName() : clazz.getName();
+        final String valueClassName = clazz.getName();
 
         ValueTypeHandler<?> th = typeEditorHandlersInstances_.get(valueClassName);
         if (th == null)
         {
-            th = createHandlerForType(clazz, choice);
+            th = createHandlerForType(clazz);
             typeEditorHandlersInstances_.put(valueClassName, th);
         }
         return th;
+    }
+
+    protected ValueTypeHandler<?> getChoiceHandler()
+    {
+        if (choiceHandlersInstance_ == null)
+        {
+            choiceHandlersInstance_ = new ChoiceHandler();
+        }
+        return choiceHandlersInstance_;
+    }
+
+    protected ValueTypeHandler<?> getListHandler()
+    {
+        if (listHandlersInstance_ == null)
+        {
+            listHandlersInstance_ = new ListHandler();
+        }
+        return listHandlersInstance_;
     }
 
     static
@@ -156,12 +186,21 @@ public class PropertyEditorComponents
     {
         ValueTypeHandler<T> h;
         boolean choice = value.possibleValues_ != null && !value.possibleValues_.isEmpty();
-        if (newInstance)
+        if (choice)
         {
-            h = (ValueTypeHandler<T>)createHandlerForType(value.valueClazz_, choice);
+            h = (ValueTypeHandler<T>) (newInstance
+                    ? createChoiceHandler()
+                    : getChoiceHandler());
+        } else if (value instanceof PropertyListValue)
+        {
+            h = (ValueTypeHandler<T>) (newInstance
+                    ? createListHandler()
+                    : getListHandler());
         } else
         {
-            h = (ValueTypeHandler<T>)getHandlerForType(value.valueClazz_, choice);
+            h = (ValueTypeHandler<T>) (newInstance
+                    ? createHandlerForType(value.valueClazz_)
+                    : getHandlerForType(value.valueClazz_));
         }
         if (h == null)
         {

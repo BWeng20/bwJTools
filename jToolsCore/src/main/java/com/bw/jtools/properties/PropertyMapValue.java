@@ -21,7 +21,6 @@
  */
 package com.bw.jtools.properties;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,55 +29,55 @@ import java.util.Map;
  */
 public class PropertyMapValue<K, V> extends PropertyValue<Map<K, V>>
 {
-	public Class<K> getKeyClass()
-	{
-		return keyClass_;
-	}
+    public Class<K> getKeyClass()
+    {
+        return keyClass_;
+    }
 
-	public Class<V> getValueClass()
-	{
-		return valueClass_;
-	}
+    public Class<V> getMapValueClass()
+    {
+        return mapValueClass_;
+    }
 
-	private final Class<K> keyClass_;
-	private final Class<V> valueClass_;
+    private final Class<K> keyClass_;
+    private final Class<V> mapValueClass_;
 
-	/**
-	 * Creates a map value.
-	 *
-	 * @param key Key of the property.
-	 */
-	public PropertyMapValue(String key, Class<K> keyClass, Class<V> valueClass)
-	{
+    /**
+     * Creates a map value.
+     *
+     * @param key Key of the property.
+     */
+    public PropertyMapValue(String key, Class<K> keyClass, Class<V> valueClass)
+    {
 
-		super(key, (Class<? extends Map<K, V>>) (Class<?>)LinkedHashMap.class);
-		keyClass_ = keyClass;
-		valueClass_ = valueClass;
-		setValue(new LinkedHashMap<>());
-	}
+        super(key, (Class<? extends Map<K, V>>) (Class<?>) LinkedHashMap.class);
+        keyClass_ = keyClass;
+        mapValueClass_ = valueClass;
+        setValue(new LinkedHashMap<>());
+    }
 
-	public void put(K key, V value)
-	{
-		getValue().put(key, value);
-	}
+    public void put(K key, V value)
+    {
+        getValue().put(key, value);
+    }
 
-	public void putAll(Map<K, V> m)
-	{
-		getValue().putAll(m);
-	}
+    public void putAll(Map<K, V> m)
+    {
+        getValue().putAll(m);
+    }
 
 
-	public V get(K key)
-	{
-		return getValue().get(key);
-	}
+    public V get(K key)
+    {
+        return getValue().get(key);
+    }
 
-	/**
-	 * Gets the value as string.
-	 */
-	public String toString()
-	{
-		return String.valueOf(getValue());
-	}
+    /**
+     * Gets the value as string.
+     */
+    public String toString()
+    {
+        return String.valueOf(getValue());
+    }
 
 }

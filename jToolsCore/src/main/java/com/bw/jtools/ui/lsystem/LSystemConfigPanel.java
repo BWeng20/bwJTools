@@ -36,8 +36,8 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class LSystemConfigPanel extends PropertyPanelBase
 {
@@ -162,14 +162,25 @@ public class LSystemConfigPanel extends PropertyPanelBase
             lSystemConfig_.rules_.putAll(value.getValue());
             lSystemPanel_.updateLSystem();
         });
-        PropertyMapValue<Character, List<LSystemGraphicCommand>> pCommands =
-                new PropertyMapValue<>("Commands",
-                        Character.class, (Class<List<LSystemGraphicCommand>>)(Class<?>)List.class);
-        pCommands.putAll(lSystemConfig_.commands_);
+        PropertyMapValue<Character, PropertyListValue<LSystemGraphicCommand>> pCommands =
+                new PropertyMapValue<>(
+                        "Commands",
+                        Character.class,
+                        (Class<PropertyListValue<LSystemGraphicCommand>>) (Class<?>) PropertyListValue.class);
+        lSystemConfig_.commands_.forEach((c, cmdList) -> {
+            PropertyListValue<LSystemGraphicCommand> l =
+                    new PropertyListValue<>(c.toString(), LSystemGraphicCommand.class);
+            cmdList.forEach(l::add);
+            pCommands.put(c, l);
+        });
         addProperty(definition, pCommands, value ->
         {
             lSystemConfig_.commands_.clear();
-            lSystemConfig_.commands_.putAll(value.getValue());
+            value.getValue().forEach((c, enumValues) -> {
+                List<LSystemGraphicCommand> l = new ArrayList<>(enumValues.size());
+                enumValues.forEach(l::add);
+                lSystemConfig_.commands_.put(c, l);
+            });
             lSystemPanel_.updateLSystem();
         });
 

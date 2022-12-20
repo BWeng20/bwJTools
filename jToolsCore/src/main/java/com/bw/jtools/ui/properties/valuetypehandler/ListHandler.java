@@ -1,40 +1,40 @@
 package com.bw.jtools.ui.properties.valuetypehandler;
 
-import com.bw.jtools.properties.PropertyMapValue;
+import com.bw.jtools.properties.PropertyListValue;
 import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.properties.PropertyEditorComponents;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("rawtypes")
-public class MapHandler extends ValueTypeHandler<Map<?, ?>>
+public class ListHandler extends ValueTypeHandler<List<?>>
 {
     private JButton edit_;
-    private Map<?, ?> editedValue_;
+    private List<?> editedValue_;
 
     @Override
-    public void initEditor(PropertyValue<Map<?, ?>> value, PropertyEditorComponents pec)
+    public void initEditor(PropertyValue<List<?>> value, PropertyEditorComponents pec)
     {
         value_ = value;
 
         editedValue_ = value.getValue();
-        if (editedValue_ == null) editedValue_ = new HashMap<>();
+        if (editedValue_ == null) editedValue_ = new ArrayList<>();
 
         if (edit_ == null)
         {
             edit_ = new JButton();
             edit_.addActionListener(ie ->
                     {
-                        PropertyMapValue<?, ?> mvalue = (PropertyMapValue) value_;
-                        Map<?, ?> newValue = MapEditor.showDialog(edit_, mvalue.key_, (Map) mvalue.getValue(),
-                                mvalue.getKeyClass(), mvalue.getMapValueClass());
+                        PropertyListValue<?> mvalue = (PropertyListValue) value_;
+                        List<?> newValue = ListEditor.showDialog(edit_, mvalue.key_, (List) mvalue.getValue(),
+                                mvalue.getListValueClass());
                         if (newValue != null)
                         {
                             editedValue_ = newValue;
-                            mvalue.setValue((Map) editedValue_);
+                            mvalue.setValue((List) editedValue_);
                             edit_.setText(editedValue_.toString());
                         }
                     }
@@ -44,7 +44,7 @@ public class MapHandler extends ValueTypeHandler<Map<?, ?>>
     }
 
     @Override
-    public Map<?, ?> getCurrentValueFromEditor()
+    public List<?> getCurrentValueFromEditor()
     {
         return editedValue_;
     }
@@ -52,9 +52,9 @@ public class MapHandler extends ValueTypeHandler<Map<?, ?>>
     @Override
     public void updateEditorFromProperty()
     {
-        Map<?, ?> map = value_.getValue();
-        if (map == null) map = new HashMap<>();
-        edit_.setText(map.toString());
+        List<?> list = value_.getValue();
+        if (list == null) list = new ArrayList<>();
+        edit_.setText(list.toString());
     }
 
     @Override
