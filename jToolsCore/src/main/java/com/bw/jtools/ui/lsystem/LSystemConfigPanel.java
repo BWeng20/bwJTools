@@ -159,26 +159,27 @@ public class LSystemConfigPanel extends PropertyPanelBase
         addProperty(definition, pRules, value ->
         {
             lSystemConfig_.rules_.clear();
-            lSystemConfig_.rules_.putAll(value.getValue());
+            value.getValue().forEach((c, pv) -> lSystemConfig_.rules_.put(c, pv.getValue()));
             lSystemPanel_.updateLSystem();
         });
-        PropertyMapValue<Character, PropertyListValue<LSystemGraphicCommand>> pCommands =
+        PropertyMapValue<Character, List<PropertyValue<LSystemGraphicCommand>>> pCommands =
                 new PropertyMapValue<>(
                         "Commands",
                         Character.class,
-                        (Class<PropertyListValue<LSystemGraphicCommand>>) (Class<?>) PropertyListValue.class);
+                        PropertyListValue.class);
         lSystemConfig_.commands_.forEach((c, cmdList) -> {
             PropertyListValue<LSystemGraphicCommand> l =
                     new PropertyListValue<>(c.toString(), LSystemGraphicCommand.class);
             cmdList.forEach(l::add);
-            pCommands.put(c, l);
+            pCommands.putProperty(c, l);
         });
         addProperty(definition, pCommands, value ->
         {
             lSystemConfig_.commands_.clear();
-            value.getValue().forEach((c, enumValues) -> {
-                List<LSystemGraphicCommand> l = new ArrayList<>(enumValues.size());
-                enumValues.forEach(l::add);
+            value.getValue().forEach((c, cmdList) -> {
+                List<PropertyValue<LSystemGraphicCommand>> pl = cmdList.getValue();
+                List<LSystemGraphicCommand> l = new ArrayList<>(pl.size());
+                pl.forEach(prop -> l.add(prop.getValue()));
                 lSystemConfig_.commands_.put(c, l);
             });
             lSystemPanel_.updateLSystem();

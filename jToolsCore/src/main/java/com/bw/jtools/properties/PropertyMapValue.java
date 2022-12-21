@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Convenience wrapper for a property with map content.
  */
-public class PropertyMapValue<K, V> extends PropertyValue<Map<K, V>>
+public class PropertyMapValue<K, V> extends PropertyValue<Map<K, PropertyValue<V>>>
 {
     public Class<K> getKeyClass()
     {
@@ -47,29 +47,36 @@ public class PropertyMapValue<K, V> extends PropertyValue<Map<K, V>>
      *
      * @param key Key of the property.
      */
-    public PropertyMapValue(String key, Class<K> keyClass, Class<V> valueClass)
+    public PropertyMapValue(String key, Class<K> keyClass, Class<?> valueClass)
     {
 
-        super(key, (Class<? extends Map<K, V>>) (Class<?>) LinkedHashMap.class);
+        super(key, (Class<? extends Map<K, PropertyValue<V>>>) (Class<?>) LinkedHashMap.class);
         keyClass_ = keyClass;
-        mapValueClass_ = valueClass;
+        mapValueClass_ = (Class<V>) valueClass;
         setValue(new LinkedHashMap<>());
     }
 
     public void put(K key, V value)
     {
-        getValue().put(key, value);
+        PropertyValue<V> prop = new PropertyValue<>(String.valueOf(key), getMapValueClass());
+        prop.setValue(value);
+        putProperty(key, prop);
+    }
+
+    public void putProperty(K key, PropertyValue<V> prop)
+    {
+        getValue().put(key, prop);
     }
 
     public void putAll(Map<K, V> m)
     {
-        getValue().putAll(m);
+        m.forEach(this::put);
     }
-
 
     public V get(K key)
     {
-        return getValue().get(key);
+        PropertyValue<V> prop = getValue().get(key);
+        return prop == null ? null : prop.getValue();
     }
 
     /**

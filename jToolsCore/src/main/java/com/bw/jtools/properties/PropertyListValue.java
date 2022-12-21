@@ -21,9 +21,7 @@
  */
 package com.bw.jtools.properties;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -31,6 +29,7 @@ import java.util.stream.Collectors;
  * Convenience wrapper for a property with list content.
  */
 public class PropertyListValue<V> extends PropertyValue<List<PropertyValue<V>>>
+        implements Collection<V>
 {
     public Class<V> getListValueClass()
     {
@@ -52,23 +51,55 @@ public class PropertyListValue<V> extends PropertyValue<List<PropertyValue<V>>>
         setValue(new ArrayList<>());
     }
 
-    public void add(V value)
+    @Override
+    public boolean add(V value)
     {
         PropertyValue<V> prop = new PropertyValue<>(String.valueOf(getValue().size()), getListValueClass());
         prop.setValue(value);
         getValue().add(prop);
+        return true;
     }
 
-    public void add(PropertyValue<V> prop)
+    @Override
+    public boolean remove(Object o)
+    {
+        return getValue().removeIf(v -> Objects.equals(v.getValue(), o));
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c)
+    {
+        return c.stream().anyMatch(o -> !contains(c));
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends V> c)
+    {
+        c.forEach(this::add);
+        return true;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c)
+    {
+        return false;
+    }
+
+    @Override
+    public void clear()
+    {
+    }
+
+    public void addProperty(PropertyValue<V> prop)
     {
         getValue().add(prop);
     }
-
-    public void addAll(Collection<V> m)
-    {
-        m.forEach(this::add);
-    }
-
 
     public V get(int index)
     {
@@ -81,7 +112,50 @@ public class PropertyListValue<V> extends PropertyValue<List<PropertyValue<V>>>
         return getValue().size();
     }
 
-    public void forEach(Consumer<V> c)
+    @Override
+    public boolean isEmpty()
+    {
+        return size() > 0;
+    }
+
+    @Override
+    public boolean contains(Object o)
+    {
+        return getValue().stream().anyMatch(p -> p != null && Objects.equals(p.getValue(), o));
+    }
+
+    @Override
+    public Iterator<V> iterator()
+    {
+        return getValue().stream().map(PropertyValue::getValue).iterator();
+    }
+
+    @Override
+    public Object[] toArray()
+    {
+        int N = size();
+        Object[] r = new Object[N];
+        List<PropertyValue<V>> l = getValue();
+        for (int i = 0; i < N; ++i)
+            r[i] = l.get(i);
+        return r;
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a)
+    {
+        int N = size();
+        if (a.length < N)
+            a = Arrays.copyOf(a, N);
+        List<PropertyValue<V>> l = getValue();
+        for (int i = 0; i < N; ++i)
+            a[i] = (T) l.get(i);
+
+        return a;
+    }
+
+    @Override
+    public void forEach(Consumer<? super V> c)
     {
         getValue().forEach(v -> c.accept(v == null ? null : v.getValue()));
     }
@@ -89,6 +163,7 @@ public class PropertyListValue<V> extends PropertyValue<List<PropertyValue<V>>>
     /**
      * Gets the value as string.
      */
+    @Override
     public String toString()
     {
         return getValue().stream()

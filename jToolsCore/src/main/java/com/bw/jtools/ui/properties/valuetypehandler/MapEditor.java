@@ -18,8 +18,8 @@ import java.util.*;
 public class MapEditor<K, V> extends JScrollPane
 {
     private Map<K, PropertyValue<V>> value_;
-    private Map<K, V> chosenMap_;
-    private Constructor<? extends Map<K, V>> mapCtor_;
+    private Map<K, PropertyValue<V>> chosenMap_;
+    private Constructor<? extends Map<K, PropertyValue<V>>> mapCtor_;
     private Map<String, K> propertyNameToKey = new HashMap<>();
     protected PropertyTable props_;
 
@@ -27,35 +27,20 @@ public class MapEditor<K, V> extends JScrollPane
     {
     }
 
-    public void init(Map<K, V> initialMap) throws NoSuchMethodException
+    public void init(Map<K, PropertyValue<V>> initialMap) throws NoSuchMethodException
     {
-        mapCtor_ = (Constructor<? extends Map<K, V>>) initialMap.getClass()
+        mapCtor_ = (Constructor<? extends Map<K, PropertyValue<V>>>) initialMap.getClass()
                 .getDeclaredConstructor();
         // Use "Linked" to keep original order.
         value_ = new LinkedHashMap<>();
 
         PropertyGroup root = new PropertyGroup("");
-        for (Map.Entry<K, V> e : initialMap.entrySet())
+        for (Map.Entry<K, PropertyValue<V>> e : initialMap.entrySet())
         {
             K key = e.getKey();
             String keys = String.valueOf(key);
             propertyNameToKey.put(keys, key);
-            V v = e.getValue();
-            PropertyValue<V> prop;
-            if (v instanceof List<?>)
-            {
-                throw new IllegalArgumentException("Can't handle raw lists inside Properties, use PropertyListValue to provide more type information");
-            } else if (v instanceof Map<?, ?>)
-            {
-                throw new IllegalArgumentException("Can't handle raw maps inside Properties, use PropertyMapValue to provide more type information");
-            } else if (v instanceof PropertyValue)
-            {
-                prop = (PropertyValue<V>) v;
-            } else
-            {
-                prop = new PropertyValue<>(keys, (Class<V>) v.getClass());
-                prop.setValue(v);
-            }
+            PropertyValue<V> prop = e.getValue();
             root.addProperty(prop);
             value_.put(key, prop);
         }
@@ -69,9 +54,9 @@ public class MapEditor<K, V> extends JScrollPane
 
     static PropertyEditorComponents newKeyEditorComponents_ = new PropertyEditorComponents();
 
-    public static <K, V> Map<K, V> showDialog(Component component,
-                                              String title, Map<K, V> initialMap,
-                                              final Class<K> keyClass, final Class<V> valueClass)
+    public static <K, V> Map<K, PropertyValue<V>> showDialog(Component component,
+                                                             String title, Map<K, PropertyValue<V>> initialMap,
+                                                             final Class<K> keyClass, final Class<V> valueClass)
     {
         Window w = component == null ? null : component instanceof Window ? (Window) component : SwingUtilities.getWindowAncestor(component);
         final MapEditor<K, V> mapPane = new MapEditor<>();
@@ -94,7 +79,7 @@ public class MapEditor<K, V> extends JScrollPane
                 try
                 {
                     mapPane.chosenMap_ = mapPane.mapCtor_.newInstance();
-                    mapPane.value_.forEach((key, value) -> mapPane.chosenMap_.put(key, value.getValue()));
+                    mapPane.chosenMap_.putAll(mapPane.value_);
                 } catch (Exception ex)
                 {
                     ex.printStackTrace();
@@ -219,7 +204,7 @@ public class MapEditor<K, V> extends JScrollPane
         {
             e.printStackTrace();
         }
-        Map<K, V> r = mapPane.chosenMap_;
+        Map<K, PropertyValue<V>> r = mapPane.chosenMap_;
         mapPane.chosenMap_ = null;
         return r;
     }

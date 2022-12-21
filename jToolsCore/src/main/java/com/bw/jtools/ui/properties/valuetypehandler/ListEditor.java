@@ -8,44 +8,23 @@ import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ListEditor<V> extends JScrollPane
 {
     private List<PropertyValue<V>> value_;
-    private List<V> chosenList_;
-    private Constructor<? extends List<V>> listCtor_;
+    private List<PropertyValue<V>> chosenList_;
+    private Constructor<? extends List<PropertyValue<V>>> listCtor_;
     protected JList<PropertyValue<V>> props_;
 
     public ListEditor()
     {
     }
 
-    public void init(List<V> initialList) throws NoSuchMethodException
+    public void init(List<PropertyValue<V>> initialList) throws NoSuchMethodException
     {
-        listCtor_ = (Constructor<? extends List<V>>) initialList.getClass()
+        listCtor_ = (Constructor<? extends List<PropertyValue<V>>>) initialList.getClass()
                 .getDeclaredConstructor();
-        value_ = new ArrayList<>();
-
-        for (V v : initialList)
-        {
-            PropertyValue<V> prop;
-            if (v instanceof List<?>)
-            {
-                throw new IllegalArgumentException("Can't handle raw lists inside Properties, use PropertyListValue to provide more type information");
-            } else if (v instanceof Map<?, ?>)
-            {
-                throw new IllegalArgumentException("Can't handle raw maps inside Properties, use PropertyMapValue to provide more type information");
-            } else if (v instanceof PropertyValue)
-            {
-                prop = (PropertyValue<V>) v;
-            } else
-            {
-                prop = new PropertyValue<>(String.valueOf(value_.size()), (Class<V>) v.getClass());
-                prop.setValue(v);
-            }
-            value_.add(prop);
-        }
+        value_ = new ArrayList<>(initialList);
 
         DefaultListModel<PropertyValue<V>> model = new DefaultListModel<>();
         props_ = new JList<>(model);
@@ -53,9 +32,9 @@ public class ListEditor<V> extends JScrollPane
         setViewportView(props_);
     }
 
-    public static <V> List<V> showDialog(Component component,
-                                         String title, List<V> initialMap,
-                                         final Class<V> valueClass)
+    public static <V> List<PropertyValue<V>> showDialog(Component component,
+                                                        String title, List<PropertyValue<V>> initialMap,
+                                                        final Class<V> valueClass)
     {
         Window w = component == null ? null : component instanceof Window ? (Window) component : SwingUtilities.getWindowAncestor(component);
         final ListEditor<V> listPane = new ListEditor<>();
@@ -78,8 +57,7 @@ public class ListEditor<V> extends JScrollPane
                 try
                 {
                     listPane.chosenList_ = listPane.listCtor_.newInstance();
-                    listPane.value_.forEach(v ->
-                            listPane.chosenList_.add(v.getValue()));
+                    listPane.chosenList_.addAll(listPane.value_);
                 } catch (Exception ex)
                 {
                     ex.printStackTrace();
@@ -124,7 +102,7 @@ public class ListEditor<V> extends JScrollPane
         {
             e.printStackTrace();
         }
-        List<V> r = listPane.chosenList_;
+        List<PropertyValue<V>> r = listPane.chosenList_;
         listPane.chosenList_ = null;
         return r;
     }
