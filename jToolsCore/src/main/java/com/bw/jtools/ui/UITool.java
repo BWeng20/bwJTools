@@ -168,7 +168,7 @@ public final class UITool
 	}
 
 	/**
-	 * PLace a window at side of some other component.<br>
+	 * Place a window at side of some other component.<br>
 	 * If it fit the location is chosen in this order:
 	 * <ol>
 	 *     <li>right</li>
@@ -182,7 +182,6 @@ public final class UITool
 	 */
 	public static void placeAtSide(Component component, Window toPlace)
 	{
-		// Place the dialog at the side of the drop cap
 		Point dcLocation = component.getLocationOnScreen();
 		Rectangle dcRect = component.getBounds();
 
@@ -229,6 +228,48 @@ public final class UITool
 		if ((target.x + windowSize.width) > (screenBounds.x + screenBounds.width))
 			target.x = screenBounds.x + +screenBounds.width - windowSize.width;
 
+		toPlace.setLocation(target);
+	}
+
+	/**
+	 * Place a window on top of some other component.<br>
+	 *
+	 * @param component
+	 * @param toPlace
+	 */
+	public static void placeOnTop(Component component, Window toPlace)
+	{
+		Point dcLocation = component.getLocationOnScreen();
+		Rectangle dcRect = component.getBounds();
+
+		int w = toPlace.getWidth();
+		int h = toPlace.getHeight();
+
+
+		Rectangle screenBounds = component.getGraphicsConfiguration()
+										  .getBounds();
+
+		Point target = new Point();
+
+		target.x = dcLocation.x + dcRect.width / 2 - w / 2;
+		target.y = dcLocation.y + dcRect.height / 2 - h / 2;
+
+		if (target.x < screenBounds.x)
+		{
+			target.x = screenBounds.x;
+		}
+		else if ((target.x + w) > (screenBounds.x + screenBounds.width))
+		{
+			target.x = (screenBounds.x + screenBounds.width) - w;
+		}
+		if (target.y < screenBounds.y)
+		{
+			target.y = screenBounds.y;
+		}
+		else if ((target.y + h) > (screenBounds.y + screenBounds.height))
+		{
+			target.y = (screenBounds.y + screenBounds.height) - h;
+		}
 		toPlace.setLocation(target);
 	}
 

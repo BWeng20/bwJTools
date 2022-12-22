@@ -27,6 +27,7 @@ import com.bw.jtools.graph.LSystem;
 import com.bw.jtools.graph.LSystemConfig;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
+import com.bw.jtools.ui.UITool;
 import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.lsystem.LSystemConfigDialog;
 import com.bw.jtools.ui.lsystem.LSystemPanel;
@@ -214,10 +215,7 @@ public class LSystemDemo
             }
             options.pack();
 
-            Point l = optionButton_.getLocationOnScreen();
-            l.x -= options.getWidth() / 2;
-            l.y -= options.getHeight() / 2;
-            options.setLocation(l);
+            UITool.placeOnTop(lsysPanel_, options);
             options.setVisible(true);
         }
     }

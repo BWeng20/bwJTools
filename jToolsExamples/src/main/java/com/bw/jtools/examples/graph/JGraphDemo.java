@@ -7,6 +7,7 @@ import com.bw.jtools.graph.GraphUtil;
 import com.bw.jtools.graph.Node;
 import com.bw.jtools.ui.JLAFComboBox;
 import com.bw.jtools.ui.SettingsUI;
+import com.bw.jtools.ui.UITool;
 import com.bw.jtools.ui.graph.*;
 import com.bw.jtools.ui.graph.impl.*;
 import com.bw.jtools.ui.icon.IconTool;
@@ -163,10 +164,7 @@ public class JGraphDemo
                 options.pack();
             }
 
-            Point l = optionButton.getLocationOnScreen();
-            l.x -= options.getWidth() / 2;
-            l.y -= options.getHeight() / 2;
-            options.setLocation(l);
+            UITool.placeOnTop(optionButton, options);
             options.setVisible(true);
         }
     }
