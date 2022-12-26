@@ -22,6 +22,7 @@
 package com.bw.jtools.ui.lsystem;
 
 import com.bw.jtools.io.IOTool;
+import com.bw.jtools.lsystem.LSystem;
 import com.bw.jtools.lsystem.LSystemConfig;
 import com.bw.jtools.lsystem.LSystemGraphicCommand;
 import com.bw.jtools.properties.PropertyBooleanValue;
@@ -147,28 +148,28 @@ public class LSystemConfigPanel extends PropertyPanelBase
         {
             getConfig().angle_ = Math.toRadians(value.getValue()
                                                      .doubleValue());
-            lSystemPanel_.updateLSystem();
+            updateLSystem();
         });
 
         addProperty(visualSettings, new PropertyNumberValue("Delta X", cfg.deltaX_), value ->
         {
             getConfig().deltaX_ = value.getValue()
                                        .doubleValue();
-            lSystemPanel_.updateLSystem();
+            updateLSystem();
         });
 
         addProperty(visualSettings, new PropertyNumberValue("Delta Y", cfg.deltaY_), value ->
         {
             getConfig().deltaY_ = value.getValue()
                                        .doubleValue();
-            lSystemPanel_.updateLSystem();
+            updateLSystem();
         });
 
         PropertyGroup definition = new PropertyGroup("Definition");
         addProperty(definition, new PropertyStringValue("Axiom", cfg.axiom_), value ->
         {
             getConfig().axiom_ = value.getValue();
-            lSystemPanel_.updateLSystem();
+            updateLSystem();
         });
         PropertyMapValue<Character, String> pRules = new PropertyMapValue<>("Rules", Character.class, String.class);
         pRules.putAll(getConfig().rules_);
@@ -178,7 +179,7 @@ public class LSystemConfigPanel extends PropertyPanelBase
             lcfg.rules_.clear();
             value.getValue()
                  .forEach((c, pv) -> lcfg.rules_.put(c, pv.getValue()));
-            lSystemPanel_.updateLSystem();
+            updateLSystem();
         });
         PropertyMapValue<Character, List<PropertyValue<LSystemGraphicCommand>>> pCommands =
                 new PropertyMapValue<>(
@@ -204,7 +205,7 @@ public class LSystemConfigPanel extends PropertyPanelBase
                      pl.forEach(prop -> l.add(prop.getValue()));
                      lcfg.commands_.put(c, l);
                  });
-            lSystemPanel_.updateLSystem();
+            updateLSystem();
         });
 
         PropertyGroupNode root = new PropertyGroupNode(null);
@@ -213,6 +214,19 @@ public class LSystemConfigPanel extends PropertyPanelBase
 
         model.setRoot(root);
         table_.expandAll();
+    }
+
+    private void updateLSystem()
+    {
+        LSystem ls = lSystemPanel_.getLSystem();
+        int gc = ls.getGenerations();
+        ls.reset();
+        while (gc > 0)
+        {
+            ls.generation();
+            --gc;
+        }
+        lSystemPanel_.updateLSystem();
     }
 
 
