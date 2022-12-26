@@ -21,20 +21,35 @@
  */
 package com.bw.jtools.ui.lsystem;
 
-import com.bw.jtools.graph.LSystemConfig;
-import com.bw.jtools.graph.LSystemGraphicCommand;
 import com.bw.jtools.io.IOTool;
-import com.bw.jtools.properties.*;
+import com.bw.jtools.lsystem.LSystemConfig;
+import com.bw.jtools.lsystem.LSystemGraphicCommand;
+import com.bw.jtools.properties.PropertyBooleanValue;
+import com.bw.jtools.properties.PropertyGroup;
+import com.bw.jtools.properties.PropertyListValue;
+import com.bw.jtools.properties.PropertyMapValue;
+import com.bw.jtools.properties.PropertyNumberValue;
+import com.bw.jtools.properties.PropertyStringValue;
+import com.bw.jtools.properties.PropertyValue;
 import com.bw.jtools.ui.properties.PropertyPanelBase;
 import com.bw.jtools.ui.properties.table.PropertyGroupNode;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonWriter;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.*;
-import java.io.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,14 +57,17 @@ import java.util.List;
 public class LSystemConfigPanel extends PropertyPanelBase
 {
     private LSystemPanel lSystemPanel_;
-    private LSystemConfig lSystemConfig_;
 
     public LSystemConfigPanel(LSystemPanel lpanel)
     {
         this.lSystemPanel_ = lpanel;
-        this.lSystemConfig_ = lpanel.getLSystem()
-                .getConfig();
         init();
+    }
+
+    private LSystemConfig getConfig()
+    {
+        return lSystemPanel_.getLSystem()
+                            .getConfig();
     }
 
     protected void init()
@@ -60,7 +78,8 @@ public class LSystemConfigPanel extends PropertyPanelBase
         JButton exp = new JButton("Export");
         JButton imp = new JButton("Import");
 
-        exp.addActionListener(e -> {
+        exp.addActionListener(e ->
+        {
             File file = IOTool.selectFile(this, "lsystem.export.lastDir", "Import L-System Config",
                     IOTool.SAVE, IOTool.getFileFilterJson());
             if (file != null)
@@ -113,6 +132,7 @@ public class LSystemConfigPanel extends PropertyPanelBase
     public void updateProperties()
     {
         DefaultTreeModel model = table_.getTreeModel();
+        LSystemConfig cfg = getConfig();
 
         PropertyGroup visualSettings = new PropertyGroup("Visual Settings");
 
@@ -123,43 +143,41 @@ public class LSystemConfigPanel extends PropertyPanelBase
         });
 
         addProperty(visualSettings, new PropertyNumberValue("Angel (degree)",
-                Math.toDegrees(lSystemConfig_.angle_)), value ->
+                Math.toDegrees(getConfig().angle_)), value ->
         {
-            lSystemPanel_.getLSystem()
-                    .getConfig().angle_ = Math.toRadians(value.getValue()
-                    .doubleValue());
+            getConfig().angle_ = Math.toRadians(value.getValue()
+                                                     .doubleValue());
             lSystemPanel_.updateLSystem();
         });
 
-        addProperty(visualSettings, new PropertyNumberValue("Delta X", lSystemConfig_.deltaX_), value ->
+        addProperty(visualSettings, new PropertyNumberValue("Delta X", cfg.deltaX_), value ->
         {
-            lSystemPanel_.getLSystem()
-                    .getConfig().deltaX_ = value.getValue()
-                    .doubleValue();
+            getConfig().deltaX_ = value.getValue()
+                                       .doubleValue();
             lSystemPanel_.updateLSystem();
         });
 
-        addProperty(visualSettings, new PropertyNumberValue("Delta Y", lSystemConfig_.deltaY_), value ->
+        addProperty(visualSettings, new PropertyNumberValue("Delta Y", cfg.deltaY_), value ->
         {
-            lSystemPanel_.getLSystem()
-                    .getConfig().deltaY_ = value.getValue()
-                    .doubleValue();
+            getConfig().deltaY_ = value.getValue()
+                                       .doubleValue();
             lSystemPanel_.updateLSystem();
         });
 
         PropertyGroup definition = new PropertyGroup("Definition");
-        addProperty(definition, new PropertyStringValue("Axiom", lSystemConfig_.axiom_), value ->
+        addProperty(definition, new PropertyStringValue("Axiom", cfg.axiom_), value ->
         {
-            lSystemPanel_.getLSystem()
-                    .getConfig().axiom_ = value.getValue();
+            getConfig().axiom_ = value.getValue();
             lSystemPanel_.updateLSystem();
         });
         PropertyMapValue<Character, String> pRules = new PropertyMapValue<>("Rules", Character.class, String.class);
-        pRules.putAll(lSystemConfig_.rules_);
+        pRules.putAll(getConfig().rules_);
         addProperty(definition, pRules, value ->
         {
-            lSystemConfig_.rules_.clear();
-            value.getValue().forEach((c, pv) -> lSystemConfig_.rules_.put(c, pv.getValue()));
+            LSystemConfig lcfg = getConfig();
+            lcfg.rules_.clear();
+            value.getValue()
+                 .forEach((c, pv) -> lcfg.rules_.put(c, pv.getValue()));
             lSystemPanel_.updateLSystem();
         });
         PropertyMapValue<Character, List<PropertyValue<LSystemGraphicCommand>>> pCommands =
@@ -167,7 +185,8 @@ public class LSystemConfigPanel extends PropertyPanelBase
                         "Commands",
                         Character.class,
                         PropertyListValue.class);
-        lSystemConfig_.commands_.forEach((c, cmdList) -> {
+        getConfig().commands_.forEach((c, cmdList) ->
+        {
             PropertyListValue<LSystemGraphicCommand> l =
                     new PropertyListValue<>(c.toString(), LSystemGraphicCommand.class);
             cmdList.forEach(l::add);
@@ -175,13 +194,16 @@ public class LSystemConfigPanel extends PropertyPanelBase
         });
         addProperty(definition, pCommands, value ->
         {
-            lSystemConfig_.commands_.clear();
-            value.getValue().forEach((c, cmdList) -> {
-                List<PropertyValue<LSystemGraphicCommand>> pl = cmdList.getValue();
-                List<LSystemGraphicCommand> l = new ArrayList<>(pl.size());
-                pl.forEach(prop -> l.add(prop.getValue()));
-                lSystemConfig_.commands_.put(c, l);
-            });
+            LSystemConfig lcfg = getConfig();
+            lcfg.commands_.clear();
+            value.getValue()
+                 .forEach((c, cmdList) ->
+                 {
+                     List<PropertyValue<LSystemGraphicCommand>> pl = cmdList.getValue();
+                     List<LSystemGraphicCommand> l = new ArrayList<>(pl.size());
+                     pl.forEach(prop -> l.add(prop.getValue()));
+                     lcfg.commands_.put(c, l);
+                 });
             lSystemPanel_.updateLSystem();
         });
 

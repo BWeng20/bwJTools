@@ -1,4 +1,4 @@
-package com.bw.jtools.graph;
+package com.bw.jtools.lsystem;
 
 public enum LSystemGraphicCommand
 {

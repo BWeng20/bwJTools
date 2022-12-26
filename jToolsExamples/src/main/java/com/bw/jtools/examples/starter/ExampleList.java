@@ -63,6 +63,7 @@ public final class ExampleList extends JFrame
         { "Path Chooser", "com.bw.jtools.examples.pathchooser.JPathChooserDemo" },
         { "Swing UI-Default", "com.bw.jtools.examples.uidefaults.UIDefaults" },
         { "SVG Demonstration", "com.bw.jtools.examples.svg.SVGDemo" },
+        {"L-System Demonstration", "com.bw.jtools.examples.lsystem.LSystemDemo"}
     };
 
 	private class ExampleWindowWatcher extends WindowAdapter
