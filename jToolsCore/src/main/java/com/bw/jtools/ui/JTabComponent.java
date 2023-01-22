@@ -22,6 +22,7 @@
 package com.bw.jtools.ui;
 
 import com.bw.jtools.ui.icon.IconTool;
+import com.bw.jtools.ui.icon.JPaintIcon;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -58,6 +59,12 @@ public class JTabComponent extends JPanel
 	 */
 	private static final long serialVersionUID = -7716113934005257056L;
 
+	public enum Orientation
+	{
+		VERTICAL,
+		HORIZONTAL
+	}
+
 	/**
 	 * Creates a new Tab-Component.
 	 *
@@ -69,7 +76,7 @@ public class JTabComponent extends JPanel
 	 * @param action_icon_ro Rollover-Icon for the button or null.
 	 */
 	public JTabComponent(String name, Icon icon, Runnable action,
-						 Icon action_icon, Icon action_icon_ro)
+						 Icon action_icon, Icon action_icon_ro, Orientation orientation)
 	{
 		super(new GridBagLayout());
 
@@ -89,11 +96,7 @@ public class JTabComponent extends JPanel
 
 		setOpaque(false);
 
-		JLabel label = new JLabel(name);
-		if (icon != null)
-		{
-			label.setIcon(icon);
-		}
+		JRotatedText label = new JRotatedText(name, orientation == Orientation.HORIZONTAL ? 0 : 90);
 
 		GridBagConstraints gc = new GridBagConstraints();
 		gc.anchor = GridBagConstraints.LINE_START;
@@ -102,6 +105,16 @@ public class JTabComponent extends JPanel
 		gc.gridx = 0;
 		gc.gridwidth = 1;
 		gc.gridheight = 1;
+
+		if (icon != null)
+		{
+			JLabel iconLabel = new JLabel();
+			iconLabel.setIcon(icon);
+			gc.fill = GridBagConstraints.NONE;
+			add(label, gc);
+			gc.gridx++;
+		}
+
 		gc.fill = GridBagConstraints.HORIZONTAL;
 		add(label, gc);
 
@@ -137,15 +150,14 @@ public class JTabComponent extends JPanel
 		}
 		gc.anchor = GridBagConstraints.LINE_END;
 		gc.weightx = 0;
-		gc.gridx = 1;
+		gc.gridx++;
 		gc.fill = GridBagConstraints.NONE;
 		add(actionButton, gc);
 	}
 
-	@Override
-	public void setBounds(int x, int y, int w, int h)
-	{
-		super.setBounds(x, y, w, h);
+	public JTabComponent(String name, Icon icon, Runnable action,
+						 Icon action_icon, Icon action_icon_ro) {
+		this( name, icon, action, action_icon, action_icon_ro, Orientation.HORIZONTAL);
 	}
 
 	/**
@@ -160,6 +172,26 @@ public class JTabComponent extends JPanel
 		this(name, icon, action, null, null);
 	}
 
+	public void setOrientation(Orientation o ) {
+		if ( o != orientation )
+		{
+			this.orientation = o;
+			// @TODO: Update UI
+			invalidate();
+		}
+	}
+
+	public Orientation getOrientation( ) {
+		return orientation;
+	}
+
+	@Override
+	public void setBounds(int x, int y, int w, int h)
+	{
+		super.setBounds(x, y, w, h);
+	}
+
+	private Orientation orientation;
 	static Icon action_tab_icon_;
 	static Icon action_tab_icon_ro_;
 

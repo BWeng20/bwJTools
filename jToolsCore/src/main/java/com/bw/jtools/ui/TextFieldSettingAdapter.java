@@ -33,7 +33,7 @@ import javax.swing.event.DocumentListener;
  * The values are retrieved and stored via class {@link Store Store}.<br>
  * The value is updated each time the value of the text-field is changed by user.
  * Store is not flushed, so the caller has to ensure that the Store is written to
- * storage if needed. Typically this is done on application exit.<br>
+ * storage if needed. Typically, this is done on application exit.<br>
  * <i>Example</i>
  * <pre><code>
  *  JTextField tfAge = new JTextField(3);
@@ -107,7 +107,7 @@ public class TextFieldSettingAdapter implements DocumentListener
 		if (value_set_)
 		{
 			final String nv = text_.getText();
-			if (nv != null && false == nv.equals(last_value_))
+			if (nv != null && !nv.equals(last_value_))
 			{
 				last_value_ = nv;
 				Store.setString(pref_, nv);

@@ -32,16 +32,8 @@ import com.bw.jtools.ui.SettingsUI;
 import com.bw.jtools.ui.icon.IconTool;
 import com.bw.jtools.ui.icon.JPaintIcon;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 
@@ -58,14 +50,14 @@ public class JTabComponentDemo
 
     JFrame frame;
 
-    JTabbedPane tpane = new JTabbedPane(JTabbedPane.TOP);
+    JTabbedPane tpane = new JTabbedPane(JTabbedPane.LEFT);
 
-    final Color colors[] = new Color[] {
+    final Color[] colors = new Color[] {
         Color.BLUE  , Color.GREEN  , Color.GRAY      , Color.RED , Color.YELLOW,
         Color.ORANGE, Color.MAGENTA, Color.LIGHT_GRAY, Color.CYAN, Color.PINK
     };
 
-    final Boolean used[] = new Boolean[]
+    final Boolean[] used = new Boolean[]
     {
         Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,
         Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,Boolean.FALSE,Boolean.FALSE
@@ -93,38 +85,32 @@ public class JTabComponentDemo
         l.setHorizontalAlignment(SwingConstants.CENTER);
         tabpanel.add( l, BorderLayout.CENTER );
 
-        l.addHierarchyListener(new HierarchyListener()
-        {
-            @Override
-            public void hierarchyChanged(HierarchyEvent arg0)
-            {
-                used[index] = frame.isAncestorOf(l);
-            }
-        });
+        l.addHierarchyListener(arg0 -> used[index] = frame.isAncestorOf(l));
 
         // Text and icon in this call are replaces by the following
         // setTabComponentAt call.
         tpane.insertTab( "", null, tabpanel, null, atIndex );
 
-        JPaintIcon icon = new JPaintIcon(14,14, colors[ idx ]);
+        JPaintIcon icon = new JPaintIcon(14, 14, colors[idx]);
         icon.setBorderPainted(false);
-
-        tpane.setTabComponentAt(atIndex, new JTabComponent(name,
-                icon,() ->
-            {
-                int tabIdx = tpane.indexOfComponent(tabpanel);
-                if (tabIdx != -1)
-                {
-                    tpane.remove(tabIdx);
-                }
-            }));
+        JTabComponent jtab = new JTabComponent(name,
+                icon,
+                () -> {
+                    // Close button was pressed, here we simply remove the tab.
+                    int tabIdx = tpane.indexOfComponent(tabpanel);
+                    if (tabIdx != -1)
+                    {
+                        tpane.remove(tabIdx);
+                    }
+                }, null, null, JTabComponent.Orientation.VERTICAL);
+        tpane.setTabComponentAt(atIndex, jtab );
 
         tpane.setSelectedIndex(atIndex);
         tabPane_lastIndex = atIndex;
 
     }
 
-    static public void main( String args[] )
+    static public void main( String[] args )
     {
         new JTabComponentDemo();
     }
@@ -138,7 +124,7 @@ public class JTabComponentDemo
         I18N.addBundle("com.bw.jtools.examples.tabcomponent.i18n", JTabComponentDemo.class);
 
         // The library is now initialized from the "defaultsettings.properties"
-        // parallel to the main-class.
+        // parallel to the main-class ( see "resources").
 
         try
         {
@@ -160,21 +146,18 @@ public class JTabComponentDemo
 
         final JLabel plusTab = new JLabel("");
 
-        // Now we add a "+"-Button at the end of the tab that
+        // Now we add a "+"-Button at the end of the tabs that
         // shall add a new tab if the user selects it.
 
         int plusIndex = tpane.getTabCount();
         tpane.addTab("", plusTab );
         tpane.setTabComponentAt(plusIndex, new JTabComponent(
-                "",null, () ->
-                {
-                    insertTab( 0 );
-                },
+                "",null, () -> insertTab( 0 ),
                 IconTool.getIcon("plus.png"), IconTool.getIcon("plus_ro.png")));
 
-        // we have to ensure that this empty tab is never really
+        // we have to ensure that the "+" tab is never really
         // activated, so we add a change listener.
-        // E.g. if user clicks on th etab, outside the action button.
+        // E.g. if user clicks on the tab, outside the action button.
         tpane.addChangeListener((changeEvent) ->
         {
            final Component selectedComp = tpane.getSelectedComponent();
@@ -203,7 +186,7 @@ public class JTabComponentDemo
         frame.setIconImages( IconTool.getAppIconImages() );
         frame.pack();
 
-        // Restore window-position and dimension from prefences.
+        // Restore window-position and dimension from preferences.
         SettingsUI.loadWindowPosition(frame);
         SettingsUI.storePositionAndFlushOnClose( frame );
         frame.setVisible(true);

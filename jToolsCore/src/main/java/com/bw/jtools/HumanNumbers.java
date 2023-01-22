@@ -38,7 +38,8 @@ public final class HumanNumbers
 	}
 
 	/**
-	 * Gets a short SI-based english description of the number, at most with one fraction digits.
+	 * Gets a short SI-based english description of the number of bytes,
+	 * at most with one fraction digits.
 	 *
 	 * @param lc Locale to use for numeric part of result
 	 */
@@ -52,7 +53,7 @@ public final class HumanNumbers
 		if (number == 0d)
 			number = 0;
 
-		char postfix[] = { 0, 'k', 'M', 'G', 'T', 'P', 'E'};
+		char[] postfix = { 0, 'k', 'M', 'G', 'T', 'P', 'E'};
 
 		boolean negativ = number < 0;
 		if (negativ) number = -number;
