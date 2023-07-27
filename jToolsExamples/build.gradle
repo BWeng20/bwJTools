@@ -16,13 +16,13 @@ sourceSets {
 dependencies {
     implementation project(':jToolsCore')
     implementation project(':jProfiling')
-    implementation project(':jSVG')
+    implementation 'io.github.bweng20:jSVG:1.0'
+
 }
 
 jar {
     dependsOn ':jToolsCore:jar'
     dependsOn ':jProfiling:jar'
-    dependsOn ':jSVG:jar'
 
     duplicatesStrategy = 'exclude'
     manifest {
