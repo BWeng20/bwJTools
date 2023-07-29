@@ -23,9 +23,22 @@ package com.bw.jtools.ui.properties;
 
 import com.bw.jtools.properties.PropertyListValue;
 import com.bw.jtools.properties.PropertyValue;
-import com.bw.jtools.ui.properties.valuetypehandler.*;
+import com.bw.jtools.ui.properties.valuetypehandler.BooleanHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.CharacterHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.ChoiceHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.ColorHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.EnumHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.FontHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.ListHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.MapHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.NumberHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.PaintHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.StringHandler;
+import com.bw.jtools.ui.properties.valuetypehandler.ValueTypeHandler;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Paint;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -109,7 +122,7 @@ public class PropertyEditorComponents
         return createFromClass(teClazz);
     }
 
-    private ValueTypeHandler<?> createFromClass(Class<? extends ValueTypeHandler<?>> teClazz)
+    private ValueTypeHandler<?> createFromClass(Class<? extends ValueTypeHandler> teClazz)
     {
         if (teClazz != null)
         {

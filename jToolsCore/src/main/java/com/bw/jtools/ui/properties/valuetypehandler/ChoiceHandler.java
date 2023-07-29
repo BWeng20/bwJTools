@@ -8,12 +8,12 @@ import java.awt.Component;
 import java.util.Map;
 import java.util.Objects;
 
-public class ChoiceHandler extends ValueTypeHandler<String>
+public class ChoiceHandler<T> extends ValueTypeHandler<T>
 {
 	JComboBox<String> choice_;
 
 	@Override
-	public void initEditor(PropertyValue<String> value, PropertyEditorComponents pec)
+	public void initEditor(PropertyValue<T> value, PropertyEditorComponents pec)
 	{
 		value_ = value;
 
@@ -40,7 +40,7 @@ public class ChoiceHandler extends ValueTypeHandler<String>
 					choice_.setSelectedIndex(0);
 			}
 
-			for (Map.Entry<String, String> entry : ((Map<String, String>) value_.possibleValues_).entrySet())
+			for (Map.Entry<String, T> entry : ((Map<String, T>) value_.possibleValues_).entrySet())
 			{
 				choice_.addItem(entry.getKey());
 				if (Objects.equals(entry.getValue(), v))
@@ -53,7 +53,7 @@ public class ChoiceHandler extends ValueTypeHandler<String>
 			throw new IllegalArgumentException("Property with list of possible values needed");
 	}
 
-	public String getCurrentValueFromEditor()
+	public T getCurrentValueFromEditor()
 	{
 		String v = (String) choice_.getSelectedItem();
 		return v == null ? null : value_.possibleValues_.get(v);
@@ -70,8 +70,8 @@ public class ChoiceHandler extends ValueTypeHandler<String>
 			}
 			else
 			{
-				Object val = value_.getValue();
-				for (Map.Entry<String, String> entry : ((Map<String, String>) value_.possibleValues_).entrySet())
+				T val = value_.getValue();
+				for (Map.Entry<String, T> entry : ((Map<String, T>) value_.possibleValues_).entrySet())
 				{
 					if (Objects.equals(entry.getValue(), val))
 					{
