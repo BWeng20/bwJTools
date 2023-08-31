@@ -22,8 +22,8 @@
 package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.Log;
-import com.bw.jtools.shape.ShapeIcon;
 import com.bw.jtools.svg.SVGConverter;
+import com.bw.jtools.ui.ShapeIcon;
 
 import javax.swing.JLabel;
 import javax.swing.SwingWorker;
@@ -70,7 +70,7 @@ public class SVGPreviewHandler extends PreviewHandler
 
 		if (svgProxy != null && svgProxy.complete)
 		{
-			view_.setIcon(new ShapeIcon(svgProxy.shapes_) );
+			view_.setIcon(new ShapeIcon(svgProxy.shape_));
 		}
 		else
 		{
@@ -134,12 +134,12 @@ public class SVGPreviewHandler extends PreviewHandler
 			{
 				if (svg != null)
 				{
-					proxy_.shapes_ = svg.getShapes();
+					proxy_.shape_ = svg.getShape();
 					proxy_.message_ = null;
 				}
 				else
 				{
-					proxy_.shapes_.clear();
+					proxy_.shape_ = null;
 					proxy_.message_ = config_.errorText_;
 				}
 				proxy_.complete = true;

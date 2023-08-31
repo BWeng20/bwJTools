@@ -58,7 +58,7 @@ public interface Geometry
 
 	public void moveTree(Graph g, Node node, double dx, double dy);
 
-        public void moveElement(Graph g, GraphElement element, double dx, double dy);
+	public void moveElement(Graph g, GraphElement element, double dx, double dy);
 
 	public void clear();
 

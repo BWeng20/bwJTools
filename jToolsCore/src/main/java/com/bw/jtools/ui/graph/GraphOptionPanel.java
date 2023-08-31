@@ -128,7 +128,7 @@ public class GraphOptionPanel extends PropertyPanelBase
 
 		addProperty(p, new PropertyNumberValue("Edge Snake Factor", v.getVisualSettings().edge_.snakeFactor), value ->
 		{
-			Number w =value.getValue();
+			Number w = value.getValue();
 			getVisualSettings().edge_.snakeFactor = w.floatValue();
 			graphPanel.repaint();
 		});

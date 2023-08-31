@@ -3,8 +3,8 @@ package com.bw.jtools.ui.graph.impl;
 import com.bw.jtools.graph.Edge;
 import com.bw.jtools.graph.GraphElement;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.shape.Context;
 import com.bw.jtools.ui.graph.Geometry;
+import com.bw.jtools.ui.graph.GraphicContext;
 import com.bw.jtools.ui.graph.Layout;
 import com.bw.jtools.ui.graph.NodeDecorator;
 import com.bw.jtools.ui.graph.NodeVisual;
@@ -24,7 +24,7 @@ public class DecoratorNodeVisual extends NodeVisualBase
     final NodeVisual nodeVisual;
 
     @Override
-    public void paint(Context ctx, Node node)
+    public void paint(GraphicContext ctx, Node node)
     {
         NodeDecorator d = decorators.get(node.id);
         if (d != null)
@@ -142,11 +142,13 @@ public class DecoratorNodeVisual extends NodeVisualBase
             if (d instanceof NodeDecoratorComposer)
             {
                 ((NodeDecoratorComposer) d).addDecorator(nd);
-            } else
+            }
+            else
             {
                 decorators.put(node.id, new NodeDecoratorComposer(d, nd));
             }
-        } else
+        }
+        else
         {
             decorators.put(node.id, nd);
         }
@@ -166,7 +168,8 @@ public class DecoratorNodeVisual extends NodeVisualBase
                 {
                     decorators.put(node.id, dc);
                 }
-            } else if (d != nd)
+            }
+            else if (d != nd)
             {
                 decorators.put(node.id, d);
             }

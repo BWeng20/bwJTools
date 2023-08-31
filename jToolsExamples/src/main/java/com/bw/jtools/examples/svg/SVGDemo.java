@@ -3,13 +3,13 @@ package com.bw.jtools.examples.svg;
 import com.bw.jtools.Application;
 import com.bw.jtools.image.ImageTool;
 import com.bw.jtools.io.IOTool;
-import com.bw.jtools.shape.ShapePane;
 import com.bw.jtools.shape.filter.PainterBuffers;
 import com.bw.jtools.svg.SVGConverter;
 import com.bw.jtools.ui.JExceptionDialog;
 import com.bw.jtools.ui.JPaintViewport;
 import com.bw.jtools.ui.JVMStatus;
 import com.bw.jtools.ui.SettingsUI;
+import com.bw.jtools.ui.ShapePane;
 import com.bw.jtools.ui.icon.IconTool;
 
 import javax.swing.BorderFactory;
@@ -202,7 +202,7 @@ public class SVGDemo
                 SVGConverter svg = new SVGConverter(data.getText());
 
                 drawPanel.getPainter().setScale(1, 1);
-                drawPanel.setShapes(svg.getShapes());
+                drawPanel.setShape(svg.getShape());
                 drawPanel.getPainter()
                         .setTimeMeasurementEnabled(true);
                 drawPanel.setInlineBorder(true);
@@ -240,7 +240,7 @@ public class SVGDemo
             {
                 try
                 {
-                    drawPanel.setShapes(null);
+                    drawPanel.setShape(null);
 
                     byte d[] = Files.readAllBytes(file.toPath());
                     data.setText(new String(d, StandardCharsets.UTF_8));

@@ -1,9 +1,9 @@
 package com.bw.jtools.ui.graph.impl;
 
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.shape.Context;
 import com.bw.jtools.ui.graph.DecoratorShape;
 import com.bw.jtools.ui.graph.Geometry;
+import com.bw.jtools.ui.graph.GraphicContext;
 import com.bw.jtools.ui.graph.NodeDecorator;
 
 import java.awt.geom.Rectangle2D;
@@ -32,7 +32,7 @@ public class ShapeNodeDecorator implements NodeDecorator
 
 
 	@Override
-	public void decorate(Context ctx, Node node)
+	public void decorate(GraphicContext ctx, Node node)
 	{
 		shape.paintAlong(ctx, geo.getBounds(node), 0, -shape.getDistance());
 	}

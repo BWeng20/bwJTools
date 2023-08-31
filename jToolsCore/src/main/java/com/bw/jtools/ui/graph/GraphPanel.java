@@ -6,7 +6,6 @@ import com.bw.jtools.graph.Graph;
 import com.bw.jtools.graph.GraphElement;
 import com.bw.jtools.graph.GraphEvent;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.shape.Context;
 import com.bw.jtools.ui.graph.impl.NodeLabelVisual;
 import com.bw.jtools.ui.graph.impl.TreeLayout;
 import com.bw.jtools.ui.graph.impl.TreeRectangleGeometry;
@@ -39,7 +38,7 @@ public class GraphPanel extends JPanel
     private Point2D.Float graphOrigin_ = new Point2D.Float(0, 0);
     private final GraphMouseHandler mouseHandler_;
     private final GeometryListener sizeListener_ = (geo, e) -> SwingUtilities.invokeLater(() -> updateSize());
-    
+
     /**
      * Counts paint calls. Can be used to show some fps indicator.
      */
@@ -51,26 +50,26 @@ public class GraphPanel extends JPanel
         mouseHandler_ = new GraphMouseHandler(this);
         addMouseListener(mouseHandler_);
         addMouseMotionListener(mouseHandler_);
-        
+
         graph_.addGraphListener((ev) ->
         {
-            graphChanged( ev );
+            graphChanged(ev);
         });
     }
 
-    private void graphChanged( GraphEvent ev )
+    private void graphChanged(GraphEvent ev)
     {
-        switch ( ev.type )
+        switch (ev.type)
         {
             case EDGE_ADDED:
                 break;
             case EDGE_REMOVED:
                 break;
             case ROOT_CHANGED:
-                break;                
+                break;
         }
     }
-    
+
     /**
      * Sets the node visual to use.
      */
@@ -130,7 +129,7 @@ public class GraphPanel extends JPanel
         final float scale = settings.scale_;
         if (root != null)
         {
-            Context ctx = new Context(g);
+            GraphicContext ctx = new GraphicContext(g);
             ctx.debug_ = settings.debug_;
             if (ctx.debug_)
             {
@@ -171,12 +170,14 @@ public class GraphPanel extends JPanel
                     ctx.currentColor_ = settings.edge_.color;
                     paintTreeEdgeEndPoints(ctx, clipping, root);
                 }
-            } finally
+            }
+            finally
             {
                 ctx.dispose();
                 ++paintCount_;
             }
-        } else if (isOpaque())
+        }
+        else if (isOpaque())
         {
             Rectangle clipping = g.getClipBounds();
             g.setColor(settings.background_ == null ? getBackground() : settings.background_);
@@ -192,7 +193,7 @@ public class GraphPanel extends JPanel
             geo_.beginUpdate();
             updateGeometry((Graphics2D) getGraphics(), root);
             nodeVisual_.getLayout()
-                    .placeChildren(root);
+                       .placeChildren(root);
             geo_.endUpdate();
             updateSize();
         }
@@ -201,17 +202,17 @@ public class GraphPanel extends JPanel
     protected void updateGeometry(Graphics2D g, Node root)
     {
         nodeVisual_.updateGeometry(g, root);
-        for (Iterator<Node> it = root.children(); it.hasNext();)
+        for (Iterator<Node> it = root.children(); it.hasNext(); )
         {
             Node c = it.next();
             updateGeometry(g, c);
         }
     }
 
-    protected void paintTreeNodes(Context ctx, Rectangle area, Node n)
+    protected void paintTreeNodes(GraphicContext ctx, Rectangle area, Node n)
     {
         if (nodeVisual_.getVisualBounds(n)
-                .intersects(area))
+                       .intersects(area))
         {
             nodeVisual_.paint(ctx, n);
         }
@@ -220,12 +221,12 @@ public class GraphPanel extends JPanel
             Edge edge = e.next();
             if (nodeVisual_.isExpanded(edge))
             {
-                 paintTreeNodes(ctx, area, edge.getTarget());
+                paintTreeNodes(ctx, area, edge.getTarget());
             }
         }
     }
 
-    protected void paintTreeEdges(Context ctx, Rectangle area, Node n)
+    protected void paintTreeEdges(GraphicContext ctx, Rectangle area, Node n)
     {
         VisualSettings settings = nodeVisual_.getVisualSettings();
         ctx.g2D_.setColor(settings.edge_.color);
@@ -247,7 +248,7 @@ public class GraphPanel extends JPanel
         }
     }
 
-    protected void paintTreeEdgeEndPoints(Context ctx, Rectangle area, Node n)
+    protected void paintTreeEdgeEndPoints(GraphicContext ctx, Rectangle area, Node n)
     {
         for (Iterator<Edge> e = n.outgoing(false); e.hasNext(); )
         {
@@ -265,19 +266,19 @@ public class GraphPanel extends JPanel
     }
 
     /**
-     *
      * @param p Point in Graph-coordinates
      */
     protected Node getNodeAt(Node root, Point2D p)
     {
         final Rectangle2D.Float org = geo_.getBounds(root);
         final float sn = nodeVisual_.getVisualSettings().snapRadius_;
-        final Rectangle2D.Float b = new Rectangle2D.Float( org.x - sn, org.y - sn, org.width + 2*sn, org.height + 2*sn );
-        
+        final Rectangle2D.Float b = new Rectangle2D.Float(org.x - sn, org.y - sn, org.width + 2 * sn, org.height + 2 * sn);
+
         if (b.contains(p))
         {
             return root;
-        } else 
+        }
+        else
         {
             for (Iterator<Edge> e = root.outgoing(false); e.hasNext(); )
             {
@@ -302,7 +303,8 @@ public class GraphPanel extends JPanel
         if (root == null)
         {
             return null;
-        } else
+        }
+        else
         {
             return getNodeAt(root, screenToGraphCoordinates(p));
         }
@@ -331,7 +333,7 @@ public class GraphPanel extends JPanel
     public Point2D.Float getNodeLocation(Node node)
     {
         Rectangle2D r = nodeVisual_.getGeometry()
-                .getBounds(node);
+                                   .getBounds(node);
         if (r != null)
         {
             final float scale = nodeVisual_.getVisualSettings().scale_;
@@ -348,7 +350,7 @@ public class GraphPanel extends JPanel
         // @TODO
         Point2D.Double r = ClosestPoint.onShape(p, border, 0.2);
         Rectangle2D bounds = border.getBounds2D();
-        geo_.moveElement(graph_, e, r.x - bounds.getMinX(), r.y - bounds.getMinY() );
+        geo_.moveElement(graph_, e, r.x - bounds.getMinX(), r.y - bounds.getMinY());
         repaintIfNeeded();
     }
 
@@ -358,9 +360,10 @@ public class GraphPanel extends JPanel
         if (moveTree)
         {
             geo_.moveTree(graph_, node, dx / scale, dy / scale);
-        } else
+        }
+        else
         {
-            geo_.moveElement(graph_, node, dx / scale, dy / scale );
+            geo_.moveElement(graph_, node, dx / scale, dy / scale);
         }
         repaintIfNeeded();
         if (!dragging_)
@@ -414,7 +417,8 @@ public class GraphPanel extends JPanel
                 setPreferredSize(d);
                 revalidate();
             }
-        } else
+        }
+        else
         {
             graphOrigin_ = new Point2D.Float(0, 0);
             setPreferredSize(new Dimension(0, 0));
@@ -429,7 +433,8 @@ public class GraphPanel extends JPanel
         if (isPreferredSizeSet())
         {
             d = super.getPreferredSize();
-        } else
+        }
+        else
         {
             Node root = graph_.getRoot();
             if (root != null)
@@ -438,12 +443,14 @@ public class GraphPanel extends JPanel
                 if (r == null)
                 {
                     doLayoutGraph();
-                } else
+                }
+                else
                 {
                     updateSize();
                 }
                 d = super.getPreferredSize();
-            } else
+            }
+            else
             {
                 d = getMinimumSize();
             }
@@ -481,7 +488,7 @@ public class GraphPanel extends JPanel
             repaint(repaintArea);
 
             geo_.resetDirtyArea();
-        }
-    }
+		}
+	}
 
 }

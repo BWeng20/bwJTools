@@ -23,18 +23,15 @@ package com.bw.jtools.ui.filechooserpreview;
 
 import com.bw.jtools.shape.AbstractShape;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Helper class to track the loading state of a svg-preview.<br>
  */
 class SVGPreviewProxy extends PreviewProxy
 {
 	/**
-	 * The converted shapes.
+	 * The converted shape.
 	 */
-	protected List<AbstractShape> shapes_ = new ArrayList<>();
+	protected AbstractShape shape_;
 
 	/**
 	 * The original width of the image
@@ -77,7 +74,7 @@ class SVGPreviewProxy extends PreviewProxy
 	protected void dispose()
 	{
 		super.dispose();
-		shapes_.clear();
+		shape_ = null;
 	}
 
 }

@@ -37,14 +37,18 @@ public class VisualSettings
 
 	public boolean debug_ = false;
 
-	/** Stroke for debug lines. */
+	/**
+	 * Stroke for debug lines.
+	 */
 	public Stroke debugStoke_ = new BasicStroke(0.5f);
-	/** Paint for debug lines. */
+	/**
+	 * Paint for debug lines.
+	 */
 	public Paint debugPaint_ = Color.RED;
-        
-        /**
-         * Radius to snap element.
-         */
-        public float snapRadius_ = 5;
+
+	/**
+	 * Radius to snap element.
+	 */
+	public float snapRadius_ = 5;
 
 }

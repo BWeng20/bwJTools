@@ -1,7 +1,7 @@
 package com.bw.jtools.ui.graph.impl;
 
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.shape.Context;
+import com.bw.jtools.ui.graph.GraphicContext;
 import com.bw.jtools.ui.graph.NodeDecorator;
 
 import java.awt.geom.Rectangle2D;
@@ -17,7 +17,7 @@ public class NodeDecoratorComposer implements NodeDecorator
 	private final List<NodeDecorator> decorators = new ArrayList<>(2);
 
 	@Override
-	public void decorate(Context ctx, Node node)
+	public void decorate(GraphicContext ctx, Node node)
 	{
 		for (NodeDecorator d : decorators)
 			d.decorate(ctx, node);

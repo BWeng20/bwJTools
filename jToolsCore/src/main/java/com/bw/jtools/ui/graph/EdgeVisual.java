@@ -1,7 +1,6 @@
 package com.bw.jtools.ui.graph;
 
 import com.bw.jtools.graph.Edge;
-import com.bw.jtools.shape.Context;
 
 import java.awt.Point;
 
@@ -13,26 +12,26 @@ public interface EdgeVisual
 	 * Paint the edge.
 	 * This method is called <i>before</i> all nodes are painted.
 	 */
-	public void paint(Context ctx, Edge edge);
+	public void paint(GraphicContext ctx, Edge edge);
 
 	/**
 	 * Paint the end point.<br>/
 	 * Needed for decorated edges to paint a pretty connection/overlapping.<br>
 	 * This method is called <i>after</i> all nodes are painted.
 	 */
-	public void paintEndPoint(Context ctx, Edge edge);
+	public void paintEndPoint(GraphicContext ctx, Edge edge);
 
 	/**
 	 * Paint the start point.<br>/
 	 * Needed for decorated point to paint a pretty connection/overlapping.<br>
 	 * This method is called <i>after</i> all nodes are painted.
 	 */
-	public void paintStartPoint(Context ctx, Edge edge);
-        
-        /**
-         * Gets the max width of the edge.
-         */
-        public float getMaxWidth();
+	public void paintStartPoint(GraphicContext ctx, Edge edge);
+
+	/**
+	 * Gets the max width of the edge.
+	 */
+	public float getMaxWidth();
 
 	/**
 	 * Calls if used clicked on the edge.

@@ -85,7 +85,7 @@ public class JLAFComboBox extends JComboBox<String>
 						}
 						catch (Exception ex)
 						{
-							Log.error("Faield to install " + lafName, ex);
+							Log.error("Failed to install " + lafName, ex);
 						}
 					}
 					break;

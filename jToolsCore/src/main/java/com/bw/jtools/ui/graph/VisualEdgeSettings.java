@@ -30,7 +30,7 @@ public class VisualEdgeSettings
 	public Color color = Color.BLACK;
 	public EdgeMode mode = EdgeMode.BEZIER_TO_TARGET;
 	public boolean decorate = true;
-        public float width = 1;
-        public float snakeFactor = 0;
-        public Shape snakePath;
+	public float width = 1;
+	public float snakeFactor = 0;
+	public Shape snakePath;
 }

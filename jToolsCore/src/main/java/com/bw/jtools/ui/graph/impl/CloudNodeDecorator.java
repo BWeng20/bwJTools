@@ -3,9 +3,9 @@ package com.bw.jtools.ui.graph.impl;
 import com.bw.jtools.geometry.ConvexHull;
 import com.bw.jtools.graph.GraphElement;
 import com.bw.jtools.graph.Node;
-import com.bw.jtools.shape.Context;
 import com.bw.jtools.ui.graph.Geometry;
 import com.bw.jtools.ui.graph.GeometryListener;
+import com.bw.jtools.ui.graph.GraphicContext;
 import com.bw.jtools.ui.graph.NodeDecorator;
 
 import java.awt.BasicStroke;
@@ -35,7 +35,7 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 		public Path2D.Float path;
 		public boolean visible;
 
-		PathInfo( Path2D.Float p, boolean v)
+		PathInfo(Path2D.Float p, boolean v)
 		{
 			path = p;
 			visible = v;
@@ -54,7 +54,7 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 	{
 		// All sub nodes affect the convex hull, so we depend on them
 		geo.addDependency(this, node.getTreeNodes());
-		paths.put(node.id, new PathInfo( new Path2D.Float(), geo.isVisible(node)));
+		paths.put(node.id, new PathInfo(new Path2D.Float(), geo.isVisible(node)));
 		geometryUpdated(geo, node);
 	}
 
@@ -67,13 +67,13 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 
 
 	@Override
-	public void decorate(Context ctx, Node node)
+	public void decorate(GraphicContext ctx, Node node)
 	{
 		PathInfo pi = paths.get(node.id);
 		if (pi != null)
 		{
 			Path2D.Float p = pi.path;
-			Graphics2D g2 = (Graphics2D)ctx.g2D_.create();
+			Graphics2D g2 = (Graphics2D) ctx.g2D_.create();
 			try
 			{
 				g2.setPaint(Color.GRAY);
@@ -130,7 +130,7 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 				if (!b.isEmpty())
 					geo.dirty(b);
 			}
-			if ( geo.isVisible(node) )
+			if (geo.isVisible(node))
 			{
 				Point[] pts = ConvexHull.convex_hull_graham_andrew(geo.getTreePoints(node));
 				if (pts != null && pts.length > 1)
@@ -219,7 +219,7 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 						x0 = x1;
 						y0 = y1;
 					}
-					if ( pi == null )
+					if (pi == null)
 					{
 						pi = new PathInfo(path, true);
 						paths.put(node.id, pi);
@@ -232,7 +232,7 @@ public class CloudNodeDecorator implements NodeDecorator, GeometryListener
 					geo.dirty(path.getBounds2D());
 				}
 			}
-			else if ( pi != null && pi.visible )
+			else if (pi != null && pi.visible)
 			{
 				pi.visible = false;
 			}
