@@ -39,8 +39,8 @@ public class PropertyTileWindow extends PropertyDemoWindowBase
 {
     public static final String[][] DESCRIPTION =
     {
-            { "en", "Demonstrates usage of <b>com.bw.jtools.ui.properties.sheet.PropertyGroupCard</b>." },
-            { "de", "Demonstriert die Verwendung von <b>com.bw.jtools.ui.properties.sheet.PropertyGroupCard</b>." }
+            {"en", "Demonstrates usage of <b>com.bw.jtools.ui.properties.sheet.PropertyGroupCard</b>.", "PropertyTileDemo.png"},
+            {"de", "Demonstriert die Verwendung von <b>com.bw.jtools.ui.properties.sheet.PropertyGroupCard</b>.", "PropertyTileDemo.png"}
     };
 
     JPanel tiles;

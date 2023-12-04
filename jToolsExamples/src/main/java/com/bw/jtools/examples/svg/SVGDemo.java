@@ -47,248 +47,256 @@ import java.text.NumberFormat;
 public class SVGDemo
 {
 
-    public static final String[][] DESCRIPTION =
-    {
-        {
-            "en", "Demonstrates usage of SVG."
-        },
-        {
-            "de", "Demonstriert die Verwendung von SVG."
-        }
-    };
+	public static final String[][] DESCRIPTION =
+			{
+					{
+							"en", "Demonstrates usage of jSVG inside an Application."
+					},
+					{
+							"de", "Demonstriert die Verwendung von jSVG innerhalb einer Application."
+					}
+			};
 
-    static long timeMS = 0;
+	static long timeMS = 0;
 
-    public static void main(String[] args)
-    {
-        Application.initialize(SVGDemo.class);
+	public static void main(String[] args)
+	{
+		Application.initialize(SVGDemo.class);
 
-        try
-        {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+		try
+		{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 
-        JButton render = new JButton("Render");
-        JButton load = new JButton("Load");
-        NumberFormat nf = NumberFormat.getInstance();
-        nf.setMaximumFractionDigits(2);
-        nf.setMinimumFractionDigits(2);
+		JButton render = new JButton("Render");
+		JButton load = new JButton("Load");
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMaximumFractionDigits(2);
+		nf.setMinimumFractionDigits(2);
 
-        JTextArea data = new JTextArea(5, 100);
+		JTextArea data = new JTextArea(5, 100);
 
-        final JLabel scaleXL = new JLabel("100%");
-        final JSlider scaleX = new JSlider(JSlider.HORIZONTAL, 2, 6000, 100);
+		final JLabel scaleXL = new JLabel("100%");
+		final JSlider scaleX = new JSlider(JSlider.HORIZONTAL, 2, 6000, 100);
 
-        final JLabel scaleYL = new JLabel("100%");
-        final JSlider scaleY = new JSlider(JSlider.HORIZONTAL, 2, 6000, 100);
+		final JLabel scaleYL = new JLabel("100%");
+		final JSlider scaleY = new JSlider(JSlider.HORIZONTAL, 2, 6000, 100);
 
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        buttons.add(load);
-        buttons.add(render);
-        buttons.setBorder(new EmptyBorder(5, 5, 10, 0));
+		JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		buttons.add(load);
+		buttons.add(render);
+		buttons.setBorder(new EmptyBorder(5, 5, 10, 0));
 
-        JPanel controls = new JPanel(new GridBagLayout());
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.gridx = 0;
-        gc.gridy = 0;
-        gc.gridheight = 4;
-        gc.weightx = 1f;
-        gc.weighty = 1f;
-        gc.fill = GridBagConstraints.BOTH;
-        gc.anchor = GridBagConstraints.LINE_START;
+		JPanel controls = new JPanel(new GridBagLayout());
+		GridBagConstraints gc = new GridBagConstraints();
+		gc.gridx = 0;
+		gc.gridy = 0;
+		gc.gridheight = 4;
+		gc.weightx = 1f;
+		gc.weighty = 1f;
+		gc.fill = GridBagConstraints.BOTH;
+		gc.anchor = GridBagConstraints.LINE_START;
 
-        controls.add(new JScrollPane(data), gc);
+		controls.add(new JScrollPane(data), gc);
 
-        gc.weightx = 0;
-        gc.weighty = 0;
-        gc.gridx = 1;
-        gc.gridwidth = 2;
-        gc.gridheight = 1;
-        gc.fill = GridBagConstraints.NONE;
-        controls.add(buttons, gc);
+		gc.weightx = 0;
+		gc.weighty = 0;
+		gc.gridx = 1;
+		gc.gridwidth = 2;
+		gc.gridheight = 1;
+		gc.fill = GridBagConstraints.NONE;
+		controls.add(buttons, gc);
 
-        gc.gridy++;
-        gc.gridwidth = 1;
-        controls.add(scaleXL, gc);
-        gc.gridx = 2;
-        gc.weightx = 0.5f;
-        gc.fill = GridBagConstraints.HORIZONTAL;
-        controls.add(scaleX, gc);
+		gc.gridy++;
+		gc.gridwidth = 1;
+		controls.add(scaleXL, gc);
+		gc.gridx = 2;
+		gc.weightx = 0.5f;
+		gc.fill = GridBagConstraints.HORIZONTAL;
+		controls.add(scaleX, gc);
 
-        gc.gridx = 1;
-        gc.weightx = 0;
-        gc.gridy++;
-        gc.gridwidth = 1;
-        gc.fill = GridBagConstraints.NONE;
-        controls.add(scaleYL, gc);
-        gc.gridx = 2;
-        gc.weightx = 0.5f;
-        gc.gridwidth = 2;
-        gc.fill = GridBagConstraints.HORIZONTAL;
-        controls.add(scaleY, gc);
+		gc.gridx = 1;
+		gc.weightx = 0;
+		gc.gridy++;
+		gc.gridwidth = 1;
+		gc.fill = GridBagConstraints.NONE;
+		controls.add(scaleYL, gc);
+		gc.gridx = 2;
+		gc.weightx = 0.5f;
+		gc.gridwidth = 2;
+		gc.fill = GridBagConstraints.HORIZONTAL;
+		controls.add(scaleY, gc);
 
-        ShapePane drawPanel = new ShapePane();
-        drawPanel.setBackground(Color.WHITE);
-        drawPanel.setOpaque(false); //< ScrollPane viewport will clear on paint.
+		ShapePane drawPanel = new ShapePane();
+		drawPanel.setInlineBorder(true);
+		drawPanel.setBackground(Color.WHITE);
+		drawPanel.setOpaque(false); //< ScrollPane viewport will clear on paint.
+		drawPanel.setMouseDragEnabled(true);
+		drawPanel.setRotateByShiftMouseWheelEnabled(true);
+		drawPanel.setZoomByMetaMouseWheelEnabled(true);
 
-        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        split.setTopComponent(controls);
+		JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		split.setTopComponent(controls);
 
-        JScrollPane drawScroll = new JScrollPane();
-        JPaintViewport vp = new JPaintViewport();
-        vp.setBackgroundImage(ImageTool.createCheckerboardImage(Color.WHITE, new Color(230, 230, 230), 10, 10));
-        vp.setOpaque(true);
-        drawScroll.setViewport(vp);
-        drawScroll.setViewportView(drawPanel);
-        drawScroll.setOpaque(false);
-        split.setBottomComponent(drawScroll);
+		JScrollPane drawScroll = new JScrollPane();
+		JPaintViewport vp = new JPaintViewport();
+		vp.setBackgroundImage(ImageTool.createCheckerboardImage(Color.WHITE, new Color(230, 230, 230), 10, 10));
+		vp.setOpaque(true);
+		drawScroll.setViewport(vp);
+		drawScroll.setViewportView(drawPanel);
+		drawScroll.setOpaque(false);
+		split.setBottomComponent(drawScroll);
 
-        JTextField status = new JTextField();
-        status.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        status.setEditable(false);
-        JVMStatus jvmStatus = new JVMStatus(2000);
+		JTextField status = new JTextField();
+		status.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		status.setEditable(false);
+		JVMStatus jvmStatus = new JVMStatus(2000);
 
-        JPanel statusLine = new JPanel(new BorderLayout());
-        statusLine.add(BorderLayout.CENTER, status);
-        statusLine.add(BorderLayout.EAST, jvmStatus);
+		JPanel statusLine = new JPanel(new BorderLayout());
+		statusLine.add(BorderLayout.CENTER, status);
+		statusLine.add(BorderLayout.EAST, jvmStatus);
 
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(BorderLayout.CENTER, split);
-        panel.add(BorderLayout.SOUTH, statusLine);
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(BorderLayout.CENTER, split);
+		panel.add(BorderLayout.SOUTH, statusLine);
 
-        Runnable updateStatus = () ->
-        {
-            Dimension r = drawPanel.getPreferredSize();
-            status.setText(
-                    "Buffers created: " + PainterBuffers.buffersCreated_ + " "
-                    + r.width + "x" + r.height + ", scale "
-                    + scaleX.getValue() + "% x " + scaleY.getValue() + "% "
-                    + ((timeMS > 0) ? ", Rendered in " + Double.toString(timeMS / 1000d) + "s" : ""));
-            status.setForeground(panel.getForeground());
-        };
+		Runnable updateStatus = () ->
+		{
+			Dimension r = drawPanel.getPreferredSize();
+			status.setText(
+					"Buffers created: " + PainterBuffers.buffersCreated_ + " "
+							+ r.width + "x" + r.height + ", scale "
+							+ scaleX.getValue() + "% x " + scaleY.getValue() + "% "
+							+ ((timeMS > 0) ? ", Rendered in " + Double.toString(timeMS / 1000d) + "s" : ""));
+			status.setForeground(panel.getForeground());
+		};
 
-        ChangeListener sliderCl = new ChangeListener()
-        {
-            @Override
-            public void stateChanged(ChangeEvent e)
-            {
-                SwingUtilities.invokeLater(() ->
-                {
-                    double x = scaleX.getValue() / 100d;
-                    double y = scaleY.getValue() / 100d;
+		ChangeListener sliderCl = new ChangeListener()
+		{
+			@Override
+			public void stateChanged(ChangeEvent e)
+			{
+				SwingUtilities.invokeLater(() ->
+				{
+					double x = scaleX.getValue() / 100d;
+					double y = scaleY.getValue() / 100d;
 
-                    scaleXL.setText(scaleX.getValue() + "%");
-                    scaleYL.setText(scaleY.getValue() + "%");
+					scaleXL.setText(scaleX.getValue() + "%");
+					scaleYL.setText(scaleY.getValue() + "%");
 
-                    if (x != drawPanel.getXScale() || y != drawPanel.getYScale())
-                    {
-                        drawPanel.setScale(x, y);
-                    }
-                    updateStatus.run();
-                });
-            }
-        };
+					if (x != drawPanel.getXScale() || y != drawPanel.getYScale())
+					{
+						drawPanel.setScale(x, y);
+					}
+					updateStatus.run();
+				});
+			}
+		};
 
-        scaleX.addChangeListener(sliderCl);
-        scaleY.addChangeListener(sliderCl);
+		scaleX.addChangeListener(sliderCl);
+		scaleY.addChangeListener(sliderCl);
 
-        final Runnable doRender = () ->
-        {
-            try
-            {
-                SVGConverter svg = new SVGConverter(data.getText());
+		final Runnable doRender = () ->
+		{
+			try
+			{
+				SVGConverter svg = new SVGConverter(data.getText());
 
-                drawPanel.getPainter().setScale(1, 1);
-                drawPanel.setShape(svg.getShape());
-                drawPanel.getPainter()
-                        .setTimeMeasurementEnabled(true);
-                drawPanel.setInlineBorder(true);
+				drawPanel.getPainter()
+						 .setScale(1, 1);
+				drawPanel.setShape(svg.getShape());
+				drawPanel.getPainter()
+						 .setTimeMeasurementEnabled(true);
 
-                Dimension s = drawScroll.getSize();
-                s.width -= 10;
-                s.height -= 10;
-                Dimension d = drawPanel.getPreferredSize();
+				Dimension s = drawScroll.getSize();
+				s.width -= 10;
+				s.height -= 10;
+				Dimension d = drawPanel.getPreferredSize();
 
-                double scale = Math.min(s.width / (double) d.width, s.height / (double) d.height);
-                drawPanel.setScale(scale, scale);
-                scaleX.setValue((int) (0.5 + scale * 100f));
-                scaleY.setValue((int) (0.5 + scale * 100f));
+				double scale = Math.min(s.width / (double) d.width, s.height / (double) d.height);
+				drawPanel.setScale(scale, scale);
+				scaleX.setValue((int) (0.5 + scale * 100f));
+				scaleY.setValue((int) (0.5 + scale * 100f));
 
-                updateStatus.run();
-            } catch (Exception ex)
-            {
-                ex.printStackTrace();
-                status.setText(ex.getMessage());
-            }
-        };
+				updateStatus.run();
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+				status.setText(ex.getMessage());
+			}
+		};
 
-        render.addActionListener(e ->
-        {
-            doRender.run();
-        });
+		render.addActionListener(e ->
+		{
+			doRender.run();
+		});
 
-        JFrame f = new JFrame("SVG Demonstration");
-        f.setIconImages(IconTool.getAppIconImages());
+		JFrame f = new JFrame("SVG Demonstration");
+		f.setIconImages(IconTool.getAppIconImages());
 
-        load.addActionListener(e ->
-        {
-            File file = IOTool.selectFile(f, "svg_file", "Select SVG", IOTool.OPEN, new FileNameExtensionFilter("SVG Files", "svg"));
-            if (file != null)
-            {
-                try
-                {
-                    drawPanel.setShape(null);
+		load.addActionListener(e ->
+		{
+			File file = IOTool.selectFile(f, "svg_file", "Select SVG", IOTool.OPEN, new FileNameExtensionFilter("SVG Files", "svg"));
+			if (file != null)
+			{
+				try
+				{
+					drawPanel.setShape(null);
 
-                    byte d[] = Files.readAllBytes(file.toPath());
-                    data.setText(new String(d, StandardCharsets.UTF_8));
-                    SwingUtilities.invokeLater(() ->
-                    {
-                        doRender.run();
-                    });
-                } catch (NoSuchFileException ex)
-                {
-                    status.setText("File not found: " + file.getPath());
-                    status.setForeground(Color.RED);
-                } catch (Exception ex)
-                {
-                    JExceptionDialog d = new JExceptionDialog(f, ex);
-                    status.setText(ex.getClass()
-                            .getSimpleName() + ": " + ex.getMessage());
-                    status.setForeground(Color.RED);
-                    d.setLocationByPlatform(true);
-                    d.setVisible(true);
-                }
-            }
-        });
+					byte d[] = Files.readAllBytes(file.toPath());
+					data.setText(new String(d, StandardCharsets.UTF_8));
+					SwingUtilities.invokeLater(() ->
+					{
+						doRender.run();
+					});
+				}
+				catch (NoSuchFileException ex)
+				{
+					status.setText("File not found: " + file.getPath());
+					status.setForeground(Color.RED);
+				}
+				catch (Exception ex)
+				{
+					JExceptionDialog d = new JExceptionDialog(f, ex);
+					status.setText(ex.getClass()
+									 .getSimpleName() + ": " + ex.getMessage());
+					status.setForeground(Color.RED);
+					d.setLocationByPlatform(true);
+					d.setVisible(true);
+				}
+			}
+		});
 
-        f.setContentPane(panel);
-        f.pack();
+		f.setContentPane(panel);
+		f.pack();
 
-        // Restore window-position and dimension from preferences.
-        SettingsUI.loadWindowPosition(f);
-        SettingsUI.storePositionAndFlushOnClose(f);
+		// Restore window-position and dimension from preferences.
+		SettingsUI.loadWindowPosition(f);
+		SettingsUI.storePositionAndFlushOnClose(f);
 
-        f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        f.setVisible(true);
+		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		f.setVisible(true);
 
-        Timer timer = new Timer(1000, e ->
-        {
-            timeMS = drawPanel.getPainter()
-                    .getMeasuredTimeMS();
-            updateStatus.run();
-        });
-        timer.start();
-        f.addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosed(WindowEvent e)
-            {
-                timer.stop();
-            }
-        });
+		Timer timer = new Timer(1000, e ->
+		{
+			timeMS = drawPanel.getPainter()
+							  .getMeasuredTimeMS();
+			updateStatus.run();
+		});
+		timer.start();
+		f.addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosed(WindowEvent e)
+			{
+				timer.stop();
+			}
+		});
 
-    }
+	}
 }
