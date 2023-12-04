@@ -15,14 +15,14 @@ sourceSets {
 }
 
 dependencies {
-    implementation 'io.github.bweng20:jSVG:1.1'
+    implementation 'io.github.bweng20:jSVG:1.4'
     implementation 'org.apache.logging.log4j:log4j-api:2.17.2'
     implementation 'org.apache.logging.log4j:log4j-core:2.17.2'
     implementation 'javax.json:javax.json-api:1.1.4'
     implementation 'org.glassfish:javax.json:1.1.4'
     implementation 'org.apache.commons:commons-csv:1.9.0'
     implementation 'javax.interceptor:javax.interceptor-api:1.2.2'
-    api 'org.netbeans.api:org-netbeans-swing-outline:RELEASE121'
+    api 'org.netbeans.api:org-netbeans-swing-outline:RELEASE180'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'

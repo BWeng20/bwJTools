@@ -16,7 +16,8 @@ sourceSets {
 dependencies {
     implementation project(':jToolsCore')
     implementation project(':jProfiling')
-    implementation 'io.github.bweng20:jSVG:1.1'
+    implementation 'io.github.bweng20:jSVG:1.4'
+    implementation 'io.github.bweng20:jSVG:1.4:examples'
 
 }
 

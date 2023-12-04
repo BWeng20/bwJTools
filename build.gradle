@@ -11,6 +11,7 @@ subprojects {
     version="1.04"
 
     repositories {
+        mavenLocal()
         mavenCentral()
     }
 
