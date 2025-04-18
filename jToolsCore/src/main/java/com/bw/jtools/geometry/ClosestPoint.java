@@ -22,8 +22,7 @@
  */
 package com.bw.jtools.geometry;
 
-import java.awt.Point;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 
@@ -51,9 +50,9 @@ public class ClosestPoint
                 final int type = pi.currentSegment(seg);
                 switch (type)
                 {
-                    case PathIterator.SEG_MOVETO:                       
-                        p0.x = p1.x = seg[0];
-                        p0.y = p1.y = seg[1];
+                    case PathIterator.SEG_MOVETO:
+                        p0.x = p2.x = seg[0];
+                        p0.y = p2.y = seg[1];
                         continue;
                     case PathIterator.SEG_LINETO:
                         p1.x = p2.x;
