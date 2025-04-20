@@ -23,18 +23,7 @@ package com.bw.jtools.ui;
 
 import com.bw.jtools.image.ImageTool;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.TexturePaint;
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -274,6 +263,22 @@ public final class UITool
 	}
 
 	/**
+	 * Multiply a color with some ratio.<br>
+	 *
+	 * @param col    The color
+	 * @param factor The factor.
+	 * @return
+	 */
+	public static Color multiplyColor(Color col, float factor) {
+
+		final int r = (int) (factor * col.getRed());
+		final int g = (int) (factor * col.getGreen());
+		final int b = (int) (factor * col.getBlue());
+
+		return new Color(r, g, b, col.getAlpha());
+	}
+
+	/**
 	 * Blend two colors with some ratio.<br>
 	 * First color proportion is "ration", second color
 	 * proportion is "1-ration".
@@ -297,9 +302,9 @@ public final class UITool
 
 		float secRatio = 1.0f - ratio;
 
-		final int r = (int) ((ratio * col2.getRed()) + (secRatio * col2.getRed()));
-		final int g = (int) ((ratio * col2.getGreen()) + (secRatio * col2.getGreen()));
-		final int b = (int) ((ratio * col2.getBlue()) + (secRatio * col2.getBlue()));
+		final int r = (int) ((ratio * col1.getRed()) + (secRatio * col2.getRed()));
+		final int g = (int) ((ratio * col1.getGreen()) + (secRatio * col2.getGreen()));
+		final int b = (int) ((ratio * col1.getBlue()) + (secRatio * col2.getBlue()));
 
 		return new Color(r, g, b);
 	}
