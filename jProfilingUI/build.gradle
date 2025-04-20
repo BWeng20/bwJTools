@@ -1,12 +1,10 @@
 plugins {
     id 'java'
-    id 'maven'
     id 'maven-publish'
     id 'signing'
 }
 
 apply plugin: 'java'
-apply plugin: 'maven'
 
 repositories {
     mavenCentral()

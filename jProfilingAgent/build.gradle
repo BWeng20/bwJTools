@@ -5,7 +5,7 @@ plugins {
 }
 
 apply plugin: 'java'
-apply plugin: 'maven'  
+
 
 repositories {
     mavenCentral()
@@ -70,8 +70,8 @@ publishing {
             credentials {
                 // Place this two variable with the correct values in your 
                 // <Gradle-User-Home>/gradle.properties
-                username sonatypeUsername
-                password sonatypePassword
+                username ossrhUsername
+                password ossrhPassword
             }
         }
     }
